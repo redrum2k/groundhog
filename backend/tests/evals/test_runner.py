@@ -333,3 +333,47 @@ def test_unsafe_original_count_and_credentials_never_reach_readable_report(
     assert "SECRET_CANARY" not in text and "user:password" not in text
     assert list((directory / "artifacts").iterdir()) == []
     assert result["exit_code"] == 1
+
+
+@pytest.mark.parametrize("damaged", ["delivery", "settled"])
+@pytest.mark.parametrize("payload,error", [('{"order":', "JSONDecodeError"), ("{}", "KeyError")])
+def test_checkpoint_errors_preserve_other_results_and_timeout(
+    inputs, evidence, tmp_path, monkeypatch, damaged, payload, error
+):
+    case, expected = inputs[0][0], inputs[1][0]
+    public = tmp_path / "baseline"
+    public.mkdir()
+    operation = {"status": "timeout", "error": "case_wall_clock_limit"}
+    baseline = normalize(case, expected, evidence / case.id, public, operation)
+
+    def interrupted(case, directory, config):
+        shutil.copytree(evidence / case.id, directory)
+        (directory / f"checkpoint-{damaged}.json").write_text(payload)
+        return operation.copy()
+
+    monkeypatch.setattr(runner, "run_case", interrupted)
+    directory, report = runner.run([case], [expected], Config(), tmp_path)
+    assert json.loads((directory / "results.json").read_bytes()) == report
+    result = report["cases"][0]
+    assert result["operation"] == operation
+    assert result["outcome"] == "incomplete" and report["exit_code"] == 3
+    assert f"{damaged}:audit_{error}" in result["unavailable"]
+    assert (directory / f"private/{case.id}/checkpoint-{damaged}.json").read_text() == payload
+    text = (directory / "report.md").read_text()
+    assert "case_wall_clock_limit" in text and f"{damaged}:audit_{error}" in text
+    for checkpoint, original in zip(result["checkpoints"], baseline["checkpoints"], strict=True):
+        if checkpoint["id"] == damaged:
+            assert checkpoint["financial"] is None
+            assert all(row["comparison"] == "unscored" for row in checkpoint["requirements"])
+        else:
+            assert checkpoint == original
+            assert all(row["effective"] == "PASS" for row in checkpoint["requirements"])
+            money = checkpoint["financial"]
+            assert f"Mock payment: {money['state']}" in text
+            assert f"observed bookings {len(money['bookings'])}" in text
+            for artifact in checkpoint["artifact_audit"]["files"]:
+                assert (directory / artifact["path"]).is_file()
+    group = report["metrics"]["development/engineering"]
+    assert group["scheduled_requirement_observations"] == 16
+    assert group["unscored"] == 8
+    assert group["agreement"]["numerator"] == 8

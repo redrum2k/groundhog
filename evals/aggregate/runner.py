@@ -116,23 +116,7 @@ def run(cases, expectations, config, output):
             operation = run_case(case, private / case.id, config)
         except Exception as error:
             operation = {"status": "error", "error": type(error).__name__}
-        try:
-            results.append(
-                normalize(case, labels.get(case.id), private / case.id, public, operation)
-            )
-        except Exception as error:
-            # Keep the scheduled row and all private bytes, even if audit normalization fails.
-            fallback = private / (case.id + "-unavailable")
-            fallback.mkdir(mode=0o700)
-            results.append(
-                normalize(
-                    case,
-                    labels.get(case.id),
-                    fallback,
-                    public,
-                    {"status": "error", "error": "audit_" + type(error).__name__},
-                )
-            )
+        results.append(normalize(case, labels.get(case.id), private / case.id, public, operation))
     try:
         if verify_freeze(freeze)["sha256"] != frozen_hash:
             raise ValueError("plan_identity_changed")
