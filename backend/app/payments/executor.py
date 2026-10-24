@@ -251,11 +251,25 @@ class PaymentExecutor:
                     )
                     payment_state = EscrowObservation.model_validate(observation.payment_state)
                     self._check_state(current, terms, payment_state)
+                    if (
+                        block.event
+                        != {
+                            "fund": "PaymentAuthorized",
+                            "capture": "PaymentCaptured",
+                            "void": "PaymentVoided",
+                            "reclaim": "PaymentReclaimed",
+                        }[current.intent.action]
+                        or block.payment_hash.lower() != terms.payment_hash.lower()
+                        or block.amount_atomic != terms.amount_atomic
+                        or payment_state.block_number != block.block_number
+                        or payment_state.block_hash.lower() != block.block_hash.lower()
+                    ):
+                        raise ValueError("event/state does not match operation and receipt block")
                     evidence = {
                         "block_evidence": block.model_dump(mode="json"),
                         "observation": payment_state.model_dump(mode="json"),
                     }
-                except (ValueError, TypeError):
+                except (ValueError, TypeError, AttributeError):
                     observation = ChainObservation(
                         "uncertain",
                         error="receipt/event/payment-state evidence does not match intent",
@@ -263,7 +277,10 @@ class PaymentExecutor:
                 else:
                     # Callback failure must escape the transaction and roll back both the
                     # catalog booking and confirmed journal effect, regardless of error type.
-                    return self.journal.confirm(db, current.operation_id, evidence, self.complete)
+                    confirmed = self.journal.confirm(
+                        db, current.operation_id, evidence, self.complete
+                    )
+                    return self._changed(db, confirmed, evidence)
             self.journal.record_observation(db, current.operation_id, evidence)
             failed = (
                 observation.status == "failed"
