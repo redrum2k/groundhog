@@ -1,4 +1,4 @@
-// The demo scenario: Datum Co. builds a custom audience dataset for Acme Fitness's buying agent.
+// The demo scenario: DataPact builds a custom audience dataset for Acme Fitness's buying agent.
 // Every name, amount and line of text on the canvas comes from this file. Synthetic data;
 // prices are sample values for the team to confirm.
 import type {
@@ -18,25 +18,25 @@ export function stamp(track: Track, drafts: Draft[], from = 0): RunEvent[] {
 export function holdFor(e: { type: RunEvent["type"] }): number {
   switch (e.type) {
     case "evidence_found": return 1100;
-    case "message": return 900;
+    case "message": return 1250; // long enough to read a one- or two-line bubble
     case "verdict": case "rule_updated": case "controller_decided": case "amendment_signed": case "books_posted": return 1400;
     case "check_passed": case "check_failed": case "check_fixed": return 600;
     case "contract_line_asked": case "contract_line_drafted": case "contract_approved": case "delivery_ready": return 300;
     case "step_started": return 1200;
     case "step_completed": return 700;
     case "dispute_opened": return 1800;
+    case "caption": return 100;
     default: return 500;
   }
 }
 
 export const S = {
-  us: "Datum Co.",
+  us: "DataPact",
   agent: "Order agent",
   buyer: "Acme Fitness",
   buyerAgent: "Acme's buying agent",
   controller: "Maya",
   controllerRole: "Controller",
-  orderNo: "#1042",
   order: "SF adults 25–34 interested in fitness, counts by ZIP",
   price: 120,
   rerunCost: 6, // vendor license + compute for one production run
@@ -108,11 +108,11 @@ const SHEET_V1: Delivery = { version: 1, file: "acme-sf-fitness-v1.csv", rows: w
 const sheet = (version: number, file: string, rows: ZipCount[]): Delivery => ({ version, file, rows, reviewClosesAt: closes(96) });
 
 export const MAIN: Step[] = [
-  { id: "clarify", kind: "clarify", title: "Clarify the order", detail: `Interview → contract · $${S.price}`, panel: true },
+  { id: "clarify", kind: "clarify", title: "Clarify the order", detail: `Interview to a $${S.price} contract`, panel: true },
   { id: "paid", kind: "paid", title: "Paid upfront", detail: `$${S.price} authorized via x402` },
   { id: "produce", kind: "produce", title: "Produce & check", detail: "Rented data → counts", panel: true },
   { id: "review", kind: "review", title: "Customer review", detail: `${S.reviewHours}h to accept or dispute` },
-  { id: "captured", kind: "captured", title: "Captured", detail: "Payment taken · books posted", panel: true },
+  { id: "captured", kind: "captured", title: "Captured", detail: "Payment taken, books posted", panel: true },
 ];
 
 const step = (id: string, kind: Step["kind"], title: string, detail: string, panel?: boolean): Step => ({ id, kind, title, detail, panel });
@@ -231,7 +231,7 @@ export const GREEN: Draft[] = [
   ...openDispute("green", [
     step("investigate", "investigate", "Investigate", `“Add Oakland”`, true),
     step("verdict", "verdict", "We're right", "Contract: SF city only"),
-    step("amend", "amend", "Amendment", `+ Oakland · $${S.oakland}`, true),
+    step("amend", "amend", "Amendment", `Add Oakland for $${S.oakland}`, true),
   ], buyer("m-claim", "Counts look low. Oakland should be in there.")),
   found("investigate", E.sfOnly),
   found("investigate", E.line2),
@@ -261,9 +261,9 @@ const YOGA_SHEET = sheet(2, "acme-sf-fitness-v2.csv", yoga(withheld(VENDOR)));
 
 /** The decide step's title depends on the ending; learned = the replay after Maya's ruling. */
 export function amberSteps(ending: Ending, learned: boolean): Step[] {
-  const decide = learned ? step("decide", "decide", "Contract v2 decides", "Yoga counts · free rerun", true)
-    : ending === "rules_no" ? step("decide", "decide", "Rules: we're right", `Yoga amendment · $${S.yoga}`, true)
-    : ending === "rules_yes" ? step("decide", "decide", "Rules: they're right", "Unclear spec · free rerun", true)
+  const decide = learned ? step("decide", "decide", "Contract v2 decides", "Yoga counts, free rerun", true)
+    : ending === "rules_no" ? step("decide", "decide", "Rules: we're right", `Yoga amendment for $${S.yoga}`, true)
+    : ending === "rules_yes" ? step("decide", "decide", "Rules: they're right", "Unclear spec, free rerun", true)
     : step("decide", "decide", `${S.controller} decides`, "Controller review", true);
   return [
     step("investigate", "investigate", "Investigate", `“Yoga should count”`, true),
@@ -383,7 +383,7 @@ export function timeline(c: Case, ending: Ending, learned = false): { events: Ru
 }
 
 /** The canvas chip for a step, from what the step has been through. */
-export function chipFor(step: Step, n: { status: string; attempt: number; checks: number; lines: number; sources: number; verdictKind?: string; verdictBy?: string; amendmentPrice?: number; waitingOn?: string; learned: boolean; disputed: boolean }): string | undefined {
+export function chipFor(step: Step, n: { status: string; attempt: number; checks: number; lines: number; sources: number; verdictKind?: string; verdictBy?: string; amendmentPrice?: number; waitingOn?: string; learned: boolean; disputed: boolean; decided?: string; ruled: boolean }): string | undefined {
   const { status, attempt } = n;
   if (status === "idle") return undefined;
   switch (step.kind) {
@@ -402,7 +402,8 @@ export function chipFor(step: Step, n: { status: string; attempt: number; checks
       if (status === "waiting") return `Waiting on ${n.waitingOn}`;
       if (n.learned) return "Covered";
       if (n.amendmentPrice) return `+$${n.amendmentPrice} signed`;
-      if (n.verdictBy === "controller") return "Rule learned";
+      if (n.verdictBy === "controller") return n.ruled ? "Rule learned" : "Resumed · corrected";
+      if (n.decided === "approve") return "Resumed";
       return n.verdictKind === "agree" ? "They're right" : n.verdictKind === "disagree" ? "We're right" : "Deciding";
   }
 }

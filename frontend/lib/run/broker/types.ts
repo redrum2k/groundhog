@@ -24,15 +24,17 @@ export interface BrokerOrder {
   messages: BrokerMessage[];
   questions: BrokerQuestion[];
   human_tasks: BrokerTask[];
+  amendments?: { id: string; digest: string }[];
   delivery_artifact_ids?: string[]; // absent on a draft
-  original_specification?: { requirements: { id: string; dimension: string; parameters: Record<string, unknown> }[] } | null;
+  original_specification?: Specification | null;
   base_order?: {
     order: {
       order_state: string;
       payment_phase: string;
       review_deadline: string | null;
       complaint?: string | null;
-      binding: { delivery_version: number; evidence_version: number };
+      binding: { delivery_version: number; evidence_version: number } | null; // null until the first delivery
+      regeneration_pending?: boolean;
       snapshot?: { price: BrokerMoney } | null;
       ledger: { entry_id: string; kind: string; amount: BrokerMoney; reason: string }[];
       data_verification?: { verdict: string; checks: BrokerCheck[] } | null;
@@ -40,8 +42,17 @@ export interface BrokerOrder {
   } | null;
 }
 
+/** The accepted specification as the backend returns it; an amendment resends it with a higher version. */
+export interface Specification { version: number; sources: { source_id: string; version: number; sha256: string }[]; requirements: { id: string; dimension: string; parameters: Record<string, unknown> }[]; [key: string]: unknown }
+
 /** One delivered row of market-v1 data. */
 export interface DataRow { entity_id: string; region_id: string; value: number; observed_at: string | null }
 
-/** What the translator needs for one poll: the stream so far and the current record. */
-export interface BrokerSnapshot { events: BrokerEvent[]; order: BrokerOrder; rows: DataRow[] }
+/** What the translator needs for one poll: the stream so far, the current record, and what earlier
+ *  verifications and deliveries held (the record only keeps the latest of each). */
+export interface BrokerSnapshot {
+  events: BrokerEvent[];
+  order: BrokerOrder;
+  checksBySeq: Record<number, BrokerCheck[]>; // by the verification.completed event's sequence
+  rowsByVersion: Record<number, DataRow[]>; // by delivery version
+}

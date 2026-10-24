@@ -130,6 +130,7 @@ export type RunEvent =
   | StepEvent<{ type: "amendment_signed"; amendment: Amendment } & Acts>
   | StepEvent<{ type: "rule_updated"; rule: RuleUpdate }>
   | StepEvent<{ type: "books_posted"; entries: JournalEntry[]; margin: Margin }>
+  | (Base & { type: "caption"; text: string }) // a live translator's own words for the caption bar
   | (Base & { type: "payment_authorized"; payment: Payment } & Acts)
   | (Base & { type: "payment_captured"; paymentId: string; captureTx: string | null } & Acts);
 

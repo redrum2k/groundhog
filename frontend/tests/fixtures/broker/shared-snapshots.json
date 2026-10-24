@@ -1,0 +1,460 @@
+{
+ "checksBySeq": {
+  "41": [
+   {
+    "requirement_id": "req-freshness",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Compared observed_at with the accepted 90-day limit and as-of date.",
+    "citations": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/0/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/1/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/2/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/3/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/4/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/5/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/6/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/7/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/8/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/9/observed_at",
+      "value": "2026-10-10T00:00:00+00:00",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     }
+    ]
+   },
+   {
+    "requirement_id": "req-geography",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Compared named geography, boundary revision and every region code.",
+    "citations": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/geography",
+      "value": "San Francisco",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/boundary_version",
+      "value": "2026-Q3",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/0/region_id",
+      "value": "94102",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/1/region_id",
+      "value": "94103",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/2/region_id",
+      "value": "94107",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/3/region_id",
+      "value": "94109",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/4/region_id",
+      "value": "94110",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/5/region_id",
+      "value": "94114",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/6/region_id",
+      "value": "94117",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/7/region_id",
+      "value": "94122",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/8/region_id",
+      "value": "94129",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/9/region_id",
+      "value": "94133",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     }
+    ]
+   },
+   {
+    "requirement_id": "req-reference_period",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Compared reference period, independently of file export date.",
+    "citations": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/reference_period",
+      "value": "2026-Q3",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     }
+    ]
+   },
+   {
+    "requirement_id": "req-metric",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Compared the agreed statistical meaning and unit.",
+    "citations": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/metric_name",
+      "value": "adults_25_34_interested_in_fitness",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/metric_unit",
+      "value": "people",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     }
+    ]
+   },
+   {
+    "requirement_id": "req-entity_unit",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Checked uniqueness under the accepted entity unit.",
+    "citations": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/entity_unit",
+      "value": "region",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/*/entity_id",
+      "value": "['94102', '94103', '94107', '94109', '94110', '94114', '94117', '94122', '94129', '94133']",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     }
+    ]
+   },
+   {
+    "requirement_id": "req-coverage",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Coverage denominator=10; missing=0; unexpected=0.",
+    "citations": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows/*/entity_id",
+      "value": "['94102', '94103', '94107', '94109', '94110', '94114', '94117', '94122', '94129', '94133']",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     }
+    ]
+   },
+   {
+    "requirement_id": "req-source_lineage",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "All exact accepted source hashes and revisions are present.",
+    "citations": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/source_id",
+      "value": "vendor-fitness-panel",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     },
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/version",
+      "value": "1",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     }
+    ]
+   },
+   {
+    "requirement_id": "req-output_schema",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Source schema is supported; actual delivery is checked separately.",
+    "citations": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "locator": "/rows",
+      "value": "10 typed source records",
+      "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
+     }
+    ]
+   },
+   {
+    "requirement_id": "delivery-artifact_17bedfcae0144a818a2eb5c028c2ef8c",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Reopened and compared actual market-data.json with exact accepted sources and report content.",
+    "citations": [
+     {
+      "source_id": "artifact_17bedfcae0144a818a2eb5c028c2ef8c",
+      "version": 1,
+      "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
+      "locator": "document",
+      "value": "market-data.json",
+      "artifact_id": "artifact_17bedfcae0144a818a2eb5c028c2ef8c"
+     }
+    ]
+   },
+   {
+    "requirement_id": "delivery-artifact_7d2819777d5243d5ad5456328443d6bd",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Reopened and compared actual source-methodology.pdf with exact accepted sources and report content.",
+    "citations": [
+     {
+      "source_id": "artifact_7d2819777d5243d5ad5456328443d6bd",
+      "version": 1,
+      "sha256": "52572f8e28b189ead5a6986d487cfd0ab45778ab562f2df6973164c82ee33ec3",
+      "locator": "document",
+      "value": "source-methodology.pdf",
+      "artifact_id": "artifact_7d2819777d5243d5ad5456328443d6bd"
+     }
+    ]
+   },
+   {
+    "requirement_id": "delivery-artifact_94ef6399fc0949f8b9efebb0670a1902",
+    "verdict": "PASS",
+    "cause": "NONE",
+    "explanation": "Reopened and compared actual market-sidecar.json with exact accepted sources and report content.",
+    "citations": [
+     {
+      "source_id": "artifact_94ef6399fc0949f8b9efebb0670a1902",
+      "version": 1,
+      "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
+      "locator": "document",
+      "value": "market-sidecar.json",
+      "artifact_id": "artifact_94ef6399fc0949f8b9efebb0670a1902"
+     }
+    ]
+   }
+  ]
+ },
+ "rowsByVersion": {
+  "1": [
+   {
+    "entity_id": "94102",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94102",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 1820.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94103",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94103",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 2140.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94107",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94107",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 2960.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94109",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94109",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 3310.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94110",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94110",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 4120.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94114",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94114",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 2450.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94117",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94117",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 2780.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94122",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94122",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 3050.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94129",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94129",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 42.0,
+    "version": 1
+   },
+   {
+    "entity_id": "94133",
+    "observed_at": "2026-10-10T00:00:00Z",
+    "region_id": "94133",
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+    "source_id": "vendor-fitness-panel",
+    "value": 1990.0,
+    "version": 1
+   }
+  ]
+ }
+}
