@@ -23,7 +23,6 @@ export interface Playback {
   live: boolean;
   played: number; // events applied so far
   awaiting: BuyerGate | null; // a live run paused for Acme's move
-  skew: number; // server clock minus this browser's, from the last live poll; deadlines count down against it
   /** Acme's move, made by the presenter; null on success, else the server's reason. */
   buyer: (m: BuyerMove) => Promise<string | null>;
   /** The controller's click: appends the recorded continuation, or posts to the live run. */
@@ -42,7 +41,6 @@ export function usePlayback(feed: Feed): Playback {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string>();
   const [awaiting, setAwaiting] = useState<BuyerGate | null>(null);
-  const [skew, setSkew] = useState(0);
   const runId = useRef<string | null>(null);
   const lastSeq = useRef(0); // the live cursor; recorded events before it keep their own seqs
   const live = feed.kind === "live";
@@ -66,10 +64,9 @@ export function usePlayback(feed: Feed): Playback {
         }
         const res = await fetch(`${feed.api}/runs/${runId.current}/events?after=${lastSeq.current}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`The run stopped answering (${res.status})`);
-        const { events: fresh, poll_after_ms, awaiting: gate, server_time, error: failure } = (await res.json()) as { events: RunEvent[]; poll_after_ms: number; awaiting?: BuyerGate | null; server_time?: string; error?: string };
+        const { events: fresh, poll_after_ms, awaiting: gate, error: failure } = (await res.json()) as { events: RunEvent[]; poll_after_ms: number; awaiting?: BuyerGate | null; error?: string };
         if (cancelled) return;
         setAwaiting(gate ?? null);
-        if (server_time) setSkew(Date.parse(server_time) - Date.now());
         if (failure) { setError(`The scripted parties stopped: ${failure}`); setStatus("error"); return; }
         const next = fresh.filter((e) => e.seq > lastSeq.current);
         if (next.length) {
@@ -136,5 +133,5 @@ export function usePlayback(feed: Feed): Playback {
   const pause = useCallback(() => setStatus((s) => (s === "playing" && !live ? "paused" : s)), [live]);
   const skip = useCallback(() => { setCursor(events.length); setStatus(atControllerGate(events) ? "waiting" : "done"); }, [events]);
 
-  return { view, status, error, live, played: cursor, awaiting, skew, buyer, decide, play, pause, skip };
+  return { view, status, error, live, played: cursor, awaiting, buyer, decide, play, pause, skip };
 }

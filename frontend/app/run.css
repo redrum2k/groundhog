@@ -391,7 +391,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .decision-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .decision-row { display: flex; gap: 8px; }
 .decision .sheet { margin: 0; }
-/* the delivered rows and the contract checks side by side, so both are judged before the window closes */
+/* the delivered rows and the contract checks side by side, so both are judged at once */
 .review-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .review-grid .todo { margin: 0; }
 /* its header matches the sheet's: same size, same hairline, same top */
@@ -400,8 +400,6 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .review-grid .todo-list { padding: 4px 0 0; }
 .decision .todo-title { white-space: normal; } /* terms are read in full here, not skimmed */
 .decision-lead { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
-.countdown { margin-left: auto; font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-.countdown b { font-weight: 500; color: var(--ink); }
 .objection { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; font: inherit; font-size: 13.5px; resize: vertical; background: var(--bg); color: var(--ink); }
 .objection:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
 .cust-paid { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; }

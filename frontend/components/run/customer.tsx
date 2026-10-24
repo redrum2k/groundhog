@@ -16,7 +16,7 @@ import { PanelBody, checkItems, type BodyProps } from "./panel";
 
 type Props = {
   run: Case; steps: Step[]; view: View; bodyProps: Omit<BodyProps, "step">;
-  awaiting: BuyerGate | null; skew: number; buyer: (m: BuyerMove) => Promise<string | null>;
+  awaiting: BuyerGate | null; buyer: (m: BuyerMove) => Promise<string | null>;
   onMoved?: () => void; // after a move lands: the agent's work is what to watch next
 };
 
@@ -84,15 +84,7 @@ function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
   );
 }
 
-/** The review window as time left. Run out undisputed, it accepts the delivery and the money is taken. */
-function Countdown({ until, skew, price }: { until: string; skew: number; price: number }) {
-  const [now, setNow] = useState(() => Date.now() + skew);
-  useEffect(() => { const t = setInterval(() => setNow(Date.now() + skew), 1000); return () => clearInterval(t); }, [skew]);
-  const left = Math.max(0, Math.ceil((Date.parse(until) - now) / 1000));
-  return <span className="countdown" role="timer">{left ? <>Auto-accepts and pays ${price} in <b>{Math.floor(left / 60)}:{String(left % 60).padStart(2, "0")}</b></> : "Review window closed"}</span>;
-}
-
-export default function Customer({ run, steps, view, bodyProps, awaiting, skew, buyer, onMoved }: Props) {
+export default function Customer({ run, steps, view, bodyProps, awaiting, buyer, onMoved }: Props) {
   const [objection, setObjection] = useState("");
   const [objecting, setObjecting] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -151,7 +143,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, skew, 
 
           {delivery && review && review.status !== "idle" && (
             <Decision title={`Delivery${delivery.version >= 2 ? ` v${delivery.version}` : ""}`} open={reviewOpen && !disputed} taken={accepted && disputed ? "Objected, answered, then accepted" : accepted ? "Accepted" : disputed ? `Objected: “${view.dispute?.claim}”` : undefined}
-              actions={<>{objecting ? <>
+              actions={objecting ? <>
                 <textarea className="objection" rows={2} value={objection} onChange={(e) => setObjection(e.target.value)} placeholder="What's wrong with the delivery?" aria-label="Your objection" />
                 <div className="decision-row">
                   <button className="btn solid" disabled={busy || !objection.trim()} onClick={() => move({ action: "object", text: objection.trim() })}>Send objection</button>
@@ -160,8 +152,8 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, skew, 
               </> : <>
                 <button className="btn solid" disabled={busy} onClick={() => move({ action: "accept" })}>Accept delivery</button>
                 <button className="btn" disabled={busy} onClick={() => { setObjection((o) => o || SUGGESTED_OBJECTION); setObjecting(true); }}>Object</button>
-              </>}{delivery.reviewClosesAt && <Countdown until={delivery.reviewClosesAt} skew={skew} price={price} />}</>}>
-              {/* the data and the contract it was checked against, side by side, so the buyer can judge both before the window closes */}
+              </>}>
+              {/* the data and the contract it was checked against, side by side, so the buyer judges both at once */}
               <div className="review-grid">
                 <Sheet rows={delivery.rows} note={changedSince ? `${changedSince} rows changed since v${delivery.version - 1}` : withheld(delivery.rows) ? `${withheld(delivery.rows)} withheld for privacy` : undefined} />
                 {n.produce && <TodoList title="Contract checks" items={checkItems(view.contract.lines, n.produce)} />}
