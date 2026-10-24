@@ -60,6 +60,9 @@ class CatalogService:
         compiler=None,
         assessor=None,
         auto_mock_funding=False,
+        payment_mode="mock",
+        payment_config=None,
+        payment_transport=None,
     ):
         self.repository = repository
         self.clock = clock
@@ -69,7 +72,9 @@ class CatalogService:
         self.investigator = CatalogInvestigator(assessor)
         self.policy = Policy()
         self.auto_mock_funding = auto_mock_funding
-        self.payments = CatalogPayments(self)
+        self.payments = CatalogPayments(
+            self, mode=payment_mode, config=payment_config, transport=payment_transport
+        )
 
     def _save(self, db, order):
         if order.schema_version < 4:
@@ -351,14 +356,18 @@ class CatalogService:
                 artifacts=tuple(s.artifact for s in quote.sources),
                 jobs=(Job(job_id=f"{order_id}:initial", kind="fulfill", binding=binding),),
             )
-            self.payments.initialize(db, order, self.auto_mock_funding)
+            replacement = parent is not None and quote.purpose == "substantive_amendment"
+            self.payments.initialize(
+                db, order, self.auto_mock_funding, parent=parent if replacement else None
+            )
             # Funding gates execution; accepting terms only reserves the durable job.
             self._save(db, order)
             if parent:
                 parent.children = (*parent.children, order_id)
                 if quote.purpose == "substantive_amendment":
-                    self._release(parent, now)
-                    parent.order_state, parent.authority_state = "closed", "clear"
+                    self._release(parent, now, db=db)
+                    if not self.payments.is_live(parent):
+                        parent.order_state, parent.authority_state = "closed", "clear"
                 parent.revision += 1
                 self._save(db, parent)
             self._remember_order(db, "acceptance", command.idempotency_key, fingerprint, order)
@@ -369,7 +378,7 @@ class CatalogService:
             with self.repository.transaction() as read_db:
                 return self.get(order_id, db=read_db)
         order = self.repository.load(db, "order", order_id, CatalogOrder)
-        if self._advance(order, self.clock()):
+        if self._advance(order, self.clock(), db=db):
             order.revision += 1
             self._save(db, order)
         return order
@@ -409,7 +418,10 @@ class CatalogService:
                 "review": self._review,
                 "retry": self._retry,
             }[operation]
-            handler(order, command, self.clock(), actor)
+            if operation in ("accept", "review", "dispute"):
+                handler(order, command, self.clock(), actor, db=db)
+            else:
+                handler(order, command, self.clock(), actor)
             order.revision += 1
             self._save(db, order)
             self._remember_order(db, order_id, command.idempotency_key, fingerprint, order)
@@ -424,10 +436,12 @@ class CatalogService:
             for c in order.cases
         )
 
-    def _advance(self, order, now):
+    def _advance(self, order, now, *, db=None):
         if order.schema_version < 4 or order.order_state == "closed":
             return False
         terms = order.snapshot.quote.payment_terms
+        if self.payments.is_live(order) and self.payments.reconciling(db, order):
+            return False
         if (
             terms
             and order.authorization.status == "pending"
@@ -455,9 +469,11 @@ class CatalogService:
         ):
             self._human(order, "Evidence repair or approval deadline expired.")
             return True
+        if self.payments.is_live(order) and self.payments.journal.terminal(db, order.payment_id):
+            return False
         if order.deliveries and now >= order.deliveries[-1].review_deadline:
-            if capture_allowed(order, now):
-                self._capture(order, now)
+            if capture_allowed(order, now) and self.payments.work_allowed(db, order):
+                self._capture(order, now, db=db)
                 return True
             if order.order_state == "delivered" and not any(
                 c.status == "open" for c in order.cases
@@ -473,7 +489,7 @@ class CatalogService:
         changed = 0
         with self.repository.transaction() as db:
             for order in self.repository.all(db, "order", CatalogOrder):
-                if self._advance(order, self.clock()):
+                if self._advance(order, self.clock(), db=db):
                     order.revision += 1
                     self._save(db, order)
                     changed += 1
@@ -488,9 +504,12 @@ class CatalogService:
                     changed += 1
         return changed
 
-    def _capture(self, order, now):
+    def _capture(self, order, now, *, db=None):
         if not capture_allowed(order, now):
             raise DomainError(409, "capture gates do not pass")
+        if self.payments.is_live(order):
+            self.payments.reserve_terminal(db, order, "capture")
+            return
         key = f"{order.snapshot.order_id}:capture"
         order.ledger = (
             *order.ledger,
@@ -505,8 +524,7 @@ class CatalogService:
         )
         order.order_state = "closed"
 
-    @staticmethod
-    def _release(order, now):
+    def _release(self, order, now, *, db=None):
         if any(b.kind == "capture" for b in order.ledger):
             raise DomainError(
                 409, "captured money needs a refund; refund execution is not implemented"
@@ -515,6 +533,9 @@ class CatalogService:
             return
         if order.authorization.receipt is None:
             raise DomainError(409, "unfunded payment has no held funds to return")
+        if self.payments.is_live(order):
+            self.payments.reserve_terminal(db, order, "void")
+            return
         key = f"{order.snapshot.order_id}:release"
         order.ledger = (
             *order.ledger,
@@ -529,13 +550,13 @@ class CatalogService:
         )
         order.authorization = order.authorization.model_copy(update={"status": "released"})
 
-    def _accept(self, order, command, now, actor):
+    def _accept(self, order, command, now, actor, *, db=None):
         if order.order_state != "delivered" or any(
             c.status in ("open", "scope_change", "human_review") for c in order.cases
         ):
             raise DomainError(409, "acceptance requires undisputed delivered work")
         order.customer_acceptance = order.binding
-        self._capture(order, now)
+        self._capture(order, now, db=db)
 
     def _invalidate(self, order):
         order.binding = order.binding.model_copy(
@@ -563,8 +584,9 @@ class CatalogService:
             return
         order.jobs = (*order.jobs, Job(job_id=identifier("job"), kind=kind, binding=order.binding))
 
-    def _dispute(self, order, command, now, actor):
-        if (
+    def _dispute(self, order, command, now, actor, *, db=None):
+        submitted = self.payments.submitted_capture(db, order)
+        if not submitted and (
             order.order_state != "delivered"
             or not order.deliveries
             or now >= order.deliveries[-1].review_deadline
@@ -590,6 +612,11 @@ class CatalogService:
                 deadline=now + timedelta(seconds=60),
             ),
         )
+        if submitted:
+            self._human(
+                order, "Complaint received after capture submission; reconcile payment first."
+            )
+            return
         self._invalidate(order)
         order.delivery_state = "needs_review"
         self._enqueue(order, "reverify")
@@ -648,7 +675,7 @@ class CatalogService:
             source = self.registry.identify(amendment.artifact)
             self._apply_repair(order, amendment, source)
 
-    def _review(self, order, command, now, actor):
+    def _review(self, order, command, now, actor, *, db=None):
         if order.order_state != "human_review":
             raise DomainError(409, "reviewer decisions require human review")
         for span in command.supporting_evidence:
@@ -664,8 +691,9 @@ class CatalogService:
         )
         order.decisions = (*order.decisions, decision)
         if command.action == "release_authorization":
-            self._release(order, now)
-            order.order_state = "closed"
+            self._release(order, now, db=db)
+            if not self.payments.is_live(order):
+                order.order_state = "closed"
         elif command.action == "propose_exception":
             order.authority_state = "pending_consent"
             order.error = (
@@ -941,6 +969,7 @@ class CatalogService:
                 order.schema_version < 4
                 or order.order_state
                 in ("human_review", "closed", "pending_approval", "waiting_evidence")
+                or not self.payments.work_allowed(db, order)
                 or not authorization_ready(order.authorization)
                 or now >= order.authorization.expires_at
             ):
@@ -977,7 +1006,7 @@ class CatalogService:
             self._save(db, order)
             return order, job
 
-    def _check_job(self, order, job):
+    def _check_job(self, order, job, *, db=None):
         current = next((j for j in order.jobs if j.job_id == job.job_id), None)
         if (
             current is None
@@ -986,6 +1015,7 @@ class CatalogService:
             or current.binding != order.binding
             or self.clock() >= current.lease_until
             or order.order_state in ("human_review", "closed", "pending_approval")
+            or not self.payments.work_allowed(db, order)
         ):
             raise DomainError(409, "worker lease or evidence binding is stale")
         if self.clock() >= order.authorization.expires_at:
@@ -1068,7 +1098,7 @@ class CatalogService:
     def fail_job(self, order_id, job, reason):
         with self.repository.transaction() as db:
             order = self.repository.load(db, "order", order_id, CatalogOrder)
-            self._check_job(order, job)
+            self._check_job(order, job, db=db)
             self._finish_job(order, job, "failed", reason)
             order.order_state, order.delivery_state, order.error = (
                 "operational_failure",
@@ -1085,7 +1115,7 @@ class CatalogService:
         self.get(order_id)
         with self.repository.transaction() as db:
             order = self.repository.load(db, "order", order_id, CatalogOrder)
-            self._check_job(order, job)
+            self._check_job(order, job, db=db)
             for assessment in assessments:
                 for span in (*assessment.citations, *assessment.conflicting_evidence):
                     self.store.resolve(span, order.artifacts)
@@ -1145,7 +1175,7 @@ class CatalogService:
         self.get(order_id)
         with self.repository.transaction() as db:
             order = self.repository.load(db, "order", order_id, CatalogOrder)
-            self._check_job(order, job)
+            self._check_job(order, job, db=db)
             publishes = sidecar is not None
             expected = (
                 order.binding.model_copy(update={"delivery_version": len(order.deliveries) + 1})
@@ -1200,7 +1230,7 @@ class CatalogService:
                 if order.cases and order.cases[-1].status == "open":
                     self._resolve_complaint(order, semantic)
                 if capture_allowed(order, now):
-                    self._capture(order, now)
+                    self._capture(order, now, db=db)
             order.revision += 1
             self._save(db, order)
             return order
@@ -1255,12 +1285,11 @@ class CatalogService:
         return review_table(order, self.store)
 
     def view(self, order, *, db=None):
-        actions = []
         if db is None:
             with self.repository.transaction() as read_db:
-                payment = self.payments.view(read_db, order)
-        else:
-            payment = self.payments.view(db, order)
+                return self.view(order, db=read_db)
+        actions = []
+        payment = self.payments.view(db, order)
         if (
             payment
             and payment.payment.state == "awaiting_signature"
@@ -1284,6 +1313,28 @@ class CatalogService:
             actions.append("upload_evidence")
         if any(a.status == "pending" for a in order.approvals):
             actions.append("approve_amendment")
+        if payment and payment.payment.terms.mode == "base_sepolia":
+            if payment.payment.state != "funded":
+                actions = [
+                    a
+                    for a in actions
+                    if a not in ("accept", "upload_evidence", "approve_amendment", "answer")
+                ]
+            if (
+                any(
+                    o.intent.action == "capture" and o.state in ("submitted", "uncertain")
+                    for o in payment.operations
+                )
+                and order.deliveries
+                and not any(
+                    c.complaint.artifact_id == order.deliveries[-1].pdf.artifact_id
+                    for c in order.cases
+                )
+                and "dispute" not in actions
+            ):
+                actions.append("dispute")
+            if not self.payments._parent_returned(db, payment.payment):
+                actions = []
         if order.schema_version < 4:
             actions = []
         return OrderView(
