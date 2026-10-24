@@ -227,7 +227,7 @@ def main():
         else OUTPUT / "independent-audit.json"
     )
     target.parent.mkdir(parents=True, exist_ok=True)
-    with target.open("x", encoding="utf-8") as stream:
+    with target.open("x", encoding="utf-8", newline="\n") as stream:
         stream.write(content)
     summary = {
         k: v

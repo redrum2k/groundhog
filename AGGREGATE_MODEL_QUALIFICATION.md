@@ -57,7 +57,12 @@ metadata requests, recorded in the bundle.
 - [Ledger audit sidecar](docs/evidence/aggregate-qualification-ledger-20261024.json):
   exact call IDs, timestamps, request hashes, usage/cost reservations and window checks.
 - Bundle SHA-256:
-  `270fe4ab472a415e0615be0e7f10baca9d31fe73ef639f71979e220f11aa556d`.
+  `1e41182345897d69743b1ae622b48bb24573cdbce60d2c1a40849beb4728e123`.
+
+The publication uses canonical LF line endings, including on Windows checkouts.
+The original CRLF draft was archived before normalization; parsed JSON and embedded
+artifact bytes are unchanged. The generator now forces LF, and the hash above was
+checked against the actual Git blob rather than only the local working file.
 
 `aggregate_qualification_audit.py` reuses the existing independent exact-cell auditor.
 It reopens and hashes actual saved bytes, checks **37 candidate/effective citation
