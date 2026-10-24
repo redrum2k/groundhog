@@ -1,12 +1,63 @@
 """Dataset-specific hooks on the existing CatalogService lifecycle and durable jobs."""
 
 from app.contracts.catalog import FulfillmentContext
+from app.contracts.dataset import DATASET_CHECKS, DatasetComplaintTarget, DatasetManifest
 from app.datasets import is_dataset, produce_dataset, verify_dataset
 from app.investigation.dataset import investigate_dataset
 from app.orders.service import DomainError
 
 
 class DatasetLifecycle:
+    def complaint_targets(self, order):
+        if not order.deliveries:
+            return ()
+        delivery = order.deliveries[-1]
+        manifest = DatasetManifest.model_validate_json(self.store.read(delivery.preview))
+        rows = tuple(
+            dict.fromkeys(
+                (
+                    "dataset",
+                    *order.snapshot.quote.specification.terms.coverage.expected_keys,
+                    *(r.zip for r in manifest.rows),
+                )
+            )
+        )
+        columns = {
+            "coverage": ("zip", "count", "status"),
+            "suppression": ("count", "status"),
+            "schema": ("zip", "area", "count", "status"),
+            "artifact": ("zip", "area", "count", "status"),
+        }
+        return tuple(
+            DatasetComplaintTarget(
+                requirement_id=f"R-{field.upper()}",
+                field=field,
+                row_ids=rows if field in columns else ("dataset",),
+                columns=columns.get(field, ()),
+            )
+            for field in DATASET_CHECKS
+        )
+
+    def validate_dataset_complaint(self, order, complaint):
+        target = next(
+            (
+                t
+                for t in self.complaint_targets(order)
+                if t.requirement_id == complaint.requirement_id
+            ),
+            None,
+        )
+        if (
+            target is None
+            or complaint.field != target.field
+            or complaint.product_id not in target.row_ids
+            or complaint.column is not None
+            and (complaint.product_id == "dataset" or complaint.column not in target.columns)
+        ):
+            raise ValueError(
+                "complaint requirement, field, row and column must match an accepted target"
+            )
+
     def current_dataset_checks(self, order):
         if not is_dataset(order):
             return True

@@ -482,6 +482,10 @@ class CatalogService(DatasetLifecycle):
         fingerprint = self.repository.fingerprint(
             operation if actor is None else f"{operation}:{actor}", command
         )
+        if operation == "dispute" and command.complaint.column is None:
+            historical = json.loads(fingerprint)
+            historical["payload"]["complaint"].pop("column")
+            fingerprint = json.dumps(historical, sort_keys=True)
         with self.repository.transaction() as db:
             replay = self.repository.replay(
                 db, order_id, command.idempotency_key, fingerprint, CatalogOrder
@@ -711,6 +715,8 @@ class CatalogService(DatasetLifecycle):
         ):
             raise DomainError(409, "this delivery already has a dispute case")
         complaint = command.complaint
+        if is_dataset(order):
+            self.validate_dataset_complaint(order, complaint)
         if complaint.artifact_id != delivery_artifact(
             order.deliveries[-1]
         ).artifact_id or complaint.requirement_id not in {
@@ -746,6 +752,10 @@ class CatalogService(DatasetLifecycle):
         self._enqueue(order, "reverify")
 
     def _answer(self, order, command, now, actor):
+        if is_dataset(order):
+            raise DomainError(
+                422, "dataset answers require the request-bound /runs answer contract"
+            )
         case = order.cases[-1] if order.cases else None
         if not case or case.status != "open" or not case.question or now >= case.deadline:
             raise DomainError(409, "no current investigation question")

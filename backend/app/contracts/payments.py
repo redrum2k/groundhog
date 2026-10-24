@@ -44,6 +44,20 @@ Address = Annotated[str, StringConstraints(pattern=r"^0x[a-fA-F0-9]{40}$")]
 Hash32 = Annotated[str, StringConstraints(pattern=r"^0x[a-fA-F0-9]{64}$")]
 PaymentMode = Literal["mock", "base_sepolia"]
 PaymentAction = Literal["fund", "capture", "void", "reclaim"]
+PaymentAccountState = Literal[
+    "blocked_parent",
+    "awaiting_signature",
+    "funding_pending",
+    "funded",
+    "capture_pending",
+    "captured",
+    "void_pending",
+    "voided",
+    "uncertain",
+    "failed",
+    "expired_not_returned",
+    "reorg_hold",
+]
 OperationState = Literal[
     "reserved", "signed", "submitted", "uncertain", "confirmed", "failed", "invalidated", "orphaned"
 ]
@@ -226,20 +240,7 @@ class PaymentAccount(Contract):
     order_id: Text
     snapshot_id: Text
     terms: PaymentTerms
-    state: Literal[
-        "blocked_parent",
-        "awaiting_signature",
-        "funding_pending",
-        "funded",
-        "capture_pending",
-        "captured",
-        "void_pending",
-        "voided",
-        "uncertain",
-        "failed",
-        "expired_not_returned",
-        "reorg_hold",
-    ]
+    state: PaymentAccountState
     blocked_by_payment_id: Text | None = None
     latest_observation: EscrowObservation | None = None
     last_error: Text | None = None

@@ -1208,6 +1208,11 @@ export interface components {
             /** Error */
             error?: string | null;
             /**
+             * Evidence Answers
+             * @default []
+             */
+            evidence_answers?: components["schemas"]["DatasetEvidenceAnswer"][];
+            /**
              * Evidence Requests
              * @default []
              */
@@ -1505,11 +1510,13 @@ export interface components {
         Complaint: {
             /** Artifact Id */
             artifact_id: string;
+            /** Column */
+            column?: ("zip" | "area" | "count" | "status") | null;
             /**
              * Field
              * @enum {string}
              */
-            field: "weight" | "unit_price" | "completeness" | "provenance" | "pdf" | "cohort" | "category" | "geography" | "coverage" | "suppression" | "artifact";
+            field: "weight" | "unit_price" | "completeness" | "provenance" | "pdf" | "cohort" | "category" | "geography" | "coverage" | "suppression" | "artifact" | "schema";
             /**
              * Intent
              * @default dispute_fact
@@ -1664,6 +1671,20 @@ export interface components {
             /** Version */
             version: number;
         };
+        /** DatasetComplaintTarget */
+        DatasetComplaintTarget: {
+            /** Columns */
+            columns: ("zip" | "area" | "count" | "status")[];
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "cohort" | "category" | "geography" | "schema" | "coverage" | "suppression" | "provenance" | "artifact";
+            /** Requirement Id */
+            requirement_id: string;
+            /** Row Ids */
+            row_ids: string[];
+        };
         /** DatasetDelivery */
         DatasetDelivery: {
             binding: components["schemas"]["Binding"];
@@ -1687,6 +1708,29 @@ export interface components {
             review_deadline: string;
             /** Version */
             version: number;
+        };
+        /** DatasetEvidenceAnswer */
+        DatasetEvidenceAnswer: {
+            /** Actor */
+            actor: string;
+            /** Answer Id */
+            answer_id: string;
+            /** Case Id */
+            case_id: string | null;
+            original_binding: components["schemas"]["Binding"];
+            /** Original Revision */
+            original_revision: number;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** References */
+            references: components["schemas"]["DatasetReference"][];
+            /** Request Id */
+            request_id: string;
+            /** Text */
+            text: string;
         };
         /** DatasetReference */
         DatasetReference: {
@@ -2495,6 +2539,35 @@ export interface components {
             /** Transaction Id */
             transaction_id?: string | null;
         };
+        /** PaymentStateChanged */
+        PaymentStateChanged: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            payment: components["schemas"]["CanvasPayment"];
+            /** Reason */
+            reason?: string | null;
+            /** Seq */
+            seq: number;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "blocked_parent" | "awaiting_signature" | "funding_pending" | "funded" | "capture_pending" | "captured" | "void_pending" | "voided" | "uncertain" | "failed" | "expired_not_returned" | "reorg_hold";
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "payment_state_changed";
+        };
         /** PaymentTerms */
         PaymentTerms: {
             /** Amount Atomic */
@@ -3033,8 +3106,31 @@ export interface components {
              * @default []
              */
             references?: components["schemas"]["DatasetReference"][];
+            /** Request Id */
+            request_id?: string | null;
             /** Text */
             text: string;
+        };
+        /** RunEvidenceRequest */
+        RunEvidenceRequest: {
+            /**
+             * Allowed References
+             * @default []
+             */
+            allowed_references?: components["schemas"]["DatasetReference"][];
+            /** Case Id */
+            case_id: string | null;
+            /**
+             * Deadline
+             * Format: date-time
+             */
+            deadline: string;
+            /** Prompt */
+            prompt: string;
+            /** References Required */
+            references_required: boolean;
+            /** Request Id */
+            request_id: string;
         };
         /** RunOffer */
         RunOffer: {
@@ -3054,10 +3150,16 @@ export interface components {
             captureClosesAt: string | null;
             /** Caught Up */
             caught_up: boolean;
+            /**
+             * Complaint Targets
+             * @default []
+             */
+            complaint_targets?: components["schemas"]["DatasetComplaintTarget"][];
             /** Disputeclosesat */
             disputeClosesAt: string | null;
             /** Events */
-            events: (components["schemas"]["StepsPlanned"] | components["schemas"]["StepStarted"] | components["schemas"]["StepWaiting"] | components["schemas"]["MessageEvent"] | components["schemas"]["ContractLineEvent"] | components["schemas"]["ContractApproved"] | components["schemas"]["DeliveryReady"] | components["schemas"]["CheckPassed"] | components["schemas"]["CheckFailed"] | components["schemas"]["CheckFixed"] | components["schemas"]["EvidenceFound"] | components["schemas"]["DisputeOpened"] | components["schemas"]["VerdictEvent"] | components["schemas"]["ControllerDecided"] | components["schemas"]["AmendmentSigned"] | components["schemas"]["RuleUpdated"] | components["schemas"]["BooksPosted"] | components["schemas"]["PaymentAuthorized"] | components["schemas"]["PaymentCaptured"] | components["schemas"]["StateChanged"])[];
+            events: (components["schemas"]["StepsPlanned"] | components["schemas"]["StepStarted"] | components["schemas"]["StepWaiting"] | components["schemas"]["MessageEvent"] | components["schemas"]["ContractLineEvent"] | components["schemas"]["ContractApproved"] | components["schemas"]["DeliveryReady"] | components["schemas"]["CheckPassed"] | components["schemas"]["CheckFailed"] | components["schemas"]["CheckFixed"] | components["schemas"]["EvidenceFound"] | components["schemas"]["DisputeOpened"] | components["schemas"]["VerdictEvent"] | components["schemas"]["ControllerDecided"] | components["schemas"]["AmendmentSigned"] | components["schemas"]["RuleUpdated"] | components["schemas"]["BooksPosted"] | components["schemas"]["PaymentAuthorized"] | components["schemas"]["PaymentCaptured"] | components["schemas"]["PaymentStateChanged"] | components["schemas"]["StateChanged"])[];
+            evidence_request?: components["schemas"]["RunEvidenceRequest"] | null;
             /** High Watermark */
             high_watermark: number;
             /** Latestsafesubmissionat */
@@ -3209,7 +3311,7 @@ export interface components {
             attempt?: number;
             binding: components["schemas"]["CanvasBinding"];
             /** Paymentstate */
-            paymentState?: string | null;
+            paymentState?: ("blocked_parent" | "awaiting_signature" | "funding_pending" | "funded" | "capture_pending" | "captured" | "void_pending" | "voided" | "uncertain" | "failed" | "expired_not_returned" | "reorg_hold") | null;
             /** Reason */
             reason?: string | null;
             /** Seq */

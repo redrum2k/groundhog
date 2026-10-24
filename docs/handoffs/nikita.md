@@ -1,3 +1,18 @@
+# Review remediation and remaining shared payment work
+
+[Workstream 08](../workstreams/08-review-remediation.md) records R1/R2/R5/R6 fixes,
+tested historical replay and Jeff-owned R3/R4 blockers. Continue on the reviewed
+combined commit; Prompt 07's four files remain byte-identical to `f8a929a`.
+
+Live execution remains blocked. Separately scope two shared-runtime changes:
+fenced claim renewal with a total deadline budget, and an explicitly authorized,
+audited exact-persisted-byte recovery operation. The existing 136-second/120-second
+lease reproduction and crash-after-submitted-before-send reproduction still pass
+as demonstrations of limitations. Do not alter lab fixtures to hide them, increase
+timeouts blindly, remove fencing, reset identities/nonces or auto-rebroadcast.
+Workstream 08 lists acceptance cases and the measured public preflight prerequisites.
+No real RPC, testnet receipts or deployment are claimed by remediation.
+
 # Aggregate brokerage migration handoff
 
 Current primary product: `aggregate-brokerage-v1`; historical profiles retain their

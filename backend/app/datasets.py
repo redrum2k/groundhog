@@ -16,6 +16,7 @@ from app.contracts.dataset import (
     DATASET_CHECKS,
     DATASET_COLUMNS,
     DATASET_CORPUS,
+    PUBLIC_DATASET_JSON,
     CoverageUniverse,
     DatasetManifest,
     DatasetReference,
@@ -251,7 +252,7 @@ def resolve_reference(ref, artifacts, store):
     if ref.expected_key is not None:
         coverage = next((a for a in artifacts if a.sha256 == ref.coverage_sha256), None)
         if coverage is None or ref.expected_key not in {
-            r["zip"] for r in json.loads(store.read(coverage))["rows"]
+            r["zip"] for r in json.loads(public_bytes(coverage, store))["rows"]
         }:
             raise ValueError("absence lacks frozen coverage evidence")
         if any(r.get("zip") == ref.expected_key for r in data.get("rows", [])):
@@ -583,15 +584,20 @@ def public_bytes(artifact, store):
     from app.orders.service import DomainError
 
     raw = store.read(artifact)
+
+    def unique_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate JSON property")
+            result[key] = value
+        return result
+
     try:
         if artifact.media_type == "text/csv":
             parse_csv(raw)
         elif artifact.media_type == "application/json":
-            data = json.loads(raw)
-            if "csv_sha256" in data:
-                DatasetManifest.model_validate(data)
-            elif "count_unit" in data:
-                DatasetSource.model_validate(data)
+            PUBLIC_DATASET_JSON.validate_python(json.loads(raw, object_pairs_hook=unique_object))
         else:
             raise ValueError("not a dataset artifact")
     except (ValueError, KeyError, TypeError):

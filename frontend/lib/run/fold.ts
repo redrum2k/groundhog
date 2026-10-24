@@ -5,6 +5,7 @@ import type {
   RuleUpdate, RunEvent, Step, Verdict,
 } from "./contract";
 import { captionFor, chipFor, type Case, type Ending } from "./scenario";
+import type { PaymentStateChanged } from "../runs.generated";
 
 export type NS = "idle" | "running" | "done" | "waiting" | "fail" | "grey";
 export type OrbMode = "float" | "carry" | "look" | "wait" | "happy";
@@ -46,6 +47,7 @@ export interface View {
   deliveries: Delivery[];
   payments: Payment[];
   captured: Record<string, string | null>;
+  paymentStates: Record<string, PaymentStateChanged["state"]>;
   lastLane?: string; // the lane step the orb was on before going back up
   started: number; // step starts so far, for the caption's counter
   lastSeq: number;
@@ -57,12 +59,27 @@ const blankNode = (step: Step): NodeState => ({ step, status: "idle", attempt: 1
 const LANE_KINDS = new Set(["investigate", "verdict", "amend", "grey", "decide"]);
 
 export function emptyView(contract: DataContract): View {
-  return { nodes: {}, order: [], orb: { step: "clarify", mode: "float" }, coin: null, loops: [], cards: [], contract, caption: "", evidence: {}, deliveries: [], payments: [], captured: {}, started: 0, lastSeq: 0 };
+  return { nodes: {}, order: [], orb: { step: "clarify", mode: "float" }, coin: null, loops: [], cards: [], contract, caption: "", evidence: {}, deliveries: [], payments: [], captured: {}, paymentStates: {}, started: 0, lastSeq: 0 };
 }
 
 const money = (v: View) => v.payments.reduce((sum, p) => sum + p.amount, 0);
 function coinFor(v: View): Coin | null {
   if (!v.payments.length) return null;
+  const labels: Record<PaymentStateChanged["state"], string> = {
+    blocked_parent:"waiting for parent return", awaiting_signature:"awaiting funding",
+    funding_pending:"funding pending", funded:"held", capture_pending:"capture pending",
+    captured:"captured", void_pending:"return pending", voided:"returned",
+    uncertain:"outcome uncertain", failed:"payment needs review",
+    expired_not_returned:"expired · not returned", reorg_hold:"reorg hold",
+  };
+  if (v.payments.some(p => v.paymentStates[p.id])) {
+    const states = v.payments.map(p => v.paymentStates[p.id] ?? (p.id in v.captured ? "captured" : "funded"));
+    return {
+      text:v.payments.map((p,i)=>`$${p.amount} ${labels[states[i]]}${p.mock ? " · mock" : ""}`).join(" + "),
+      done:states.every(s=>s==="captured" || s==="voided"),
+      locked:states.some(s=>!["captured","voided","awaiting_signature","blocked_parent"].includes(s)),
+    };
+  }
   const parts = v.payments.map((p) => `$${p.amount}`).join(" + ");
   if (v.payments.every((p) => p.id in v.captured)) return { text: `$${money(v)} captured${v.payments.some((p) => p.mock) ? " · mock" : ""}`, done: true };
   return { text: `${parts} held${v.payments.some(p => p.mock) ? " · mock" : ""}`, locked: !!v.dispute };
@@ -79,6 +96,17 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   }
   if (e.type === "payment_authorized") { v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment]; v.coin = coinFor(v); return v; }
   if (e.type === "payment_captured") { v.captured[e.paymentId] = e.captureTx; v.coin = coinFor(v); return v; }
+  if (e.type === "payment_state_changed") {
+    v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment];
+    v.paymentStates[e.payment.id] = e.state;
+    v.coin = coinFor(v);
+    return v;
+  }
+  // Historical run effects already carried a state, before the explicit payment effect.
+  if (e.type === "state_changed" && e.paymentState && v.payments.length === 1) {
+    v.paymentStates[v.payments[0].id] = e.paymentState;
+    v.coin = coinFor(v);
+  }
   const n = v.nodes[e.step];
   if (!n) return v; // an event for a step that was never planned: ignore rather than crash the canvas
   const attempt = e.attempt ?? 1;

@@ -1,3 +1,40 @@
+# Review remediation — Jeff's remaining release blockers
+
+See [workstream 08](../workstreams/08-review-remediation.md). Compiler semantics
+in `app/agents/dataset.py` remain yours; no semantic patch was integrated or
+claimed. Local history has no later reviewed compiler commit beyond `1956f18`.
+The new `tests/dataset/test_compiler_review_blockers.py` contains strict expected
+failures for the exact R3/R4 reproductions. Supply an exact tested commit for
+integration and remove each expected-failure marker only when its patch passes.
+
+- R3: `SF adults 25-34, gym membership or fitness app users. Do not include yoga.`
+  currently compiles `gym_app_or_yoga`. Expect gym/app exclusion or a bounded
+  clarification, never inferred expansion. Cover affirmative inclusion, exclusion,
+  negation and contradictory answers.
+- R4: start with `SF adults 18-24, gym membership or fitness app users, grouped by ZIP.`
+  Answer its cohort question: `Yes, change to San Francisco adults 25-34 grouped by ZIP,
+  gym membership or fitness app use.` It currently repeats the rejected cohort.
+  Expect ready 25–34 terms from the explicit question-bound correction, retaining
+  original prompt/answer history and deadline. Also cover corrected geography and
+  unresolved contradictions without extra question/deadline budget.
+
+R2 transport now persists typed request/case/actor/original binding/time/text/refs
+in `order.evidence_answers`. `orders/dataset_evidence.answer_references` re-resolves
+up to sixteen current-case frozen references; the injected assessor receives
+actual passages, including `yoga_category=Wellness`, after restart. Only a narrow
+passage-assembly call changed in `investigation/dataset.py`. Interpretation stays
+with your assessor. Customer text is testimony, not source authority or purchase
+consent; a cited answer never mutates accepted editions/terms. Preserve UNKNOWN
+when the references cannot establish the claim. `test_review_answers.py` defines
+the tested seam, including source repair, abstention, rollback and replay.
+
+R1 now strictly allowlists DatasetSource, DatasetManifest, CoverageSource and
+AuthoritySource at the public boundary. Schema evolution must explicitly extend
+that allowlist; arbitrary JSON remains private, even when its discriminator is
+absent. R6 sends validated requirement/field/ZIP/column/intent. A 94110 coverage
+complaint reaches coverage, not category; expand substantive assessment behavior
+only with cited tests. No messages were sent by this task; this is the local handoff.
+
 # Aggregate brokerage migration handoff
 
 Current primary product: `aggregate-brokerage-v1`; historical profiles retain their

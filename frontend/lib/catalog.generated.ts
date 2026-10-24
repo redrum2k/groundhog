@@ -41,6 +41,7 @@ export interface DisputeCommand {
 }
 export interface Complaint {
   artifact_id: string;
+  column?: ("zip" | "area" | "count" | "status") | null;
   field:
     | "weight"
     | "unit_price"
@@ -52,7 +53,8 @@ export interface Complaint {
     | "geography"
     | "coverage"
     | "suppression"
-    | "artifact";
+    | "artifact"
+    | "schema";
   intent?: "dispute_fact" | "change_scope";
   product_id: string;
   requirement_id: string;
@@ -263,6 +265,7 @@ export interface CatalogOrder {
   deliveries?: (Delivery | DatasetDelivery)[];
   delivery_state?: "absent" | "verified" | "needs_review" | "operational_failure";
   error?: string | null;
+  evidence_answers?: DatasetEvidenceAnswer[];
   evidence_requests?: EvidenceRequest[];
   free_corrections_used?: number;
   jobs?: Job[];
@@ -392,6 +395,46 @@ export interface DatasetDelivery {
   published_at: string;
   review_deadline: string;
   version: number;
+}
+export interface DatasetEvidenceAnswer {
+  actor: string;
+  answer_id: string;
+  case_id: string | null;
+  original_binding: Binding;
+  original_revision: number;
+  received_at: string;
+  /**
+   * @maxItems 8
+   */
+  references:
+    | []
+    | [DatasetReference]
+    | [DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference
+      ]
+    | [
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference
+      ];
+  request_id: string;
+  text: string;
 }
 export interface EvidenceRequest {
   answered?: boolean;

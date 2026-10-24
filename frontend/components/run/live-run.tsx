@@ -7,6 +7,8 @@ import { project } from "../../lib/run/fold";
 import Canvas, { type CNode } from "./canvas";
 import { IcLogo, IcX } from "./icons";
 import TodoList from "./checklist";
+import EvidenceAnswer from "./evidence-answer";
+import ComplaintForm from "./complaint-form";
 
 const EMPTY = {version:0,buyer:"",title:"",price:0,lines:[]};
 const MAIN = new Set(["clarify","paid","produce","review","captured"]);
@@ -79,7 +81,7 @@ export default function LiveRun({recorded}: {recorded:()=>void}) {
         {delivery && <><h3>{delivery.file}</h3><a className="btn" href={`${LIVE_API}/orders/${binding?.orderId}/artifacts/${delivery.artifactId}`} download={delivery.file}>Download CSV</a><p>SHA-256: {delivery.sha256}</p><div className="sheet"><table><thead><tr><th>ZIP</th><th>Area</th><th>Count</th><th>Status</th></tr></thead><tbody>{delivery.rows.map(row=><tr key={row.zip}><td>{row.zip}</td><td>{row.area}</td><td>{row.count ?? "—"}</td><td>{row.status}</td></tr>)}</tbody></table></div></>}
         <p>Server time: {page?.server_time}<br/>Review closes: {page?.reviewClosesAt ?? "Not started"}<br/>Dispute closes: {page?.disputeClosesAt ?? "Not opened"}<br/>Latest safe capture submission: {page?.latestSafeSubmissionAt ?? "Not accepted"}<br/>Authorization expires: {page?.captureClosesAt ?? "Not accepted"}</p>
         {enabled("accept") && <button type="button" className="btn solid" onClick={()=>current("acceptance")}>Accept verified delivery</button>}
-        {delivery && <><label htmlFor="complaint">Complaint or scope request</label><textarea id="complaint" value={text} onChange={e=>setText(e.target.value)}/><button type="button" className="btn" disabled={!enabled("dispute") || !text} onClick={()=>current("disputes",{complaint:{artifact_id:delivery.artifactId,requirement_id:"R-CATEGORY",field:"category",product_id:"dataset",text,intent:"dispute_fact"}})}>Record complaint</button></>}
+        {delivery?.artifactId && <ComplaintForm key={`${binding?.orderId}:${binding?.revision}`} targets={page?.complaint_targets ?? []} artifactId={delivery.artifactId} disabled={!enabled("dispute")} submit={complaint=>void current("disputes",{complaint})}/>}
         {binding && ["oakland","yoga","replacement"].map(scope=><button type="button" className="btn" key={scope} disabled={busy} onClick={async()=>{const q=await live.command<Quote>(`/runs/${id}/offers`,{binding,scope});if(q)setOffer(q);}}>Request provider {scope} offer</button>)}
         {offer && <><p>Separate offer: ${(offer.amount.amount_minor/100).toFixed(2)}. Acceptance and funding are still required.</p><button type="button" className="btn" onClick={()=>{live.resume(offer.request_id);setOffer(undefined);setPreparation(undefined);setPanel("clarify");}}>Review separate offer</button></>}
       </>}
@@ -87,8 +89,8 @@ export default function LiveRun({recorded}: {recorded:()=>void}) {
       {(panel==="investigate" || panel==="decide" || panel==="verdict") && <>
         <p>{node?.verdict?.reason ?? node?.waitingOn}</p><label htmlFor="reason">Reason or evidence answer</label><textarea id="reason" value={text} onChange={e=>setText(e.target.value)}/>
         {(["approve","reject","ask","escalate"] as const).map(action=><div key={action}><button type="button" className="btn" disabled={!enabled(action)} onClick={()=>decision(action)}>{action}</button><p>{page?.available_actions.find(a=>a.action===action)?.reason}</p></div>)}
-        <button type="button" className="btn" disabled={!binding || busy || !text} onClick={()=>runAction("answers",{text,references:[]})}>Submit actual evidence answer</button>
       </>}
+      {binding && page?.evidence_request && <EvidenceAnswer key={`${page.evidence_request.request_id}:${binding.revision}`} request={page.evidence_request} binding={binding} busy={busy} submit={answer=>void runAction("answers",{...answer})}/>}
       {panel==="captured" && <><h3>{payment?.payment.state}</h3><p>{view.nodes.captured?.entries?.length ? "Recorded balanced entries" : "Existing idempotent payment bookings; no double-entry accounting export."}</p><p>Cost and margin unavailable. No external accounting integration.</p></>}
       <p className="mock-note">Synthetic aggregate data. Suppression is a demo contract rule, not a general privacy guarantee. Review findings never authorize payment by themselves.</p>
       </div></aside>

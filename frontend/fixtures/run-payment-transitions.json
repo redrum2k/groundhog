@@ -1,0 +1,2213 @@
+{
+  "evidence": "Synthetic mock projection fixture; hold/return states injected, no RPC or transfers.",
+  "frames": [
+    {
+      "state": "funded",
+      "events": [
+        {
+          "seq": 1,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "steps_planned",
+          "steps": [
+            {
+              "id": "clarify",
+              "kind": "clarify",
+              "title": "Clarify",
+              "detail": "Agree on the cohort, sources and price",
+              "panel": true
+            },
+            {
+              "id": "paid",
+              "kind": "paid",
+              "title": "Funds held",
+              "detail": "Buyer authorization and confirmed funding",
+              "panel": true
+            },
+            {
+              "id": "produce",
+              "kind": "produce",
+              "title": "Produce & check",
+              "detail": "Validate CSV and preview against the contract",
+              "panel": true
+            },
+            {
+              "id": "review",
+              "kind": "review",
+              "title": "Customer review",
+              "detail": "Accepted server review window",
+              "panel": true
+            },
+            {
+              "id": "captured",
+              "kind": "captured",
+              "title": "Captured",
+              "detail": "Confirmed settlement and recorded booking",
+              "panel": true
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "awaiting_signature",
+          "reason": null
+        },
+        {
+          "seq": 18,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 1
+          },
+          "paymentState": "awaiting_signature"
+        },
+        {
+          "seq": 19,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funding_pending",
+          "reason": null
+        },
+        {
+          "seq": 20,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 2
+          },
+          "paymentState": "funding_pending"
+        },
+        {
+          "seq": 21,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_authorized",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "allowedBy": "Explicit simulated funding; no chain transaction"
+        },
+        {
+          "seq": 23,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 24,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 3
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 25,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 26,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 4
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 28,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 29,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 5
+          },
+          "paymentState": "funded"
+        }
+      ]
+    },
+    {
+      "state": "void_pending",
+      "events": [
+        {
+          "seq": 1,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "steps_planned",
+          "steps": [
+            {
+              "id": "clarify",
+              "kind": "clarify",
+              "title": "Clarify",
+              "detail": "Agree on the cohort, sources and price",
+              "panel": true
+            },
+            {
+              "id": "paid",
+              "kind": "paid",
+              "title": "Funds held",
+              "detail": "Buyer authorization and confirmed funding",
+              "panel": true
+            },
+            {
+              "id": "produce",
+              "kind": "produce",
+              "title": "Produce & check",
+              "detail": "Validate CSV and preview against the contract",
+              "panel": true
+            },
+            {
+              "id": "review",
+              "kind": "review",
+              "title": "Customer review",
+              "detail": "Accepted server review window",
+              "panel": true
+            },
+            {
+              "id": "captured",
+              "kind": "captured",
+              "title": "Captured",
+              "detail": "Confirmed settlement and recorded booking",
+              "panel": true
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "awaiting_signature",
+          "reason": null
+        },
+        {
+          "seq": 18,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 1
+          },
+          "paymentState": "awaiting_signature"
+        },
+        {
+          "seq": 19,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funding_pending",
+          "reason": null
+        },
+        {
+          "seq": 20,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 2
+          },
+          "paymentState": "funding_pending"
+        },
+        {
+          "seq": 21,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_authorized",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "allowedBy": "Explicit simulated funding; no chain transaction"
+        },
+        {
+          "seq": 23,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 24,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 3
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 25,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 26,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 4
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 28,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 29,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 5
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 54,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "void_pending",
+          "reason": null
+        },
+        {
+          "seq": 55,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 6
+          },
+          "paymentState": "void_pending"
+        }
+      ]
+    },
+    {
+      "state": "voided",
+      "events": [
+        {
+          "seq": 1,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "steps_planned",
+          "steps": [
+            {
+              "id": "clarify",
+              "kind": "clarify",
+              "title": "Clarify",
+              "detail": "Agree on the cohort, sources and price",
+              "panel": true
+            },
+            {
+              "id": "paid",
+              "kind": "paid",
+              "title": "Funds held",
+              "detail": "Buyer authorization and confirmed funding",
+              "panel": true
+            },
+            {
+              "id": "produce",
+              "kind": "produce",
+              "title": "Produce & check",
+              "detail": "Validate CSV and preview against the contract",
+              "panel": true
+            },
+            {
+              "id": "review",
+              "kind": "review",
+              "title": "Customer review",
+              "detail": "Accepted server review window",
+              "panel": true
+            },
+            {
+              "id": "captured",
+              "kind": "captured",
+              "title": "Captured",
+              "detail": "Confirmed settlement and recorded booking",
+              "panel": true
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "awaiting_signature",
+          "reason": null
+        },
+        {
+          "seq": 18,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 1
+          },
+          "paymentState": "awaiting_signature"
+        },
+        {
+          "seq": 19,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funding_pending",
+          "reason": null
+        },
+        {
+          "seq": 20,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 2
+          },
+          "paymentState": "funding_pending"
+        },
+        {
+          "seq": 21,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_authorized",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "allowedBy": "Explicit simulated funding; no chain transaction"
+        },
+        {
+          "seq": 23,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 24,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 3
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 25,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 26,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 4
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 28,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 29,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 5
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 54,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "void_pending",
+          "reason": null
+        },
+        {
+          "seq": 55,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 6
+          },
+          "paymentState": "void_pending"
+        },
+        {
+          "seq": 56,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-17dea8a6e4b84a5584037da0ce87ff17",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "voided",
+          "reason": null
+        },
+        {
+          "seq": 57,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-73630974f5b0414fab1d96c543c4323a",
+            "orderId": "order-quote-21918048001c47d5834520c5a9227c36",
+            "snapshotId": "snapshot-9e6be5f495d14cceabf84ec95426bea0",
+            "revision": 7
+          },
+          "paymentState": "voided"
+        }
+      ]
+    },
+    {
+      "state": "funded",
+      "events": [
+        {
+          "seq": 1,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "steps_planned",
+          "steps": [
+            {
+              "id": "clarify",
+              "kind": "clarify",
+              "title": "Clarify",
+              "detail": "Agree on the cohort, sources and price",
+              "panel": true
+            },
+            {
+              "id": "paid",
+              "kind": "paid",
+              "title": "Funds held",
+              "detail": "Buyer authorization and confirmed funding",
+              "panel": true
+            },
+            {
+              "id": "produce",
+              "kind": "produce",
+              "title": "Produce & check",
+              "detail": "Validate CSV and preview against the contract",
+              "panel": true
+            },
+            {
+              "id": "review",
+              "kind": "review",
+              "title": "Customer review",
+              "detail": "Accepted server review window",
+              "panel": true
+            },
+            {
+              "id": "captured",
+              "kind": "captured",
+              "title": "Captured",
+              "detail": "Confirmed settlement and recorded booking",
+              "panel": true
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "awaiting_signature",
+          "reason": null
+        },
+        {
+          "seq": 18,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 1
+          },
+          "paymentState": "awaiting_signature"
+        },
+        {
+          "seq": 19,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funding_pending",
+          "reason": null
+        },
+        {
+          "seq": 20,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 2
+          },
+          "paymentState": "funding_pending"
+        },
+        {
+          "seq": 21,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_authorized",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "allowedBy": "Explicit simulated funding; no chain transaction"
+        },
+        {
+          "seq": 23,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 24,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 3
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 25,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 26,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 4
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 28,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 29,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 5
+          },
+          "paymentState": "funded"
+        }
+      ]
+    },
+    {
+      "state": "uncertain",
+      "events": [
+        {
+          "seq": 1,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "steps_planned",
+          "steps": [
+            {
+              "id": "clarify",
+              "kind": "clarify",
+              "title": "Clarify",
+              "detail": "Agree on the cohort, sources and price",
+              "panel": true
+            },
+            {
+              "id": "paid",
+              "kind": "paid",
+              "title": "Funds held",
+              "detail": "Buyer authorization and confirmed funding",
+              "panel": true
+            },
+            {
+              "id": "produce",
+              "kind": "produce",
+              "title": "Produce & check",
+              "detail": "Validate CSV and preview against the contract",
+              "panel": true
+            },
+            {
+              "id": "review",
+              "kind": "review",
+              "title": "Customer review",
+              "detail": "Accepted server review window",
+              "panel": true
+            },
+            {
+              "id": "captured",
+              "kind": "captured",
+              "title": "Captured",
+              "detail": "Confirmed settlement and recorded booking",
+              "panel": true
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "awaiting_signature",
+          "reason": null
+        },
+        {
+          "seq": 18,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 1
+          },
+          "paymentState": "awaiting_signature"
+        },
+        {
+          "seq": 19,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funding_pending",
+          "reason": null
+        },
+        {
+          "seq": 20,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 2
+          },
+          "paymentState": "funding_pending"
+        },
+        {
+          "seq": 21,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_authorized",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "allowedBy": "Explicit simulated funding; no chain transaction"
+        },
+        {
+          "seq": 23,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 24,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 3
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 25,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 26,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 4
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 28,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 29,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 5
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 54,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "uncertain",
+          "reason": null
+        },
+        {
+          "seq": 55,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 6
+          },
+          "paymentState": "uncertain"
+        }
+      ]
+    },
+    {
+      "state": "expired_not_returned",
+      "events": [
+        {
+          "seq": 1,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "steps_planned",
+          "steps": [
+            {
+              "id": "clarify",
+              "kind": "clarify",
+              "title": "Clarify",
+              "detail": "Agree on the cohort, sources and price",
+              "panel": true
+            },
+            {
+              "id": "paid",
+              "kind": "paid",
+              "title": "Funds held",
+              "detail": "Buyer authorization and confirmed funding",
+              "panel": true
+            },
+            {
+              "id": "produce",
+              "kind": "produce",
+              "title": "Produce & check",
+              "detail": "Validate CSV and preview against the contract",
+              "panel": true
+            },
+            {
+              "id": "review",
+              "kind": "review",
+              "title": "Customer review",
+              "detail": "Accepted server review window",
+              "panel": true
+            },
+            {
+              "id": "captured",
+              "kind": "captured",
+              "title": "Captured",
+              "detail": "Confirmed settlement and recorded booking",
+              "panel": true
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "awaiting_signature",
+          "reason": null
+        },
+        {
+          "seq": 18,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 1
+          },
+          "paymentState": "awaiting_signature"
+        },
+        {
+          "seq": 19,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funding_pending",
+          "reason": null
+        },
+        {
+          "seq": 20,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 2
+          },
+          "paymentState": "funding_pending"
+        },
+        {
+          "seq": 21,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_authorized",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "allowedBy": "Explicit simulated funding; no chain transaction"
+        },
+        {
+          "seq": 23,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 24,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 3
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 25,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 26,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 4
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 28,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 29,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 5
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 54,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "uncertain",
+          "reason": null
+        },
+        {
+          "seq": 55,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 6
+          },
+          "paymentState": "uncertain"
+        },
+        {
+          "seq": 56,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-a885cf0dadb445749c9457281771b9d4",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "expired_not_returned",
+          "reason": null
+        },
+        {
+          "seq": 57,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-4525c6cf49c442a18d07bbb70f43a1c9",
+            "orderId": "order-quote-f43d198fb0f146d399423a2f7771d888",
+            "snapshotId": "snapshot-d72a4a7cf235480f92e08e526ebddc50",
+            "revision": 7
+          },
+          "paymentState": "expired_not_returned"
+        }
+      ]
+    },
+    {
+      "state": "captured",
+      "events": [
+        {
+          "seq": 1,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "steps_planned",
+          "steps": [
+            {
+              "id": "clarify",
+              "kind": "clarify",
+              "title": "Clarify",
+              "detail": "Agree on the cohort, sources and price",
+              "panel": true
+            },
+            {
+              "id": "paid",
+              "kind": "paid",
+              "title": "Funds held",
+              "detail": "Buyer authorization and confirmed funding",
+              "panel": true
+            },
+            {
+              "id": "produce",
+              "kind": "produce",
+              "title": "Produce & check",
+              "detail": "Validate CSV and preview against the contract",
+              "panel": true
+            },
+            {
+              "id": "review",
+              "kind": "review",
+              "title": "Customer review",
+              "detail": "Accepted server review window",
+              "panel": true
+            },
+            {
+              "id": "captured",
+              "kind": "captured",
+              "title": "Captured",
+              "detail": "Confirmed settlement and recorded booking",
+              "panel": true
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "awaiting_signature",
+          "reason": null
+        },
+        {
+          "seq": 18,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 1
+          },
+          "paymentState": "awaiting_signature"
+        },
+        {
+          "seq": 19,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funding_pending",
+          "reason": null
+        },
+        {
+          "seq": 20,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 2
+          },
+          "paymentState": "funding_pending"
+        },
+        {
+          "seq": 21,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_authorized",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "allowedBy": "Explicit simulated funding; no chain transaction"
+        },
+        {
+          "seq": 23,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 24,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 3
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 25,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 26,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 4
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 28,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 29,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 5
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 55,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_captured",
+          "paymentId": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+          "captureTx": null,
+          "allowedBy": "Current mandatory checks, review trigger and exact payment authority; completed payment evidence"
+        },
+        {
+          "seq": 56,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "captured",
+          "attempt": 1,
+          "type": "books_posted",
+          "entries": [],
+          "margin": null,
+          "operationIds": [
+            "order-quote-220dc5a3ac01499fb2433f297f28302d:capture"
+          ],
+          "note": "Existing idempotent capture booking. Cost/margin unavailable; no double-entry or external accounting integration claimed."
+        },
+        {
+          "seq": 58,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "captured",
+          "reason": null
+        },
+        {
+          "seq": 59,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "closed",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 6
+          },
+          "paymentState": "captured"
+        }
+      ]
+    },
+    {
+      "state": "reorg_hold",
+      "events": [
+        {
+          "seq": 1,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "steps_planned",
+          "steps": [
+            {
+              "id": "clarify",
+              "kind": "clarify",
+              "title": "Clarify",
+              "detail": "Agree on the cohort, sources and price",
+              "panel": true
+            },
+            {
+              "id": "paid",
+              "kind": "paid",
+              "title": "Funds held",
+              "detail": "Buyer authorization and confirmed funding",
+              "panel": true
+            },
+            {
+              "id": "produce",
+              "kind": "produce",
+              "title": "Produce & check",
+              "detail": "Validate CSV and preview against the contract",
+              "panel": true
+            },
+            {
+              "id": "review",
+              "kind": "review",
+              "title": "Customer review",
+              "detail": "Accepted server review window",
+              "panel": true
+            },
+            {
+              "id": "captured",
+              "kind": "captured",
+              "title": "Captured",
+              "detail": "Confirmed settlement and recorded booking",
+              "panel": true
+            }
+          ]
+        },
+        {
+          "seq": 17,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "awaiting_signature",
+          "reason": null
+        },
+        {
+          "seq": 18,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 1
+          },
+          "paymentState": "awaiting_signature"
+        },
+        {
+          "seq": 19,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funding_pending",
+          "reason": null
+        },
+        {
+          "seq": 20,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "paid",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "awaiting_authorization",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 2
+          },
+          "paymentState": "funding_pending"
+        },
+        {
+          "seq": 21,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_authorized",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "allowedBy": "Explicit simulated funding; no chain transaction"
+        },
+        {
+          "seq": 23,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 24,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 3
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 25,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 26,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "processing",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 0,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 4
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 28,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "funded",
+          "reason": null
+        },
+        {
+          "seq": 29,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "delivered",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 5
+          },
+          "paymentState": "funded"
+        },
+        {
+          "seq": 55,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_captured",
+          "paymentId": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+          "captureTx": null,
+          "allowedBy": "Current mandatory checks, review trigger and exact payment authority; completed payment evidence"
+        },
+        {
+          "seq": 56,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "captured",
+          "attempt": 1,
+          "type": "books_posted",
+          "entries": [],
+          "margin": null,
+          "operationIds": [
+            "order-quote-220dc5a3ac01499fb2433f297f28302d:capture"
+          ],
+          "note": "Existing idempotent capture booking. Cost/margin unavailable; no double-entry or external accounting integration claimed."
+        },
+        {
+          "seq": 58,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "captured",
+          "reason": null
+        },
+        {
+          "seq": 59,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "closed",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 6
+          },
+          "paymentState": "captured"
+        },
+        {
+          "seq": 60,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "type": "payment_state_changed",
+          "payment": {
+            "id": "payment-e4239f17ce164a84b04fbb3dfba81eea",
+            "amount": 120,
+            "rail": "commerce-payments",
+            "network": "base-sepolia",
+            "mock": true
+          },
+          "state": "reorg_hold",
+          "reason": null
+        },
+        {
+          "seq": 61,
+          "at": "2026-10-23T19:00:00Z",
+          "track": "shared",
+          "step": "review",
+          "attempt": 1,
+          "type": "state_changed",
+          "state": "closed",
+          "reason": null,
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 1,
+            "runId": "request-8ba5811795684e819cf7fdb9024d3606",
+            "orderId": "order-quote-220dc5a3ac01499fb2433f297f28302d",
+            "snapshotId": "snapshot-d14e262f1e9f4b5ead78e5cbd891bfc0",
+            "revision": 7
+          },
+          "paymentState": "reorg_hold"
+        }
+      ]
+    }
+  ]
+}

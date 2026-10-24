@@ -360,6 +360,18 @@ class EvidenceRequest(Contract):
     answered: bool = False
 
 
+class DatasetEvidenceAnswer(Contract):
+    answer_id: Text
+    request_id: Text
+    case_id: Text | None
+    actor: Text
+    original_binding: Binding
+    original_revision: Version
+    received_at: AwareDatetime
+    text: Annotated[str, Field(min_length=1, max_length=2000)]
+    references: Annotated[tuple[DatasetReference, ...], Field(max_length=8)]
+
+
 class Amendment(Contract):
     amendment_id: Text
     actor: Text
@@ -401,10 +413,12 @@ class Complaint(Contract):
         "coverage",
         "suppression",
         "artifact",
+        "schema",
     ]
     requirement_id: Text
     artifact_id: Text
     intent: Literal["dispute_fact", "change_scope"] = "dispute_fact"
+    column: Literal["zip", "area", "count", "status"] | None = None
 
 
 class Case(Contract):
@@ -504,6 +518,7 @@ class CatalogOrder(BaseModel):
     verification: Verification | None = None
     verification_history: tuple[Verification, ...] = ()
     evidence_requests: tuple[EvidenceRequest, ...] = ()
+    evidence_answers: tuple[DatasetEvidenceAnswer, ...] = ()
     repair_deadline: AwareDatetime | None = None
     amendments: tuple[Amendment, ...] = ()
     approvals: tuple[Approval, ...] = ()

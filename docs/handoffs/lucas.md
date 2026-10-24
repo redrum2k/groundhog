@@ -1,3 +1,41 @@
+# Review remediation — generated contracts and controls
+
+[Workstream 08](../workstreams/08-review-remediation.md) addresses R1/R2/R5/R6
+without changing your canvas layout/styles. The former hardcoded
+`R-CATEGORY/category/dataset/dispute_fact` and `references:[]` submissions have
+minimal functional replacements in `ComplaintForm` and `EvidenceAnswer`.
+You retain visual ownership and the next design task: connect row/cell clicks to
+those same explicit controls, improve source navigation and evidence-choice
+presentation, and keep scope requests visibly distinct from factual disputes.
+Do not restore hardcoded targets or infer intent from the complaint prose.
+
+- Poll `RunPage.complaint_targets` for accepted requirement/field and allowable
+  row IDs/columns. Submit `Complaint.product_id` as the selected ZIP or `dataset`,
+  the matching requirement/field, optional column, current artifact/binding and
+  explicit `dispute_fact`/`change_scope`. Inconsistent combinations return 422;
+  stale bindings return 409. Coverage 94110 must reach coverage with zero unrelated
+  yoga questions; `scripts/review-remediation-smoke.cjs` tests the actual form/API.
+- Poll `RunPage.evidence_request` for request/case/prompt/original deadline and
+  safe frozen reference choices. Send `RunEvidenceAnswer` with request_id, current
+  binding, text and up to eight selected references. Source repair requires at
+  least one. A missing ID is allowed only for historical acknowledgement replay,
+  never a new answer. `EvidenceAnswer` resets selection on request/binding changes.
+  The server records the accepted buyer actor and re-resolves bytes after restart.
+  Text alone remains testimony; citing an expanded source is not purchase consent.
+- Fold typed `payment_state_changed` effects into current money state, even after
+  a prior capture. Keep capture/book events as history. Returned, pending return,
+  expired-but-not-returned, uncertain and reorg hold are distinct. The funding panel
+  uses the same coherent polling snapshot. The fold also supports historical
+  `state_changed.paymentState`. No mock hashes or explorer links are added.
+
+All DTOs are generated together by `npm run generate`; no wire union is handwritten.
+`broker-evidence-targets.test.tsx` verifies actual submitted reference/target/intent.
+`broker-payment-states.test.tsx` exercises complete LiveRun canvas, funding panel,
+reload and preserved capture history using backend-emitted synthetic transition
+fixtures. Fixtures explicitly disclose injected mock states, not real chain events.
+Retain the server-side credential bridge and explicit reapproval after 409.
+R3/R4 compiler semantics remain Jeff release blockers. No teammate messages were sent.
+
 # Aggregate brokerage migration handoff
 
 Current primary product: `aggregate-brokerage-v1`; historical profiles retain their

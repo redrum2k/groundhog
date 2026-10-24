@@ -26,6 +26,7 @@ export interface RunContractExport {
     | BooksPosted
     | PaymentAuthorized
     | PaymentCaptured
+    | PaymentStateChanged
     | StateChanged;
   funding_authorization: FundingAuthorization;
   funding_preparation: FundingPreparation;
@@ -39,7 +40,37 @@ export interface DecisionAcknowledgement {
 }
 export interface RunEvidenceAnswer {
   binding: DecisionBinding;
-  references?: DatasetReference[];
+  /**
+   * @maxItems 8
+   */
+  references?:
+    | []
+    | [DatasetReference]
+    | [DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference
+      ]
+    | [
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference
+      ];
+  request_id?: string | null;
   text: string;
 }
 export interface DecisionBinding {
@@ -404,11 +435,47 @@ export interface PaymentCaptured {
   track?: "shared" | "red" | "green" | "amber";
   type: "payment_captured";
 }
+export interface PaymentStateChanged {
+  at: string;
+  payment: CanvasPayment;
+  reason?: string | null;
+  seq: number;
+  state:
+    | "blocked_parent"
+    | "awaiting_signature"
+    | "funding_pending"
+    | "funded"
+    | "capture_pending"
+    | "captured"
+    | "void_pending"
+    | "voided"
+    | "uncertain"
+    | "failed"
+    | "expired_not_returned"
+    | "reorg_hold";
+  track?: "shared" | "red" | "green" | "amber";
+  type: "payment_state_changed";
+}
 export interface StateChanged {
   at: string;
   attempt?: number;
   binding: CanvasBinding;
-  paymentState?: string | null;
+  paymentState?:
+    | (
+        | "blocked_parent"
+        | "awaiting_signature"
+        | "funding_pending"
+        | "funded"
+        | "capture_pending"
+        | "captured"
+        | "void_pending"
+        | "voided"
+        | "uncertain"
+        | "failed"
+        | "expired_not_returned"
+        | "reorg_hold"
+      )
+    | null;
   reason?: string | null;
   seq: number;
   state: string;
@@ -520,6 +587,7 @@ export interface RunPage {
   binding: DecisionBinding | null;
   captureClosesAt: string | null;
   caught_up: boolean;
+  complaint_targets?: DatasetComplaintTarget[];
   disputeClosesAt: string | null;
   events: (
     | StepsPlanned
@@ -541,8 +609,10 @@ export interface RunPage {
     | BooksPosted
     | PaymentAuthorized
     | PaymentCaptured
+    | PaymentStateChanged
     | StateChanged
   )[];
+  evidence_request?: RunEvidenceRequest | null;
   high_watermark: number;
   latestSafeSubmissionAt: string | null;
   next_after: number;
@@ -557,6 +627,23 @@ export interface ActionAvailability {
   action: string;
   enabled: boolean;
   reason: string;
+}
+export interface DatasetComplaintTarget {
+  columns: ("zip" | "area" | "count" | "status")[];
+  field: "cohort" | "category" | "geography" | "schema" | "coverage" | "suppression" | "provenance" | "artifact";
+  requirement_id: string;
+  row_ids: string[];
+}
+export interface RunEvidenceRequest {
+  /**
+   * @maxItems 32
+   */
+  allowed_references?: DatasetReference[];
+  case_id: string | null;
+  deadline: string;
+  prompt: string;
+  references_required: boolean;
+  request_id: string;
 }
 export interface PaymentView {
   explorer_links?: string[];

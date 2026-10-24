@@ -6,8 +6,13 @@ from pydantic import AwareDatetime, ConfigDict, Field, StrictInt, TypeAdapter
 
 from app.contracts.catalog import Quote, RequestDraft
 from app.contracts.data_product import Frozen, Name
-from app.contracts.dataset import DatasetReference
-from app.contracts.payments import FundingAuthorization, FundingPreparation, PaymentView
+from app.contracts.dataset import DatasetComplaintTarget, DatasetReference
+from app.contracts.payments import (
+    FundingAuthorization,
+    FundingPreparation,
+    PaymentAccountState,
+    PaymentView,
+)
 
 Track = Literal["shared", "red", "green", "amber"]
 StepKind = Literal[
@@ -328,12 +333,19 @@ class PaymentCaptured(BaseEvent):
     allowedBy: str
 
 
+class PaymentStateChanged(BaseEvent):
+    type: Literal["payment_state_changed"]
+    payment: CanvasPayment
+    state: PaymentAccountState
+    reason: str | None = None
+
+
 class StateChanged(StepEvent):
     type: Literal["state_changed"]
     state: str
     reason: str | None = None
     binding: CanvasBinding
-    paymentState: str | None = None
+    paymentState: PaymentAccountState | None = None
 
 
 RunEvent = Annotated[
@@ -356,6 +368,7 @@ RunEvent = Annotated[
     | BooksPosted
     | PaymentAuthorized
     | PaymentCaptured
+    | PaymentStateChanged
     | StateChanged,
     Field(discriminator="type"),
 ]
@@ -396,6 +409,17 @@ class RunPage(Frozen):
     disputeClosesAt: AwareDatetime | None
     captureClosesAt: AwareDatetime | None
     latestSafeSubmissionAt: AwareDatetime | None
+    evidence_request: "RunEvidenceRequest | None" = None
+    complaint_targets: tuple[DatasetComplaintTarget, ...] = ()
+
+
+class RunEvidenceRequest(Frozen):
+    request_id: Name
+    case_id: Name | None
+    prompt: str
+    deadline: AwareDatetime
+    references_required: bool
+    allowed_references: Annotated[tuple[DatasetReference, ...], Field(max_length=32)] = ()
 
 
 class RunDecision(Frozen):
@@ -419,8 +443,10 @@ class RunOffer(Frozen):
 
 class RunEvidenceAnswer(Frozen):
     binding: DecisionBinding
+    # Absent only for read-only replay of pre-remediation acknowledgements.
+    request_id: Name | None = None
     text: Annotated[str, Field(min_length=1, max_length=2000)]
-    references: tuple[DatasetReference, ...] = ()
+    references: Annotated[tuple[DatasetReference, ...], Field(max_length=8)] = ()
 
 
 class ResolvedCell(Frozen):

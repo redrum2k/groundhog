@@ -109,7 +109,9 @@ def test_two_real_answers_no_deadline_extension_and_stale_binding(dataset_servic
         api.answer(
             run,
             RunEvidenceAnswer(
-                binding=binding(order), text="Please inspect the registered definition."
+                request_id=f"{order.cases[-1].case_id}:question:{order.cases[-1].questions_asked}",
+                binding=binding(order),
+                text="Please inspect the registered definition.",
             ),
             f"answer:{i}",
         )

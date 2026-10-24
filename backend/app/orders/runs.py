@@ -1,10 +1,12 @@
 """Read-only event facade and bound commands over the integrated funded lifecycle."""
 
+import json
 from datetime import timedelta
 
 from app.catalog.requirements import specification
 from app.contracts.catalog import (
     CatalogOrder,
+    DatasetEvidenceAnswer,
     Quote,
     RequestCommand,
     RequestDraft,
@@ -15,6 +17,7 @@ from app.contracts.models import Money
 from app.contracts.runs import ActionAvailability, DecisionAcknowledgement, RunCreated, RunPage
 from app.datasets import make_terms, seed_registry
 from app.orders.catalog import identifier
+from app.orders.dataset_evidence import evidence_request, resolve_current_reference
 from app.orders.run_events import binding
 from app.orders.service import DomainError
 from app.runtime.catalog_policy import authorization_ready
@@ -190,6 +193,12 @@ class Runs:
                 disputeClosesAt=order.cases[-1].deadline if order and order.cases else None,
                 captureClosesAt=order.authorization.expires_at if order else None,
                 latestSafeSubmissionAt=cutoff(order) if order else None,
+                evidence_request=evidence_request(order, self.service.store, self.service.clock())
+                if order and caught_up
+                else None,
+                complaint_targets=self.service.complaint_targets(order)
+                if order and caught_up
+                else (),
             )
 
     def decide(self, run_id, command, key, actor):
@@ -298,6 +307,10 @@ class Runs:
     def answer(self, run_id, command, key):
         scope = f"run-answer:{run_id}"
         fingerprint = self.repository.fingerprint("answer", command)
+        if command.request_id is None:
+            historical = json.loads(fingerprint)
+            historical["payload"].pop("request_id")
+            fingerprint = json.dumps(historical, sort_keys=True)
         with self.repository.transaction() as db:
             replay = self.repository.replay(db, scope, key, fingerprint, DecisionAcknowledgement)
             if replay:
@@ -307,8 +320,13 @@ class Runs:
             now = self.service.clock()
             if now >= cutoff(order):
                 raise DomainError(409, "evidence cannot extend capture authority")
+            request = evidence_request(order, self.service.store, now)
+            if not request or command.request_id != request.request_id:
+                raise DomainError(409, "answer does not target the current evidence request")
+            if len(set(command.references)) != len(command.references):
+                raise DomainError(422, "answer references must be unique")
             for ref in command.references:
-                self.service.store.resolve(ref, order.artifacts)
+                resolve_current_reference(order, ref, self.service.store)
             case = order.cases[-1] if order.cases else None
             pending = next((r for r in order.evidence_requests if not r.answered), None)
             if case and case.status == "open" and case.question and now < case.deadline:
@@ -331,8 +349,24 @@ class Runs:
                 )
             else:
                 raise DomainError(409, "no current bounded evidence request")
+            order.evidence_answers = (
+                *order.evidence_answers,
+                DatasetEvidenceAnswer(
+                    answer_id=f"answer:{key}",
+                    request_id=request.request_id,
+                    case_id=request.case_id,
+                    actor=order.snapshot.customer_actor,
+                    original_binding=order.binding,
+                    original_revision=order.revision,
+                    received_at=now,
+                    text=command.text,
+                    references=command.references,
+                ),
+            )
             # Evidence citations do not change source editions, values or accepted terms.
             self.service._invalidate(order)
+            # Earlier semantic effects remain in append-only events, not current findings.
+            order.semantic_findings = ()
             order.order_state = "processing"
             self.service._enqueue(order, "reverify")
             order.revision += 1

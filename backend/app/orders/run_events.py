@@ -167,6 +167,20 @@ class CanvasEffects:
         if not is_dataset(order):
             return
         payment = self.owner.payments.view(db, order)
+        if payment:
+            self.emit(
+                db,
+                order,
+                f"payment-state:{order.revision}",
+                type="payment_state_changed",
+                payment={
+                    "id": order.payment_id,
+                    "amount": order.snapshot.quote.amount.amount_minor // 100,
+                    "mock": payment.simulated,
+                },
+                state=payment.payment.state,
+                reason=payment.payment.last_error,
+            )
         self.emit(
             db,
             order,
@@ -223,6 +237,7 @@ class CanvasEffects:
             for i, ref in enumerate(assessment.citations):
                 if not isinstance(ref, DatasetReference):
                     continue
+                self.owner.store.resolve(ref, order.artifacts)
                 evidence_id = f"{job.job_id}:{assessment.obligation_id}:{i}"
                 self.emit(
                     db,

@@ -6,7 +6,7 @@ integer suppression, authoritative coverage and CSV/preview agreement are new ru
 
 from typing import Annotated, Literal
 
-from pydantic import Field, StrictInt, model_validator
+from pydantic import Field, StrictBool, StrictInt, TypeAdapter, model_validator
 
 from app.contracts.data_product import Frozen, Hash, Name, SourcePin, TermProvenance
 
@@ -23,6 +23,16 @@ DATASET_CHECKS = (
     "provenance",
     "artifact",
 )
+DatasetField = Literal[
+    "cohort", "category", "geography", "schema", "coverage", "suppression", "provenance", "artifact"
+]
+
+
+class DatasetComplaintTarget(Frozen):
+    requirement_id: Name
+    field: DatasetField
+    row_ids: tuple[Name, ...]
+    columns: tuple[Literal["zip", "area", "count", "status"], ...]
 
 
 class CoverageUniverse(Frozen):
@@ -142,3 +152,36 @@ class DatasetManifest(Frozen):
     sources: tuple[SourcePin, ...]
     coverage: SourcePin
     rows: tuple[DatasetRow, ...]
+
+
+class CoverageRow(Frozen):
+    zip: Annotated[str, Field(pattern=r"^\d{5}$")]
+    area: Name
+
+
+class CoverageSource(Frozen):
+    kind: Literal["coverage"]
+    source_id: Name
+    version: Annotated[StrictInt, Field(ge=1)]
+    geography: Literal["San Francisco", "Oakland"]
+    authority_record: Name
+    boundary_notice: str
+    rows: Annotated[tuple[CoverageRow, ...], Field(min_length=1, max_length=100)]
+
+
+class AuthoritySource(Frozen):
+    kind: Literal["authority"]
+    source_id: Name
+    version: Annotated[StrictInt, Field(ge=1)]
+    authority_record: Name
+    registered_publisher: Name
+    definition: str
+    yoga_is_gym: StrictBool | None
+    yoga_category: Name
+    notice: str
+
+
+# Each schema forbids extra fields. No discriminator's absence enables a raw fallback.
+PUBLIC_DATASET_JSON = TypeAdapter(
+    DatasetSource | DatasetManifest | CoverageSource | AuthoritySource
+)

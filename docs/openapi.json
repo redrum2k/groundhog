@@ -1449,6 +1449,14 @@
             ],
             "title": "Error"
           },
+          "evidence_answers": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DatasetEvidenceAnswer"
+            },
+            "title": "Evidence Answers",
+            "type": "array"
+          },
           "evidence_requests": {
             "default": [],
             "items": {
@@ -2136,6 +2144,23 @@
             "title": "Artifact Id",
             "type": "string"
           },
+          "column": {
+            "anyOf": [
+              {
+                "enum": [
+                  "zip",
+                  "area",
+                  "count",
+                  "status"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Column"
+          },
           "field": {
             "enum": [
               "weight",
@@ -2148,7 +2173,8 @@
               "geography",
               "coverage",
               "suppression",
-              "artifact"
+              "artifact",
+              "schema"
             ],
             "title": "Field",
             "type": "string"
@@ -2487,6 +2513,61 @@
         "title": "DataContract",
         "type": "object"
       },
+      "DatasetComplaintTarget": {
+        "additionalProperties": false,
+        "properties": {
+          "columns": {
+            "items": {
+              "enum": [
+                "zip",
+                "area",
+                "count",
+                "status"
+              ],
+              "type": "string"
+            },
+            "title": "Columns",
+            "type": "array"
+          },
+          "field": {
+            "enum": [
+              "cohort",
+              "category",
+              "geography",
+              "schema",
+              "coverage",
+              "suppression",
+              "provenance",
+              "artifact"
+            ],
+            "title": "Field",
+            "type": "string"
+          },
+          "requirement_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Requirement Id",
+            "type": "string"
+          },
+          "row_ids": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Row Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "requirement_id",
+          "field",
+          "row_ids",
+          "columns"
+        ],
+        "title": "DatasetComplaintTarget",
+        "type": "object"
+      },
       "DatasetDelivery": {
         "additionalProperties": false,
         "properties": {
@@ -2530,6 +2611,78 @@
           "binding"
         ],
         "title": "DatasetDelivery",
+        "type": "object"
+      },
+      "DatasetEvidenceAnswer": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "minLength": 1,
+            "title": "Actor",
+            "type": "string"
+          },
+          "answer_id": {
+            "minLength": 1,
+            "title": "Answer Id",
+            "type": "string"
+          },
+          "case_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Id"
+          },
+          "original_binding": {
+            "$ref": "#/components/schemas/Binding"
+          },
+          "original_revision": {
+            "minimum": 1.0,
+            "title": "Original Revision",
+            "type": "integer"
+          },
+          "received_at": {
+            "format": "date-time",
+            "title": "Received At",
+            "type": "string"
+          },
+          "references": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetReference"
+            },
+            "maxItems": 8,
+            "title": "References",
+            "type": "array"
+          },
+          "request_id": {
+            "minLength": 1,
+            "title": "Request Id",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "answer_id",
+          "request_id",
+          "case_id",
+          "actor",
+          "original_binding",
+          "original_revision",
+          "received_at",
+          "text",
+          "references"
+        ],
+        "title": "DatasetEvidenceAnswer",
         "type": "object"
       },
       "DatasetReference": {
@@ -4474,6 +4627,78 @@
         "title": "PaymentReceipt",
         "type": "object"
       },
+      "PaymentStateChanged": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/CanvasPayment"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "state": {
+            "enum": [
+              "blocked_parent",
+              "awaiting_signature",
+              "funding_pending",
+              "funded",
+              "capture_pending",
+              "captured",
+              "void_pending",
+              "voided",
+              "uncertain",
+              "failed",
+              "expired_not_returned",
+              "reorg_hold"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "payment_state_changed",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "type",
+          "payment",
+          "state"
+        ],
+        "title": "PaymentStateChanged",
+        "type": "object"
+      },
       "PaymentTerms": {
         "additionalProperties": false,
         "properties": {
@@ -5701,8 +5926,22 @@
             "items": {
               "$ref": "#/components/schemas/DatasetReference"
             },
+            "maxItems": 8,
             "title": "References",
             "type": "array"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
           },
           "text": {
             "maxLength": 2000,
@@ -5716,6 +5955,61 @@
           "text"
         ],
         "title": "RunEvidenceAnswer",
+        "type": "object"
+      },
+      "RunEvidenceRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed_references": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DatasetReference"
+            },
+            "maxItems": 32,
+            "title": "Allowed References",
+            "type": "array"
+          },
+          "case_id": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Id"
+          },
+          "deadline": {
+            "format": "date-time",
+            "title": "Deadline",
+            "type": "string"
+          },
+          "prompt": {
+            "title": "Prompt",
+            "type": "string"
+          },
+          "references_required": {
+            "title": "References Required",
+            "type": "boolean"
+          },
+          "request_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "case_id",
+          "prompt",
+          "deadline",
+          "references_required"
+        ],
+        "title": "RunEvidenceRequest",
         "type": "object"
       },
       "RunOffer": {
@@ -5777,6 +6071,14 @@
             "title": "Caught Up",
             "type": "boolean"
           },
+          "complaint_targets": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DatasetComplaintTarget"
+            },
+            "title": "Complaint Targets",
+            "type": "array"
+          },
           "disputeClosesAt": {
             "anyOf": [
               {
@@ -5808,6 +6110,7 @@
                   "message": "#/components/schemas/MessageEvent",
                   "payment_authorized": "#/components/schemas/PaymentAuthorized",
                   "payment_captured": "#/components/schemas/PaymentCaptured",
+                  "payment_state_changed": "#/components/schemas/PaymentStateChanged",
                   "rule_updated": "#/components/schemas/RuleUpdated",
                   "state_changed": "#/components/schemas/StateChanged",
                   "step_completed": "#/components/schemas/StepStarted",
@@ -5877,12 +6180,25 @@
                   "$ref": "#/components/schemas/PaymentCaptured"
                 },
                 {
+                  "$ref": "#/components/schemas/PaymentStateChanged"
+                },
+                {
                   "$ref": "#/components/schemas/StateChanged"
                 }
               ]
             },
             "title": "Events",
             "type": "array"
+          },
+          "evidence_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunEvidenceRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "high_watermark": {
             "title": "High Watermark",
@@ -6277,6 +6593,20 @@
           "paymentState": {
             "anyOf": [
               {
+                "enum": [
+                  "blocked_parent",
+                  "awaiting_signature",
+                  "funding_pending",
+                  "funded",
+                  "capture_pending",
+                  "captured",
+                  "void_pending",
+                  "voided",
+                  "uncertain",
+                  "failed",
+                  "expired_not_returned",
+                  "reorg_hold"
+                ],
                 "type": "string"
               },
               {

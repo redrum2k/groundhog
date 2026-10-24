@@ -1,0 +1,30 @@
+import {cleanup,fireEvent,render,screen} from "@testing-library/react";
+import {afterEach,expect,it,vi} from "vitest";
+import type {DecisionBinding,RunEvidenceRequest,DatasetComplaintTarget} from "../lib/runs.generated";
+import EvidenceAnswer from "../components/run/evidence-answer";
+import ComplaintForm from "../components/run/complaint-form";
+afterEach(cleanup);
+const binding:DecisionBinding={runId:"run",orderId:"order",snapshotId:"snapshot",revision:4,deliveryVersion:1,evidenceVersion:2};
+const request:RunEvidenceRequest={request_id:"case:question:1",case_id:"case",prompt:"Which taxonomy cell?",deadline:"2026-10-24T12:01:00Z",references_required:true,allowed_references:[{kind:"dataset",artifact_id:"authority",sha256:"a".repeat(64),source_id:"sf-aggregate-v1:authority",version:1,row:"$",column:"yoga_category",value:"Wellness"}]};
+it("submits the request identity, current binding and selected resolving evidence",()=>{
+ const submit=vi.fn();render(<EvidenceAnswer request={request} binding={binding} busy={false} submit={submit}/>);
+ fireEvent.change(screen.getByLabelText("Evidence answer"),{target:{value:"See the cited taxonomy cell."}});
+ expect((screen.getByRole("button") as HTMLButtonElement).disabled).toBe(true);
+ fireEvent.click(screen.getByRole("checkbox"));
+ fireEvent.click(screen.getByRole("button"));
+ expect(submit).toHaveBeenCalledWith({request_id:request.request_id,binding,text:"See the cited taxonomy cell.",references:request.allowed_references});
+});
+const targets:DatasetComplaintTarget[]=[{requirement_id:"R-COVERAGE",field:"coverage",row_ids:["dataset","94110"],columns:["zip","count","status"]},{requirement_id:"R-CATEGORY",field:"category",row_ids:["dataset"],columns:[]}];
+it.each(["dispute_fact","change_scope"] as const)("preserves coverage row/cell and explicit %s intent",intent=>{
+ const submit=vi.fn();render(<ComplaintForm targets={targets} artifactId="delivery" disabled={false} submit={submit}/>);
+ fireEvent.change(screen.getByLabelText("Accepted requirement"),{target:{value:"R-COVERAGE"}});
+ fireEvent.change(screen.getByLabelText("Dataset row"),{target:{value:"94110"}});
+ fireEvent.change(screen.getByLabelText("Dataset column (optional)"),{target:{value:"zip"}});
+ fireEvent.change(screen.getByLabelText("Request type"),{target:{value:intent}});
+ fireEvent.change(screen.getByLabelText("Complaint or scope request"),{target:{value:"ZIP 94110 is missing from the delivery"}});
+ fireEvent.click(screen.getByRole("button"));
+ expect(submit).toHaveBeenCalledWith({artifact_id:"delivery",requirement_id:"R-COVERAGE",field:"coverage",product_id:"94110",column:"zip",intent,text:"ZIP 94110 is missing from the delivery"});
+ fireEvent.change(screen.getByLabelText("Accepted requirement"),{target:{value:"R-CATEGORY"}});
+ expect((screen.getByLabelText("Dataset row") as HTMLSelectElement).value).toBe("dataset");
+ expect((screen.getByLabelText("Dataset column (optional)") as HTMLSelectElement).value).toBe("");
+});

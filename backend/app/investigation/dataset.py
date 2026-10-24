@@ -5,6 +5,7 @@ import json
 from app.agents.gateway import EvidencePassage, OfflineAssessor
 from app.contracts.catalog import Assessment, Obligation, Provenance
 from app.datasets import reference
+from app.orders.dataset_evidence import answer_references
 
 
 def investigate_dataset(order, report, store, assessor):
@@ -108,6 +109,7 @@ def investigate_dataset(order, report, store, assessor):
                 kind="deterministic", assessor="offline-dataset-semantics", version="1"
             ),
         )
+    refs = tuple(dict.fromkeys((*refs, *answer_references(order, store))))
     passages = tuple(
         EvidencePassage(citation=r, text=store.resolve(r, order.artifacts) or "Unknown")
         for r in refs
