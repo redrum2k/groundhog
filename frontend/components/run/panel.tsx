@@ -6,6 +6,7 @@ import type { CellEvidence } from "../../lib/runs.generated";
 import { CONTRACT, CONTRACT_V2, S, type Case, type Ending } from "../../lib/run/scenario";
 import TodoList, { type ChecklistItem } from "./checklist";
 import { IcCheck, IcChevronRight, IcLens, IcLock, IcX } from "./icons";
+import { OrbSlot } from "./guide";
 import Label from "./label";
 
 // One right-side panel holds every step's detail. It renders whatever the event stream attached
@@ -59,20 +60,31 @@ function Sheet({ rows, highlight, note, lens }: { rows: ZipCount[]; highlight?: 
   useLayoutEffect(() => {
     const el = box.current;
     if (!lensOn || !el) { setAt(null); return; }
-    const top = el.getBoundingClientRect().top;
-    const y = (r: Element | null) => (r ? r.getBoundingClientRect().top - top : 0);
-    const delivered = el.querySelectorAll("tbody tr:not(.f-missing)");
-    setAt({ y0: y(delivered[0]), y1: y(delivered[delivered.length - 1]), y: y(lensRow ? el.querySelector(`#row-${lensRow}`) : null), h: delivered[0]?.getBoundingClientRect().height ?? 0 });
+    // A long sheet scrolls inside its pane: sweep only the rows in view, and bring the cited row into view
+    const pane = el.closest<HTMLElement>(".cust-body, .panel-b");
+    const measure = () => {
+      const top = el.getBoundingClientRect().top, view = pane?.getBoundingClientRect();
+      const y = (r: Element | null) => (r ? r.getBoundingClientRect().top - top : 0);
+      const delivered = [...el.querySelectorAll("tbody tr:not(.f-missing)")];
+      const shown = view ? delivered.filter((r) => { const b = r.getBoundingClientRect(); return b.top >= view.top && b.bottom <= view.bottom; }) : [];
+      const sweep = shown.length > 1 ? shown : delivered;
+      setAt({ y0: y(sweep[0]), y1: y(sweep[sweep.length - 1]), y: y(lensRow ? el.querySelector(`#row-${lensRow}`) : null), h: delivered[0]?.getBoundingClientRect().height ?? 0 });
+    };
+    if (lensRow) el.querySelector(`#row-${lensRow}`)?.scrollIntoView?.({ block: "nearest" });
+    measure();
+    pane?.addEventListener("scroll", measure, { passive: true });
+    return () => pane?.removeEventListener("scroll", measure);
   }, [lensOn, lensRow, rows.length]);
   return (
     <div className="sheet" ref={box}>
-      {lens && at && (
+      {/* mounted with the lens, hidden until measured, so the customer view's orb has its slot in the same render */}
+      {lens && (
         <div className={`sheet-lens${lensRow ? "" : " scan"}`} aria-hidden
-          style={{ height: at.h, "--y0": `${at.y0}px`, "--y1": `${at.y1}px`, "--y": `${lensRow ? at.y : at.y0}px` } as CSSProperties}>
-          <IcLens size={15} strokeWidth={1.7} />
+          style={at ? { height: at.h, "--y0": `${at.y0}px`, "--y1": `${at.y1}px`, "--y": `${lensRow ? at.y : at.y0}px` } as CSSProperties : { visibility: "hidden" }}>
+          <OrbSlot name="sheet" fallback={<IcLens size={15} strokeWidth={1.7} />} />
         </div>
       )}
-      <div className="sheet-h"><span>Delivered sheet</span><span className="faint">Synthetic data{note && ` · ${note}`}</span></div>
+      <div className="sheet-h"><span>Delivered sheet</span><span className="faint">Synthetic data{note && `, ${note}`}</span></div>
       <table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
         <tbody>
@@ -146,12 +158,17 @@ function Interview({ view, highlight, onCite }: { view: View; highlight?: string
   );
 }
 
-function Checks({ node, view }: { node: NodeState; view: View }) {
-  const next = node.status === "running" ? CONTRACT.find((l) => !(l.id in node.checks)) : undefined;
-  const items: ChecklistItem[] = CONTRACT.map((l) => {
+/** Each contract line with the produce step's check result for it; the first unchecked line spins while the step runs. */
+export function checkItems(lines: ContractLine[], node: NodeState): ChecklistItem[] {
+  const next = node.status === "running" ? lines.find((l) => !(l.id in node.checks)) : undefined;
+  return lines.map((l) => {
     const c = node.checks[l.id];
     return { id: l.id, title: l.text, status: c ? (c.passed ? "completed" : "cancelled") : l === next ? "in-progress" : "pending", detail: c?.detail };
   });
+}
+
+function Checks({ node, view }: { node: NodeState; view: View }) {
+  const items = checkItems(CONTRACT, node);
   const privacy = node.checks.privacy;
   return (
     <>

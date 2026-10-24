@@ -91,10 +91,15 @@ export const INTERVIEW: Message[] = [
 const SETTLES: Record<string, string> = { m3: "fitness", m5: "city", m7: "ages", m9: "privacy", m11: "coverage" };
 
 const row = (zip: string, area: string, count: number | null, flag?: ZipCount["flag"]): ZipCount => ({ zip, area, count, flag });
+// Every San Francisco ZIP in the backend's registry (datasets.py SF_KEYS); the counts are synthetic
 export const ROWS: ZipCount[] = [
-  row("94102", "Tenderloin", 1820), row("94103", "SoMa", 2140), row("94107", "Potrero Hill", 2960), row("94109", "Nob Hill", 3310),
-  row("94110", "Mission", 4120), row("94114", "Castro", 2450), row("94117", "Haight", 2780), row("94122", "Sunset", 3050),
-  row("94129", "Presidio", null, "withheld"), row("94133", "North Beach", 1990),
+  row("94102", "Tenderloin", 1820), row("94103", "SoMa", 2140), row("94104", "Financial District", 140), row("94105", "Rincon Hill", 2310),
+  row("94107", "Potrero Hill", 2960), row("94108", "Chinatown", 860), row("94109", "Nob Hill", 3310), row("94110", "Mission", 4120),
+  row("94111", "Embarcadero", 610), row("94112", "Excelsior", 2840), row("94114", "Castro", 2450), row("94115", "Western Addition", 3120),
+  row("94116", "Parkside", 1760), row("94117", "Haight", 2780), row("94118", "Inner Richmond", 2530), row("94121", "Outer Richmond", 2080),
+  row("94122", "Sunset", 3050), row("94123", "Marina", 3480), row("94124", "Bayview", 1540), row("94127", "West Portal", 980),
+  row("94129", "Presidio", null, "withheld"), row("94130", "Treasure Island", 160), row("94131", "Glen Park", 2270), row("94132", "Lake Merced", 1690),
+  row("94133", "North Beach", 1990), row("94134", "Visitacion Valley", 1130), row("94158", "Mission Bay", 1870),
 ];
 export const AREA_BY_ZIP: Record<string, string> = Object.fromEntries(ROWS.map((r) => [r.zip, r.area]));
 export const OAKLAND: ZipCount[] = [row("94607", "West Oakland", 1640, "added"), row("94610", "Lakeshore", 2210, "added"), row("94612", "Downtown Oakland", 1880, "added")];
@@ -181,10 +186,10 @@ const openDispute = (lane: LaneId, steps: Step[], claim: Message): Draft[] => [
   say("investigate", claim),
 ];
 /** Back to Produce with attempt 2, then review and capture again. */
-const rewalk = (delivery: Delivery, checkDetail: (id: string) => string | undefined, captured: number, extra: JournalEntry[], rule?: Draft): Draft[] => [
+const rewalk = (delivery: Delivery, checkDetail: (id: string, delivery: Delivery) => string | undefined, captured: number, extra: JournalEntry[], rule?: Draft): Draft[] => [
   start("produce", 2),
   { type: "delivery_ready", step: "produce", attempt: 2, delivery },
-  ...passAll(2, checkDetail),
+  ...passAll(2, (id) => checkDetail(id, delivery)),
   ...(rule ? [rule] : []),
   done("produce", 2),
   start("review", 2),
@@ -195,7 +200,7 @@ const rewalk = (delivery: Delivery, checkDetail: (id: string) => string | undefi
   books(1, captured, extra),
   done("captured"),
 ];
-const tenOfTen = (id: string) => (id === "coverage" ? "10 of 10" : id === "privacy" ? "94129 withheld" : undefined);
+const coverageDetails = (id: string, delivery: Delivery) => (id === "coverage" ? `${delivery.rows.length} ZIP rows checked` : id === "privacy" ? "94129 withheld" : undefined);
 
 const E = {
   line5: { id: "e-line5", kind: "interview_quote", label: "Contract line 5 · every SF ZIP", speaker: S.buyerAgent, quote: "Approved.", note: "Line 5 of the contract: every SF ZIP present.", source: { kind: "message", messageId: "m11" } },
@@ -221,7 +226,7 @@ export const RED: Draft[] = [
   start("verdict"),
   { type: "verdict", step: "verdict", verdict: { kind: "agree", decidedBy: "rules", evidenceIds: ["e-line5", "e-94110"], reason: "The contract promises every SF ZIP and 94110 is missing. Our check used the vendor's list instead of the official one." }, allowedBy: `Contract line: ${CONTRACT[4].text}` },
   done("verdict"),
-  ...rewalk(sheet(2, "acme-sf-fitness-v2.csv", withheld(ROWS).map((r) => (r.zip === "94110" ? { ...r, flag: "added" as const } : r))), tenOfTen, S.price,
+  ...rewalk(sheet(2, "acme-sf-fitness-v2.csv", withheld(ROWS).map((r) => (r.zip === "94110" ? { ...r, flag: "added" as const } : r))), coverageDetails, S.price,
     [entry("Rerun 94110, our cost", "Data cost", "Cash", S.rerunCost)],
     { type: "rule_updated", step: "produce", attempt: 2, rule: { id: "rule-zips", label: "Rule updated · use the official SF ZIP list", text: "Check ZIP coverage against the official SF list, not the vendor's.", decidedBy: S.agent } }),
 ];
@@ -247,7 +252,7 @@ export const GREEN: Draft[] = [
   { type: "amendment_signed", step: "amend", amendment: ADD_OAKLAND, allowedBy: POLICY.amendment },
   { type: "payment_authorized", payment: pay("extra", S.oakland), allowedBy: POLICY.amendment },
   done("amend"),
-  ...rewalk(sheet(2, "acme-sf-oakland-fitness-v2.csv", [...withheld(VENDOR), ...OAKLAND]), tenOfTen, S.price + S.oakland,
+  ...rewalk(sheet(2, "acme-sf-oakland-fitness-v2.csv", [...withheld(VENDOR), ...OAKLAND]), coverageDetails, S.price + S.oakland,
     [entry("Amendment: Oakland", "Cash", "Revenue", S.oakland), entry("Oakland run", "Data cost", "Cash", S.rerunCost)]),
 ];
 
@@ -297,13 +302,13 @@ export function amberOpen(ending: Ending, learned: boolean): Draft[] {
   ];
 }
 
-const yogaRerun = (extra: JournalEntry[] = []) => rewalk(YOGA_SHEET, tenOfTen, S.price, [entry("Rerun with yoga, our cost", "Data cost", "Cash", S.rerunCost), ...extra]);
+const yogaRerun = (extra: JournalEntry[] = []) => rewalk(YOGA_SHEET, coverageDetails, S.price, [entry("Rerun with yoga, our cost", "Data cost", "Cash", S.rerunCost), ...extra]);
 const yogaAmendment: Draft[] = [
   say("decide", buyer("m-signed", `Yes. Signed $${S.yoga}.`)),
   { type: "amendment_signed", step: "decide", amendment: YOGA, allowedBy: POLICY.amendment },
   { type: "payment_authorized", payment: pay("extra", S.yoga), allowedBy: POLICY.amendment },
   done("decide"),
-  ...rewalk(YOGA_SHEET, tenOfTen, S.price + S.yoga, [entry("Amendment: yoga", "Cash", "Revenue", S.yoga), entry("Yoga run", "Data cost", "Cash", S.rerunCost)]),
+  ...rewalk(YOGA_SHEET, coverageDetails, S.price + S.yoga, [entry("Amendment: yoga", "Cash", "Revenue", S.yoga), entry("Yoga run", "Data cost", "Cash", S.rerunCost)]),
 ];
 
 export function amberEnding(ending: Ending, learned: boolean): Draft[] {

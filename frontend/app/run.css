@@ -91,7 +91,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   background-size: 20px 20px;
 }
 :root[data-anim] .cv-world { transition: transform 1000ms var(--ease-in-out); }
-:root[data-anim] .cv.free .cv-world { transition: none; }
+:root[data-anim] .cv.free .cv-world, :root[data-anim] .cv.still .cv-world { transition: none; }
 
 .band { position: absolute; left: 0; right: 0; height: 170px; transition: opacity 400ms ease; }
 .band-label { position: absolute; left: 30px; top: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
@@ -189,10 +189,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .coin { display: inline-flex; align-items: center; height: 21px; padding: 0 8px; border: 1px solid var(--line); border-radius: 11px; background: var(--bg); font-size: 12px; color: var(--ink); white-space: nowrap; box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); }
 .coin-t { display: inline-flex; align-items: center; gap: 5px; }
 /* the money changing state: colors ease, the new words blur in, and capture gets one small pop */
-:root[data-anim] .coin { transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease; }
-:root[data-anim] .coin-t { transition: opacity 200ms var(--ease-out), filter 200ms var(--ease-out); }
-@starting-style { :root[data-anim] .coin-t { opacity: 0; filter: blur(2px); } }
-:root[data-anim] .coin.done { animation: pop 300ms var(--ease-out); }
+:root[data-anim] .coin, :root[data-anim] .wallet { transition: color 200ms ease, background-color 200ms ease, border-color 200ms ease; }
+:root[data-anim] .coin-t, :root[data-anim] .wallet-t { transition: opacity 200ms var(--ease-out), filter 200ms var(--ease-out); }
+@starting-style { :root[data-anim] .coin-t, :root[data-anim] .wallet-t { opacity: 0; filter: blur(2px); } }
+:root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: pop 300ms var(--ease-out); }
 @keyframes pop { 40% { scale: 1.06; } }
 .coin.locked { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
 .coin.done { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
@@ -328,12 +328,16 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .s-cancelled .todo-detail { color: var(--red); }
 
 /* ---------- customer view ---------- */
+/* switching tabs fades the incoming view in, so the swap reads as one surface changing, not a cut */
+:root[data-anim] .stage, :root[data-anim] .customer { transition: opacity 180ms var(--ease-out); }
+@starting-style { :root[data-anim] .stage, :root[data-anim] .customer { opacity: 0; } }
 .customer { overflow: auto; min-height: 0; }
 .cust-col { max-width: 740px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
 .cust-h .title { font-size: 17px; }
 .cust-sec { display: flex; flex-direction: column; gap: 10px; }
 .cust-step { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-3); padding-top: 14px; border-top: 1px solid var(--line); cursor: pointer; list-style: none; }
 .cust-step::-webkit-details-marker { display: none; }
+.cust-step .faint { margin-left: 4px; } /* the turn count reads as a quieter second part, not part of the title */
 .cust-step .chev { transition: transform .2s var(--ease-out, ease); }
 .cust-sec[open] > .cust-step .chev { transform: rotate(90deg); }
 /* the live stretch of conversation scrolls in its own box; the page stays short enough to keep the decision in view */
@@ -348,12 +352,13 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
   .caption { font-size: 13px; left: 12px; right: 12px; bottom: 12px; max-width: none; }
   .caption.shifted { display: none; }
   .ending > .faint { display: none; }
+  .cust-h { flex-wrap: wrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
   .orb, .orb-eyes, .orb-look .orb-face, .orb-inspect .orb-face, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
-  :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .sheet-lens.scan { animation: none; }
+  :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid, :root[data-anim] .sheet-lens.scan { animation: none; }
   :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, .bub, .panel { transition: opacity 150ms ease; transform: none; }
 }
 
@@ -361,6 +366,14 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .cust-h { position: sticky; top: 0; z-index: 2; margin-top: -14px; padding: 14px 0 6px; background: var(--bg); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .cust-who { display: flex; align-items: center; gap: 12px; }
 .cust-money { display: flex; align-items: center; gap: 8px; }
+/* the orb's places in this view; away from home it hangs off the row it marks, so nothing reflows when it comes and goes */
+.orb-slot { position: relative; display: inline-flex; flex: none; }
+.slot-transcript, .slot-decision { margin-left: auto; width: 34px; height: 0; align-self: center; }
+.slot-transcript > .cust-orb, .slot-decision > .cust-orb { position: absolute; top: -17px; left: 0; }
+.cust-orb { display: block; pointer-events: none; }
+.orb-flyer { position: fixed; left: 0; top: 0; z-index: 5; transform-origin: 0 0; }
+.sheet-lens .cust-orb { scale: 0.75; } /* sized to the row it rides */
+.wallet-t { display: inline-block; }
 .wallet { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
 .wallet.w-held { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
 .wallet.w-paid { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
@@ -376,11 +389,26 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .decision-body { display: flex; flex-direction: column; gap: 12px; }
 .decision-h { display: flex; align-items: center; gap: 10px; }
 .decision-t { font-size: 15px; }
-.decision-tag { display: inline-flex; align-items: center; gap: 5px; height: 21px; padding: 0 9px; border-radius: 999px; font-size: 12px; color: var(--amber); background: var(--amber-t); }
 .decision-taken { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--green); }
+.decision-done { min-height: 34px; } /* as tall as the buttons it replaces, so the card doesn't shrink under the cursor */
 .decision-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .decision-row { display: flex; gap: 8px; }
 .decision .sheet { margin: 0; }
+/* the delivered rows and the contract checks side by side, so both are judged at once */
+.review-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.review-grid .todo { margin: 0; }
+@media (max-width: 760px) {
+  .review-grid { grid-template-columns: minmax(0, 1fr); }
+}
+/* all of SF is 27 rows: they scroll in place under their column names, beside checks that say whether any is missing */
+.review-grid .sheet-rows { max-height: min(46vh, 400px); overflow: auto; }
+.review-grid .sheet thead th { position: sticky; top: 0; z-index: 1; }
+/* its header matches the sheet's: same size, same hairline, same top */
+.review-grid .todo-head { height: auto; padding: 0 0 8px; border-bottom: 1px solid var(--line); }
+.review-grid .todo-head h3 { font-size: 12.5px; }
+.review-grid .todo-list { padding: 4px 0 0; }
+.decision .todo-title { white-space: normal; } /* terms are read in full here, not skimmed */
+.decision-lead { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
 .objection { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; font: inherit; font-size: 13.5px; resize: vertical; background: var(--bg); color: var(--ink); }
 .objection:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
 .cust-paid { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; }
