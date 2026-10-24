@@ -33,7 +33,7 @@ it.each(transitions.frames)("projects persisted $state events consistently acros
  expect(coin(`$120 ${labels[frame.state]} · mock`).length).toBeGreaterThan(0);
  expect(screen.queryByRole("link",{name:/basescan/i})).toBeNull();
  if(frame.state==="reorg_hold") {
-   const view=project(mock.events,{lane:"shared",ending:"maya",learned:false,live:true,contract:{version:0,buyer:"",title:"",price:0,lines:[]}});
+   const view=project(mock.events,{lane:"shared",ending:"human",learned:false,live:true,contract:{version:0,buyer:"",title:"",price:0,lines:[]}});
    expect(Object.keys(view.captured)).toHaveLength(1);
    expect(view.coin?.done).toBe(false);
    expect(mock.events.filter(e=>e.type==="books_posted")).toHaveLength(1);

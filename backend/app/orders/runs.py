@@ -108,7 +108,7 @@ class Runs:
             ActionAvailability(
                 action="escalate",
                 enabled=reviewing,
-                reason="Retain human review for Maya/CFO with the current evidence.",
+                reason="Retain human review for Human/CFO with the current evidence.",
             ),
         ]
 
@@ -285,7 +285,7 @@ class Runs:
                 order.error = (
                     "Reviewer rejected the proposed remedy: "
                     if command.action == "reject"
-                    else "Escalated to Maya/CFO: "
+                    else "Escalated to Human/CFO: "
                 ) + command.reason
             order.revision += 1
             self.service._save(db, order)

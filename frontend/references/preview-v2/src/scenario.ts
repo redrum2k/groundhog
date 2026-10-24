@@ -4,7 +4,7 @@ export const S = {
   agent: "Order agent",
   buyer: "Acme Fitness",
   buyerAgent: "Acme's buying agent",
-  controller: "Maya",
+  controller: "Human",
   controllerRole: "Controller",
   order: "SF adults 25–34 interested in fitness, counts by ZIP",
   price: 120,
@@ -16,7 +16,7 @@ export const S = {
     "Existing platforms handle transactions and delivery. We connect a custom order's requirements to fulfillment checks, evidence gathering, correction and authorized settlement.",
 };
 
-export type Msg = { id: string; from: "buyer" | "agent" | "maya"; text: string; tick?: number };
+export type Msg = { id: string; from: "buyer" | "agent" | "human"; text: string; tick?: number };
 
 // The intake interview. `tick` = which contract line this answer settles.
 export const INTERVIEW: Msg[] = [

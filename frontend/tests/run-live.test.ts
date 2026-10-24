@@ -8,7 +8,7 @@ import { usePlayback, type Feed } from "../lib/run/source";
 // The live seam from the canvas's side: a fake server that answers the three endpoints the stub
 // and, later, Nikita's backend expose. Nothing here knows how the hook polls.
 
-const ctx: FoldContext = { lane: "amber", ending: "maya", learned: false, contract: CONTRACT_V1 };
+const ctx: FoldContext = { lane: "amber", ending: "human", learned: false, contract: CONTRACT_V1 };
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
 
 function fakeServer(released: RunEvent[]) {
@@ -27,7 +27,7 @@ function fakeServer(released: RunEvent[]) {
 }
 
 const liveFeed = (): Feed => {
-  const { events, start } = timeline("amber", "maya");
+  const { events, start } = timeline("amber", "human");
   return { kind: "live", api: "/api/broker-run", body: { case: "amber" }, before: events.slice(0, start), ctx };
 };
 
@@ -36,7 +36,7 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 describe("recorded API fixture", () => {
   it("starts a run, then folds the events it polls after the last seq it saw", async () => {
-    const amber = stamp("amber", [...amberOpen("maya", false), ...amberEnding("maya", false)]);
+    const amber = stamp("amber", [...amberOpen("human", false), ...amberEnding("human", false)]);
     const server = fakeServer(amber.slice(0, 6)); // up to the dispute and the start of Investigate
     vi.stubGlobal("fetch", server.fetch);
     const feed = liveFeed(); // one object: a new feed each render would restart the poll
@@ -58,8 +58,8 @@ describe("recorded API fixture", () => {
 
 describe("recorded API fixture at the controller gate", () => {
   it("waits on the controller, surfaces a 409 on a stale decision, then resumes to done", async () => {
-    const open = stamp("amber", amberOpen("maya", false));
-    const gate = stamp("amber", amberEnding("maya", false), open.length); // ends with step_waiting on Maya
+    const open = stamp("amber", amberOpen("human", false));
+    const gate = stamp("amber", amberEnding("human", false), open.length); // ends with step_waiting on Human
     const server = fakeServer([...open, ...gate]);
     let decisions = 0;
     const fetch = vi.fn(async (url: string, init?: RequestInit) => {

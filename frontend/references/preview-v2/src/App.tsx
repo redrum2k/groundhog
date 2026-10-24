@@ -16,7 +16,7 @@ const LANE_TONE: Record<Lane, string> = {
   amber: "Grey area",
 };
 const RUN_LABEL: Record<Run, string> = { shared: "No dispute", red: "Our fault", green: "We were right", amber: "Grey area" };
-const ENDING_LABEL: Record<Ending, string> = { rules_no: "Rules: we're right", rules_yes: "Rules: they're right", maya: `${S.controller} decides` };
+const ENDING_LABEL: Record<Ending, string> = { rules_no: "Rules: we're right", rules_yes: "Rules: they're right", human: `${S.controller} decides` };
 
 const framesFor = (run: Run, ending: Ending, learned: boolean) => (run === "shared" ? sharedFrames() : laneFrames(run, ending, learned));
 const startFor = (run: Run) => (run === "shared" ? emptyView() : laneBase());
@@ -48,7 +48,7 @@ export default function App() {
   const [tab, setTab] = useState<"run" | "customer">("run");
   const [run, setRun] = useState<Run>("shared");
   const [zoom, setZoom] = useState(true);
-  const [ending, setEnding] = useState<Ending>("maya");
+  const [ending, setEnding] = useState<Ending>("human");
   const [learned, setLearned] = useState(false);
   const [step, setStep] = useState(-1);
   const [playing, setPlaying] = useState(false);
@@ -59,7 +59,7 @@ export default function App() {
   const view = useMemo(() => (zoom ? fold(startFor(run), frames, step) : overview(ending)), [zoom, run, frames, step, ending]);
   const cur = frames[step];
   const done = step >= frames.length - 1;
-  const waiting = cur?.wait === "maya";
+  const waiting = cur?.wait === "human";
 
   const advance = () => setStep((s) => {
     const n = Math.min(s + 1, frames.length - 1);
@@ -101,8 +101,8 @@ export default function App() {
 
   const bodyProps = {
     view, lane: run, ending, learned,
-    onMaya: advance,
-    onReplayLearned: () => start("amber", { learned: true, ending: "maya" }),
+    onHuman: advance,
+    onReplayLearned: () => start("amber", { learned: true, ending: "human" }),
   };
 
   return (
@@ -147,7 +147,7 @@ export default function App() {
         {zoom && (
           <>
             <button className="btn" onClick={() => start(run, { learned: run === "amber" && learned, ending })}><RotateCcw size={14} strokeWidth={1.6} />Replay</button>
-            {run === "amber" && ending === "maya" && !learned && done ? (
+            {run === "amber" && ending === "human" && !learned && done ? (
               <button className="btn solid" onClick={bodyProps.onReplayLearned}><RotateCcw size={14} strokeWidth={1.6} />Replay yoga with the new rule</button>
             ) : <button className="btn solid" disabled={done || waiting} onClick={() => (step < 0 && !playing ? setPlaying(true) : setPlaying(!playing))}>
               {playing ? <Pause size={14} strokeWidth={1.8} /> : <Play size={14} strokeWidth={1.8} />}{playing ? "Pause" : done ? "Done" : waiting ? `Waiting on ${S.controller}` : "Play"}

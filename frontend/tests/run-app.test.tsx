@@ -55,12 +55,12 @@ describe("The order", () => {
 });
 
 describe("Grey area", () => {
-  it("pauses on Maya, resumes on her decision, and offers the replay with the new rule", async () => {
+  it("pauses on Human, resumes on their decision, and offers the replay with the new rule", async () => {
     render(<RunApp />);
     await act(async () => { button("Act two: escalation").click(); });
-    await until(() => !!screen.queryByRole("button", { name: "Waiting on Maya" }));
-    expect(disabled("Waiting on Maya")).toBe(true);
-    expect(panel()).toBe("Maya decides");
+    await until(() => !!screen.queryByRole("button", { name: "Waiting on Human" }));
+    expect(disabled("Waiting on Human")).toBe(true);
+    expect(panel()).toBe("Human decides");
     expect(screen.getByText(/Should yoga studio members count as fitness/)).toBeTruthy();
     for (const name of ["Yoga counts, rerun free", "No, offer $30", "Ask Acme for more", "Send to CFO"]) expect(disabled(name)).toBe(false);
 
@@ -72,7 +72,7 @@ describe("Grey area", () => {
     await act(async () => { button("Replay yoga with the new rule").click(); });
     await until(() => !!screen.queryByText("Covered"));
     await until(finished);
-    expect(screen.queryByRole("button", { name: "Waiting on Maya" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Waiting on Human" })).toBeNull();
     expect(document.querySelector(".cap-step")?.textContent).toBe("10/10"); // 5 steps, 3 detour steps, 2 revisits
   }, 60_000);
 });
