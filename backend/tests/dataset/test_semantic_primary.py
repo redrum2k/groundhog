@@ -394,3 +394,35 @@ def test_paid_catalog_compiler_cannot_bypass_aggregate_scope_rules(tmp_path):
     order = make_delivery(service)
     assert order.snapshot.quote.specification.terms.category == "gym_or_fitness_app"
     assert service.compiler is gateway and service.investigator.assessor is gateway
+
+
+@pytest.mark.parametrize(
+    "expanded,columns,raw,effective",
+    [
+        (False, {"definition", "yoga_is_gym"}, "PASS", "PASS"),
+        (False, {"definition"}, "PASS", "UNKNOWN"),
+        (False, {"yoga_is_gym"}, "PASS", "UNKNOWN"),
+        (False, {"definition", "yoga_is_gym"}, "FAIL", "UNKNOWN"),
+        (True, {"definition", "yoga_is_gym"}, "FAIL", "UNKNOWN"),
+    ],
+)
+def test_equivalent_authority_certificate_is_complete_and_scope_specific(
+    dataset_service, monkeypatch, expanded, columns, raw, effective
+):
+    s, _ = dataset_service
+    monkeypatch.setenv("ENABLE_DATASET_MODEL_ASSESSMENT", "true")
+
+    class AuthorityOnly(Candidate):
+        def assess_obligation(self, obligation, claim, passages):
+            return super().assess_obligation(
+                obligation, claim, tuple(p for p in passages if p.citation.column in columns)
+            )
+
+    s.investigator = SimpleNamespace(assessor=AuthorityOnly(raw))
+    order = dispute(
+        s, make_delivery(s, expanded), text="Yoga isn't included in the agreed gym/app definition."
+    )
+    assert CatalogWorker(s).run_once()
+    current = s.get(order.snapshot.order_id)
+    assert current.semantic_findings[-1].result == effective
+    assert not current.ledger and not current.free_corrections_used

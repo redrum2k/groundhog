@@ -273,7 +273,7 @@ def child():
         10,
         plan_sha256=hashlib.sha256(canonical(plan)).hexdigest(),
         reason=(
-            "Six fresh primary cases; prior measured semantic cost under $0.10/call. "
+            f"{len(CASES)} fresh primary cases; measured semantic cost under $0.10/call. "
             "Keep $10 holdback; no budget reset."
         ),
     )
@@ -302,6 +302,7 @@ def child():
 
 
 def main():
+    OUTPUT.mkdir(parents=True, exist_ok=True)
     if "--child" in sys.argv:
         child()
         return
@@ -314,7 +315,7 @@ def main():
     with (OUTPUT / "qualification.log").open("x", encoding="utf-8") as log:
         try:
             process = subprocess.run(
-                [sys.executable, str(Path(__file__).resolve()), "--child"],
+                [sys.executable, str(Path(sys.argv[0]).resolve()), "--child"],
                 stdout=log,
                 stderr=log,
                 timeout=min(300, remaining),

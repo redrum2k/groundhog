@@ -415,12 +415,7 @@ def guarded_dataset_assessment(service, order, job, report):
     )
     if candidate and candidate.result in {"UNKNOWN", "CONFLICT"}:
         effective, status = candidate, "VALIDATED"
-    elif (
-        candidate
-        and proof
-        and candidate.result == proof[0]
-        and set(proof[1]) <= set(candidate.citations)
-    ):
+    elif candidate and proof and supports_candidate(order, service.store, candidate, proof):
         effective, status = candidate, "VALIDATED"
     elif candidate is None and proof:
         effective = Assessment(
@@ -435,6 +430,56 @@ def guarded_dataset_assessment(service, order, job, report):
         )
     persist(effective=effective, status=status, elapsed_seconds=monotonic() - started)
     return effective
+
+
+def supports_candidate(order, store, candidate, proof):
+    """Two explicit proof certificates; valid-looking citations alone never suffice.
+
+    The primary certificate is the actual verified category/CSV cell. For the
+    explicitly excluding contract only, the exact authority definition AND false
+    taxonomy cell are an independently checkable equivalent category certificate.
+    Neither a model explanation nor a customer statement supplies these facts.
+    """
+    if candidate.result != proof[0]:
+        return False
+    if set(proof[1]) <= set(candidate.citations):
+        return True
+    predicate = interpret_claim(order.cases[-1].complaint)
+    terms = order.snapshot.quote.specification.terms
+    if (
+        predicate is None
+        or predicate[0] != "contract_includes_yoga"
+        or terms.category != "gym_or_fitness_app"
+        or terms.category_meaning
+        != "Gym membership or fitness-app use; standalone yoga is excluded."
+    ):
+        return False
+    authority = next(s for s in order.sources if s.source_id.endswith(":authority"))
+    raw = json.loads(store.read(authority.artifact))
+    if (
+        raw.get("definition") != "Gym membership or fitness-app use."
+        or raw.get("yoga_is_gym") is not False
+    ):
+        return False
+    equivalent = (
+        reference(
+            authority.artifact,
+            authority.source_id,
+            column="definition",
+            value=raw["definition"],
+            version=authority.version,
+        ),
+        reference(
+            authority.artifact,
+            authority.source_id,
+            column="yoga_is_gym",
+            value="false",
+            version=authority.version,
+        ),
+    )
+    for ref in equivalent:
+        store.resolve(ref, order.artifacts)
+    return set(equivalent) <= set(candidate.citations)
 
 
 def stale_semantic_attempt(service, order):
