@@ -9,10 +9,10 @@ import Orb from "./orb";
 // it asks. Each place it can be is a slot; the orb lives in one slot at a time and flies between them.
 
 export type Stop = "home" | "transcript" | "decision" | "sheet";
-const MODE: Record<Exclude<Stop, "home">, OrbMode> = { transcript: "look", decision: "wait", sheet: "inspect" };
+const MODE: Record<Stop, OrbMode> = { home: "float", transcript: "look", decision: "wait", sheet: "inspect" };
 const EASE_IN_OUT = [0.77, 0, 0.175, 1] as const; // --ease-in-out, the canvas orb's travel curve
 
-const Guide = createContext<{ at: Stop; home: OrbMode } | null>(null);
+const Guide = createContext<{ at: Stop; mood: Partial<Record<Stop, OrbMode>> } | null>(null); // mood: a stop's mode when the view knows better
 export const GuideProvider = Guide.Provider;
 
 /** Where the orb can stand. Outside the customer view (no provider) it renders `fallback` instead. */
@@ -21,7 +21,7 @@ export function OrbSlot({ name, fallback }: { name: Stop; fallback?: ReactNode }
   if (!guide) return <>{fallback}</>;
   return (
     <span className={`orb-slot slot-${name}`} data-orb-slot={name}>
-      {guide.at === name ? <span className="cust-orb"><Orb mode={name === "home" ? guide.home : MODE[name]} /></span> : fallback}
+      {guide.at === name ? <span className="cust-orb"><Orb mode={guide.mood[name] ?? MODE[name]} /></span> : fallback}
     </span>
   );
 }

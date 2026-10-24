@@ -21,6 +21,8 @@ type Props = {
 };
 
 const SUGGESTED_OBJECTION = "Counts look low. Oakland should be in there.";
+const RECEIPT: Record<BuyerMove["action"], string> = { approve: "Approved", accept: "Accepted", object: "Objection sent" };
+type Where = "contract" | "delivery" | "after"; // which of Acme's decisions a move was made on
 
 function Wallet({ view }: { view: View }) {
   const amount = view.payments.reduce((a, p) => a + p.amount, 0);
@@ -36,18 +38,20 @@ function Wallet({ view }: { view: View }) {
 }
 
 /** One of Acme's decisions: the thing to decide on, the buttons while it's open, the choice once made. */
-function Decision({ title, open, taken, children, actions }: { title: string; open: boolean; taken?: ReactNode; children: ReactNode; actions?: ReactNode }) {
-  if (!open && taken) return (
+/** `done` is the move just made here: the card keeps its place and its height, the receipt where the buttons were. */
+function Decision({ title, open, taken, done, children, actions }: { title: string; open: boolean; taken?: ReactNode; done?: string; children: ReactNode; actions?: ReactNode }) {
+  if (!open && !done && taken) return (
     <details className="decision taken">
       <summary className="decision-h"><IcChevronRight size={12} strokeWidth={2} className="chev" /><span className="decision-taken"><IcCheck size={12} strokeWidth={2.2} /> {taken}</span><span className="decision-t">{title}</span></summary>
       <div className="decision-body">{children}</div>
     </details>
   );
   return (
-    <section className={`decision${open ? " open" : ""}`}>
-      <div className="decision-h"><span className="decision-t">{title}</span>{open && <OrbSlot name="decision" />}</div>
+    <section className={`decision${open || done ? " open" : ""}`}>
+      <div className="decision-h"><span className="decision-t">{title}</span>{(open || done) && <OrbSlot name="decision" />}</div>
       {children}
-      {open && actions && <div className="decision-actions">{actions}</div>}
+      {done ? <div className="decision-actions"><span className="decision-taken decision-done"><IcCheck size={12} strokeWidth={2.2} /> {done}</span></div>
+        : open && actions && <div className="decision-actions">{actions}</div>}
     </section>
   );
 }
@@ -99,7 +103,12 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
     else if (!landed.current && pane) pane.scrollTop = pane.scrollHeight;
     landed.current = true;
   }, [awaiting]);
-  const move = async (m: BuyerMove) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) { setObjecting(false); onMoved?.(); } };
+  // The move just made, held in place while the view hands back to Run: the stream confirms it a poll later,
+  // and without this the cards would fold and reopen in between. A new turn for Acme clears it.
+  const [moved, setMoved] = useState<{ at: Where; action: BuyerMove["action"] } | null>(null);
+  useEffect(() => { if (awaiting) setMoved(null); }, [awaiting]);
+  const move = async (m: BuyerMove, at: Where) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) { setObjecting(false); setMoved({ at, action: m.action }); onMoved?.(); } };
+  const done = (at: Where) => (moved?.at === at ? RECEIPT[moved.action] : undefined);
   const step = (id: string) => view.nodes[id]?.step ?? steps.find((s) => s.id === id);
   const n = view.nodes;
   const live = !!bodyProps.live;
@@ -116,13 +125,13 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
   const accepted = review?.status === "done";
   const changedSince = delivery && view.deliveries.length > 1 ? delivery.rows.filter((r) => r.flag === "added" || r.flag === "yoga").length : 0;
   // The orb stands beside Acme's open decision, rides the magnifier while the sheet is checked, and sits by the interview while it asks
-  const want: Stop = awaiting ? "decision" : view.orb.mode === "inspect" ? "sheet" : view.orb.mode === "look" ? "transcript" : "home";
+  const want: Stop = awaiting || moved ? "decision" : view.orb.mode === "inspect" ? "sheet" : view.orb.mode === "look" ? "transcript" : "home";
   const at = useOrbFlight(col, want);
-  const home = view.orb.mode === "wait" || view.orb.mode === "happy" ? view.orb.mode : "float";
+  const mood = { home: view.orb.mode === "wait" || view.orb.mode === "happy" ? view.orb.mode : "float", decision: moved ? "happy" : "wait" } as const;
 
   return (
     <main className="customer">
-      <GuideProvider value={{ at, home }}>
+      <GuideProvider value={{ at, mood }}>
         <div className="cust-col" ref={col}>
           <div className="cust-h">
             <div className="cust-who"><span className="avatar" aria-hidden>{S.buyer.split(" ").map((w) => w[0]).join("")}</span><div className="title">{S.buyerAgent}</div></div>
@@ -130,27 +139,27 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
           </div>
 
           {clarify && (n.clarify?.messages.length ?? 0) > 0 && (
-            <Transcript title={clarify.title} count={n.clarify?.messages.length} open={n.clarify?.status === "running" && awaiting !== "approve"} stop="transcript"><PanelBody step={clarify} {...bodyProps} customer /></Transcript>
+            <Transcript title={clarify.title} count={n.clarify?.messages.length} open={n.clarify?.status === "running" && awaiting !== "approve" && moved?.at !== "contract"} stop="transcript"><PanelBody step={clarify} {...bodyProps} customer /></Transcript>
           )}
 
           {contractLines.length > 0 && (
-            <Decision title={`Data contract${view.contract.version >= 2 ? ` v${view.contract.version}` : ""}`} open={live && awaiting === "approve"} taken={approved ? `Approved and $${price} authorized` : undefined}
-              actions={<button className="btn solid" disabled={busy} onClick={() => move({ action: "approve" })}>Approve and authorize ${price}</button>}>
-              {live && awaiting === "approve" && <p className="decision-lead">The agent wrote these {contractLines.length} terms from the interview. Approving signs them and authorizes ${price}; nothing is taken until you accept the data.</p>}
+            <Decision title={`Data contract${view.contract.version >= 2 ? ` v${view.contract.version}` : ""}`} open={live && awaiting === "approve"} taken={approved ? `Approved and $${price} authorized` : undefined} done={done("contract")}
+              actions={<button className="btn solid" disabled={busy} onClick={() => move({ action: "approve" }, "contract")}>Approve and authorize ${price}</button>}>
+              {(live && awaiting === "approve" || done("contract")) && <p className="decision-lead">The agent wrote these {contractLines.length} terms from the interview. Approving signs them and authorizes ${price}; nothing is taken until you accept the data.</p>}
               <TodoList title="Terms" items={contractLines.map((l) => ({ id: l.id, title: l.text, status: "completed" }))} />
             </Decision>
           )}
 
           {delivery && review && review.status !== "idle" && (
-            <Decision title={`Delivery${delivery.version >= 2 ? ` v${delivery.version}` : ""}`} open={reviewOpen && !disputed} taken={accepted && disputed ? "Objected, answered, then accepted" : accepted ? "Accepted" : disputed ? `Objected: “${view.dispute?.claim}”` : undefined}
+            <Decision title={`Delivery${delivery.version >= 2 ? ` v${delivery.version}` : ""}`} open={reviewOpen && !disputed} done={done("delivery")} taken={accepted && disputed ? "Objected, answered, then accepted" : accepted ? "Accepted" : disputed ? `Objected: “${view.dispute?.claim}”` : undefined}
               actions={objecting ? <>
                 <textarea className="objection" rows={2} value={objection} onChange={(e) => setObjection(e.target.value)} placeholder="What's wrong with the delivery?" aria-label="Your objection" />
                 <div className="decision-row">
-                  <button className="btn solid" disabled={busy || !objection.trim()} onClick={() => move({ action: "object", text: objection.trim() })}>Send objection</button>
+                  <button className="btn solid" disabled={busy || !objection.trim()} onClick={() => move({ action: "object", text: objection.trim() }, "delivery")}>Send objection</button>
                   <button className="btn" disabled={busy} onClick={() => setObjecting(false)}>Back</button>
                 </div>
               </> : <>
-                <button className="btn solid" disabled={busy} onClick={() => move({ action: "accept" })}>Accept delivery</button>
+                <button className="btn solid" disabled={busy} onClick={() => move({ action: "accept" }, "delivery")}>Accept delivery</button>
                 <button className="btn" disabled={busy} onClick={() => { setObjection((o) => o || SUGGESTED_OBJECTION); setObjecting(true); }}>Object</button>
               </>}>
               {/* the data and the contract it was checked against, side by side, so the buyer judges both at once */}
@@ -173,10 +182,10 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
             <Transcript title="Under review" open={n.decide.status !== "done"}><PanelBody step={step("decide")!} {...bodyProps} customer /></Transcript>
           )}
 
-          {disputed && reviewOpen && !accepted && (
-            <Decision title="Delivery, after your objection" open taken={undefined}
+          {((disputed && reviewOpen && !accepted) || done("after")) && (
+            <Decision title="Delivery, after your objection" open={reviewOpen} done={done("after")} taken={undefined}
               actions={<>
-                <button className="btn solid" disabled={busy} onClick={() => move({ action: "accept" })}>Accept delivery</button>
+                <button className="btn solid" disabled={busy} onClick={() => move({ action: "accept" }, "after")}>Accept delivery</button>
                 <span className="faint" style={{ fontSize: 12.5 }}>Accepting releases the ${price} to {S.us}.</span>
               </>}>
               <p className="faint" style={{ margin: 0, fontSize: 13.5 }}>The agent answered your objection with the contract and the evidence above. Nothing was missing from what was agreed, and there is no charge for asking.</p>

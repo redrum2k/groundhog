@@ -91,7 +91,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   background-size: 20px 20px;
 }
 :root[data-anim] .cv-world { transition: transform 1000ms var(--ease-in-out); }
-:root[data-anim] .cv.free .cv-world { transition: none; }
+:root[data-anim] .cv.free .cv-world, :root[data-anim] .cv.still .cv-world { transition: none; }
 
 .band { position: absolute; left: 0; right: 0; height: 170px; transition: opacity 400ms ease; }
 .band-label { position: absolute; left: 30px; top: 18px; display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
@@ -328,6 +328,9 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .s-cancelled .todo-detail { color: var(--red); }
 
 /* ---------- customer view ---------- */
+/* switching tabs fades the incoming view in, so the swap reads as one surface changing, not a cut */
+:root[data-anim] .stage, :root[data-anim] .customer { transition: opacity 180ms var(--ease-out); }
+@starting-style { :root[data-anim] .stage, :root[data-anim] .customer { opacity: 0; } }
 .customer { overflow: auto; min-height: 0; }
 .cust-col { max-width: 740px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
 .cust-h .title { font-size: 17px; }
@@ -388,6 +391,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .decision-h { display: flex; align-items: center; gap: 10px; }
 .decision-t { font-size: 15px; }
 .decision-taken { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--green); }
+.decision-done { min-height: 34px; } /* as tall as the buttons it replaces, so the card doesn't shrink under the cursor */
 .decision-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .decision-row { display: flex; gap: 8px; }
 .decision .sheet { margin: 0; }

@@ -47,13 +47,15 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const [size, setSize] = useState({ w: 1100, h: 600 });
   const [free, setFree] = useState<Cam | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [still, setStill] = useState(true); // no camera glide until the first measured frame has painted: mounting (or coming back from the customer view) shouldn't pan in
   const drag = useRef<{ id: number; x: number; y: number; from: Cam; on: boolean } | null>(null);
   const pan = useRef<{ follow: Cam; bx: Range; by: Range; on: boolean }>(null);
   useLayoutEffect(() => {
     const el = box.current!;
     const ro = new ResizeObserver(() => setSize({ w: el.clientWidth, h: el.clientHeight }));
     ro.observe(el); setSize({ w: el.clientWidth, h: el.clientHeight });
-    return () => ro.disconnect();
+    const settle = requestAnimationFrame(() => setStill(false));
+    return () => { ro.disconnect(); cancelAnimationFrame(settle); };
   }, []);
   useEffect(() => setFree(null), [recenter, focus.kind]);
   // Wheel is native so it can preventDefault: a two-finger swipe pans instead of going back a page
@@ -147,7 +149,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
 
   return (
     <>
-      <div className={`cv${pannable ? " pannable" : ""}${dragging ? " dragging" : ""}${free ? " free" : ""}`} ref={box}
+      <div className={`cv${pannable ? " pannable" : ""}${dragging ? " dragging" : ""}${free ? " free" : ""}${still ? " still" : ""}`} ref={box}
         onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
         <div className="cv-world" ref={world} style={{ width: WW, height: WH, transform: T(cam) }}>
           <div className="cv-dots" style={{ inset: -DOTS }} aria-hidden />
