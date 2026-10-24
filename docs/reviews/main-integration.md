@@ -1,9 +1,12 @@
 # Main integration — October 24, 2026
 
-Integrated remote main `c2f5619` with `codex/review-remediation` at `086b5ba`.
+Initially integrated remote main `c2f5619` with `codex/review-remediation` at
+`086b5ba`, published as `799a6d9`.
 This retains 06, 07 and 08 plus Lucas's newer broker demo and visual changes.
 The user explicitly authorized merging and publishing main. Work was prepared
-in an isolated checkout; the remediation worktree was left unchanged.
+in an isolated checkout; the remediation worktree was left unchanged. During
+validation the other session completed 08b at `845b7c5`; its committed result
+was then reviewed and included in a follow-up merge into main.
 
 ## Merge resolution
 
@@ -66,23 +69,42 @@ including `final-happy`, `final-coverage`, `legacy-smoke.json` and
 `legacy-captured.png`. Temporary databases, browser artifacts and dependencies
 are not committed. The upstream websockets deprecation warning remains.
 
+## Completed 08b follow-up
+
+`845b7c5` removes delivery-artifact reads from complaint-target construction.
+Targets now use accepted requirements and coverage keys. The eight new HTTP
+cases cover missing and hash-mismatched previews, bounded read-only polling,
+restart/replay, unchanged money/deadlines, valid artifact complaints, rejected
+invalid targets and refusal to capture unverifiable delivery. Original strict
+downloads remain intact. No frontend or compiler code changes in this follow-up.
+
+The artifact-write race disclosed in the 08b session's historical handoff is
+already fixed by `799a6d9`; the combined tree includes both fixes.
+
+Fresh checks on the combined 08b integration: **666 backend tests passed, two
+known compiler expected failures, 134.56 seconds**. Ruff lint/format passed
+(155 files), generated-contract freshness passed, and whitespace checks passed.
+Frontend code is identical to the previously validated integration, so its
+104 tests, production build and browser results above were not repeated for this
+backend-only follow-up. No expected-failure marker or assertion was weakened.
+
 ## Next work
 
 R3/R4 compiler bugs remain strict expected failures; Jeff's
-[handoff](../handoffs/jeff.md) now starts from `origin/main`. R7 remains the
-separate [08b task](../codex-prompts/08b-polling-recovery.md); this merge does not
-claim to fix unavailable-preview polling or complaint handling. Payment recovery
+[handoff](../handoffs/jeff.md) now starts from `origin/main`. R7 is addressed by
+the completed [08b task](../codex-prompts/08b-polling-recovery.md); there is no need
+to launch that prompt again. Payment recovery
 and measured live preflight remain separate work as documented in
 [workstream 08](../workstreams/08-review-remediation.md).
 
-Before starting 08b in the existing **clean** remediation worktree, fetch and
-fast-forward to the reviewed main integration:
+To bring the existing **clean** remediation worktree up to the reviewed main
+integration after publication:
 
 ```sh
 git fetch origin
 git merge --ff-only origin/main
 ```
 
-If an 08b session has already started, preserve its work and integrate main after
-that task's commit instead. There is no need to recreate the worktree or remerge
-07. Merge publication does not establish live-payment or public-deployment readiness.
+Preserve any newer uncommitted work before updating. There is no need to recreate
+the worktree or remerge 07. Merge publication does not establish live-payment or
+public-deployment readiness.

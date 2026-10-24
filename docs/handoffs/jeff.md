@@ -2,8 +2,8 @@
 
 ## Start from the shared remediation branch
 
-The combined 06/07 work and prompt 08's reviewed implementation (`692f500`) are
-merged into `main`, along with the follow-up review and prompt. The integration
+The combined 06/07 work, prompt 08's reviewed implementation (`692f500`) and
+08b's polling/complaint fix (`845b7c5`) are merged into `main`. The integration
 also preserves Lucas's newer broker compatibility demo and visual updates.
 From your clone, create a separate compiler worktree from current `main`:
 
@@ -14,19 +14,19 @@ cd ../order-to-cash-compiler-review
 ```
 
 Own `backend/app/agents/dataset.py`, the R3/R4 regressions and related semantic
-tests. Nikita can run [08b](../codex-prompts/08b-polling-recovery.md) concurrently
-in his existing remediation worktree: it changes complaint-target/runtime API
-handling and its tests, not compiler semantics. Keep compiler commits on your
-feature branch and update this handoff with your exact validation evidence;
-Nikita's follow-up record belongs in the workstream-08 document. Return an exact
-tested commit for integration after both tasks pass their own checks.
+tests. Nikita's [08b](../codex-prompts/08b-polling-recovery.md) is complete; its
+complaint-target/runtime API fix does not change compiler semantics. Keep compiler
+commits on your feature branch and update this handoff with your exact validation
+evidence. Return an exact tested commit for integration. The
+[main integration record](../reviews/main-integration.md) covers the combined
+validation and the artifact-publication race fixed during integration.
 
 If you already branched from `origin/codex/review-remediation`, keep that work;
 its baseline is included in `main`. Do not reset or recreate an existing branch.
 
-See the [08 results review](../reviews/08-results-review.md) for the remaining
-R7 artifact-failure regression and the distinction between mock startup and
-release/live payment readiness.
+See the [08 results review](../reviews/08-results-review.md) for the original R7
+artifact-failure reproduction, now addressed by 08b, and the distinction between
+mock startup and release/live payment readiness.
 
 ## Compiler blockers and evidence seam
 
