@@ -7,6 +7,7 @@
   --blue: #2161d6; --purple: #5a4fd4;
   --green: #177a4c; --green-t: #e7f4ed;
   --red: #b8303a;   --red-t: #fbeceb;
+  --blue-t: #edf3fd;
   --amber: #a3570a; --amber-t: #fbf1e4;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -267,13 +268,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 tr.flash td { animation: rowflash 2s var(--ease-out); }
 :root[data-anim] .f-missing td { transition: opacity 200ms var(--ease-out); }
 @starting-style { :root[data-anim] .f-missing td { opacity: 0; } }
-/* the orb's magnifier on the sheet: sweeps while the agent checks, rests on the row the evidence names */
-.sheet-lens { position: absolute; left: 0; right: 0; top: 0; z-index: 1; display: flex; align-items: center; padding-left: 8px; color: var(--ink-2); pointer-events: none;
-  background: color-mix(in srgb, var(--blue) 7%, transparent); transform: translateY(var(--y)); }
-:root[data-anim] .sheet-lens { transition: transform 300ms var(--ease-out), opacity 200ms ease; }
-@starting-style { :root[data-anim] .sheet-lens { opacity: 0; } }
-:root[data-anim] .sheet-lens.scan { animation: sweep 1200ms var(--ease-in-out) infinite alternate; }
-@keyframes sweep { from { transform: translateY(var(--y0)); } to { transform: translateY(var(--y1)); } }
 @keyframes rowflash { 0%, 40% { background-color: rgb(255 204 0 / 0.25); } }
 
 .contract ol { list-style: none; margin: 0; padding: 4px 0; }
@@ -342,6 +336,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .cust-sec[open] > .cust-step .chev { transform: rotate(90deg); }
 /* the live stretch of conversation scrolls in its own box; the page stays short enough to keep the decision in view */
 .cust-body { max-height: min(46vh, 440px); overflow: auto; }
+.cust-body.short { max-height: min(28vh, 240px); }
 .cust-body .panel-sec.sticky { top: 0; box-shadow: none; }
 
 @media (max-width: 760px) {
@@ -358,7 +353,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 @media (prefers-reduced-motion: reduce) {
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
   .orb, .orb-eyes, .orb-look .orb-face, .orb-inspect .orb-face, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
-  :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid, :root[data-anim] .sheet-lens.scan { animation: none; }
+  :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: none; }
   :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, .bub, .panel { transition: opacity 150ms ease; transform: none; }
 }
 
@@ -368,11 +363,40 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .cust-money { display: flex; align-items: center; gap: 8px; }
 /* the orb's places in this view; away from home it hangs off the row it marks, so nothing reflows when it comes and goes */
 .orb-slot { position: relative; display: inline-flex; flex: none; }
-.slot-transcript, .slot-decision { margin-left: auto; width: 34px; height: 0; align-self: center; }
-.slot-transcript > .cust-orb, .slot-decision > .cust-orb { position: absolute; top: -17px; left: 0; }
+.slot-decision, .slot-inspect { margin-left: auto; width: 34px; height: 0; align-self: center; }
+.slot-decision > .cust-orb, .slot-inspect > .cust-orb { position: absolute; top: -17px; left: 0; }
+/* in Acme's own view Acme writes on the right; our agent answers on the left, the orb beside its newest message */
+.customer .b-buyer { align-self: flex-end; }
+.customer .b-agent, .customer .b-controller { align-self: flex-start; margin-left: 42px; }
+.bub .slot-transcript { position: absolute; left: -42px; bottom: 0; width: 34px; height: 34px; }
+.slot-inspect { z-index: 3; } /* the inspector flies over the card's rows and checks */
 .cust-orb { display: block; pointer-events: none; }
 .orb-flyer { position: fixed; left: 0; top: 0; z-index: 5; transform-origin: 0 0; }
-.sheet-lens .cust-orb { scale: 0.75; } /* sized to the row it rides */
+.orb-flyer .det-tool { display: none; } /* the glass is put away for the trip */
+/* the inspecting orb: a handle in its hand, and a glass that enlarges what is under it */
+.det { will-change: transform; }
+.det.flying .orb { filter: drop-shadow(0 8px 10px rgb(17 17 17 / 0.16)); }
+.det.holding .orb-face { transform: translate(1.3px, 1.1px); } /* looking into the glass */
+:root[data-anim] .det .orb-face { transition: transform 200ms var(--ease-out); }
+.det-tool { position: absolute; left: 0; top: 0; opacity: 0; transform: scale(0.6) rotate(-18deg); transform-origin: 25px 24px; }
+:root[data-anim] .det-tool { transition: opacity 200ms var(--ease-out), transform 260ms var(--ease-out); }
+.det.holding .det-tool { opacity: 1; transform: none; }
+.det-handle { overflow: visible; }
+.det-handle path { stroke: #5e3f22; stroke-width: 3.4; stroke-linecap: round; }
+.det-handle circle { fill: var(--blue); }
+.loupe { left: 26px; top: 24px; width: 34px; height: 34px; box-sizing: border-box; border: 2.5px solid var(--ink); border-radius: 50%; background: var(--bg); overflow: hidden; box-shadow: 0 2px 6px rgb(17 17 17 / 0.16); }
+.loupe::after { content: ""; position: absolute; left: 4px; top: 3px; width: 11px; height: 11px; border-radius: 50%; border-top: 2px solid rgb(255 255 255 / 0.9); transform: rotate(-28deg); z-index: 1; }
+.loupe-view { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+/* what it found: red only where the data fails a term, blue for the term that settles the objection */
+.todo-item.mark-settles { background: var(--blue-t); }
+.todo-item.mark-fail { background: var(--red-t); }
+.todo-item.mark-fail .todo-title { color: var(--red); }
+:root[data-anim] .todo-item { transition: background-color 200ms ease; }
+.f-gap td { color: var(--ink-3); }
+.ghosts { display: grid; gap: 4px; margin-top: 10px; font-size: 12.5px; }
+.ghost { display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 10px; padding: 5px 10px; border: 1px dashed color-mix(in srgb, var(--ink-3) 45%, transparent); border-radius: 8px; color: var(--ink-3); font-size: 13px; }
+:root[data-anim] .ghost { transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out); }
+@starting-style { :root[data-anim] .ghost { opacity: 0; transform: translateY(4px); } }
 .wallet-t { display: inline-block; }
 .wallet { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
 .wallet.w-held { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
