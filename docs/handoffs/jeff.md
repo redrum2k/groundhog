@@ -1,5 +1,32 @@
 # Review remediation — Jeff's remaining release blockers
 
+## Start from the shared remediation branch
+
+The published `codex/review-remediation` branch contains the combined 06/07 work
+and prompt 08's reviewed implementation (`692f500`), plus the follow-up review
+and prompt. Use this branch as the compiler baseline; remote `main` does not yet
+contain this integrated runtime. From your clone, create a separate worktree:
+
+```sh
+git fetch origin
+git worktree add -b codex/compiler-review-fixes ../order-to-cash-compiler-review origin/codex/review-remediation
+cd ../order-to-cash-compiler-review
+```
+
+Own `backend/app/agents/dataset.py`, the R3/R4 regressions and related semantic
+tests. Nikita can run [08b](../codex-prompts/08b-polling-recovery.md) concurrently
+in his existing remediation worktree: it changes complaint-target/runtime API
+handling and its tests, not compiler semantics. Keep compiler commits on your
+feature branch and update this handoff with your exact validation evidence;
+Nikita's follow-up record belongs in the workstream-08 document. Return an exact
+tested commit for integration after both tasks pass their own checks.
+
+See the [08 results review](../reviews/08-results-review.md) for the remaining
+R7 artifact-failure regression and the distinction between mock startup and
+release/live payment readiness.
+
+## Compiler blockers and evidence seam
+
 See [workstream 08](../workstreams/08-review-remediation.md). Compiler semantics
 in `app/agents/dataset.py` remain yours; no semantic patch was integrated or
 claimed. Local history has no later reviewed compiler commit beyond `1956f18`.
