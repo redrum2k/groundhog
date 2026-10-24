@@ -4,14 +4,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Binding, ControllerAction, RunEvent } from "./contract";
 import { project, type FoldContext, type View } from "./fold";
-import { controllerContinuation, holdFor, stamp, type Draft, type Ending } from "./scenario";
+import { controllerContinuation, holdFor, stamp, type Draft } from "./scenario";
 
-export const STUB_API = "/api/run-stub";
+export const LIVE_API = "/api/broker-run";
 
 export type Feed =
   | { kind: "still"; events: RunEvent[]; ctx: FoldContext } // the whole timeline at once, not playing
   | { kind: "recorded"; events: RunEvent[]; start: number; autoplay: boolean; ctx: FoldContext }
-  | { kind: "live"; api: string; ending: Ending; before: RunEvent[]; ctx: FoldContext };
+  | { kind: "live"; api: string; body: Record<string, unknown>; before: RunEvent[]; ctx: FoldContext };
 
 export type Status = "idle" | "playing" | "paused" | "waiting" | "done" | "error";
 export interface Playback {
@@ -51,7 +51,7 @@ export function usePlayback(feed: Feed): Playback {
     const poll = async () => {
       try {
         if (!runId.current) {
-          const res = await fetch(`${feed.api}/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ending: feed.ending }) });
+          const res = await fetch(`${feed.api}/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(feed.body) });
           if (!res.ok) throw new Error(`Could not start the live run (${res.status})`);
           runId.current = ((await res.json()) as { id: string }).id;
         }

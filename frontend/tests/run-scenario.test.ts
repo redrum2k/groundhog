@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import type { DataContract } from "../lib/run/contract";
 import { bindingFor, project, type FoldContext } from "../lib/run/fold";
 import { CONTRACT_V1, controllerContinuation, ENDINGS, LANES, S, stamp, timeline, type Case, type Ending } from "../lib/run/scenario";
-import { createRun, decide, eventsAfter } from "../lib/run/stub-store";
 
 const ctx = (lane: Case, ending: Ending = "maya", learned = false): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 as DataContract });
 const CASES: Case[] = ["shared", ...LANES];
@@ -78,27 +77,5 @@ describe("scenario integrity", () => {
     const learned = project(full("amber", "maya", true), ctx("amber", "maya", true));
     expect(learned.nodes.grey.chip).toBe("Covered");
     expect(learned.nodes.captured.status).toBe("done");
-  });
-});
-
-describe("stub run", () => {
-  it("releases events on a clock and holds for the controller", () => {
-    const run = createRun("maya");
-    expect(eventsAfter(run.id, 0)?.length).toBe(1);
-    expect(eventsAfter("nope", 0)).toBeNull();
-    expect(decide(run.id, "approve", { deliveryVersion: 1, evidenceVersion: 3 })).toMatchObject({ ok: false, status: 409 });
-  });
-
-  it("refuses a decision bound to stale evidence", () => {
-    const run = createRun("maya");
-    const now = Date.now;
-    Date.now = () => now() + 120_000;
-    try {
-      expect(decide(run.id, "approve", { deliveryVersion: 1, evidenceVersion: 2 })).toMatchObject({ ok: false, status: 409 });
-      expect(decide(run.id, "approve", { deliveryVersion: 1, evidenceVersion: 3 })).toEqual({ ok: true });
-      expect(eventsAfter(run.id, 0)?.some((e) => e.type === "controller_decided")).toBe(true);
-    } finally {
-      Date.now = now;
-    }
   });
 });

@@ -1,0 +1,1235 @@
+[
+ {
+  "id": "event_82f2901f99ef44a5bc95f47453182b86",
+  "sequence": 1,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355498Z",
+  "actor_id": "customer",
+  "type": "spec.draft_created",
+  "payload": {
+   "revision": 1,
+   "template_version": "intake-v1",
+   "parent_order_id": null
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_5aaa3cbafb5140949be5aae68cb53aee",
+  "sequence": 2,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355576Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_aa309e5592cf4600ab22eb5bff07790c",
+    "field": "geography",
+    "prompt": "Which named geographic area is required (for example city or metro)?",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_7ce57d7e1c9c4363823b5c7583ec5450",
+  "sequence": 3,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355597Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_7209f5190b4d4a8db9b06245f0b221ef",
+    "field": "boundary_version",
+    "prompt": "Which published geographic boundary revision should apply?",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_cb1603ace7c14d13a533b16cb259d79a",
+  "sequence": 4,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355611Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_cd180a6457254e24bc2dc016d1236c65",
+    "field": "region_ids",
+    "prompt": "Which exact region codes belong to the agreed geography?",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_50ffcfd583fd4dd8be47a46c1f3edd25",
+  "sequence": 5,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355623Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_d9ff046da73c47dfa677d710839d39a0",
+    "field": "reference_period",
+    "prompt": "Which observation/reference period does the requested statistic describe?",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_0630c4d5fa1f45adb7319d5574435cd4",
+  "sequence": 6,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355635Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_fea062c87acc4df7895a847231ec2786",
+    "field": "metric_name",
+    "prompt": "Which metric definition is intended: household or individual income?",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_717776fe52994160b24427eb0e92abdc",
+  "sequence": 7,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355648Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_1153cd2e4a9f40dbb8a641234b68c811",
+    "field": "metric_unit",
+    "prompt": "What measurement unit applies to that metric?",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_b191f847ddbd4a21a2d5f211547034e5",
+  "sequence": 8,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355660Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_48e7101350a64a5a87f74b9540749d1e",
+    "field": "entity_unit",
+    "prompt": "Is each record a region, establishment, legal entity, household, or person?",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_a058de21737c4fc184f710888e16cf0f",
+  "sequence": 9,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355671Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_97ef2e195fdf4a6b8bf16a5c0ffd748d",
+    "field": "coverage_ids",
+    "prompt": "List every expected entity ID: the denominator, not just delivered rows.",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_b38f31fa0ac94d71bba73f647852ed7e",
+  "sequence": 10,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355681Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_c00d924cb93c4f39969407172463018a",
+    "field": "max_missing_records",
+    "prompt": "How many of those expected records may be missing?",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_c23a19c348094c9b89a6f4969fc6aa14",
+  "sequence": 11,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355691Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_ddb30bd0e49d4d63ab80f016f65e2320",
+    "field": "revision_policy",
+    "prompt": "Confirm exact_accepted_versions: both parties accept source versions.",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_cee5a446ebef481e951d0bfe80e041c6",
+  "sequence": 12,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355702Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_8be5d23326f74595a51ddf2fee16e431",
+    "field": "conflict_policy",
+    "prompt": "Confirm UNKNOWN: conflicting source authority requires review.",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_476e0212005e4cacbe8eb4c5a4c8f9c0",
+  "sequence": 13,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355712Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_8886aeeca551446a9e5518b34c685a07",
+    "field": "output_schema",
+    "prompt": "Confirm market-v1: entity_id, region_id, value, observed_at, source lineage.",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_f291b94ff0c04b9da930d36583e36e51",
+  "sequence": 14,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "7b875d87775a4140af6e997aa207ea3d",
+  "timestamp": "2026-10-24T16:10:57.355724Z",
+  "actor_id": "customer",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 1,
+   "question": {
+    "id": "spec-question_f2becc3abbb441378cebb6198e055320",
+    "field": "output_format",
+    "prompt": "Choose json or csv for the data. A methodology PDF is also included.",
+    "answer_id": null
+   },
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_88d154fa7d714544b00bd2f8bd90f611",
+  "sequence": 15,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "incident_8bff6b805fc145c0be871be6839aef95",
+  "timestamp": "2026-10-24T16:10:57.355741Z",
+  "actor_id": "system",
+  "type": "incident.recorded",
+  "payload": {
+   "incident_id": "incident_8bff6b805fc145c0be871be6839aef95",
+   "cause": "MISSING_SPECIFICATION"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_a31d60b4ad0746a6bd7b7aade057102e",
+  "sequence": 16,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "0e142b7598ad4e298c5b9ef26793964f",
+  "timestamp": "2026-10-24T16:10:57.358899Z",
+  "actor_id": "provider",
+  "type": "evidence.source_added",
+  "payload": {
+   "revision": 2,
+   "source": {
+    "source_id": "vendor-fitness-panel",
+    "version": 1,
+    "sha256": "ce7bad847644dece211ec12b170a854892119346ea85ef8683719516f1d7830e"
+   },
+   "artifact_id": "artifact_97ca6b7bb3ab4de79c084bddb1fe6553",
+   "authority": "COMPANY_RECORD"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_c1d16bba98514630ae2f6c568a0ade1e",
+  "sequence": 17,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "9e3e6bd8147d429083bc8bfccd627a68",
+  "timestamp": "2026-10-24T16:10:57.361760Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 3,
+   "question_id": "spec-question_aa309e5592cf4600ab22eb5bff07790c",
+   "answer_id": "answer_ad33edebef6541f6b1a4740633fba285"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_b72eb992dd454fc48abddaa61dcf06d3",
+  "sequence": 18,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "55001743dd0246ba8039d889ea754368",
+  "timestamp": "2026-10-24T16:10:57.364495Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 4,
+   "question_id": "spec-question_7209f5190b4d4a8db9b06245f0b221ef",
+   "answer_id": "answer_12076f86a4024d9581ade396175b5f0f"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_6fe2e1928c8e41378baa2b91206759af",
+  "sequence": 19,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "cbb48f06e7f041ce8f4c3e7eb5ee603f",
+  "timestamp": "2026-10-24T16:10:57.367123Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 5,
+   "question_id": "spec-question_cd180a6457254e24bc2dc016d1236c65",
+   "answer_id": "answer_6c51d1723909473580e9c6aec6c1233d"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_328fcb8c27cf4fa3af687aaf485468bb",
+  "sequence": 20,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "c9003b40a444435eae23f32d2fd2ac81",
+  "timestamp": "2026-10-24T16:10:57.369616Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 6,
+   "question_id": "spec-question_d9ff046da73c47dfa677d710839d39a0",
+   "answer_id": "answer_bdf6c7e93a674a65bc1b59eefb3a303e"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_a6fc66211f344489a01580596ac6ccc9",
+  "sequence": 21,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "c3404a0df3ba435f805d1cb6dd6762b1",
+  "timestamp": "2026-10-24T16:10:57.373159Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 7,
+   "question_id": "spec-question_fea062c87acc4df7895a847231ec2786",
+   "answer_id": "answer_98c27d28b4c945d69a6d5f6a2f4de6c0"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_3d441f8faf01486c9055ee1653ddaeac",
+  "sequence": 22,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "3e837630130d4464a6332ae654900c6d",
+  "timestamp": "2026-10-24T16:10:57.377286Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 8,
+   "question_id": "spec-question_1153cd2e4a9f40dbb8a641234b68c811",
+   "answer_id": "answer_db6dfb5b1a9a4e2186eb8715f9338661"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_1dc01b1e90cc4d629cbfe6f3c660ed94",
+  "sequence": 23,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "99b50ba890bb4570baeb7d1551016aa4",
+  "timestamp": "2026-10-24T16:10:57.381784Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 9,
+   "question_id": "spec-question_48e7101350a64a5a87f74b9540749d1e",
+   "answer_id": "answer_9316575c70f44da4b240c63329552c20"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_6fe5e0c89e864b1ab8e5fabd8848f953",
+  "sequence": 24,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "02ec742679744722a468546dd80c9afa",
+  "timestamp": "2026-10-24T16:10:57.385142Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 10,
+   "question_id": "spec-question_97ef2e195fdf4a6b8bf16a5c0ffd748d",
+   "answer_id": "answer_3053ca8e285b4030b12bde3ae9e185bc"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_bbeb7af468a143739dbf3dd78aea1ae5",
+  "sequence": 25,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "2e25f04e9e704476a3c7a0e5f7e6f0f7",
+  "timestamp": "2026-10-24T16:10:57.388245Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 11,
+   "question_id": "spec-question_c00d924cb93c4f39969407172463018a",
+   "answer_id": "answer_8a2a52c11e5a4cc4a66eed894543b0ab"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_da2e45f8a78646e6bdda2e82961e8d10",
+  "sequence": 26,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "6b6203e5eee8420ea785fdaa5e44472b",
+  "timestamp": "2026-10-24T16:10:57.391761Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 12,
+   "question_id": "spec-question_ddb30bd0e49d4d63ab80f016f65e2320",
+   "answer_id": "answer_808ec21f12184bc7b37f2db122f395ff"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_9ac940e84e7c412cbc0c41e7b2986cd5",
+  "sequence": 27,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "011a21fb2bfd4527811cd93b729bfc8a",
+  "timestamp": "2026-10-24T16:10:57.394554Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 13,
+   "question_id": "spec-question_8be5d23326f74595a51ddf2fee16e431",
+   "answer_id": "answer_421cfd99bebe4ff2859de52d6a30d9a3"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_1247f2c09b224339b3d34e466e728b0a",
+  "sequence": 28,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "0e0add916a904b4288755e546fc93adf",
+  "timestamp": "2026-10-24T16:10:57.397992Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 14,
+   "question_id": "spec-question_8886aeeca551446a9e5518b34c685a07",
+   "answer_id": "answer_292a51a6462d4ae6af9e4915ac2788ed"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_4276bc5d93c44a0a875e94831383c927",
+  "sequence": 29,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "e3f5597da7b745a683f86cb5c79da1eb",
+  "timestamp": "2026-10-24T16:10:57.400962Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 15,
+   "question_id": "spec-question_f2becc3abbb441378cebb6198e055320",
+   "answer_id": "answer_03cab8a822a4419ab9ce672ab03239a4"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_56b018bcbd0441d38468b04cb5f855d3",
+  "sequence": 30,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "c86f0f80576940a595a604a5a82af188",
+  "timestamp": "2026-10-24T16:10:57.403619Z",
+  "actor_id": "controller",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 16,
+   "question": {
+    "id": "spec-question_dc24aa3a6bba401b9a2285b0b91b3bfc",
+    "field": "freshness_basis",
+    "prompt": "Does freshness mean observation date, publication date, or export date?",
+    "answer_id": null
+   },
+   "company_staff_touches": 1,
+   "measured_staff_seconds": null,
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_c9e2428636b64d18951911334aa6b455",
+  "sequence": 31,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "bf46b2a75e094426b76a3f3e6b66f152",
+  "timestamp": "2026-10-24T16:10:57.406573Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 17,
+   "question_id": "spec-question_dc24aa3a6bba401b9a2285b0b91b3bfc",
+   "answer_id": "answer_85241b9e940d4f53905c86b90acca709"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_77d9aeff93994a7c9fd099933d2fddb2",
+  "sequence": 32,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "incident_790ca2a707ba4b96876db6c172b8b1e3",
+  "timestamp": "2026-10-24T16:10:57.406883Z",
+  "actor_id": "system",
+  "type": "incident.recorded",
+  "payload": {
+   "incident_id": "incident_790ca2a707ba4b96876db6c172b8b1e3",
+   "cause": "MISSING_SPECIFICATION"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_34f5945a45324adb9fde4b1aff1eafd1",
+  "sequence": 33,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "b77b42a047864b1c8b0cbce75ff718d5",
+  "timestamp": "2026-10-24T16:10:57.409916Z",
+  "actor_id": "controller",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 18,
+   "question": {
+    "id": "spec-question_aa9c2bc2f4c24b1eaf1f3081839d1ea5",
+    "field": "max_age_days",
+    "prompt": "What maximum age in days is acceptable on the agreed as-of date?",
+    "answer_id": null
+   },
+   "company_staff_touches": 1,
+   "measured_staff_seconds": null,
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_312384dfbd35485cabb60ccf20d44030",
+  "sequence": 34,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "c6722aa8b3124d47a5df802f6a4241af",
+  "timestamp": "2026-10-24T16:10:57.412607Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 19,
+   "question_id": "spec-question_aa9c2bc2f4c24b1eaf1f3081839d1ea5",
+   "answer_id": "answer_f4e8c1a4181c494c8da37679f61cd28d"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_71c12b6300ad446fb507b31eeeab5b57",
+  "sequence": 35,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "incident_16ac6241ebfb476dbadb555c03b1f9a5",
+  "timestamp": "2026-10-24T16:10:57.412922Z",
+  "actor_id": "system",
+  "type": "incident.recorded",
+  "payload": {
+   "incident_id": "incident_16ac6241ebfb476dbadb555c03b1f9a5",
+   "cause": "MISSING_SPECIFICATION"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_ecabfcfa52e248ec855865ef39cc9588",
+  "sequence": 36,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "0db013b135264e1c98cf91a8f455f9b2",
+  "timestamp": "2026-10-24T16:10:57.415977Z",
+  "actor_id": "controller",
+  "type": "spec.question_requested",
+  "payload": {
+   "revision": 20,
+   "question": {
+    "id": "spec-question_3f8630981029479f98947a768d4e02c3",
+    "field": "as_of",
+    "prompt": "What timezone-aware as-of date should the freshness check use?",
+    "answer_id": null
+   },
+   "company_staff_touches": 1,
+   "measured_staff_seconds": null,
+   "template_version": "intake-v1"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_894b4249013d43f39c37cf5c2e2470ec",
+  "sequence": 37,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "3e0cd37ac92c4e998ee9e642c179630f",
+  "timestamp": "2026-10-24T16:10:57.418798Z",
+  "actor_id": "customer",
+  "type": "spec.answer_received",
+  "payload": {
+   "revision": 21,
+   "question_id": "spec-question_3f8630981029479f98947a768d4e02c3",
+   "answer_id": "answer_75722a3567704b9dbb49071f90c74a3c"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_abd6369b56fd4ac7bb2409622604c993",
+  "sequence": 38,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "6cae1ee67a3d4678a68e3be3f8814d25",
+  "timestamp": "2026-10-24T16:10:57.422565Z",
+  "actor_id": "provider",
+  "type": "spec.provider_accepted",
+  "payload": {
+   "revision": 22,
+   "digest": "6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_a217cc692de949248414c9a6ea654d1b",
+  "sequence": 39,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "916aad3b4af14572bb08f1f12443dd74",
+  "timestamp": "2026-10-24T16:10:57.426619Z",
+  "actor_id": "customer",
+  "type": "spec.accepted",
+  "payload": {
+   "revision": 1,
+   "digest": "6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+   "template_version": "intake-v1",
+   "snapshot_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb:accepted:6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+   "policy": "broker-review-v0.3",
+   "authorization_id": "mock_4749ee6360382b050856439cbc7b70bb694ba3e10b84118094e44e90ccd4f70c",
+   "mode": "SIMULATED",
+   "historical_import": false
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_4b4ae7a66d9748dd90654a1b583f61a0",
+  "sequence": 40,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "70b55fd1b9bf40d8999a163ae068ebb7",
+  "timestamp": "2026-10-24T16:10:57.472221Z",
+  "actor_id": "provider",
+  "type": "delivery.published",
+  "payload": {
+   "revision": 2,
+   "delivery_version": 1,
+   "artifact_ids": [
+    "artifact_1917dbc4e94e484bb206c281251d93b7",
+    "artifact_61bfdf481a83477c8b6cd29d3d4acf50",
+    "artifact_fe76591d54a74cea94ca9efad6633db1"
+   ]
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_463ee9214d1749408db0368bee8a70f7",
+  "sequence": 41,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "70b55fd1b9bf40d8999a163ae068ebb7",
+  "timestamp": "2026-10-24T16:10:57.504124Z",
+  "actor_id": "provider",
+  "type": "verification.completed",
+  "payload": {
+   "revision": 2,
+   "binding": {
+    "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+    "snapshot_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb:accepted:6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+    "delivery_version": 1,
+    "evidence_version": 1,
+    "proposal_version": 1
+   },
+   "verdict": "UNKNOWN",
+   "specification_sha256": "1f0a1b8725167b001f3f5ec0251ecf52b93d0b601076766e3c6f09278d68804f"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_78d1fc5bf9e64288a08ddf72c8a2a40d",
+  "sequence": 42,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "incident_76a511a7c6594308aaa9d3e6fc3d119c",
+  "timestamp": "2026-10-24T16:10:57.504181Z",
+  "actor_id": "system",
+  "type": "incident.recorded",
+  "payload": {
+   "incident_id": "incident_76a511a7c6594308aaa9d3e6fc3d119c",
+   "cause": "MISSING_EVIDENCE"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_a0737c39bd264aa79fa8ae86959ec08c",
+  "sequence": 43,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "issue_07366835946f446a8d943a870e25af8c",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "70b55fd1b9bf40d8999a163ae068ebb7",
+  "timestamp": "2026-10-24T16:10:57.504610Z",
+  "actor_id": "provider",
+  "type": "question.requested",
+  "payload": {
+   "revision": 2,
+   "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+   "question": {
+    "id": "question_3a0c848b7b40447090d36de341117dfe",
+    "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+    "text": "Please supply the authenticated source revision for this fact: Compared observed_at with the accepted 90-day limit and as-of date.",
+    "recipient": "provider",
+    "requirement_id": "req-freshness",
+    "binding": {
+     "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+     "snapshot_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb:accepted:6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+     "delivery_version": 1,
+     "evidence_version": 1,
+     "proposal_version": 1
+    },
+    "specification_sha256": "1f0a1b8725167b001f3f5ec0251ecf52b93d0b601076766e3c6f09278d68804f",
+    "status": "OPEN",
+    "answer_id": null
+   }
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_35f2b668c8f947628e35f4b8808fbc50",
+  "sequence": 44,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "issue_07366835946f446a8d943a870e25af8c",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "5b03fd48798a4a67883c8a9e0a16158b",
+  "timestamp": "2026-10-24T16:10:57.519105Z",
+  "actor_id": "provider",
+  "type": "answer.received",
+  "payload": {
+   "revision": 3,
+   "question_id": "question_3a0c848b7b40447090d36de341117dfe",
+   "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+   "answer_id": "answer_ee5c47149ef046e59b116265b4413071",
+   "authority": "PARTY_ASSERTION"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_b796812809bf47c7abf973adc0f0ca01",
+  "sequence": 45,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "5b03fd48798a4a67883c8a9e0a16158b",
+  "timestamp": "2026-10-24T16:10:57.552228Z",
+  "actor_id": "provider",
+  "type": "verification.completed",
+  "payload": {
+   "revision": 3,
+   "binding": {
+    "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+    "snapshot_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb:accepted:6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+    "delivery_version": 1,
+    "evidence_version": 2,
+    "proposal_version": 2
+   },
+   "verdict": "UNKNOWN",
+   "specification_sha256": "1f0a1b8725167b001f3f5ec0251ecf52b93d0b601076766e3c6f09278d68804f"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_476ae4d6ad7d4b798ce4962cfec566a7",
+  "sequence": 46,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "incident_5011420540fb4980ab153b31c25c4149",
+  "timestamp": "2026-10-24T16:10:57.552297Z",
+  "actor_id": "system",
+  "type": "incident.recorded",
+  "payload": {
+   "incident_id": "incident_5011420540fb4980ab153b31c25c4149",
+   "cause": "MISSING_EVIDENCE"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_e7e0c4b2922b46e69a48f16805676d62",
+  "sequence": 47,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "issue_07366835946f446a8d943a870e25af8c",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "5b03fd48798a4a67883c8a9e0a16158b",
+  "timestamp": "2026-10-24T16:10:57.552678Z",
+  "actor_id": "provider",
+  "type": "question.requested",
+  "payload": {
+   "revision": 3,
+   "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+   "question": {
+    "id": "question_4a7d8d32bf274088b28d1fab72f24213",
+    "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+    "text": "Please supply the authenticated source revision for this fact: Compared observed_at with the accepted 90-day limit and as-of date.",
+    "recipient": "provider",
+    "requirement_id": "req-freshness",
+    "binding": {
+     "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+     "snapshot_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb:accepted:6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+     "delivery_version": 1,
+     "evidence_version": 2,
+     "proposal_version": 2
+    },
+    "specification_sha256": "1f0a1b8725167b001f3f5ec0251ecf52b93d0b601076766e3c6f09278d68804f",
+    "status": "OPEN",
+    "answer_id": null
+   }
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_3c42291ebff94479b878a0fbe7477d4a",
+  "sequence": 48,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "issue_07366835946f446a8d943a870e25af8c",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "5b03fd48798a4a67883c8a9e0a16158b",
+  "timestamp": "2026-10-24T16:10:57.552819Z",
+  "actor_id": "provider",
+  "type": "case.resumed",
+  "payload": {
+   "revision": 3,
+   "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+   "question_id": "question_3a0c848b7b40447090d36de341117dfe"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_d083515f473e498593a8194614f9e57c",
+  "sequence": 49,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "issue_07366835946f446a8d943a870e25af8c",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "c2013e278f5e4e8590d65c3c8ea89493",
+  "timestamp": "2026-10-24T16:10:57.563967Z",
+  "actor_id": "provider",
+  "type": "answer.received",
+  "payload": {
+   "revision": 4,
+   "question_id": "question_4a7d8d32bf274088b28d1fab72f24213",
+   "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+   "answer_id": "answer_8753723166c04dcfb0f0ae6c9b4f6f59",
+   "authority": "PARTY_ASSERTION"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_2f9d2374599f46a496120ae167f2af62",
+  "sequence": 50,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "c2013e278f5e4e8590d65c3c8ea89493",
+  "timestamp": "2026-10-24T16:10:57.599315Z",
+  "actor_id": "provider",
+  "type": "verification.completed",
+  "payload": {
+   "revision": 4,
+   "binding": {
+    "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+    "snapshot_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb:accepted:6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+    "delivery_version": 1,
+    "evidence_version": 3,
+    "proposal_version": 3
+   },
+   "verdict": "UNKNOWN",
+   "specification_sha256": "1f0a1b8725167b001f3f5ec0251ecf52b93d0b601076766e3c6f09278d68804f"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_35b1d08c97a04968b832a04218d5e6a7",
+  "sequence": 51,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "incident_814c27bad54c4fe9970acef09c012513",
+  "timestamp": "2026-10-24T16:10:57.599365Z",
+  "actor_id": "system",
+  "type": "incident.recorded",
+  "payload": {
+   "incident_id": "incident_814c27bad54c4fe9970acef09c012513",
+   "cause": "MISSING_EVIDENCE"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_c83c392f70f4422b93ddf237829d2233",
+  "sequence": 52,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "issue_07366835946f446a8d943a870e25af8c",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "c2013e278f5e4e8590d65c3c8ea89493",
+  "timestamp": "2026-10-24T16:10:57.599685Z",
+  "actor_id": "system",
+  "type": "case.escalated",
+  "payload": {
+   "revision": 4,
+   "task": {
+    "id": "human-task_e9c93d6da0b646f5a6361241a29a03a0",
+    "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+    "owner": "controller",
+    "state": "OPEN",
+    "reason": "Material evidence remains unresolved; authorized human judgment required",
+    "missing_facts": [
+     "Compared observed_at with the accepted 90-day limit and as-of date."
+    ],
+    "evidence": [
+     {
+      "source_id": "vendor-fitness-panel",
+      "version": 1,
+      "sha256": "ce7bad847644dece211ec12b170a854892119346ea85ef8683719516f1d7830e"
+     }
+    ],
+    "binding": {
+     "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+     "snapshot_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb:accepted:6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+     "delivery_version": 1,
+     "evidence_version": 3,
+     "proposal_version": 3
+    },
+    "next_action": "Supply authenticated evidence or obtain a mutually accepted clarification, then resume.",
+    "decision": null,
+    "decided_by": null,
+    "created_at": "2026-10-24T16:10:57.599670Z",
+    "resolved_at": null
+   },
+   "issue_id": "issue_07366835946f446a8d943a870e25af8c"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_f9e8270532f7488cbc4ad2fd1b5a351b",
+  "sequence": 53,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "issue_07366835946f446a8d943a870e25af8c",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "c2013e278f5e4e8590d65c3c8ea89493",
+  "timestamp": "2026-10-24T16:10:57.599827Z",
+  "actor_id": "provider",
+  "type": "case.resumed",
+  "payload": {
+   "revision": 4,
+   "issue_id": "issue_07366835946f446a8d943a870e25af8c",
+   "question_id": "question_4a7d8d32bf274088b28d1fab72f24213"
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_32f7cde76f8646caa79572b4172d5081",
+  "sequence": 54,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "19c93e3e693a465aa303b160b6965a76",
+  "timestamp": "2026-10-24T16:10:57.613514Z",
+  "actor_id": "controller",
+  "type": "human.decision",
+  "payload": {
+   "revision": 5,
+   "task_id": "human-task_e9c93d6da0b646f5a6361241a29a03a0",
+   "decision": "RESUME",
+   "company_staff_touches": 1,
+   "measured_staff_seconds": null,
+   "explanation": "Counting it; the vendor category is not a data defect."
+  },
+  "mode": "SIMULATED"
+ },
+ {
+  "id": "event_df7337c1edee4d8686f955e759be5fc2",
+  "sequence": 55,
+  "schema_version": 1,
+  "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "case_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+  "job_id": null,
+  "attempt_id": null,
+  "causal_id": "19c93e3e693a465aa303b160b6965a76",
+  "timestamp": "2026-10-24T16:10:57.810227Z",
+  "actor_id": "controller",
+  "type": "verification.completed",
+  "payload": {
+   "revision": 5,
+   "binding": {
+    "order_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb",
+    "snapshot_id": "broker_7b814c1661e84fbab6c028fbb1ee9efb:accepted:6e13a15033cdf5fc75a73f54e9e458f50c73a6567c8008894de136913944a99b",
+    "delivery_version": 1,
+    "evidence_version": 3,
+    "proposal_version": 3
+   },
+   "verdict": "UNKNOWN",
+   "specification_sha256": "1f0a1b8725167b001f3f5ec0251ecf52b93d0b601076766e3c6f09278d68804f"
+  },
+  "mode": "SIMULATED"
+ }
+]

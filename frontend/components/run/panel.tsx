@@ -92,8 +92,10 @@ function Interview({ view, highlight, onCite }: { view: View; highlight?: string
   const n = view.nodes.clarify;
   const drafted = new Set(n?.drafted.map((l) => l.id));
   const asked = new Set(n?.asked);
-  const items: ChecklistItem[] = CONTRACT.filter((l) => asked.has(l.id) || drafted.has(l.id))
-    .map((l) => ({ id: l.id, title: l.text, status: drafted.has(l.id) ? "completed" : "in-progress" }));
+  // Recorded runs ask about the scenario's lines; a live stream names its own as it goes
+  const known: ContractLine[] = [...(n?.drafted ?? []), ...Object.values(n?.pending ?? {})];
+  const source = known.length ? known : CONTRACT.filter((l) => asked.has(l.id) || drafted.has(l.id));
+  const items: ChecklistItem[] = source.map((l) => ({ id: l.id, title: l.text, status: drafted.has(l.id) ? "completed" : "in-progress" }));
   if (view.contract.version >= 2) items.push({ id: CONTRACT_V2.id, title: CONTRACT_V2.text, status: "completed", detail: "v2" });
   return (
     <>
@@ -122,7 +124,9 @@ function Checks({ node, view }: { node: NodeState; view: View }) {
 }
 
 const ACTIONS: [ControllerAction, string][] = [["approve", "Yoga counts · rerun free"], ["reject", `No · offer $${S.yoga}`], ["ask", "Ask Acme for more"], ["escalate", "Send to CFO"]];
-function Review({ node, view, decide, onCite }: { node: NodeState; view: View; decide: Decide; onCite: (s: Source) => void }) {
+// The live backend's controller can resume or hold; the other two are not commands it has
+const LIVE_ACTIONS: [ControllerAction, string][] = [["approve", "Resume · evidence holds up"], ["reject", "Hold · keep the payment held"]];
+function Review({ node, view, decide, onCite, live }: { node: NodeState; view: View; decide: Decide; onCite: (s: Source) => void; live?: boolean }) {
   const [busy, setBusy] = useState<ControllerAction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const question = node.messages.filter((m) => m.from === "agent").at(-1);
@@ -135,12 +139,12 @@ function Review({ node, view, decide, onCite }: { node: NodeState; view: View; d
     <div className="review">
       <div className="review-tag"><IcLock size={11} strokeWidth={2} /> Needs your decision · records don't settle it</div>
       <p className="review-q">{question?.text}</p>
-      <p className="faint" style={{ margin: "0 0 12px" }}>Counting them adds about 9% more people. If yes, we rerun free and the contract becomes v2 so this is automatic next time. If no, we offer a ${S.yoga} amendment.</p>
+      <p className="faint" style={{ margin: "0 0 12px" }}>{live ? "Resume re-checks the delivery against the accepted sources; hold keeps the payment held until new evidence or an accepted amendment." : `Counting them adds about 9% more people. If yes, we rerun free and the contract becomes v2 so this is automatic next time. If no, we offer a $${S.yoga} amendment.`}</p>
       <div className="review-ev">
         {question?.attach?.map((a, i) => a.kind === "evidence" && view.evidence[a.evidenceId] ? <CiteChip key={i} e={view.evidence[a.evidenceId]} onCite={onCite} /> : null)}
       </div>
       <div className="review-actions">
-        {ACTIONS.map(([a, label]) => <button key={a} className={`btn${a === "approve" ? " solid" : ""}`} disabled={busy !== null} onClick={() => act(a)}>{label}</button>)}
+        {(live ? LIVE_ACTIONS : ACTIONS).map(([a, label]) => <button key={a} className={`btn${a === "approve" ? " solid" : ""}`} disabled={busy !== null} onClick={() => act(a)}>{label}</button>)}
       </div>
       {error && <p className="review-err">{error}</p>}
       <div className="faint" style={{ fontSize: 12, marginTop: 10 }}>Applies to this dispute and evidence set. Your name, time and reason are recorded.</div>
@@ -149,10 +153,10 @@ function Review({ node, view, decide, onCite }: { node: NodeState; view: View; d
 }
 
 export type BodyProps = {
-  step: Step; view: View; lane: Case; ending: Ending; learned: boolean; done: boolean;
+  step: Step; view: View; lane: Case; ending: Ending; learned: boolean; done: boolean; live?: boolean;
   decide: Decide; onReplayLearned: () => void; customer?: boolean;
 };
-export function PanelBody({ step, view, lane, learned, done, decide, onReplayLearned, customer }: BodyProps) {
+export function PanelBody({ step, view, lane, learned, done, live, decide, onReplayLearned, customer }: BodyProps) {
   const [hl, setHl] = useState<Hl>({});
   useEffect(() => { setHl({}); }, [step.id]);
   useEffect(() => {
@@ -175,7 +179,13 @@ export function PanelBody({ step, view, lane, learned, done, decide, onReplayLea
   else if (!node) content = <p className="faint">{step.detail}</p>;
   else switch (step.kind) {
     case "clarify": content = <Interview view={view} onCite={onCite} />; break;
-    case "paid": content = (<div className="pay"><div className="pay-amt">${S.price}.00</div><div>x402 authorization signed by {S.buyerAgent}.</div><div className="faint">Signed now, captured only after Acme accepts or the {S.reviewHours}h window passes. "Authorized" means signed, not funds held.</div></div>); break;
+    case "paid": {
+      const pay = view.payments[0];
+      content = (<div className="pay"><div className="pay-amt">${(pay?.amount ?? S.price).toFixed(2)}</div>
+        {pay?.rail === "mock" ? <div>Mock authorization opened by the backend on acceptance.</div> : <div>x402 authorization signed by {S.buyerAgent}.</div>}
+        <div className="faint">Captured only after Acme accepts or the review window passes. "Authorized" means signed, not funds held.</div></div>);
+      break;
+    }
     case "produce": content = <Checks node={node} view={view} />; break;
     case "review": {
       const d = view.deliveries[view.deliveries.length - 1];
@@ -197,7 +207,7 @@ export function PanelBody({ step, view, lane, learned, done, decide, onReplayLea
     case "amend": content = (<><Chat items={node.messages} view={view} highlight={hl.msg} onCite={onCite} /><Contract view={view} extra={node.amendment?.line} /></>); break;
     case "decide": {
       if (node.status === "waiting" && customer) content = <Chat items={[{ id: "x", from: "agent", text: "The contract doesn't settle this, so our controller is reviewing the evidence. Payment stays on hold until it's decided." }]} view={view} onCite={onCite} />;
-      else if (node.status === "waiting") content = <Review node={node} view={view} decide={decide} onCite={onCite} />;
+      else if (node.status === "waiting") content = <Review node={node} view={view} decide={decide} onCite={onCite} live={live} />;
       else if (node.decision?.action === "approve") content = (<>
         {node.rule && <div className="learned"><IcCheck size={14} strokeWidth={2.2} /> Learned: {node.rule.text.toLowerCase()}. Saved as Data contract v2.</div>}
         <Chat items={node.messages.filter((m) => m.from !== "agent" || m.id !== "m-escalate")} view={view} highlight={hl.msg} onCite={onCite} />

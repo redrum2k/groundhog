@@ -36,10 +36,11 @@ export const IcCoin = ({ size = 12 }: { size?: number }) => (
     <rect x="6.4" y="4" width="3.2" height="8" rx="1.6" fill="#b8892a" />
   </svg>
 );
-/** The workspace mark: four tiles */
-export const IcLogo = ({ size = 14 }: { size?: number }) => (
-  <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden>
-    <rect x="2" y="2" width="5" height="5" rx="1" fill="currentColor" /><rect x="9" y="2" width="5" height="5" rx="1" fill="currentColor" opacity=".45" />
-    <rect x="2" y="9" width="5" height="5" rx="1" fill="currentColor" opacity=".45" /><rect x="9" y="9" width="5" height="5" rx="1" fill="currentColor" />
+/** The Datum mark: the orb between two tiles. The ring and eyes are cut out, so it sits on any background. */
+export const IcLogo = ({ size = 24, ...p }: { size?: number } & SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 36 24" width={size * 1.5} height={size} aria-hidden {...p}>
+    <path fill="#111111" d="M2.5 0H12.5A2.5 2.5 0 0 1 15 2.5V4.05A8.5 8.5 0 0 0 15 19.95V21.5A2.5 2.5 0 0 1 12.5 24H2.5A2.5 2.5 0 0 1 0 21.5V2.5A2.5 2.5 0 0 1 2.5 0Z" />
+    <path fill="#c4c4c4" d="M23.5 0H33.5A2.5 2.5 0 0 1 36 2.5V21.5A2.5 2.5 0 0 1 33.5 24H23.5A2.5 2.5 0 0 1 21 21.5V19.95A8.5 8.5 0 0 0 21 4.05V2.5A2.5 2.5 0 0 1 23.5 0Z" />
+    <path fill="#2161d6" fillRule="evenodd" d="M18 5.5a6.5 6.5 0 1 1 0 13a6.5 6.5 0 1 1 0-13ZM15.4 10.4a.8.8 0 0 1 1.6 0v2.6a.8.8 0 0 1-1.6 0ZM19 10.4a.8.8 0 0 1 1.6 0v2.6a.8.8 0 0 1-1.6 0Z" />
   </svg>
 );

@@ -72,7 +72,7 @@ export type ControllerAction = "approve" | "reject" | "ask" | "escalate";
 export interface Payment {
   id: string;
   amount: Money;
-  rail: "x402";
+  rail: "x402" | "mock";
   network: "base-sepolia";
   mock: boolean; // a mock payment never carries a transaction and is labeled mock on screen
 }
@@ -116,6 +116,7 @@ export type RunEvent =
   | StepEvent<{ type: "step_waiting"; waitingOn: string }>
   | StepEvent<{ type: "step_completed" }>
   | StepEvent<{ type: "message"; message: Message }>
+  | StepEvent<{ type: "contract_line_asked"; line: ContractLine }> // the agent is pinning this line down
   | StepEvent<{ type: "contract_line_drafted"; line: ContractLine }>
   | StepEvent<{ type: "contract_approved"; contract: DataContract } & Acts>
   | StepEvent<{ type: "delivery_ready"; delivery: Delivery }>

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { LaneId, Step } from "../../lib/run/contract";
 import { project, type FoldContext, type View } from "../../lib/run/fold";
 import { CASE_NAME, CONTRACT_V1, ENDINGS, LANES, MAIN, S, controllerContinuation, stamp, timeline, type Case, type Ending } from "../../lib/run/scenario";
-import { STUB_API, usePlayback, type Feed } from "../../lib/run/source";
+import { LIVE_API, usePlayback, type Feed } from "../../lib/run/source";
 import Canvas, { type CanvasView, type CNode } from "./canvas";
 import { IcLogo, IcPause, IcPlay, IcReplay } from "./icons";
 import Panel, { PanelBody } from "./panel";
@@ -64,7 +64,13 @@ export default function RunApp() {
     return { nodes, view: { ...cv, orb: null, coin: null, loops: [], cards: [] } satisfies CanvasView };
   }, [zoom, ending]);
 
-  const nodes = useMemo<CNode[]>(() => (run === "shared" ? toNodes(MAIN, 0) : [...toNodes(MAIN, 0), ...toNodes(steps.filter((s) => !MAIN_IDS.has(s.id)), 1, run)]), [run, steps]);
+  const nodes = useMemo<CNode[]>(() => {
+    const planned = (s: Step) => view.nodes[s.id]?.step ?? s;
+    const main = toNodes(MAIN.map(planned), 0);
+    if (run === "shared") return main;
+    const streamed = view.order.filter((id) => !MAIN_IDS.has(id)).map((id) => view.nodes[id].step);
+    return [...main, ...toNodes(streamed.length ? streamed : steps.filter((s) => !MAIN_IDS.has(s.id)), 1, run)];
+  }, [run, steps, view]);
   const cv = useMemo(() => canvasView(view), [view]);
   const playing = status === "playing";
   const done = status === "done";
@@ -85,7 +91,7 @@ export default function RunApp() {
     const e = opts.ending ?? ending, l = opts.learned ?? false, m = opts.mode ?? mode;
     setRun(c); setZoom(true); setPanel(null); setLearned(l); setEnding(e);
     const ctx = ctxFor(c, e, l);
-    if (c === "amber" && m === "live" && !l) setFeed({ kind: "live", api: STUB_API, ending: e, before: timeline("amber", e).events.slice(0, timeline("amber", e).start), ctx });
+    if (m === "live" && !l) setFeed({ kind: "live", api: LIVE_API, body: { case: c }, before: [], ctx });
     else setFeed({ kind: "recorded", ...timeline(c, e, l), autoplay: opts.autoplay ?? true, ctx });
   };
   const toOverview = () => { setZoom(false); playback.pause(); setPanel(null); };
@@ -105,13 +111,13 @@ export default function RunApp() {
 
   const panelStep = panel ? stepOf(panel.id) : undefined;
   const caption = zoom ? (view.caption || (status === "idle" ? "Press play to run this case." : "")) : S.positioning;
-  const bodyProps = { view, lane: run, ending, learned, done, decide: playback.decide, onReplayLearned: replayLearned };
+  const bodyProps = { view, lane: run, ending, learned, done, live: playback.live, decide: playback.decide, onReplayLearned: replayLearned };
 
   return (
     <div className="shell">
       <header className="top">
         <div className="brand">
-          <span className="logo" aria-hidden><IcLogo /></span>
+          <IcLogo className="logo" />
           <div>
             <div className="title">Order {S.orderNo} <span className="faint">· {S.buyer}</span></div>
             <div className="seatline">{S.seat} · {S.us}</div>
@@ -122,13 +128,13 @@ export default function RunApp() {
           <button role="tab" aria-selected={tab === "customer"} className={tab === "customer" ? "on" : ""} onClick={() => setTab("customer")}>Customer view</button>
         </div>
         <div className="top-r">
-          {zoom && run === "amber" && !learned && (
+          {zoom && !learned && (
             <div className="seg" aria-label="Feed">
-              <button className={mode === "recorded" ? "on" : ""} onClick={() => { setMode("recorded"); start("amber", { mode: "recorded" }); }}>Recorded</button>
-              <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start("amber", { mode: "live" }); }}>Live</button>
+              <button className={mode === "recorded" ? "on" : ""} onClick={() => { setMode("recorded"); start(run, { mode: "recorded" }); }}>Recorded</button>
+              <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start(run, { mode: "live" }); }}>Live</button>
             </div>
           )}
-          <span className="tag">Sample run · synthetic data · mock payments</span>
+          <span className="tag">{playback.live ? "Live backend · synthetic data · mock payments" : "Sample run · synthetic data · mock payments"}</span>
         </div>
       </header>
 
