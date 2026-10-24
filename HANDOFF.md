@@ -1,5 +1,12 @@
 # Current follow-up pickup
 
+The current primary `/runs` follow-up is in [PRIMARY_HANDOFF.md](PRIMARY_HANDOFF.md)
+and [PRIMARY_RESULTS.md](PRIMARY_RESULTS.md): R3/R4 fixed, guarded primary semantic
+foundation, feature OFF, local commits only. The completed legacy handoff below is
+preserved history, not the current primary-workflow qualification.
+
+## Completed legacy dispute follow-up
+
 The backend dispute follow-up is delivered **feature OFF / not qualified**.
 Read [DISPUTE_HANDOFF.md](DISPUTE_HANDOFF.md) and [DISPUTE_RESULTS.md](DISPUTE_RESULTS.md)
 for current state, verified calls/tests, remaining blockers and the expired-or-bounded

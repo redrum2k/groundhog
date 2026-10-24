@@ -12,6 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "backend/artifacts/dispute-followup"
 DESTINATION = Path("D:/Downloads/OBJECTION_Dispute_Followup_Results_20261024.zip")
 LEDGER = Path("D:/Downloads/order-to-cash-v6-20261024/backend/artifacts/v6-model-budget.sqlite3")
+BASE = "c2f561956fc5189688e70918967ef5c9eb87f5fe"
+REQUIRE_PUSH = True
+EXTRA_EVIDENCE = ()
 
 
 def git(*arguments):
@@ -38,13 +41,14 @@ def main():
             source.backup(destination)
     commit = git("rev-parse", "HEAD").decode().strip()
     remote = git("ls-remote", "origin", f"refs/heads/{branch}").decode().split()[0]
-    if remote != commit:
+    if REQUIRE_PUSH and remote != commit:
         raise RuntimeError("Remote feature branch does not match tested source")
     receipt = {
         "commit": commit,
         "remote_commit": remote,
         "branch": branch,
-        "base": "c2f561956fc5189688e70918967ef5c9eb87f5fe",
+        "base": BASE,
+        "pushed": remote == commit,
         "exported_at": datetime.now(UTC).isoformat(),
         "feature_enabled": False,
     }
@@ -67,8 +71,15 @@ def main():
         for path in sorted(EVIDENCE.rglob("*")):
             if path.is_file() and path.suffix not in {".wal", ".shm"}:
                 add("evidence/" + path.relative_to(EVIDENCE).as_posix(), path.read_bytes())
+        for extra in EXTRA_EVIDENCE:
+            for path in sorted(extra.rglob("*")):
+                if path.is_file() and path.suffix not in {".wal", ".shm"}:
+                    add(
+                        "evidence/" + extra.name + "/" + path.relative_to(extra).as_posix(),
+                        path.read_bytes(),
+                    )
         add("delivery-receipt.json", json.dumps(receipt, indent=2).encode())
-        add("feature.patch", git("diff", "c2f5619...HEAD", "--"))
+        add("feature.patch", git("diff", BASE + "...HEAD", "--"))
         archive.writestr("manifest.json", json.dumps(manifest, indent=2))
     with zipfile.ZipFile(DESTINATION) as archive:
         for member in manifest:

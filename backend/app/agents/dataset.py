@@ -73,7 +73,7 @@ def compile_dataset(context, store):
     expected_city = "oakland" if draft.corpus_id.startswith("oakland") else "san francisco"
     ages, cities, excluded_ages, excluded_cities = _cohort(draft.prompt)
     category = _category(draft.prompt)
-    unrelated_conflict = False
+    unrelated_age_conflict = unrelated_city_conflict = False
     for answer in draft.answers:
         # The service has already checked exact current question identity. Preserve
         # immutable prompt/history; only replace the field that question solicited.
@@ -82,12 +82,13 @@ def compile_dataset(context, store):
         if field == "cohort":
             if a or na:
                 ages, excluded_ages = a, na
+                unrelated_age_conflict = False
             if c or nc:
                 cities, excluded_cities = c, nc
+                unrelated_city_conflict = False
         elif a or c or na or nc:
-            unrelated_conflict |= bool(
-                (a and a != ages) or (c and c != cities) or na & ages or nc & cities
-            )
+            unrelated_age_conflict |= bool((a and a != ages) or na & ages)
+            unrelated_city_conflict |= bool((c and c != cities) or nc & cities)
         proposed_category = _category(answer.text)
         if field == "category":
             category = proposed_category
@@ -100,7 +101,8 @@ def compile_dataset(context, store):
         and cities == {expected_city}
         and not ages & excluded_ages
         and not cities & excluded_cities
-        and not unrelated_conflict
+        and not unrelated_age_conflict
+        and not unrelated_city_conflict
     )
     if not cohort_ok:
         question = (

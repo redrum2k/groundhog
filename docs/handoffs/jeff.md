@@ -1,5 +1,21 @@
 # Review remediation — Jeff's remaining release blockers
 
+## Primary semantic follow-up delivered locally
+
+Feature branch `feature/broker-dispute-assessment-20261024`, based on current main
+`62fe035`. R3/R4 fixes are in `de53450`; primary integration in `d2b6ba1`; final
+equivalent-proof implementation in `5946378`. See [PRIMARY_RESULTS](../../PRIMARY_RESULTS.md)
+for exact tests, real calls, retained negative cases and Windows full-suite failures;
+[PRIMARY_HANDOFF](../../PRIMARY_HANDOFF.md) contains Lucas's mapping instructions.
+The primary feature remains OFF. No main merge, deployment or new push occurred.
+
+The original strict R3/R4 tests passed as XPASS before their markers were removed.
+Added negation/paraphrase/correction/geography/contradiction checks preserve original
+history and contractual clocks. Nikita's completed R1/R2/R5/R6/R7 work is retained.
+Actual primary verdict/evidence examples: [JSON](primary-semantic-events.example.json).
+
+## Prior remediation instructions (preserved)
+
 ## Start from the shared remediation branch
 
 The combined 06/07 work, prompt 08's reviewed implementation (`692f500`) and

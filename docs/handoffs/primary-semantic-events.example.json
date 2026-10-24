@@ -1,0 +1,1067 @@
+[
+  {
+    "case": "P7",
+    "run_id": "request-2f094d8a5eaa4e32a2d054c3e2765710",
+    "event": {
+      "seq": 63,
+      "at": "2026-10-24T18:42:37.811500Z",
+      "track": "shared",
+      "step": "verdict",
+      "attempt": 1,
+      "type": "verdict",
+      "verdict": {
+        "kind": "grey",
+        "reason": "The authority source defines the category as gym membership or fitness-app use and records yoga_is_gym as false. This is consistent with the accepted definition, which excludes standalone yoga. Together, these support the claim that standalone yoga is outside the agreed fitness scope. Supporting the claim does not by itself establish provider fault.",
+        "decidedBy": "model",
+        "evidenceIds": [
+          "case-bded403450cb451e96b3fc29de22173c:semantic:2:0",
+          "case-bded403450cb451e96b3fc29de22173c:semantic:2:1"
+        ],
+        "finding": {
+          "kind": "supported",
+          "reason": "The authority source defines the category as gym membership or fitness-app use and records yoga_is_gym as false. This is consistent with the accepted definition, which excludes standalone yoga. Together, these support the claim that standalone yoga is outside the agreed fitness scope. Supporting the claim does not by itself establish provider fault.",
+          "evidence_ids": [
+            "case-bded403450cb451e96b3fc29de22173c:semantic:2:0",
+            "case-bded403450cb451e96b3fc29de22173c:semantic:2:1"
+          ],
+          "decided_by": "model",
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 2,
+            "runId": "request-2f094d8a5eaa4e32a2d054c3e2765710",
+            "orderId": "order-quote-967b3dd9c82a4f9d82ebf73dc41ea14b",
+            "snapshotId": "snapshot-5aa2c51d52244463bc710c1282928238",
+            "revision": 8
+          },
+          "assessed_binding": {
+            "snapshot_id": "snapshot-5aa2c51d52244463bc710c1282928238",
+            "evidence_revision": 2,
+            "delivery_version": 1
+          },
+          "accepted_specification_sha256": "88c1944e9b65316e3d31761d9d715d1e06859ca9e9ea5c3ba09b0fdc59c16a3e",
+          "attempt_id": "02283391c5061801d3b81442baa71fd3e2fa67c7fa9783820f94441085303c72",
+          "candidate": {
+            "obligation_id": "case-bded403450cb451e96b3fc29de22173c:claim",
+            "result": "PASS",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "definition",
+                "value": "Gym membership or fitness-app use.",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "yoga_is_gym",
+                "value": "false",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "CLAIM_SUPPORTED_BY_AUTHORITY",
+            "explanation": "The authority source defines the category as gym membership or fitness-app use and records yoga_is_gym as false. This is consistent with the accepted definition, which excludes standalone yoga. Together, these support the claim that standalone yoga is outside the agreed fitness scope. Supporting the claim does not by itself establish provider fault.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "effective": {
+            "obligation_id": "case-bded403450cb451e96b3fc29de22173c:claim",
+            "result": "PASS",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "definition",
+                "value": "Gym membership or fitness-app use.",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "yoga_is_gym",
+                "value": "false",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "CLAIM_SUPPORTED_BY_AUTHORITY",
+            "explanation": "The authority source defines the category as gym membership or fitness-app use and records yoga_is_gym as false. This is consistent with the accepted definition, which excludes standalone yoga. Together, these support the claim that standalone yoga is outside the agreed fitness scope. Supporting the claim does not by itself establish provider fault.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "validation": "VALIDATED"
+        }
+      },
+      "allowedBy": "Frozen accepted definition and resolving source evidence; this finding grants no payment permission"
+    },
+    "evidence": [
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "5c18d83bfaede1d5758bb8aa",
+          "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+          "source_id": "sf-aggregate-v1:authority",
+          "version": 1,
+          "row": "$",
+          "column": "definition",
+          "value": "Gym membership or fitness-app use.",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "Gym membership or fitness-app use."
+      },
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "5c18d83bfaede1d5758bb8aa",
+          "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+          "source_id": "sf-aggregate-v1:authority",
+          "version": 1,
+          "row": "$",
+          "column": "yoga_is_gym",
+          "value": "false",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "false"
+      }
+    ]
+  },
+  {
+    "case": "P1",
+    "run_id": "request-965106e1c6fe43bf845bf3985ec8878a",
+    "event": {
+      "seq": 63,
+      "at": "2026-10-24T18:36:36.614481Z",
+      "track": "shared",
+      "step": "verdict",
+      "attempt": 1,
+      "type": "verdict",
+      "verdict": {
+        "kind": "grey",
+        "reason": "The agreed category is gym_app_or_yoga, defined as 'Gym membership, fitness-app use or yoga-studio membership.' Yoga-studio membership is a separately listed member of the agreed scope, so standalone yoga is covered. The pinned source for this category is labelled gym_app_or_yoga. The authority record defines gym/fitness-app use without yoga and marks yoga_is_gym as false. That is consistent with yoga being named separately in the agreed scope, so it does not contradict the claim. This supports the claim only; it does not establish provider fault.",
+        "decidedBy": "model",
+        "evidenceIds": [
+          "case-da5f88dea4c54ea7b11fdc6142350a5a:semantic:2:0",
+          "case-da5f88dea4c54ea7b11fdc6142350a5a:semantic:2:1"
+        ],
+        "finding": {
+          "kind": "supported",
+          "reason": "The agreed category is gym_app_or_yoga, defined as 'Gym membership, fitness-app use or yoga-studio membership.' Yoga-studio membership is a separately listed member of the agreed scope, so standalone yoga is covered. The pinned source for this category is labelled gym_app_or_yoga. The authority record defines gym/fitness-app use without yoga and marks yoga_is_gym as false. That is consistent with yoga being named separately in the agreed scope, so it does not contradict the claim. This supports the claim only; it does not establish provider fault.",
+          "evidence_ids": [
+            "case-da5f88dea4c54ea7b11fdc6142350a5a:semantic:2:0",
+            "case-da5f88dea4c54ea7b11fdc6142350a5a:semantic:2:1"
+          ],
+          "decided_by": "model",
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 2,
+            "runId": "request-965106e1c6fe43bf845bf3985ec8878a",
+            "orderId": "order-quote-7ed3c162b10f4347a25897615a26997b",
+            "snapshotId": "snapshot-d4005ec4c32247ec90d5ee363f820791",
+            "revision": 8
+          },
+          "assessed_binding": {
+            "snapshot_id": "snapshot-d4005ec4c32247ec90d5ee363f820791",
+            "evidence_revision": 2,
+            "delivery_version": 1
+          },
+          "accepted_specification_sha256": "0e5a8cf612673679e59a5b834b9f3041d03d4ea335d1bd48fbc9695d85180066",
+          "attempt_id": "53313ca6bce73d538861e80256ecc67551b7b3fc71340191740eb8267ef7e8de",
+          "candidate": {
+            "obligation_id": "case-da5f88dea4c54ea7b11fdc6142350a5a:claim",
+            "result": "PASS",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "a895bb6a7ee562314074da83",
+                "sha256": "a895bb6a7ee562314074da83be84eb182d67e7c0bc0d23ccb703e7f3430b19b2",
+                "source_id": "sf-aggregate-v1:gym_app_or_yoga",
+                "version": 1,
+                "row": "$",
+                "column": "category",
+                "value": "gym_app_or_yoga",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "yoga_is_gym",
+                "value": "false",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "DATASET_CATEGORY_CLAIM_SUPPORTED",
+            "explanation": "The agreed category is gym_app_or_yoga, defined as 'Gym membership, fitness-app use or yoga-studio membership.' Yoga-studio membership is a separately listed member of the agreed scope, so standalone yoga is covered. The pinned source for this category is labelled gym_app_or_yoga. The authority record defines gym/fitness-app use without yoga and marks yoga_is_gym as false. That is consistent with yoga being named separately in the agreed scope, so it does not contradict the claim. This supports the claim only; it does not establish provider fault.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "effective": {
+            "obligation_id": "case-da5f88dea4c54ea7b11fdc6142350a5a:claim",
+            "result": "PASS",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "a895bb6a7ee562314074da83",
+                "sha256": "a895bb6a7ee562314074da83be84eb182d67e7c0bc0d23ccb703e7f3430b19b2",
+                "source_id": "sf-aggregate-v1:gym_app_or_yoga",
+                "version": 1,
+                "row": "$",
+                "column": "category",
+                "value": "gym_app_or_yoga",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "yoga_is_gym",
+                "value": "false",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "DATASET_CATEGORY_CLAIM_SUPPORTED",
+            "explanation": "The agreed category is gym_app_or_yoga, defined as 'Gym membership, fitness-app use or yoga-studio membership.' Yoga-studio membership is a separately listed member of the agreed scope, so standalone yoga is covered. The pinned source for this category is labelled gym_app_or_yoga. The authority record defines gym/fitness-app use without yoga and marks yoga_is_gym as false. That is consistent with yoga being named separately in the agreed scope, so it does not contradict the claim. This supports the claim only; it does not establish provider fault.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "validation": "VALIDATED"
+        }
+      },
+      "allowedBy": "Frozen accepted definition and resolving source evidence; this finding grants no payment permission"
+    },
+    "evidence": [
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "a895bb6a7ee562314074da83",
+          "sha256": "a895bb6a7ee562314074da83be84eb182d67e7c0bc0d23ccb703e7f3430b19b2",
+          "source_id": "sf-aggregate-v1:gym_app_or_yoga",
+          "version": 1,
+          "row": "$",
+          "column": "category",
+          "value": "gym_app_or_yoga",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "gym_app_or_yoga"
+      },
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "5c18d83bfaede1d5758bb8aa",
+          "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+          "source_id": "sf-aggregate-v1:authority",
+          "version": 1,
+          "row": "$",
+          "column": "yoga_is_gym",
+          "value": "false",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "false"
+      }
+    ]
+  },
+  {
+    "case": "P2",
+    "run_id": "request-aa65cbe1cfd746c19cdece72772e129b",
+    "event": {
+      "seq": 64,
+      "at": "2026-10-24T18:36:53.132777Z",
+      "track": "shared",
+      "step": "verdict",
+      "attempt": 1,
+      "type": "verdict",
+      "verdict": {
+        "kind": "disagree",
+        "reason": "The claim is that yoga studios fall within the accepted fitness definition. This is contradicted by two sources. First, the accepted definition itself says standalone yoga is excluded. Second, the authority source defines the category as 'Gym membership or fitness-app use.' and records yoga_is_gym as 'false'. The delivered category is gym_or_fitness_app, which is consistent with the accepted terms. No customer testimony was supplied, and testimony would not override source authority in any case.",
+        "decidedBy": "model",
+        "evidenceIds": [
+          "case-9cb61b7153a9438a8930f07452e1c109:semantic:2:0",
+          "case-9cb61b7153a9438a8930f07452e1c109:semantic:2:1",
+          "case-9cb61b7153a9438a8930f07452e1c109:semantic:2:2"
+        ],
+        "finding": {
+          "kind": "contradicted",
+          "reason": "The claim is that yoga studios fall within the accepted fitness definition. This is contradicted by two sources. First, the accepted definition itself says standalone yoga is excluded. Second, the authority source defines the category as 'Gym membership or fitness-app use.' and records yoga_is_gym as 'false'. The delivered category is gym_or_fitness_app, which is consistent with the accepted terms. No customer testimony was supplied, and testimony would not override source authority in any case.",
+          "evidence_ids": [
+            "case-9cb61b7153a9438a8930f07452e1c109:semantic:2:0",
+            "case-9cb61b7153a9438a8930f07452e1c109:semantic:2:1",
+            "case-9cb61b7153a9438a8930f07452e1c109:semantic:2:2"
+          ],
+          "decided_by": "model",
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 2,
+            "runId": "request-aa65cbe1cfd746c19cdece72772e129b",
+            "orderId": "order-quote-afcf46fdd72c4d6bb1075020ba5f98ef",
+            "snapshotId": "snapshot-2036edb5161f490aa79d09fd8b2bf648",
+            "revision": 8
+          },
+          "assessed_binding": {
+            "snapshot_id": "snapshot-2036edb5161f490aa79d09fd8b2bf648",
+            "evidence_revision": 2,
+            "delivery_version": 1
+          },
+          "accepted_specification_sha256": "ea6303c021964f3862ba617fe2826e0621cbf8529e153dc9539ac3ba331a16fa",
+          "attempt_id": "dc7372b897f7e4a95899831bc0ba9143935c23dde3d2d9f8d8b42f6944375327",
+          "candidate": {
+            "obligation_id": "case-9cb61b7153a9438a8930f07452e1c109:claim",
+            "result": "FAIL",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "yoga_is_gym",
+                "value": "false",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "definition",
+                "value": "Gym membership or fitness-app use.",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "8de3df3380652dc883b825ce",
+                "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+                "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+                "version": 1,
+                "row": "$",
+                "column": "category",
+                "value": "gym_or_fitness_app",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "CLAIM_CONTRADICTED_BY_AUTHORITY",
+            "explanation": "The claim is that yoga studios fall within the accepted fitness definition. This is contradicted by two sources. First, the accepted definition itself says standalone yoga is excluded. Second, the authority source defines the category as 'Gym membership or fitness-app use.' and records yoga_is_gym as 'false'. The delivered category is gym_or_fitness_app, which is consistent with the accepted terms. No customer testimony was supplied, and testimony would not override source authority in any case.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "effective": {
+            "obligation_id": "case-9cb61b7153a9438a8930f07452e1c109:claim",
+            "result": "FAIL",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "yoga_is_gym",
+                "value": "false",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "definition",
+                "value": "Gym membership or fitness-app use.",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "8de3df3380652dc883b825ce",
+                "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+                "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+                "version": 1,
+                "row": "$",
+                "column": "category",
+                "value": "gym_or_fitness_app",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "CLAIM_CONTRADICTED_BY_AUTHORITY",
+            "explanation": "The claim is that yoga studios fall within the accepted fitness definition. This is contradicted by two sources. First, the accepted definition itself says standalone yoga is excluded. Second, the authority source defines the category as 'Gym membership or fitness-app use.' and records yoga_is_gym as 'false'. The delivered category is gym_or_fitness_app, which is consistent with the accepted terms. No customer testimony was supplied, and testimony would not override source authority in any case.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "validation": "VALIDATED"
+        }
+      },
+      "allowedBy": "Frozen accepted definition and resolving source evidence; this finding grants no payment permission"
+    },
+    "evidence": [
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "5c18d83bfaede1d5758bb8aa",
+          "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+          "source_id": "sf-aggregate-v1:authority",
+          "version": 1,
+          "row": "$",
+          "column": "yoga_is_gym",
+          "value": "false",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "false"
+      },
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "5c18d83bfaede1d5758bb8aa",
+          "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+          "source_id": "sf-aggregate-v1:authority",
+          "version": 1,
+          "row": "$",
+          "column": "definition",
+          "value": "Gym membership or fitness-app use.",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "Gym membership or fitness-app use."
+      },
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "8de3df3380652dc883b825ce",
+          "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+          "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+          "version": 1,
+          "row": "$",
+          "column": "category",
+          "value": "gym_or_fitness_app",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "gym_or_fitness_app"
+      }
+    ]
+  },
+  {
+    "case": "P3",
+    "run_id": "request-58d8133e4b45470cbcb1eb74cc9ed370",
+    "event": {
+      "seq": 63,
+      "at": "2026-10-24T18:37:08.905313Z",
+      "track": "shared",
+      "step": "verdict",
+      "attempt": 1,
+      "type": "verdict",
+      "verdict": {
+        "kind": "grey",
+        "reason": "A bounded evidence question is pending; payment remains blocked.",
+        "decidedBy": "unresolved",
+        "evidenceIds": [],
+        "finding": {
+          "kind": "unclear",
+          "reason": "The candidate lacks independently checkable complaint-specific support.",
+          "evidence_ids": [],
+          "decided_by": "unresolved",
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 2,
+            "runId": "request-58d8133e4b45470cbcb1eb74cc9ed370",
+            "orderId": "order-quote-1e7866e44bfa4b31b95ada9516e136c4",
+            "snapshotId": "snapshot-264071ae8b3543c197c37ad946743d3f",
+            "revision": 8
+          },
+          "assessed_binding": {
+            "snapshot_id": "snapshot-264071ae8b3543c197c37ad946743d3f",
+            "evidence_revision": 2,
+            "delivery_version": 1
+          },
+          "accepted_specification_sha256": "d5d1b8b25b08d442cbb55aeb4d72a6c87112a37f6133f74d46ca6ee9ab92a282",
+          "attempt_id": "9eaa780a48e13eb35e27fcfe542c6810fa40edfd4dc5739c4c67c997eff22a8d",
+          "candidate": {
+            "obligation_id": "case-951486f85ac84afa971db2cf35bf86ad:claim",
+            "result": "PASS",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "definition",
+                "value": "Gym membership or fitness-app use.",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "yoga_is_gym",
+                "value": "false",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "CLAIM_SUPPORTED_YOGA_EXCLUDED",
+            "explanation": "The pinned authority source defines the category as 'Gym membership or fitness-app use.' and records yoga_is_gym as 'false'. This is consistent with the accepted definition, which excludes standalone yoga. It supports the claim that yoga is not included in the agreed gym/app definition. Supporting this claim does not, by itself, establish provider fault.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "effective": {
+            "obligation_id": "case-951486f85ac84afa971db2cf35bf86ad:claim",
+            "result": "UNKNOWN",
+            "citations": [],
+            "missing_facts": [
+              "Complaint-specific support from exact accepted terms and verified evidence."
+            ],
+            "conflicting_evidence": [],
+            "reason_code": "DATASET_SEMANTIC_UNRESOLVED",
+            "explanation": "The candidate lacks independently checkable complaint-specific support.",
+            "requested_evidence": "Identify the frozen source and exact cell establishing this claim.",
+            "provenance": {
+              "kind": "deterministic",
+              "assessor": "dataset-evidence-gate",
+              "version": "1",
+              "model_score": null
+            }
+          },
+          "validation": "ADVISORY"
+        }
+      },
+      "allowedBy": "Frozen accepted definition and resolving source evidence; this finding grants no payment permission"
+    },
+    "evidence": []
+  },
+  {
+    "case": "P4",
+    "run_id": "request-daee70629cf141619b4ac9cf122acb25",
+    "event": {
+      "seq": 63,
+      "at": "2026-10-24T18:37:24.071695Z",
+      "track": "shared",
+      "step": "verdict",
+      "attempt": 1,
+      "type": "verdict",
+      "verdict": {
+        "kind": "disagree",
+        "reason": "The claim says ZIP 94110 was left out of the delivered CSV. The delivered dataset (source 'delivery', version 1) contains a row keyed 94110 with zip value '94110'. That ZIP is in the frozen registry's expected keys. The deterministic coverage check also passed, confirming every registry ZIP appears exactly once. This contradicts the omission claim.",
+        "decidedBy": "model",
+        "evidenceIds": [
+          "case-9735fe3ee4524722b9cd1e993b22f7f2:semantic:2:0",
+          "case-9735fe3ee4524722b9cd1e993b22f7f2:semantic:2:1"
+        ],
+        "finding": {
+          "kind": "contradicted",
+          "reason": "The claim says ZIP 94110 was left out of the delivered CSV. The delivered dataset (source 'delivery', version 1) contains a row keyed 94110 with zip value '94110'. That ZIP is in the frozen registry's expected keys. The deterministic coverage check also passed, confirming every registry ZIP appears exactly once. This contradicts the omission claim.",
+          "evidence_ids": [
+            "case-9735fe3ee4524722b9cd1e993b22f7f2:semantic:2:0",
+            "case-9735fe3ee4524722b9cd1e993b22f7f2:semantic:2:1"
+          ],
+          "decided_by": "model",
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 2,
+            "runId": "request-daee70629cf141619b4ac9cf122acb25",
+            "orderId": "order-quote-d3e9b0bef48848ce9d3980dae8b88f35",
+            "snapshotId": "snapshot-d7545185448c404bbe83a17fe04deac8",
+            "revision": 8
+          },
+          "assessed_binding": {
+            "snapshot_id": "snapshot-d7545185448c404bbe83a17fe04deac8",
+            "evidence_revision": 2,
+            "delivery_version": 1
+          },
+          "accepted_specification_sha256": "5db731a0781b597e500c44b1304c069a81d1942e88bb5694ff8e7ff3a823ac23",
+          "attempt_id": "0ebc7bc7fa3bbbb7de713cbe4f168ea8135250b46117d89ddb40dffc5c833d2b",
+          "candidate": {
+            "obligation_id": "case-9735fe3ee4524722b9cd1e993b22f7f2:claim",
+            "result": "FAIL",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "72af48f698cc4857f784f51a",
+                "sha256": "72af48f698cc4857f784f51a5e75f4c017d88e5232fc3556c008f1007de0037f",
+                "source_id": "delivery",
+                "version": 1,
+                "row": "94110",
+                "column": "zip",
+                "value": "94110",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "cfd799993d12e11bade69bb9",
+                "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+                "source_id": "sf-aggregate-v1:coverage",
+                "version": 1,
+                "row": "$",
+                "column": "geography",
+                "value": "San Francisco",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "DATASET_KEY_PRESENT",
+            "explanation": "The claim says ZIP 94110 was left out of the delivered CSV. The delivered dataset (source 'delivery', version 1) contains a row keyed 94110 with zip value '94110'. That ZIP is in the frozen registry's expected keys. The deterministic coverage check also passed, confirming every registry ZIP appears exactly once. This contradicts the omission claim.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "effective": {
+            "obligation_id": "case-9735fe3ee4524722b9cd1e993b22f7f2:claim",
+            "result": "FAIL",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "72af48f698cc4857f784f51a",
+                "sha256": "72af48f698cc4857f784f51a5e75f4c017d88e5232fc3556c008f1007de0037f",
+                "source_id": "delivery",
+                "version": 1,
+                "row": "94110",
+                "column": "zip",
+                "value": "94110",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "cfd799993d12e11bade69bb9",
+                "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+                "source_id": "sf-aggregate-v1:coverage",
+                "version": 1,
+                "row": "$",
+                "column": "geography",
+                "value": "San Francisco",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "DATASET_KEY_PRESENT",
+            "explanation": "The claim says ZIP 94110 was left out of the delivered CSV. The delivered dataset (source 'delivery', version 1) contains a row keyed 94110 with zip value '94110'. That ZIP is in the frozen registry's expected keys. The deterministic coverage check also passed, confirming every registry ZIP appears exactly once. This contradicts the omission claim.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "validation": "VALIDATED"
+        }
+      },
+      "allowedBy": "Frozen accepted definition and resolving source evidence; this finding grants no payment permission"
+    },
+    "evidence": [
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "72af48f698cc4857f784f51a",
+          "sha256": "72af48f698cc4857f784f51a5e75f4c017d88e5232fc3556c008f1007de0037f",
+          "source_id": "delivery",
+          "version": 1,
+          "row": "94110",
+          "column": "zip",
+          "value": "94110",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "94110"
+      },
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "San Francisco"
+      }
+    ]
+  },
+  {
+    "case": "P5",
+    "run_id": "request-2ad903c097684bc1891c7b1b5a23adc9",
+    "event": {
+      "seq": 65,
+      "at": "2026-10-24T18:37:41.658621Z",
+      "track": "shared",
+      "step": "verdict",
+      "attempt": 1,
+      "type": "verdict",
+      "verdict": {
+        "kind": "grey",
+        "reason": "A bounded evidence question is pending; payment remains blocked.",
+        "decidedBy": "model",
+        "evidenceIds": [
+          "case-004726f7e4f74df2a646cfc39ac12425:semantic:2:0",
+          "case-004726f7e4f74df2a646cfc39ac12425:semantic:2:1"
+        ],
+        "finding": {
+          "kind": "unclear",
+          "reason": "The accepted category requirement is only 'Gym membership or fitness-app use; standalone yoga is excluded.' The supplied authority and dataset evidence match that definition, but nothing in the accepted terms promises or defines an 'executive-ready' category. Without a contractual meaning for that term, the claim can be neither supported nor contradicted. The customer testimony is empty and is not source authority in any case.",
+          "evidence_ids": [
+            "case-004726f7e4f74df2a646cfc39ac12425:semantic:2:0",
+            "case-004726f7e4f74df2a646cfc39ac12425:semantic:2:1"
+          ],
+          "decided_by": "model",
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 2,
+            "runId": "request-2ad903c097684bc1891c7b1b5a23adc9",
+            "orderId": "order-quote-bd08657056e24385a3fa8232a2a96982",
+            "snapshotId": "snapshot-919faf5a93604e90b0db6f50f3d35327",
+            "revision": 8
+          },
+          "assessed_binding": {
+            "snapshot_id": "snapshot-919faf5a93604e90b0db6f50f3d35327",
+            "evidence_revision": 2,
+            "delivery_version": 1
+          },
+          "accepted_specification_sha256": "06f7672d8b98b936e8b89eee46034140fd53853950fd2a9e27c17e1b3845e1ee",
+          "attempt_id": "cc92ce4bec089cfc926ea4d785763a1dba97e2413c13345d7103873e485da9ac",
+          "candidate": {
+            "obligation_id": "case-004726f7e4f74df2a646cfc39ac12425:claim",
+            "result": "UNKNOWN",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "definition",
+                "value": "Gym membership or fitness-app use.",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "8de3df3380652dc883b825ce",
+                "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+                "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+                "version": 1,
+                "row": "$",
+                "column": "category",
+                "value": "gym_or_fitness_app",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [
+              "Accepted terms define no 'executive-ready' quality or promise for the fitness category",
+              "No contractual meaning of 'executive-ready' is supplied in the accepted requirement or sources"
+            ],
+            "conflicting_evidence": [],
+            "reason_code": "CLAIM_TERM_UNDEFINED",
+            "explanation": "The accepted category requirement is only 'Gym membership or fitness-app use; standalone yoga is excluded.' The supplied authority and dataset evidence match that definition, but nothing in the accepted terms promises or defines an 'executive-ready' category. Without a contractual meaning for that term, the claim can be neither supported nor contradicted. The customer testimony is empty and is not source authority in any case.",
+            "requested_evidence": "Accepted order terms or a quote showing that an 'executive-ready' standard was promised for the fitness category, together with its definition.",
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "effective": {
+            "obligation_id": "case-004726f7e4f74df2a646cfc39ac12425:claim",
+            "result": "UNKNOWN",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "5c18d83bfaede1d5758bb8aa",
+                "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 1,
+                "row": "$",
+                "column": "definition",
+                "value": "Gym membership or fitness-app use.",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "8de3df3380652dc883b825ce",
+                "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+                "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+                "version": 1,
+                "row": "$",
+                "column": "category",
+                "value": "gym_or_fitness_app",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [
+              "Accepted terms define no 'executive-ready' quality or promise for the fitness category",
+              "No contractual meaning of 'executive-ready' is supplied in the accepted requirement or sources"
+            ],
+            "conflicting_evidence": [],
+            "reason_code": "CLAIM_TERM_UNDEFINED",
+            "explanation": "The accepted category requirement is only 'Gym membership or fitness-app use; standalone yoga is excluded.' The supplied authority and dataset evidence match that definition, but nothing in the accepted terms promises or defines an 'executive-ready' category. Without a contractual meaning for that term, the claim can be neither supported nor contradicted. The customer testimony is empty and is not source authority in any case.",
+            "requested_evidence": "Accepted order terms or a quote showing that an 'executive-ready' standard was promised for the fitness category, together with its definition.",
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "validation": "VALIDATED"
+        }
+      },
+      "allowedBy": "Frozen accepted definition and resolving source evidence; this finding grants no payment permission"
+    },
+    "evidence": [
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "5c18d83bfaede1d5758bb8aa",
+          "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164",
+          "source_id": "sf-aggregate-v1:authority",
+          "version": 1,
+          "row": "$",
+          "column": "definition",
+          "value": "Gym membership or fitness-app use.",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "Gym membership or fitness-app use."
+      },
+      {
+        "kind": "cell",
+        "reference": {
+          "kind": "dataset",
+          "artifact_id": "8de3df3380652dc883b825ce",
+          "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+          "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+          "version": 1,
+          "row": "$",
+          "column": "category",
+          "value": "gym_or_fitness_app",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        "value": "gym_or_fitness_app"
+      }
+    ]
+  },
+  {
+    "case": "P6",
+    "run_id": "request-e314929ec74b4ccd9fd74c04e7bcbca9",
+    "event": {
+      "seq": 63,
+      "at": "2026-10-24T18:38:02.825555Z",
+      "track": "shared",
+      "step": "verdict",
+      "attempt": 1,
+      "type": "verdict",
+      "verdict": {
+        "kind": "grey",
+        "reason": "A bounded evidence question is pending; payment remains blocked.",
+        "decidedBy": "unresolved",
+        "evidenceIds": [],
+        "finding": {
+          "kind": "unclear",
+          "reason": "The candidate lacks independently checkable complaint-specific support.",
+          "evidence_ids": [],
+          "decided_by": "unresolved",
+          "binding": {
+            "deliveryVersion": 1,
+            "evidenceVersion": 2,
+            "runId": "request-e314929ec74b4ccd9fd74c04e7bcbca9",
+            "orderId": "order-quote-9e7b56c890ba46b898a07c753292e7ed",
+            "snapshotId": "snapshot-c83a975a87c544268456eea8d5b9d86a",
+            "revision": 8
+          },
+          "assessed_binding": {
+            "snapshot_id": "snapshot-c83a975a87c544268456eea8d5b9d86a",
+            "evidence_revision": 2,
+            "delivery_version": 1
+          },
+          "accepted_specification_sha256": "2e1e3b26fa8245da8265f58b686a2bc7e235dcb9f61bdd2faa8a387092c59b44",
+          "attempt_id": "d32e425c68fbbecdd6956733480f863eea46c40ea2974103ad6fdab4104226ca",
+          "candidate": {
+            "obligation_id": "case-6be346a88e7d4078895e0810cc298b13:claim",
+            "result": "FAIL",
+            "citations": [
+              {
+                "kind": "dataset",
+                "artifact_id": "8de3df3380652dc883b825ce",
+                "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+                "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+                "version": 1,
+                "row": "$",
+                "column": "category",
+                "value": "gym_or_fitness_app",
+                "expected_key": null,
+                "coverage_sha256": null
+              },
+              {
+                "kind": "dataset",
+                "artifact_id": "a61d37dd1c391f7c47181720",
+                "sha256": "a61d37dd1c391f7c47181720d2e55f30a989ccd0830ea3c652c74cb73169ba57",
+                "source_id": "sf-aggregate-v1:authority",
+                "version": 2,
+                "row": "$",
+                "column": "definition",
+                "value": "Gym membership or fitness-app use.",
+                "expected_key": null,
+                "coverage_sha256": null
+              }
+            ],
+            "missing_facts": [],
+            "conflicting_evidence": [],
+            "reason_code": "CLAIM_CONTRADICTED_BY_ACCEPTED_SCOPE",
+            "explanation": "The accepted requirement R-CATEGORY explicitly defines the category as 'Gym membership or fitness-app use; standalone yoga is excluded.' The claim that standalone yoga counts as gym membership under the accepted scope contradicts that accepted wording. The delivered dataset is the gym_or_fitness_app category. The authority source defines the category as gym membership or fitness-app use and leaves yoga_is_gym unknown, but it does not override the accepted exclusion. Contractual meaning is therefore present and contradicts the claim. This assessment does not determine provider fault.",
+            "requested_evidence": null,
+            "provenance": {
+              "kind": "model",
+              "assessor": "claude",
+              "version": "claude-opus-5-5/assessment-v1",
+              "model_score": null
+            }
+          },
+          "effective": {
+            "obligation_id": "case-6be346a88e7d4078895e0810cc298b13:claim",
+            "result": "UNKNOWN",
+            "citations": [],
+            "missing_facts": [
+              "Complaint-specific support from exact accepted terms and verified evidence."
+            ],
+            "conflicting_evidence": [],
+            "reason_code": "DATASET_SEMANTIC_UNRESOLVED",
+            "explanation": "The candidate lacks independently checkable complaint-specific support.",
+            "requested_evidence": "Identify the frozen source and exact cell establishing this claim.",
+            "provenance": {
+              "kind": "deterministic",
+              "assessor": "dataset-evidence-gate",
+              "version": "1",
+              "model_score": null
+            }
+          },
+          "validation": "ADVISORY"
+        }
+      },
+      "allowedBy": "Frozen accepted definition and resolving source evidence; this finding grants no payment permission"
+    },
+    "evidence": []
+  }
+]

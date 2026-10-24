@@ -104,7 +104,8 @@ def main():
                 )
     with sqlite3.connect(f"file:{LEDGER.as_posix()}?mode=ro", uri=True) as db:
         row = db.execute(
-            "SELECT count(*),sum(actual_micro_usd),sum(status='RESERVED') FROM calls WHERE window_id=?",
+            "SELECT count(*),sum(actual_micro_usd),sum(status='RESERVED') "
+            "FROM calls WHERE window_id=?",
             ("primary-semantic-followup-20261024",),
         ).fetchone()
     assert row == (len(results), total_cost_micro, 0)
@@ -115,7 +116,10 @@ def main():
         thinking_tokens_included_in_output=thinking,
         estimated_cost_usd=total_cost_micro / 1_000_000,
         ledger_reconciled=True,
-        method="Independent hashlib/JSON/CSV inspection of saved bytes; no runtime resolver or model calls.",
+        method=(
+            "Independent hashlib/JSON/CSV inspection of saved bytes; "
+            "no runtime resolver or model calls."
+        ),
     )
     with (EVIDENCE / "independent-audit.json").open("x", encoding="utf-8") as stream:
         json.dump(audit, stream, indent=2)

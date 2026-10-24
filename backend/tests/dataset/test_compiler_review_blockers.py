@@ -143,3 +143,34 @@ def test_bound_correction_and_contradictions_preserve_history(
     assert corrected.answers[0].text == answer and len(corrected.answers) == 1
     assert corrected.questions_asked == (1 if ready else 2)
     assert (corrected.status == "ready") == ready
+
+
+def test_later_bound_correction_resolves_prior_unbound_contradiction(dataset_service):
+    s, _ = dataset_service
+    run = (
+        Runs(s)
+        .create(RunCreate(prompt="SF adults 25-34 interested in fitness."), "two-questions")
+        .id
+    )
+    draft = compile_request(s, run)
+    original, deadline = draft.prompt, draft.deadline
+    assert draft.question.field == "category"
+    for key, answer, field in (
+        ("category", "Gym membership or fitness app use, for SF adults 18-24.", "cohort"),
+        ("correction", "Correct the cohort to San Francisco adults 25-34.", None),
+    ):
+        s.clarify(
+            run,
+            ClarifyCommand(
+                expected_revision=draft.revision,
+                idempotency_key=key,
+                question_id=draft.question.question_id,
+                text=answer,
+            ),
+        )
+        draft = compile_request(s, run)
+        assert draft.prompt == original and draft.deadline == deadline
+        if field:
+            assert draft.question.field == field
+    assert draft.status == "ready" and draft.specification.terms.age_min == 25
+    assert draft.questions_asked == len(draft.answers) == 2
