@@ -1,0 +1,40 @@
+{
+  "format_version": 1,
+  "implementation": "new_source_with_behavioral_reference",
+  "repository_baseline": "6ac18106fbe1980df509fe635c8adffdddad012c",
+  "reference_revision": "5d2a50c2595014d3a6dba899270975d20b631b52",
+  "copied_source_files": [],
+  "references": [
+    {
+      "source_path": "core/store.py",
+      "behavior": "atomic state, monotonic append-only events, consistent snapshots",
+      "target": "backend/app/storage/jobflow.py",
+      "verification": "backend/tests/jobflow_runtime"
+    },
+    {
+      "source_path": "intake/parser.py",
+      "behavior": "bounded parsing, original-byte digest, exact source/version/quote validation",
+      "target": "backend/app/investigation/documents.py",
+      "verification": "backend/tests/investigation/test_jobflow.py"
+    },
+    {
+      "source_path": "core/document_service.py",
+      "behavior": "current-time entitlement check at approval and execution; uncertain operations retain identity",
+      "target": "backend/app/runtime/jobflow_policy.py",
+      "verification": "backend/tests/jobflow_runtime"
+    },
+    {
+      "source_path": "tests/core/test_temporal_authority.py",
+      "behavior": "future amendment activation, stale approval, confirmed replay and UNKNOWN reconciliation",
+      "target": "backend/tests/jobflow_runtime",
+      "verification": "fresh regression tests"
+    }
+  ],
+  "new_domains": [
+    "unit-priced seller obligations and acceptance-based recognition",
+    "durable correction attempts with new artifacts",
+    "independent paid change-order lifecycle",
+    "job/check/evidence/conversation UI",
+    "configured Anthropic application transport"
+  ]
+}

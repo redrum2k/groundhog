@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, model_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StrictInt, model_validator
 
 Identifier = Annotated[str, Field(min_length=1, max_length=160)]
 Cents = Annotated[StrictInt, Field(ge=0)]
@@ -76,7 +76,7 @@ class Agreement(Model):
 class Amendment(Model):
     id: Identifier
     fields: list[str]
-    effective_at: datetime
+    effective_at: AwareDatetime
     accepted_by_customer: str | None = None
     accepted_by_provider: str | None = None
     source_id: str
@@ -336,6 +336,13 @@ class OrderCreate(Model):
     def counts(self):
         if self.failed_count > self.document_count:
             raise ValueError("failed_count exceeds document_count")
+        for fields in (self.agreement_fields, self.requested_fields):
+            if len(fields) > 32 or len(fields) != len(set(fields)):
+                raise ValueError("field lists must be unique and contain at most 32 fields")
+            if any(not f or len(f) > 64 or not f.replace("_", "").isalnum() for f in fields):
+                raise ValueError("invalid field identifier")
+        if not self.agreement_fields:
+            raise ValueError("original scope requires at least one field")
         return self
 
 
@@ -392,6 +399,9 @@ class InvestigationOutcome(Model):
     recommendations: list[Literal["INCLUDED_FIELD", "QUOTE", "HUMAN_REVIEW"]]
     summary: str
     model_mode: Literal["DETERMINISTIC", "ANTHROPIC"]
+    input_tokens: int = 0
+    output_tokens: int = 0
+    model_id: str | None = None
 
 
 class ContractExport(Model):

@@ -363,6 +363,9 @@ async def investigate(
             recommendations=[result.recommendation],
             summary=result.summary,
             model_mode="ANTHROPIC",
+            input_tokens=getattr(getattr(response, "usage", None), "input_tokens", 0),
+            output_tokens=getattr(getattr(response, "usage", None), "output_tokens", 0),
+            model_id=os.environ.get("ANTHROPIC_MODEL", "test-injected-model"),
         )
     finally:
         if own_client:
