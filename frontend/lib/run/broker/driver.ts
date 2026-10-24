@@ -37,6 +37,7 @@ export function buyerMove(run: Run, m: BuyerMove): { status: number; detail?: st
 const key = () => crypto.randomUUID();
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const PACE = 1400; // between party actions, so the canvas can follow
+const ANSWER = 500; // between Acme's intake answers: the interview is the agent at work, not the moment to read along
 // market-v1 takes numeric values only, so the suppressed ZIP stays out of the vendor panel and the coverage
 const SOURCE_ROWS = ROWS.flatMap((r) => (r.count === null ? [] : [{ zip: r.zip, count: r.count }]));
 
@@ -77,11 +78,11 @@ export async function drive(run: Run, onId: (id: string) => void): Promise<void>
     await sleep(PACE);
     d = (await uploadSource(t.provider, "drafts", d.id, { idempotency_key: key(), expected_revision: d.revision, filename: "vendor-fitness-panel.json", content_base64: bytes(sourceSnapshot(run.case)).toString("base64") })) as typeof d;
     const cmd = async (who: Role, body: Record<string, unknown>) => { d = await draftCommand(t[who], d.id, { idempotency_key: key(), expected_revision: d.revision, ...body }); };
-    for (const q of [...d.questions]) if (q.answer_id === null) { await sleep(PACE * 0.6); await cmd("customer", { verb: "answer_intake", question_id: q.id, value: params[q.field] }); }
+    for (const q of [...d.questions]) if (q.answer_id === null) { await sleep(ANSWER); await cmd("customer", { verb: "answer_intake", question_id: q.id, value: params[q.field] }); }
     for (const field of [...d.unresolved_fields]) {
       await cmd("controller", { verb: "clarify_intake", field });
       const q = [...d.questions].reverse().find((q) => q.field === field)!;
-      await sleep(PACE * 0.6); await cmd("customer", { verb: "answer_intake", question_id: q.id, value: params[field] });
+      await sleep(ANSWER); await cmd("customer", { verb: "answer_intake", question_id: q.id, value: params[field] });
     }
     await sleep(PACE);
     await cmd("provider", { verb: "offer", capability: "SUPPORTED", price: { amount_minor: S.price * 100, currency: "USDSIM", decimals: 2 } });
