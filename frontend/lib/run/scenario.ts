@@ -383,7 +383,7 @@ export function timeline(c: Case, ending: Ending, learned = false): { events: Ru
 }
 
 /** The canvas chip for a step, from what the step has been through. */
-export function chipFor(step: Step, n: { status: string; attempt: number; checks: number; lines: number; sources: number; verdictKind?: string; verdictBy?: string; amendmentPrice?: number; waitingOn?: string; learned: boolean; disputed: boolean; decided?: string; ruled: boolean }): string | undefined {
+export function chipFor(step: Step, n: { status: string; attempt: number; checks: number; lines: number; sources: number; verdictKind?: string; verdictBy?: string; amendmentPrice?: number; waitingOn?: string; window?: string; learned: boolean; disputed: boolean; decided?: string; ruled: boolean }): string | undefined {
   const { status, attempt } = n;
   if (status === "idle") return undefined;
   switch (step.kind) {
@@ -392,7 +392,7 @@ export function chipFor(step: Step, n: { status: string; attempt: number; checks
     case "produce":
       if (status === "running") return attempt > 1 ? (n.verdictKind === "agree" ? `Rerun · our cost $${S.rerunCost}` : n.amendmentPrice === S.oakland ? "Adding Oakland" : "Adding yoga") : "Checking";
       return attempt > 1 ? (n.verdictKind === "agree" ? "Rechecked" : "Checks passed") : `${n.checks} of ${n.lines} passed`;
-    case "review": return status === "waiting" ? "Disputed" : status === "done" ? "Accepted" : attempt > 1 ? `New ${S.reviewHours}h window` : `${S.reviewHours}h window`;
+    case "review": return status === "waiting" ? "Disputed" : status === "done" ? "Accepted" : attempt > 1 ? "New review window" : `${n.window ?? `${S.reviewHours}h`} window`;
     case "captured": return "Done";
     case "investigate": return status === "done" ? `${n.sources} source${n.sources === 1 ? "" : "s"}` : "Checking";
     case "verdict": return n.verdictKind === "agree" ? "Our miss" : "We're right";

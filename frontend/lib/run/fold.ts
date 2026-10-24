@@ -155,7 +155,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   n.chip = ctx.live ? (n.waitingOn ?? n.status) : chipFor(n.step, {
     status: n.status, attempt: n.attempt, checks: Object.values(n.checks).filter((c) => c.passed).length, lines: v.contract.lines.length, sources: n.evidence.length,
     verdictKind: n.verdict?.kind ?? laneVerdict(v)?.kind, verdictBy: n.verdict?.decidedBy, amendmentPrice: n.amendment?.price ?? laneAmendment(v)?.price,
-    waitingOn: n.waitingOn, learned: ctx.learned, disputed: !!v.dispute, decided: n.decision?.action, ruled: !!n.rule,
+    waitingOn: n.waitingOn, learned: ctx.learned, disputed: !!v.dispute, decided: n.decision?.action, ruled: !!n.rule, window: v.reviewWindow,
   });
   if (caption) v.caption = caption;
   return v;
