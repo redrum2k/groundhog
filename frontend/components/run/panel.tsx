@@ -160,7 +160,7 @@ const LIVE_ACTIONS: [ControllerAction, string][] = [["approve", "Resume, evidenc
 function Review({ node, view, decide, onCite, live }: { node: NodeState; view: View; decide: Decide; onCite: (s: Source) => void; live?: boolean }) {
   const [busy, setBusy] = useState<ControllerAction | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const question = node.messages.filter((m) => m.from === "agent").at(-1);
+  const question = node.messages.find((m) => m.from === "agent"); // the escalation itself, not later notes
   const act = async (a: ControllerAction) => {
     setBusy(a); setError(null);
     const err = await decide(a, bindingFor(view));

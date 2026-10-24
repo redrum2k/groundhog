@@ -344,3 +344,24 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
   :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .sheet-lens.scan { animation: none; }
   :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, .bub, .panel { transition: opacity 150ms ease; transform: none; }
 }
+
+/* ---------- customer view: Acme's decisions ---------- */
+.cust-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.cust-who { display: flex; align-items: center; gap: 12px; }
+.cust-money { display: flex; align-items: center; gap: 8px; }
+.wallet { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+.wallet.w-held { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
+.wallet.w-paid { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
+.decision { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
+.decision.open { border-color: var(--ink); }
+.decision-h { display: flex; align-items: center; gap: 10px; }
+.decision-t { font-size: 15px; }
+.decision-tag { display: inline-flex; align-items: center; gap: 5px; height: 21px; padding: 0 9px; border-radius: 999px; font-size: 12px; color: var(--amber); background: var(--amber-t); }
+.decision-taken { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--green); }
+.decision-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.decision-row { display: flex; gap: 8px; }
+.decision .sheet { margin: 0; }
+.objection { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 4px; font: inherit; font-size: 13.5px; resize: vertical; background: var(--bg); color: var(--ink); }
+.objection:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.cust-paid { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; }
+.cust-paid svg { color: var(--green); }

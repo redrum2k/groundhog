@@ -79,7 +79,9 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
   const asked = new Set<string>();
   let contractVersion = 0;
   let delivery = 0, reviews = 0, verifications = 0;
-  let detour: Detour | null = null, detourDelivery = 0, detourStep = "investigate", resumed = false, verdictDone = false;
+  let detour: Detour | null = null, detourDelivery = 0, detourStep = "investigate", resumed = false, verdictDone = false, controllerOpen = false;
+  // A message on the decide step reads as activity; while the controller's task is open the gate is re-asserted after it
+  const holdForController = () => { if (controllerOpen && detourStep === "decide") emit({ type: "step_waiting", step: "decide", waitingOn: S.controller }); };
   const lines = (): ContractLine[] => DIMENSIONS.filter(([d]) => drafted.has(d)).map(([d]) => lineFor(d, answered));
   const stepsWithWindow = (window: number | null): Step[] => MAIN.map((s) => s.kind === "review" ? { ...s, detail: window ? `${window}-minute window to accept or dispute` : "Accept or dispute" } : s.kind === "paid" ? { ...s, detail: `$${price} authorized · mock` } : s);
   const closeDetour = () => {
@@ -201,6 +203,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         if (!detour) break; // the first upload happens on the draft, before anything is on screen
         const src = p.source as { version: number } | undefined;
         say(detourStep, { id: `source-${e.sequence}`, from: "agent", text: `Supplied revision ${src?.version ?? ""} of the vendor's source.` });
+        holdForController();
         break;
       }
       case "spec.amendment_accepted": {
@@ -209,6 +212,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         say(step, { id: `amend-${e.sequence}`, from: "buyer", text: `Both sides accepted the clarification: contract v${contractVersion} pins the new revision.` });
         emit({ type: "contract_approved", step, contract: { version: contractVersion, buyer: S.buyer, title: S.order, price, lines: lines() }, allowedBy: POLICY.clarified });
         caption(`Both parties accepted the clarification. The contract is now v${contractVersion}.`);
+        holdForController();
         break;
       }
       case "review.opened": {
@@ -253,6 +257,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         emit({ type: "step_started", step: "decide" });
         say("decide", { id: task.id, from: "agent", text: `${task.reason} Missing: ${task.missing_facts.join("; ")}` });
         emit({ type: "step_waiting", step: "decide", waitingOn: S.controller });
+        controllerOpen = true;
         caption(`The rules can't decide, so it goes to ${S.controller}, our controller, with the evidence.`);
         break;
       }
@@ -260,6 +265,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         const decision = String(p.decision);
         emit({ type: "controller_decided", step: "decide", action: decision === "RESUME" ? "approve" : "reject", by: S.controller, note: String(p.explanation ?? ""), binding: { deliveryVersion: base?.binding?.delivery_version ?? delivery, evidenceVersion: base?.binding?.evidence_version ?? 0 } });
         say("decide", { id: `decision-${e.sequence}`, from: "controller", text: String(p.explanation ?? decision) });
+        controllerOpen = decision !== "RESUME";
         if (decision === "RESUME") { resumed = true; caption(`${S.controller} resumes the case: the backend rechecks the delivery against the current contract.`); }
         else { emit({ type: "step_waiting", step: "decide", waitingOn: S.controller }); caption(`${S.controller} keeps the hold. Nothing moves until new evidence or an accepted clarification.`); }
         break;

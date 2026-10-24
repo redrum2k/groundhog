@@ -4,6 +4,11 @@
 import { createHash } from "node:crypto";
 import { ROWS, S, type Case } from "../scenario";
 import { BrokerError, createDraft, draftCommand, events as brokerEvents, getOrder, orderCommand, session, uploadSource, type Role } from "./client";
+import type { BrokerOrder } from "./types";
+
+/** Acme's moves. The presenter makes them from the customer view; the driver waits for each. */
+export type BuyerMove = { action: "approve" } | { action: "accept" } | { action: "object"; text: string };
+export type BuyerGate = "approve" | "review"; // what the run is waiting for: contract approval, or accept / object
 
 export interface Run {
   id: string; // the broker entity id, once the draft exists
@@ -11,6 +16,22 @@ export interface Run {
   tokens: Record<Role, string>;
   error?: string;
   finished: boolean;
+  awaiting: BuyerGate | null;
+  move: ((m: BuyerMove) => void) | null;
+  /** Resolves once the parties have supplied everything a controller decision needs (the clarification, in the grey case). */
+  ready: Promise<void>;
+  markReady: () => void;
+}
+
+/** Pauses the scripted parties until the presenter, as Acme, makes a move of the right kind. */
+function waitBuyer(run: Run, gate: BuyerGate): Promise<BuyerMove> {
+  return new Promise((resolve) => { run.awaiting = gate; run.move = (m) => { run.awaiting = null; run.move = null; resolve(m); }; });
+}
+export function buyerMove(run: Run, m: BuyerMove): { status: number; detail?: string } {
+  const ok = run.awaiting === "approve" ? m.action === "approve" : run.awaiting === "review" ? m.action !== "approve" : false;
+  if (!ok || !run.move) return { status: 409, detail: run.awaiting ? `The order is waiting for Acme to ${run.awaiting === "approve" ? "approve the contract" : "accept or object"}` : "The order is not waiting on Acme right now" };
+  run.move(m);
+  return { status: 200 };
 }
 
 const key = () => crypto.randomUUID();
@@ -62,21 +83,15 @@ export async function drive(run: Run, onId: (id: string) => void): Promise<void>
     }
     await sleep(PACE);
     await cmd("provider", { verb: "offer", capability: "SUPPORTED", price: { amount_minor: S.price * 100, currency: "USDSIM", decimals: 2 } });
-    await sleep(PACE);
+    await waitBuyer(run, "approve");
     await cmd("customer", { verb: "accept_specification", digest: d.acceptance_digest, authorization_expires_at: new Date(now.getTime() + 2 * 3_600_000).toISOString() });
     const oid = d.order_id!;
     const ocmd = async (who: Role, body: Record<string, unknown>) => { const cur = await getOrder(t[who], oid); return orderCommand(t[who], oid, { idempotency_key: key(), expected_revision: cur.revision, ...body }); };
     await sleep(PACE * 1.5);
     let o = await ocmd("provider", { verb: "produce" });
     await sleep(PACE * 2);
-    if (run.case === "shared") {
-      await ocmd("customer", { verb: "accept_delivery" });
-    } else if (run.case === "green") {
-      await ocmd("customer", { verb: "dispute", text: "Counts look low. Oakland should be in there." });
-      await sleep(PACE * 1.5);
-      o = await ocmd("investigator", { verb: "investigate" });
-      await sleep(PACE * 2);
-      if (o.resolution === "NO_REMEDY") await ocmd("customer", { verb: "accept_delivery" });
+    if (run.case === "shared" || run.case === "green") {
+      await reviewGate(run, oid, ocmd);
     } else if (run.case === "red") {
       // The first check failed on coverage: the vendor's revision lacked 94110. The complete
       // revision, accepted by both sides as a clarification, lets the free correction pass.
@@ -95,12 +110,15 @@ export async function drive(run: Run, onId: (id: string) => void): Promise<void>
       // then rechecks the delivery against it.
       await sleep(PACE);
       await clarifyWithRevision(run, oid, 2);
+      run.markReady();
       await finish(run, oid, ocmd);
     }
   } catch (err) {
     run.error = err instanceof BrokerError ? `Backend answered ${err.status}: ${err.detail}` : err instanceof Error ? err.message : String(err);
+    console.error(`[broker-run] ${run.case} ${run.id}: ${run.error}`);
   } finally {
     run.finished = true;
+    run.markReady(); // never leave a decision waiting on a run that stopped
   }
 }
 
@@ -125,15 +143,30 @@ async function clarifyWithRevision(run: Run, oid: string, version: number) {
   await sleep(2500); // past the amendment's effective time
 }
 
-/** After the parties' last move: produce the free correction when the engine allows it, accept when delivered. */
-async function finish(run: Run, oid: string, ocmd: (who: Role, body: Record<string, unknown>) => Promise<unknown>) {
+type Cmd = (who: Role, body: Record<string, unknown>) => Promise<BrokerOrder>;
+
+/** Delivered: Acme accepts, or objects in their own words and the agent answers by the contract. */
+async function reviewGate(run: Run, oid: string, ocmd: Cmd) {
+  let move = await waitBuyer(run, "review");
+  if (move.action === "object") {
+    await ocmd("customer", { verb: "dispute", text: move.text });
+    await sleep(PACE * 1.5);
+    const o = await ocmd("investigator", { verb: "investigate" });
+    if (o.resolution !== "NO_REMEDY") return finish(run, oid, ocmd); // the objection was right: the engine corrects
+    move = await waitBuyer(run, "review");
+  }
+  if (move.action === "accept") await ocmd("customer", { verb: "accept_delivery" });
+}
+
+/** After the parties' last move: produce the free correction when the engine allows it, then Acme reviews. */
+async function finish(run: Run, oid: string, ocmd: Cmd): Promise<void> {
   let produced = false;
   for (let i = 0; i < 600; i++) {
     const o = await getOrder(run.tokens.customer, oid);
     const b = o.base_order?.order;
     if (!b) return;
     if (b.order_state === "processing" && b.regeneration_pending && b.binding && !produced) { produced = true; await sleep(PACE); await ocmd("provider", { verb: "produce" }); }
-    else if (b.order_state === "delivered") { await sleep(PACE * 1.5); await ocmd("customer", { verb: "accept_delivery" }); return; }
+    else if (b.order_state === "delivered") return reviewGate(run, oid, ocmd);
     else if (b.order_state === "closed" || b.order_state === "failed") return;
     await sleep(1000);
   }
@@ -156,7 +189,9 @@ export async function decide(run: Run, action: "approve" | "reject" | "ask" | "e
 export async function newRun(c: Case): Promise<Run> {
   const roles: Role[] = ["customer", "provider", "investigator", "controller"];
   const tokens = Object.fromEntries(await Promise.all(roles.map(async (r) => [r, await session(r)]))) as Record<Role, string>;
-  return { id: "", case: c, tokens, finished: false };
+  let markReady = () => {};
+  const ready = new Promise<void>((r) => { markReady = r; });
+  return { id: "", case: c, tokens, finished: false, awaiting: null, move: null, ready, markReady };
 }
 
 export { brokerEvents };

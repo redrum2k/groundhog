@@ -14,12 +14,17 @@ export type Feed =
   | { kind: "live"; api: string; body: Record<string, unknown>; before: RunEvent[]; ctx: FoldContext };
 
 export type Status = "idle" | "playing" | "paused" | "waiting" | "done" | "error";
+export type BuyerGate = "approve" | "review";
+export type BuyerMove = { action: "approve" } | { action: "accept" } | { action: "object"; text: string };
 export interface Playback {
   view: View;
   status: Status;
   error?: string;
   live: boolean;
   played: number; // events applied so far
+  awaiting: BuyerGate | null; // a live run paused for Acme's move
+  /** Acme's move, made by the presenter; null on success, else the server's reason. */
+  buyer: (m: BuyerMove) => Promise<string | null>;
   /** The controller's click: appends the recorded continuation, or posts to the live run. */
   decide: (action: ControllerAction, binding: Binding) => Promise<string | null>;
   play: () => void;
@@ -35,6 +40,7 @@ export function usePlayback(feed: Feed): Playback {
   const [cursor, setCursor] = useState(0);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string>();
+  const [awaiting, setAwaiting] = useState<BuyerGate | null>(null);
   const runId = useRef<string | null>(null);
   const lastSeq = useRef(0); // the live cursor; recorded events before it keep their own seqs
   const live = feed.kind === "live";
@@ -43,6 +49,7 @@ export function usePlayback(feed: Feed): Playback {
   useEffect(() => {
     runId.current = null;
     setError(undefined);
+    setAwaiting(null);
     if (feed.kind === "still") { setEvents(feed.events); setCursor(feed.events.length); setStatus("done"); return; }
     if (feed.kind === "recorded") { setEvents(feed.events); setCursor(feed.start); setStatus(feed.autoplay ? "playing" : "idle"); return; }
     setEvents(feed.before); setCursor(feed.before.length); setStatus("playing");
@@ -57,8 +64,10 @@ export function usePlayback(feed: Feed): Playback {
         }
         const res = await fetch(`${feed.api}/runs/${runId.current}/events?after=${lastSeq.current}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`The run stopped answering (${res.status})`);
-        const { events: fresh, poll_after_ms } = (await res.json()) as { events: RunEvent[]; poll_after_ms: number };
+        const { events: fresh, poll_after_ms, awaiting: gate, error: failure } = (await res.json()) as { events: RunEvent[]; poll_after_ms: number; awaiting?: BuyerGate | null; error?: string };
         if (cancelled) return;
+        setAwaiting(gate ?? null);
+        if (failure) { setError(`The scripted parties stopped: ${failure}`); setStatus("error"); return; }
         const next = fresh.filter((e) => e.seq > lastSeq.current);
         if (next.length) {
           lastSeq.current = next[next.length - 1].seq;
@@ -112,9 +121,17 @@ export function usePlayback(feed: Feed): Playback {
     return null;
   }, [feed, cursor]);
 
+  const buyer = useCallback(async (m: BuyerMove) => {
+    if (feed.kind !== "live" || !runId.current) return "No live run to act on";
+    const res = await fetch(`${feed.api}/runs/${runId.current}/buyer`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(m) });
+    if (!res.ok) { const { detail } = (await res.json().catch(() => ({ detail: `Request failed (${res.status})` }))) as { detail: string }; return detail; }
+    setAwaiting(null);
+    return null;
+  }, [feed]);
+
   const play = useCallback(() => setStatus((s) => (s === "idle" || s === "paused" ? "playing" : s)), []);
   const pause = useCallback(() => setStatus((s) => (s === "playing" && !live ? "paused" : s)), [live]);
   const skip = useCallback(() => { setCursor(events.length); setStatus(atControllerGate(events) ? "waiting" : "done"); }, [events]);
 
-  return { view, status, error, live, played: cursor, decide, play, pause, skip };
+  return { view, status, error, live, played: cursor, awaiting, buyer, decide, play, pause, skip };
 }

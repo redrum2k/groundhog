@@ -31,6 +31,8 @@ export const IcReplay = icon("M2.75 8a5.25 5.25 0 1 0 1.55-3.72M2.75 2.5v2.75H5.
 export const IcPlay = ({ size, strokeWidth, ...p }: IconProps) => <svg {...base(size, strokeWidth)} {...p}><path d="M4.5 2.75v10.5L13 8Z" /></svg>;
 /** Pause */
 export const IcPause = icon("M5 3v10M11 3v10");
+/** A wallet: the customer's money, flat like the rest of the set */
+export const IcWallet = icon("M2.25 4.5A1.25 1.25 0 0 1 3.5 3.25h8.25a1 1 0 0 1 1 1v1M2.25 4.5v7.25a1.25 1.25 0 0 0 1.25 1.25h9.25a1 1 0 0 0 1-1V6.25a1 1 0 0 0-1-1H3.5a1.25 1.25 0 0 1-1.25-.75ZM10 9.5h.01");
 /** A small gold coin for the money pill */
 export const IcCoin = ({ size = 12 }: { size?: number }) => (
   <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden>
