@@ -16,6 +16,7 @@ import { PanelBody, type BodyProps } from "./panel";
 type Props = {
   run: Case; steps: Step[]; view: View; bodyProps: Omit<BodyProps, "step">;
   awaiting: BuyerGate | null; buyer: (m: BuyerMove) => Promise<string | null>;
+  onMoved?: () => void; // after a move lands: the agent's work is what to watch next
 };
 
 const SUGGESTED_OBJECTION = "Counts look low. Oakland should be in there.";
@@ -82,7 +83,7 @@ function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
   );
 }
 
-export default function Customer({ run, steps, view, bodyProps, awaiting, buyer }: Props) {
+export default function Customer({ run, steps, view, bodyProps, awaiting, buyer, onMoved }: Props) {
   const [objection, setObjection] = useState("");
   const [objecting, setObjecting] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -97,7 +98,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer 
     else if (!landed.current && pane) pane.scrollTop = pane.scrollHeight;
     landed.current = true;
   }, [awaiting]);
-  const move = async (m: BuyerMove) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) setObjecting(false); };
+  const move = async (m: BuyerMove) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) { setObjecting(false); onMoved?.(); } };
   const step = (id: string) => view.nodes[id]?.step ?? steps.find((s) => s.id === id);
   const n = view.nodes;
   const live = !!bodyProps.live;

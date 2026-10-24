@@ -166,7 +166,8 @@ export default function RunApp() {
           {shown && <Panel key={shown.id + (learned ? "L" : "")} step={shown} {...bodyProps} closing={!panelStep} onClose={() => setPanel(null)} onClosed={() => setShown(undefined)} />}
         </main>
       ) : (
-        <Customer run={run} steps={steps} view={view} bodyProps={bodyProps} awaiting={playback.awaiting} buyer={playback.buyer} />
+        // a beat after Acme's move, long enough to see the receipt line land, the view goes back to the agent at work
+        <Customer run={run} steps={steps} view={view} bodyProps={bodyProps} awaiting={playback.awaiting} buyer={playback.buyer} onMoved={() => { window.setTimeout(() => setTab("run"), 600); }} />
       )}
     </div>
   );
