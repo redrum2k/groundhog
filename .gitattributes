@@ -3,3 +3,5 @@ backend/app/payments/abi/*.json text eol=lf
 backend/app/payments/abi/source/*.sol text eol=lf
 # Generated text is compared byte-for-byte by the drift check.
 frontend/lib/*.generated.ts text eol=lf
+frontend/api.generated.ts text eol=lf
+docs/openapi.json text eol=lf

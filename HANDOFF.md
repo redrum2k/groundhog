@@ -1,9 +1,18 @@
-# Current follow-up pickup
+# Current aggregate integration pickup
 
-The current primary `/runs` follow-up is in [PRIMARY_HANDOFF.md](PRIMARY_HANDOFF.md)
-and [PRIMARY_RESULTS.md](PRIMARY_RESULTS.md): R3/R4 fixed, guarded primary semantic
-foundation, feature OFF, local commits only. The completed legacy handoff below is
-preserved history, not the current primary-workflow qualification.
+Read [AGGREGATE_INTEGRATION.md](AGGREGATE_INTEGRATION.md) first: current-main backend
+integration, conversational consent fix, bounded Claude intake wiring, tests, exact
+event seam and limitations. Branch `feature/aggregate-intake-integration-20261024`,
+PR https://github.com/redrum2k/order-to-cash/pull/12 targeting main. Do not self-merge.
+Latest frontend and Human naming are preserved. No new paid calls; the existing
+window expired. Model-dependent features remain OFF, with injected intake tests
+explicitly distinguished from historical real primary-dispute calls.
+
+The original semantic evidence in [PRIMARY_HANDOFF.md](PRIMARY_HANDOFF.md) and
+[PRIMARY_RESULTS.md](PRIMARY_RESULTS.md) is frozen history, not current integration
+instructions. Earlier local branches/worktrees/archives remain intact. The sections
+below preserve historical context; current counts/commands/ownership are in the new
+integration handoff, not the old V5 assertions.
 
 ## Completed legacy dispute follow-up
 

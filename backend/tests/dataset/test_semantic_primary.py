@@ -375,14 +375,13 @@ def test_fresh_http_qualification_harness_offline(tmp_path, monkeypatch, index):
 
 def test_paid_catalog_compiler_cannot_bypass_aggregate_scope_rules(tmp_path):
     from tests.catalog.fixtures import Clock
+    from tests.dataset.test_intake_conversation import ModelIntent
 
-    def forbidden(**kwargs):
-        raise AssertionError("Aggregate compilation must not invoke storage-catalog prompts")
-
+    fake = ModelIntent("gym_or_fitness_app")
     gateway = ClaudeGateway(
         enabled=True,
         model="claude-opus-5-5",
-        client=SimpleNamespace(messages=SimpleNamespace(parse=forbidden)),
+        client=SimpleNamespace(messages=fake),
     )
     service = CatalogService(
         CatalogRepository(tmp_path / "paid.sqlite3"),
@@ -394,6 +393,7 @@ def test_paid_catalog_compiler_cannot_bypass_aggregate_scope_rules(tmp_path):
     order = make_delivery(service)
     assert order.snapshot.quote.specification.terms.category == "gym_or_fitness_app"
     assert service.compiler is gateway and service.investigator.assessor is gateway
+    assert len(fake.calls) == 1  # distinct aggregate schema, never the legacy prompt
 
 
 @pytest.mark.parametrize(

@@ -5402,6 +5402,14 @@
               }
             ]
           },
+          "question_history": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Clarification"
+            },
+            "title": "Question History",
+            "type": "array"
+          },
           "questions_asked": {
             "default": 0,
             "minimum": 0.0,

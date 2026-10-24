@@ -2895,6 +2895,11 @@ export interface components {
             prompt: string;
             question?: components["schemas"]["Clarification"] | null;
             /**
+             * Question History
+             * @default []
+             */
+            question_history?: components["schemas"]["Clarification"][];
+            /**
              * Questions Asked
              * @default 0
              */
