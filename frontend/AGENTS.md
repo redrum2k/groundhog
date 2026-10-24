@@ -1,8 +1,11 @@
-# DatumCo canvas — Lucas
+# DataPact canvas — Lucas
 
-The primary route is the live aggregate brokerage canvas. Preserve its visual design.
-Use lib/run/live.ts and generated Pydantic DTOs for production events, bindings and
-permissions. lib/run/source.ts and scenario.ts are recorded rehearsal only.
+The demo route is `/`: the run canvas (`components/run/`) fed by Jeff's broker through
+`/api/broker-run` (driver, translate, store under `lib/run/broker/`), with the recorded
+scenario (`lib/run/scenario.ts`, `lib/run/source.ts`) as the fallback feed.
+Nikita's aggregate intake (`components/run/live-run.tsx`, `lib/run/live.ts`) is mounted at
+`/live`. Both read the generated Pydantic DTOs; `lib/run/contract.ts` re-exports them and adds
+the canvas-only `caption` event. Preserve the canvas's visual design.
 Read HACK.md and docs/workstreams/06-data-broker.md for current prices and timing.
 The bridge permits only loopback local-demo mode with distinct server-only credentials.
 Generate catalog, runs, jobflow, broker and improvement clients together; never hand-edit them.

@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Step, ZipCount } from "../../lib/run/contract";
 import type { View } from "../../lib/run/fold";
 import { S, type Case } from "../../lib/run/scenario";
 import type { BuyerGate, BuyerMove } from "../../lib/run/source";
-import { IcCheck, IcLock, IcWallet } from "./icons";
+import { IcCheck, IcChevronRight, IcLock, IcWallet } from "./icons";
 import Label from "./label";
 import Orb from "./orb";
 import { PanelBody, type BodyProps } from "./panel";
@@ -16,6 +16,7 @@ import { PanelBody, type BodyProps } from "./panel";
 type Props = {
   run: Case; steps: Step[]; view: View; bodyProps: Omit<BodyProps, "step">;
   awaiting: BuyerGate | null; buyer: (m: BuyerMove) => Promise<string | null>;
+  onMoved?: () => void; // after a move lands: the agent's work is what to watch next
 };
 
 const SUGGESTED_OBJECTION = "Counts look low. Oakland should be in there.";
@@ -26,7 +27,7 @@ function Wallet({ view }: { view: View }) {
   const state = !view.payments.length ? "empty" : captured ? "paid" : view.dispute ? "held" : "signed";
   const text = state === "empty" ? "No payment yet" : state === "signed" ? `$${amount} signed, not taken` : state === "held" ? `$${amount} held while disputed` : `$${amount} paid to ${S.us}`;
   return (
-    <span className={`wallet w-${state}`} role="status">
+    <span className={`wallet w-${state}`} role="status" data-orb-stop="wallet">
       <IcWallet size={14} />
       <Label text={state === "paid" && view.payments.some((p) => p.mock) ? `${text} · mock` : text} quiet="tail" />
     </span>
@@ -35,8 +36,14 @@ function Wallet({ view }: { view: View }) {
 
 /** One of Acme's decisions: the thing to decide on, the buttons while it's open, the choice once made. */
 function Decision({ title, open, taken, children, actions }: { title: string; open: boolean; taken?: ReactNode; children: ReactNode; actions?: ReactNode }) {
+  if (!open && taken) return (
+    <details className="decision taken">
+      <summary className="decision-h"><IcChevronRight size={12} strokeWidth={2} className="chev" /><span className="decision-taken"><IcCheck size={12} strokeWidth={2.2} /> {taken}</span><span className="decision-t">{title}</span></summary>
+      <div className="decision-body">{children}</div>
+    </details>
+  );
   return (
-    <section className={`decision${open ? " open" : ""}`}>
+    <section className={`decision${open ? " open" : ""}`} data-orb-stop={open ? "decision" : undefined}>
       <div className="decision-h">{open ? <span className="decision-tag"><IcLock size={11} strokeWidth={2} /> Your decision</span> : taken ? <span className="decision-taken"><IcCheck size={12} strokeWidth={2.2} /> {taken}</span> : null}<span className="decision-t">{title}</span></div>
       {children}
       {open && actions && <div className="decision-actions">{actions}</div>}
@@ -44,9 +51,22 @@ function Decision({ title, open, taken, children, actions }: { title: string; op
   );
 }
 
+/** A stretch of the conversation: open and scrolling in its own box while it is the live thing, folded once the decision it fed is taken. */
+function Transcript({ title, count, open, children }: { title: string; count?: number; open: boolean; children: ReactNode }) {
+  const [pinned, setPinned] = useState<boolean | null>(null); // the viewer's own toggle wins until the section changes state
+  useEffect(() => { setPinned(null); }, [open]);
+  const isOpen = pinned ?? open;
+  return (
+    <details className="cust-sec" open={isOpen} onToggle={(e) => { const o = e.currentTarget.open; if (o !== isOpen) setPinned(o); }}>
+      <summary className="cust-step"><IcChevronRight size={12} strokeWidth={2} className="chev" />{title}{count ? <span className="faint"> · {count} turns</span> : null}</summary>
+      <div className="cust-body" data-orb-stop="transcript">{children}</div>
+    </details>
+  );
+}
+
 function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
   return (
-    <div className="sheet">
+    <div className="sheet" data-orb-stop="sheet">
       <div className="sheet-h"><span>Delivered sheet</span><span className="faint">Synthetic data{note && ` · ${note}`}</span></div>
       <table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
@@ -63,15 +83,22 @@ function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
   );
 }
 
-export default function Customer({ run, steps, view, bodyProps, awaiting, buyer }: Props) {
+export default function Customer({ run, steps, view, bodyProps, awaiting, buyer, onMoved }: Props) {
   const [objection, setObjection] = useState("");
   const [objecting, setObjecting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const col = useRef<HTMLDivElement>(null);
-  // The presenter arrives here at Acme's turn; the open decision should be in view, not below the fold
-  useEffect(() => { col.current?.querySelector<HTMLElement>(".decision.open")?.scrollIntoView?.({ block: "center", behavior: "smooth" }); }, [awaiting]);
-  const move = async (m: BuyerMove) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) setObjecting(false); };
+  const landed = useRef(false);
+  // The presenter arrives here at Acme's turn; the open decision should be in view, not below the fold.
+  // With nothing to decide, opening the view mid-run lands once on the newest activity instead of the top.
+  useLayoutEffect(() => {
+    const open = col.current?.querySelector<HTMLElement>(".decision.open"), pane = col.current?.parentElement;
+    if (open) open.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    else if (!landed.current && pane) pane.scrollTop = pane.scrollHeight;
+    landed.current = true;
+  }, [awaiting]);
+  const move = async (m: BuyerMove) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) { setObjecting(false); onMoved?.(); } };
   const step = (id: string) => view.nodes[id]?.step ?? steps.find((s) => s.id === id);
   const n = view.nodes;
   const live = !!bodyProps.live;
@@ -97,7 +124,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer 
         </div>
 
         {clarify && (n.clarify?.messages.length ?? 0) > 0 && (
-          <section className="cust-sec"><div className="cust-step">{clarify.title}</div><PanelBody step={clarify} {...bodyProps} customer /></section>
+          <Transcript title={clarify.title} count={n.clarify?.messages.length} open={n.clarify?.status === "running" && awaiting !== "approve"}><PanelBody step={clarify} {...bodyProps} customer /></Transcript>
         )}
 
         {contractLines.length > 0 && (
@@ -129,15 +156,15 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer 
         )}
 
         {investigate && investigate.messages.length > 0 && step("investigate") && (
-          <section className="cust-sec"><div className="cust-step">Your objection, answered</div><PanelBody step={step("investigate")!} {...bodyProps} customer /></section>
+          <Transcript title="Your objection, answered" open={!accepted}><PanelBody step={step("investigate")!} {...bodyProps} customer /></Transcript>
         )}
 
         {n.amend && n.amend.messages.length > 0 && step("amend") && (
-          <section className="cust-sec"><div className="cust-step">Amendment</div><PanelBody step={step("amend")!} {...bodyProps} customer /></section>
+          <Transcript title="Amendment" open={n.amend.status !== "done"}><PanelBody step={step("amend")!} {...bodyProps} customer /></Transcript>
         )}
 
         {n.decide && n.decide.status !== "idle" && step("decide") && (
-          <section className="cust-sec"><div className="cust-step">Under review</div><PanelBody step={step("decide")!} {...bodyProps} customer /></section>
+          <Transcript title="Under review" open={n.decide.status !== "done"}><PanelBody step={step("decide")!} {...bodyProps} customer /></Transcript>
         )}
 
         {disputed && reviewOpen && !accepted && (

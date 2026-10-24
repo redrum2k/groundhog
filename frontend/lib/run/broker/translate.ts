@@ -136,7 +136,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         if (!m) break;
         const q = pendingQuestions.get(String(p.question_id));
         if (q) { pendingQuestions.delete(q.id); say("clarify", q); }
-        say("clarify", { id: m.id, from: "buyer", text: plain(m.text) });
+        say("clarify", { id: m.id, from: "buyer", text: m.field ? wordsFor(m.field, m.text) : plain(m.text) });
         if (m.field) answered[m.field] = parse(m.text);
         const dim = m.field ? dimensionOf(m.field) : undefined;
         if (dim) answers[dim] = { id: m.id, text: plain(m.text) };
@@ -315,5 +315,23 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
 
 const parse = (text: string): unknown => { try { return JSON.parse(text); } catch { return text; } };
 const plain = (text: string) => { const v = parse(text); return Array.isArray(v) ? v.join(", ") : typeof v === "string" ? v : text; };
+/** Acme's answer in words. The backend keeps the machine value; the customer reads what they meant. */
+const wordsFor = (field: string, text: string): string => {
+  const v = parse(text);
+  if (Array.isArray(v)) return v.join(", ");
+  const s = String(v);
+  switch (field) {
+    case "as_of": return `As of ${new Date(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+    case "max_age_days": return `${s} days`;
+    case "freshness_basis": return s === "observed_at" ? "The observation date" : words(s);
+    case "metric_name": return words(s);
+    case "entity_unit": return `One per ${s}`;
+    case "max_missing_records": return s === "0" ? "None may be missing" : `${s} may be missing`;
+    case "revision_policy": return s === "exact_accepted_versions" ? "Exact accepted versions only" : words(s);
+    case "conflict_policy": return s === "UNKNOWN" ? "Flag conflicts for review" : words(s.toLowerCase());
+    case "output_format": return s.toUpperCase();
+    default: return plain(text);
+  }
+};
 
 export type { BrokerEvent, BrokerOrder };
