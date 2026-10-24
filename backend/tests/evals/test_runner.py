@@ -127,6 +127,23 @@ def test_validation_listing_and_help_create_no_runtime(monkeypatch, tmp_path, ca
     assert list(tmp_path.iterdir()) == []
 
 
+def test_invalid_output_path_creates_no_runtime(tmp_path, monkeypatch):
+    output = tmp_path / "existing-file"
+    output.write_text("preserve")
+    monkeypatch.setattr(runner, "run", lambda *args: pytest.fail("invalid input created runtime"))
+    assert main(["run", "--output", str(output)]) == 2
+    assert output.read_text() == "preserve"
+
+
+def test_report_storage_error_is_operational_not_quality_failure(tmp_path, monkeypatch, capsys):
+    def fail(*args):
+        raise PermissionError("token=SECRET_URL_CANARY")
+
+    monkeypatch.setattr(runner, "run", fail)
+    assert main(["run", "--output", str(tmp_path)]) == 3
+    assert "SECRET_URL_CANARY" not in capsys.readouterr().err
+
+
 def test_network_provider_guards_ignore_ambient_opt_in(monkeypatch):
     from anthropic import Anthropic
 

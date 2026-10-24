@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -54,6 +55,8 @@ def main(argv=None):
             if args.command == "run"
             else None
         )
+        if args.command == "run" and args.output.exists() and not args.output.is_dir():
+            raise ValueError("--output must be a directory, not an existing file")
     except (ValueError, OSError) as error:
         from pydantic import ValidationError
 
@@ -88,7 +91,16 @@ def main(argv=None):
         return 0
     from evals.aggregate.runner import run
 
-    directory, report = run(cases, expectations, config, args.output)
+    try:
+        directory, report = run(cases, expectations, config, args.output)
+    except (OSError, subprocess.SubprocessError) as error:
+        print(
+            f"Evaluation could not complete report storage or revision inspection "
+            f"({type(error).__name__}); choose a writable --output directory "
+            "inside this checkout's environment. Existing runs are preserved.",
+            file=sys.stderr,
+        )
+        return 3
     print(
         json.dumps(
             {
