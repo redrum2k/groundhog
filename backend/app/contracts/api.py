@@ -1,4 +1,4 @@
-"""Polling API v0.2. Customer commands and trusted worker commands are separate."""
+"""Historical v0.2 JSON decoding only. No v0.2 mutation routes are mounted."""
 
 from typing import Annotated, Literal
 

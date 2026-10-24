@@ -1,109 +1,124 @@
-# Architecture and contracts — v0.2
+# Architecture — catalog v0.3 / payment contracts v1
 
-Product rules: [HACK.md](../HACK.md). HTTP contract: [API.md](API.md).
-The user's annotated corrections supersede the earlier scaffold rules.
+Python, uv, FastAPI, Pydantic and SQLite remain. The refactor adds a catalog domain alongside
+read-only historical DTOs rather than changing the framework or rewriting old financial data.
 
-## Components
+## Execution path
 
-- `contracts/models.py`: immutable accepted snapshots, evidence/citation/provenance,
-  all eight invoice criteria, verdicts, questions/answers and payment intents.
-- `contracts/api.py`: versioned commands, persisted order record and polling view.
-- `orders/service.py`: deterministic application transitions from trusted worker
-  verdicts, customer commands and deadlines. Model verdicts can authorize early closure.
-- `storage/orders.py`: SQLite order snapshots and exact idempotent command responses.
-  Each mutation checks revision/binding, changes state and records simulated bookings
-  under `BEGIN IMMEDIATE`. Competing commands cannot both consume the same revision.
-- `runtime/policy.py`: amount/version/expiry/capture/extra-fee validation and remedy rules.
-- `main.py`: FastAPI lifespan starts deadline recovery and a one-second sweep independent
-  of browser polling. Deadlines also advance on reads/mutations; a stale command cannot
-  undo a cutoff transition.
-- `payments/`: mock authorization and receipts; no live adapter. The standalone mock
-  adapter retains its own durable journal. The workflow stores mock bookings in the
-  same order transaction, avoiding an external payment side effect during a DB lock.
-- Jeff's investigator/provider integration and Lucas's frontend remain to be built.
+`contracts/catalog.py` holds drafts, terms/requirements, quotes/snapshots, typed lifecycle
+contexts, obligations/assessments, amendments, consent, jobs and financial/reviewer records.
+`contracts/models.py` and `contracts/api.py` retain v0.2 deserialization and shared primitives.
+The old invoice executor and HTTP mutations are retired. Current mutations use CatalogService
+in `orders/catalog.py`; `orders/service.py` now contains shared errors and clock only.
 
-## Evidence authority
+`storage/catalog.py` adds schema migration 3, catalog_records, catalog_commands and
+catalog_sources using the existing SQLite transaction foundation. Each transition uses
+BEGIN IMMEDIATE; current binding/revision checks, state changes, mock ledger entries and exact
+idempotent responses commit together. Model/PDF production work runs outside DB transactions.
 
-A trusted investigator returns `compliant`, `provider_defect` or `insufficient_evidence`.
-A compliant verdict requires passed, cited assessments of every `InvoiceCriterion`,
-with no unresolved issues or questions. Final-delivery assessment must cite the actual
-output PDF. A defect requires a cited failed criterion. Disputed results must classify
-the claim as refuted, supported or unresolved consistently with the verdict.
+Acceptance constructs a schema-4 immutable snapshot with `catalog-payments-v1` terms and
+pending funding. Buyer signature or explicit mock simulation is a separate command; confirmed
+funding enables exactly one job. A lease claim checks successful authorization before dispatch.
+Jobs persist queued/running/done/failed/stale states, attempts, lease IDs/deadlines and errors.
+Expired leases can be reclaimed after restart, at most three attempts. A former lease holder
+cannot publish after another worker claims it, evidence changes, or deadlines expire.
 
-The result is checked against the exact `InvestigationInput`; its citations must match
-supplied IDs/versions/hashes. PDF citations need highlight rectangles. Runtime then
-checks the current binding, fee, authorization expiry and operation history. It acts
-on the evidence verdict, not an arbitrary `payment_authorized` field or agent amount.
-These checks validate the evidence contract; Jeff's tools still have to substantiate
-factual coverage, extraction, arithmetic and actual PDF content.
+The deadline worker runs on startup and each second. Jobs are explicitly dispatched through
+trusted work routes or the offline harness; there is no implicit paid inference worker.
+Compiler calls reserve a persisted revision/budget before calling the injectable compiler;
+late results are rejected. A process interruption can leave a compiling draft: replay returns
+the durable reservation, and a worker refetches/retries with a new key within the existing
+call budget/deadline. No indefinite retry or deadline reset is permitted.
 
-`Investigator.investigate(input)` remains Jeff's async implementation boundary. The
-runtime provides complaints and prior customer answers as evidence. Customers cannot
-submit verdicts: `/internal` producer routes require the backend worker token.
+## Evidence and intelligence
 
-## PDF and structured data
+ArtifactStore persists immutable content-addressed objects under an approved root. Every read
+checks SHA-256 and root containment. Cached PDF layout is keyed by the actual immutable bytes,
+not by unchecked paths. Sources are versioned provider registry entries with recorded authority
+basis. Customer uploads are bounded PDFs (2 MB, 1–8 pages, bounded extractable characters),
+accepted only against a current evidence request. No original source is overwritten.
 
-Customer inspection uses source/delivery PDFs. Structured sidecars preserve internal
-records and exact source ID/version/hash provenance. The invoice API requires both
-PDF and structured references, while the general artifact models remain format-independent.
-Jeff supplies coordinates; Lucas renders the PDF and overlays rectangles. Coordinates
-are one-based pages and normalized top-left x0/y0/x1/y1 on the displayed page. Real
-crop/rotation mapping and page bounds still need the shared-fixture check.
+The fixture parser extracts product identity, net/shipping weights, USD unit price, record index,
+edition and effective date from actual PDF text. Decimal comparisons and unit conversion are
+ordinary code. Source sidecars are generated from those extracted records. Output generation
+and verification are separate passes; verification reconstructs expected records from sources
+and parses the actual PDF. This supports the bounded synthetic layout, not arbitrary OCR.
 
-`GET /orders/{id}/evidence/{evidence_id}/content?version=N` resolves only registered
-current-order evidence under ARTIFACT_ROOT, checks its SHA-256 and returns those bytes.
-It rejects path escape and mismatched content. Customer claim/answer JSON is reconstructed
-from persisted data and checked against its registered hash. No evaluation-key reader
-or arbitrary repository browsing tool is supplied. Runtime workspaces must exclude
-answer keys/mutation recipes; serving root must contain approved evidence only.
+Requirement IDs and obligations come from an allowlisted registry with mandatory global checks.
+No model supplies executable verification code. Every assessment is PASS/FAIL/UNKNOWN/CONFLICT
+with exact artifact/hash/page/text-span/normalized-line-region evidence and provenance. Materiality
+traverses explicit dependencies from mandatory decision obligations. Excluded products need only
+the decisive exclusion fact; irrelevant decorative uncertainty is not a blocker.
 
-## State and time
+The compiler, CatalogInvestigator and SemanticAssessor interfaces are injectable. Claude uses
+Messages structured output and supplies semantic input; offline implementations are explicitly
+limited substitutes. Refusal, malformed output, provider failure and stale results fail closed.
+Source authority comes from the registry, never a model score or second-model agreement.
+Unstructured semantic findings that conflict with deterministic checks go to human review.
 
-Order, delivery, case and payment state are separate. `display_status` distinguishes
-processing, correct, needs_review, operational_failure (red), and human_review.
-`payment_state=mock` never becomes live captured. `payment_phase` records open, held,
-booked or expired simulation state; ledger receipts remain explicitly mock.
+## Amendments and consent
 
-An initial delivery or new dispute starts 600 seconds of review. Questions/answers do
-not extend it. Complete evidence can close early; otherwise an undisputed delivered
-job closes at cutoff. Unknown checks are not mislabeled passed. Unresolved disputes
-at cutoff enter human review with payment held. Authorization expiry has its own clock.
-A base booking that occurred before a later dispute is retained and never duplicated.
+A request-bound upload creates an immutable amendment and new evidence revision. Identity,
+edition, record set and readable original fields are compared; the uploaded hash must match
+an approved supplier publication/representative record to establish authority. A logo does not.
 
-One free regeneration is reserved before dispatch. Supported defects authorize it;
-repeated defect or engine failure during that regeneration escalates. A failed initial
-engine attempt has no artifact version until a successful retry publishes output.
-A replacement is allowed only after failure or a supported defect. Delivery/evidence/
-proposal bindings change on replacement. Customer claims/answers change evidence and
-proposal versions only. Old actions return 409; idempotent exact retries return the
-stored command result. Refetch after a replay if a newer current view is needed.
+Evidence-only repair applies under the accepted source policy or after both required approvals.
+Application invalidates findings, pending approvals and stale jobs, then reruns all checks.
+A source problem does not spend the free-correction allowance. Substantive amendment creates
+a proposed provider quote with a new manifest/specification; customer acceptance creates a
+linked child order with independent authorization. Parent release gates the child; the current
+mock release completes atomically, while planned Base execution must wait for confirmed void. Historical agreement, artifacts and ledger remain intact. Rejected/missing consent leads
+to human review of the original agreement. No changed terms become effective by timeout.
 
-The investigator asks one targeted question per round, at most two total. Answers are
-stored as cited evidence; a final evaluation after the second answer must decide or
-escalate. Exhausted budget, unanswered questions at deadline or an inconclusive result
-without a useful question go to human feedback. No human-decision API is implemented yet.
+Precontract, fulfillment, repair and dispute have separate typed contexts. Pre-delivery evidence
+work never requires a fabricated delivery. Answers revise evidence, not PDFs. Published versions
+change only through initial fulfillment, operational retry or an authorized free correction.
 
-## Charges and ledger
+## Money and authority
 
-Order creation records mock base authorization immediately. Evidence closure, acceptance
-or undisputed cutoff produces one mock base booking. A refuted complaint additionally
-books the exact fee frozen in the accepted policy. If missing, `requires_quote=true`;
-a trusted operator quotes a fee and the customer accepts that bound quote before any
-extra booking. New quotes are limited to the original currency/precision and unexpired
-authorization. There is at most one additional-processing booking per disputed review.
-Neither a supported defect nor an unresolved complaint gets an extra charge.
+Current capture policy is `runtime/catalog_policy.py`. It requires current mandatory verification
+including actual PDF fidelity, no material blocker/unresolved dispute/pending consent, current
+customer acceptance or undisputed delivery-review expiry, exact accepted amount, valid authorization
+and no prior capture. A report alone cannot book early; missing reports cannot book at timeout.
 
-Live authorization, outbox/dispatch, nonces and authoritative reconciliation are pending
-the payment spike. The current workflow cannot move funds. Submitted/uncertain live
-operations must be reconciled before retries and must not be shown as confirmed.
+One free correction is durably reserved for established provider defects. Repeated defects or
+operational failure during correction escalate. Unsupported complaints have no charge. Additional
+work needs an explicit offer whose acceptance creates a child job and authorization.
 
-## Local demo boundary
+Reviewer credentials are distinct from provider/worker credentials. Decisions record the trusted
+actor, reason, resolving citations, current binding and idempotency. Allowed actions: request evidence
+within remaining limits, propose a negotiated exception, or release uncaptured authorization.
+Reviewers cannot override expiry, mark original facts true by negotiation or execute unimplemented
+refunds. Customer actor strings are local demo audit labels, not authenticated identities.
 
-Customer authentication, production tenancy, uploads, model/provider execution, PDF
-rendering and deployment are absent. Bind the development server to localhost. Only
-local frontend origins are enabled for CORS; the internal token is server-only. The
-backend wheel contains app code, not evals/expected. Isolate the investigator's filesystem
-when wiring it; package exclusion alone is not a sandbox.
+Current `contracts/payments.py` defines immutable PaymentInfo/terms, funding preparation and
+authorization, payment accounts, operations and redacted views independently of historical v0.2
+SettlementIntent. The additive payment journal and mock execution boundary preserve idempotency,
+current binding and ledger consistency. Mock capture/release remains atomic. Funding preparation
+uses a non-chain mock domain; explicit simulation never invents a buyer token signature.
 
-FastAPI uses its documented [lifespan mechanism](https://fastapi.tiangolo.com/advanced/events/)
-for the mock deadline worker. No additional queue or infrastructure is introduced.
+The selected live integration is Base Commerce Payments v1.1 on Base Sepolia with a dedicated
+platform operator EOA. The contract holds funds; buyers/providers trust the operator to apply
+accepted settlement policy. AI findings do not confer wallet authority. Live adapter execution
+is planned after the Phase-1 frontend contract handoff; there are no observed testnet receipts.
+The target durable executor persists signed bytes/hash before broadcast, serializes nonces,
+reconciles receipts/events/state and canonicality, and never retries uncertainty with a new
+payment/salt/nonce. Two canonical receipt confirmations are not Ethereum/L1 finality.
+
+The frontend mock API supplies every pending/terminal/uncertain/expired/reorg account state
+without pretending they are observed chain transitions. Mock receipts have no live transaction
+ID or explorer link. This uses Base Commerce Payments, not x402 or a separate verification fee.
+See PAYMENT_SPIKE.md and handoffs/lucas.md.
+
+## Compatibility and deployment boundary
+
+Existing orders/order_commands rows are neither deleted nor transformed. Trusted historical GETs
+return exact stored JSON, including old policies and financial entries. Deadline recovery reads current catalog tables; schema-3 mock records remain readable
+and never become live obligations. Legacy DTO tests preserve decoding; old behavioral tests were replaced with
+catalog safety and journey tests. Resuming a historical order requires explicit human handling; no
+implicit commercial-policy migration exists.
+
+Runtime app code does not import corpus generators or evals/expected. Only the offline harness
+creates synthetic inputs. Evaluation answers are not exposed through tools/prompts. Packaging
+exclusion is not an OS sandbox: production filesystem/tenant isolation remains required. No customer
+authentication, frontend, supplier network integration, deployment or live settlement is claimed.

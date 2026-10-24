@@ -1,0 +1,46 @@
+{
+  "binding": {
+    "snapshot_id": "example-current-snapshot",
+    "evidence_revision": 2,
+    "delivery_version": 0
+  },
+  "stage": "fulfillment",
+  "obligations": [
+    {
+      "obligation_id": "supplier-b/S17:price",
+      "requirement_id": "R-PRICE",
+      "subject": "supplier-b/S17",
+      "field": "unit_price",
+      "check": "compare accepted unit-price threshold",
+      "dependencies": [],
+      "mandatory": true,
+      "decision_effect": "settlement"
+    }
+  ],
+  "assessments": [
+    {
+      "obligation_id": "supplier-b/S17:price",
+      "result": "UNKNOWN",
+      "citations": [],
+      "missing_facts": [
+        "Readable unit price from an authorized same-edition source"
+      ],
+      "conflicting_evidence": [],
+      "reason_code": "REQUIRED_VALUE_UNREADABLE",
+      "explanation": "Price may change product inclusion; material until authorized evidence resolves it.",
+      "requested_evidence": "Provide an authorized same-edition price for S17.",
+      "provenance": {
+        "kind": "deterministic",
+        "assessor": "handoff-schema-example",
+        "version": "catalog-v0.3",
+        "model_score": null
+      }
+    }
+  ],
+  "material_blockers": [
+    "supplier-b/S17:price"
+  ],
+  "provider_defect": false,
+  "passed": false,
+  "created_at": "2026-10-23T19:00:00Z"
+}

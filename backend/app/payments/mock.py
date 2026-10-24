@@ -37,6 +37,8 @@ class MockPaymentAdapter:
         return self._record("authorize", request)
 
     async def execute(self, intent: SettlementIntent) -> PaymentReceipt:
+        if intent.action == "additional_processing":
+            raise ValueError("rejected complaints cannot create fees; accept a durable work offer")
         return self._record(intent.action, intent)
 
     async def reconcile(self, idempotency_key: str) -> PaymentReceipt | None:

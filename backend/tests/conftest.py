@@ -4,10 +4,8 @@ import pytest
 
 from app.contracts.models import (
     AcceptedPolicy,
-    CaseState,
     Citation,
     CriterionAssessment,
-    DeliveryState,
     DeliveryVersion,
     EvidencePointer,
     EvidenceReference,
@@ -17,14 +15,11 @@ from app.contracts.models import (
     InvoiceCriterion,
     Money,
     OrderSnapshot,
-    OrderState,
-    PaymentState,
     PdfHighlight,
     ProposalBinding,
     Recommendation,
     SettlementIntent,
 )
-from app.runtime.policy import CaptureContext
 
 
 @pytest.fixture
@@ -110,22 +105,6 @@ def capture_intent(investigation_input):
 
 
 @pytest.fixture
-def capture_context(investigation_input):
-    return CaptureContext(
-        current_proposal=investigation_input.proposal,
-        order_state=OrderState.DELIVERED,
-        delivery_state=DeliveryState.PASSED,
-        case_state=CaseState.NONE,
-        payment_state=PaymentState.AUTHORIZED,
-        verification_binding=investigation_input.proposal,
-        customer_acceptance=None,
-        authorization_id="authorization-1",
-        authorized_amount=investigation_input.snapshot.price,
-        authorization_expires_at=investigation_input.delivery.delivered_at + timedelta(minutes=30),
-    )
-
-
-@pytest.fixture
 def result_for():
     def build(request, verdict="compliant", *, ask=False):
         source = request.snapshot.input_versions[0]
@@ -201,3 +180,12 @@ def result_for():
         )
 
     return build
+
+
+from tests.catalog.fixtures import setup  # noqa: E402, F401
+
+
+@pytest.fixture(autouse=True)
+def disable_paid_calls(monkeypatch):
+    """A developer's optional local Claude settings must never turn tests into paid calls."""
+    monkeypatch.setenv("ENABLE_PAID_MODELS", "false")

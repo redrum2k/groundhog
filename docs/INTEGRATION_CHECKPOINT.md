@@ -1,39 +1,62 @@
-# First integration checkpoint
+# Shared integration checkpoint — catalog v0.3 / payments v1
 
-Target: **90 minutes after the team starts the split**, with a check-in at 30 minutes.
-This is a relative work target, not an invented event deadline or a scheduled automation.
-If source PDFs are not ready at 30 minutes, reduce to one invoice and one delivery PDF.
+Deadline: Sunday, October 25, 2026, 9 a.m. America/Los_Angeles. Hold the first integration
+checkpoint 90 minutes after the team starts its split; check the shared fixture at 30 minutes.
+If necessary, reduce to one supplier PDF while preserving the end-to-end evidence repair path.
 
-## Shared fixture
+## Shared foundation
 
-Start with four unique single-currency invoices in six short source PDFs: include a
-repeated invoice and conflicting versions. Deliver a register plus exceptions section
-as a PDF, retaining structured records and page-region mappings. Use neutral IDs and
-filenames for runtime assets; no correctness/mutation labels in the evidence package.
+Run the repaired and unresolved commands in README.md. The fixture contains four synthetic
+supplier PDFs, 12 products each. Supplier B has unreadable prices; a registered same-edition
+copy can restore them. An unregistered readable copy cannot establish authority. Source and
+actual delivery PDFs, JSON sidecar and exact citations are retained. Generator labels/expected
+answers never enter runtime. Rehan reviews outcomes independently.
 
-Jeff produces the source/delivery PDFs and mappings. Lucas visually checks that record
-links highlight the right text and classifies outputs offline. Rehan independently
-records expected results. Nikita loads the accepted order and provider delivery through
-the mock API. The actual fixture assets are still to be produced by their owners.
+## First handoff
 
-## By the first checkpoint
+- Nikita: show persisted draft, clarification, server quote/acceptance, pending funding, explicit mock authorization, a leased durable job, pre-delivery evidence request and versioned repair.
+  Restart the backend and demonstrate identical retries and stale-action 409 behavior.
+- Jeff: inspect typed requirements/limitations, source parsing and product exclusions. Show
+  actual-PDF verification and a cited amendment classification. Exercise the semantic
+  interface offline; improve it autonomously within runtime/authority contracts.
+- Lucas: start from [handoff](handoffs/lucas.md), generated API types and all-state mock API.
+  Implement buyer typed-data signing/rejection, exact token/amount/receiver/operator/deadline
+  display and pending/held/paid/returned/uncertain/expired states; then prompt and quote approval screens, progress/evidence request/upload flow,
+  output/source PDF view and one clickable citation. Confirm page coordinate mapping and
+  use server-driven 60-second timers. Add frontend setup/test commands when implemented.
+- Rehan: independently label clean, defective, repaired, substantively amended and unresolved
+  cases from the source/output PDFs. Record disagreements offline; verify actual sponsor rules.
 
-- Jeff: one evidence package and one cited compliant result covering all eight criteria.
-- Lucas: a locally running source/delivery PDF view; clicking one citation opens the exact
-  artifact/page and highlights the region. Record actual crop/rotation behavior.
-- Nikita: order creation opens mock authorization, publication starts a ten-minute review,
-  polling works, and the cited verdict books one clearly mocked base ledger entry.
-- Rehan: independently check the displayed PDF against source invoices; record discrepancies.
+Success: one complete request-to-repair-to-delivery journey produces a verified PDF and one
+mock capture only after acceptance/review cutoff; the unresolved journey produces a useful
+human-review table without capture. The frontend must show mock money and synthetic fixtures.
 
-Success: one complete fixture goes from accepted order to inspected, evidence-backed
-mock closure; a deliberately stale acceptance/dispute request returns 409.
+## Next checks
 
-## Next checkpoint, after the first works
+Demonstrate one free correction and repeated failure escalation; unsupported complaint with
+zero fee; explicit additional-work acceptance creating one child job/authorization; two question
+rounds; approval rejection; authorization expiry; reviewer release versus unimplemented refund.
+Tests use an injected clock. Customer authentication, production isolation, live payments,
+deployment and arbitrary PDF/OCR support are not part of the completed foundation.
 
-Add a supported defect with one free regeneration; a refuted complaint with the agreed
-fee (and a no-fee quote variant); two question/answer rounds ending in human review; and
-an engine-failure example displayed red. Test cutoff using an injected clock in automated
-tests rather than waiting ten minutes. Keep the actual product window at 600 seconds.
+No paid calls, broadcasts or deployment are authorized. Never route evaluator labels or
+privileged worker/reviewer tokens through the browser or model context.
 
-No frontend/model/provider implementation is claimed by the existing workflow tests.
-No paid calls, transaction broadcasts, or deployment are part of this checkpoint setup.
+
+## Payment handoff first
+
+Phase 1 freezes API version 0.4.0 (`catalog-api-v1`, `catalog-payments-v1`), adds schema-4
+accepted terms while preserving historical mock records, and supplies executable mock/fake
+responses for all payment states. Live Base RPC/operator execution is a later independent
+Nikita milestone; no testnet outcome is claimed. Current mock terminal actions complete
+atomically, and pending/reorg fixtures exist for frontend development.
+
+Nikita can build the payment laboratory with synthetic accepted terms and a fixture settlement
+decision without waiting for Jeff's prompts or Lucas's UI. The later separately authorized
+live proof is two 0.10 test-USDC payments: fund/restart/capture and fund/void. Main catalog
+USD 15 pricing remains 15000000 atomic USDC under an explicit 1:1 demo conversion.
+
+Jeff's version-bound findings/questions/recommendations never become wallet operations. Rehan
+independently checks held provider balance, capture once, void return, provider non-authority
+and uncertain-state disclosure, and verifies actual sponsor rules. Use Base Commerce Payments,
+not x402. All four scoped handoffs are in docs/handoffs/.

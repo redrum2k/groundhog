@@ -1,0 +1,88 @@
+{
+  "payment": {
+    "payment_id": "fixture-payment-failed",
+    "order_id": "fixture-order-failed",
+    "snapshot_id": "fixture-snapshot-failed",
+    "terms": {
+      "policy_version": "catalog-payments-v1",
+      "payment_id": "fixture-payment-failed",
+      "mode": "mock",
+      "chain_id": 84532,
+      "asset_address": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "symbol": "USDC",
+      "decimals": 6,
+      "amount_atomic": "15000000",
+      "payment_info": {
+        "operator": "0x1111111111111111111111111111111111111111",
+        "payer": "0x2222222222222222222222222222222222222222",
+        "receiver": "0x3333333333333333333333333333333333333333",
+        "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "max_amount": "15000000",
+        "pre_approval_expiry": "1792782300",
+        "authorization_expiry": "1792785600",
+        "refund_expiry": "1792789200",
+        "min_fee_bps": 0,
+        "max_fee_bps": 0,
+        "fee_receiver": "0x3333333333333333333333333333333333333333",
+        "salt": "10"
+      },
+      "escrow_address": "0xf96815976523E00e65Be8f34cA5e64b4f41EB19c",
+      "collector_address": "0x8612dfdc421f80336cd14E8EF9cb1E765dB5ab88",
+      "deployment_version": "v1.1.0",
+      "source_commit": "b748fdd7a830a655a19a530edcf2a94b9dc7d25f",
+      "payment_hash": "0x11d18fa2d77e94ada8d0044d6a632a4f4bb8a3b6795cb941a5aeafc036382484",
+      "authorization_nonce": "0xaa46457e38e59b826b1d80ef057ff0d9fb467851849727a36317c92af6f2ab20",
+      "pricing_rule": "catalog-usd-usdc-1to1-v1",
+      "display_amount": {
+        "amount_minor": 1500,
+        "currency": "USD",
+        "decimals": 2
+      },
+      "settlement_terms": "Synthetic UI fixture only. Demo 1 USD : 1 USDC; 15 USD equals 15000000 atomic test USDC. Mock simulation, no on-chain funds.",
+      "confirmations": 2
+    },
+    "state": "failed",
+    "blocked_by_payment_id": null,
+    "latest_observation": null,
+    "last_error": "Simulated funding rejection; no held-funds claim.",
+    "created_at": "2026-10-23T19:00:00Z",
+    "updated_at": "2026-10-23T19:00:00Z"
+  },
+  "operations": [
+    {
+      "operation_id": "fixture-operation-failed",
+      "intent": {
+        "operation_id": "fixture-operation-failed",
+        "payment_id": "fixture-payment-failed",
+        "order_id": "fixture-order-failed",
+        "snapshot_id": "fixture-snapshot-failed",
+        "binding": {
+          "snapshot_id": "fixture-snapshot-failed",
+          "evidence_revision": 1,
+          "delivery_version": 0
+        },
+        "action": "fund",
+        "amount_atomic": "15000000",
+        "chain_id": 84532,
+        "payment_hash": "0x11d18fa2d77e94ada8d0044d6a632a4f4bb8a3b6795cb941a5aeafc036382484",
+        "idempotency_key": "fixture-key-failed",
+        "reason": "Synthetic frontend state demonstration; no wallet action authority.",
+        "mode": "mock"
+      },
+      "fingerprint": "e647e9d07ae4b5c8cec8fa06bf9843cd84dd18a54f9c03a30022c4939731011b",
+      "state": "failed",
+      "created_at": "2026-10-23T19:00:00Z",
+      "updated_at": "2026-10-23T19:00:00Z",
+      "nonce": null,
+      "transaction_hash": null,
+      "block_evidence": null,
+      "observation": null,
+      "error": "Simulated funding rejection; no held-funds claim.",
+      "reconciliation_status": "failed",
+      "attempts": 1
+    }
+  ],
+  "explorer_links": [],
+  "simulated": true,
+  "finality_note": "Receipt confirmation threshold is not Ethereum/L1 finality."
+}
