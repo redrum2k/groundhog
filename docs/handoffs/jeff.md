@@ -1,3 +1,16 @@
+# Aggregate evaluation tooling handoff — Prompt 10
+
+The user/Jeff delegation assigns Nikita the general offline runner, requirement
+scoring, independent audit integration and reports. This does not transfer compiler
+R3/R4, conversational interpretation, explicit scope consent, Claude wiring,
+evidence enforcement or developer regressions. No runtime files change in this PR.
+The pure present-cell audit is extracted with exact attribution and compatibility
+tests; no feature-branch merge, private ledger access or historical regrading occurs.
+See [workstream 10](../workstreams/10-aggregate-evaluation.md). Its D05/D06 development
+expectations flag `R-ARTIFACT=PASS` in source-blocked orders without output bytes;
+money correctly remains held and evidence is requested. This is an owner review
+dependency, not permission for the evaluator to change your semantics.
+
 # Current integration status — October 24
 
 [Reviewed integration](../reviews/frontend-payment-integration.md) includes payment

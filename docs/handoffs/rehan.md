@@ -1,5 +1,22 @@
 # Rehan — independent evidence and demo
 
+## Aggregate evaluation review — Prompt 10
+
+Nikita owns the delegated execution/scoring/audit/report infrastructure. You retain
+independent expected outcomes, rationales, review and development/held-out splits.
+The six fixtures in `evals/aggregate/cases.json` and their explicit engineering
+expectations exercise tooling only; none has your approval or held-out status.
+Review actual accepted specifications, source/output bytes, initial rejected output
+and corrected evidence before providing a new versioned expectation input. Preserve
+old frozen runs and report disagreements rather than deriving labels from findings.
+See [workstream 10](../workstreams/10-aggregate-evaluation.md) and the
+[format/CLI guide](../../evals/aggregate/README.md). Requirement PASS and complaint
+support are distinct. Structural citation validity does not establish entailment.
+In particular, review the D05/D06 engineering UNKNOWN expectations for output
+agreement before any delivery exists. No accuracy or independent gold is claimed.
+
+## Historical catalog/payment handoff
+
 Own independent expected outcomes/acceptance scenarios, usefulness/failure analysis, customer
 examples, sponsor eligibility verification, pitch/demo/backup and judge questions. Keep expected
 answers and grading metadata outside runtime tools/prompts/manifests.

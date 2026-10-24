@@ -23,6 +23,19 @@ R3/R4 remain two strict expected failures on this main baseline. Prompt 10 may
 review audit tooling at `ef8c99a`; no evaluator implementation is included here.
 Lucas's `/` retained-broker canvas and `/live` aggregate intake both remain intact.
 
+## Aggregate evaluation delegation — Prompt 10
+
+The user and Jeff authorize Nikita to own general aggregate evaluator execution,
+requirement-level scoring, independent byte/citation audit integration and readable
+JSON/Markdown results in `tools/aggregate_eval.py`, `evals/aggregate/` and
+`backend/tests/evals/`. This is a narrow exception to older evaluation-tooling
+assignments below. Rehan owns independently reviewed expectations/rationales and
+development/held-out classification; no independent gold is supplied. Jeff retains
+compiler R3/R4, interpretation, explicit consent, Claude wiring, evidence enforcement
+and developer regressions. Runtime contracts and Lucas's UI remain outside this PR.
+See [workstream 10](workstreams/10-aggregate-evaluation.md) for source provenance,
+validation, engineering mismatches and the remaining review dependencies.
+
 ## Historical jobs after the 09 review — October 24
 
 The [09 review](reviews/09-results-review.md) independently reproduced 695 passing
