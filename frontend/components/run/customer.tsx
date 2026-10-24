@@ -47,7 +47,7 @@ function Decision({ title, open, taken, children, actions }: { title: string; op
 function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
   return (
     <div className="sheet">
-      <div className="sheet-h"><span>Delivered sheet</span>{note && <span className="faint">{note}</span>}</div>
+      <div className="sheet-h"><span>Delivered sheet</span><span className="faint">Synthetic data{note && ` · ${note}`}</span></div>
       <table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
         <tbody>
@@ -90,7 +90,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer 
       <div className="cust-col">
         <div className="cust-h">
           <div className="cust-who"><span className="avatar" aria-hidden>{S.buyer.split(" ").map((w) => w[0]).join("")}</span><div><div className="title">{S.buyerAgent}</div><div className="faint" style={{ fontSize: 13 }}>Buying from {S.us}. Shown the way the customer sees it.</div></div></div>
-          <div className="cust-money"><Orb mode={view.orb.mode === "wait" ? "wait" : "float"} /><Wallet view={view} /></div>
+          <div className="cust-money"><Orb mode={view.orb.mode === "wait" || view.orb.mode === "inspect" ? view.orb.mode : "float"} /><Wallet view={view} /></div>
         </div>
 
         {clarify && (n.clarify?.messages.length ?? 0) > 0 && (

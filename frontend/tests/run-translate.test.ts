@@ -38,6 +38,9 @@ describe("broker stream → canvas", () => {
     expect(asked.length).toBeGreaterThan(0);
     expect(asked.some((t) => /undefined|NaN/.test(t))).toBe(false);
     expect(asked).toContain("Which area, boundary and ZIPs");
+    // the intent, then each question with its answer, in turn
+    const turns = events.flatMap((e) => (e.type === "message" && e.step === "clarify" ? [e.message.from] : []));
+    expect(turns.slice(0, 5)).toEqual(["buyer", "agent", "buyer", "agent", "buyer"]);
   });
 
   it("maps a refuted dispute onto the We're-right detour and back to capture", () => {
