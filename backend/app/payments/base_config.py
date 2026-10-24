@@ -23,10 +23,13 @@ class BasePaymentConfig:
     escrow_address: str = BASE_ESCROW_ADDRESS
     collector_address: str = BASE_COLLECTOR_ADDRESS
     provider_address: str | None = None
+    operator_public_address: str | None = None
     operator_private_key: str | None = field(default=None, repr=False)
     confirmations: int = 2
     enable_testnet_broadcast: bool = False
     journal_path: str = "artifacts/payment-journal.sqlite3"
+    max_gas: int = 1_000_000
+    max_fee_per_gas: int = 10_000_000_000
 
     def __post_init__(self):
         if self.chain_id != BASE_CHAIN_ID:
@@ -44,33 +47,63 @@ class BasePaymentConfig:
             if not is_address(self.provider_address) or int(self.provider_address, 16) == 0:
                 raise ValueError("BASE_PROVIDER_ADDRESS must be a nonzero address")
             object.__setattr__(self, "provider_address", to_checksum_address(self.provider_address))
-        if self.confirmations < 2:
-            raise ValueError("PAYMENT_CONFIRMATIONS must be at least 2")
+        if self.operator_public_address:
+            if (
+                not is_address(self.operator_public_address)
+                or int(self.operator_public_address, 16) == 0
+            ):
+                raise ValueError("BASE_OPERATOR_ADDRESS must be a nonzero address")
+            object.__setattr__(
+                self, "operator_public_address", to_checksum_address(self.operator_public_address)
+            )
+        if type(self.confirmations) is not int or not 2 <= self.confirmations <= 100:
+            raise ValueError("PAYMENT_CONFIRMATIONS must be at least 2 and at most 100")
+        if type(self.max_gas) is not int or not 21000 <= self.max_gas <= 1_000_000:
+            raise ValueError("BASE_MAX_GAS must be between 21000 and 1000000")
+        if type(self.max_fee_per_gas) is not int or not 0 < self.max_fee_per_gas <= 10_000_000_000:
+            raise ValueError("BASE_MAX_FEE_PER_GAS must be between 1 and 10000000000 wei")
 
     @classmethod
-    def from_env(cls, env: Mapping[str, str] | None = None) -> "BasePaymentConfig":
+    def from_env(
+        cls, env: Mapping[str, str] | None = None, *, include_signer=True
+    ) -> "BasePaymentConfig":
         values = os.environ if env is None else env
         flag = values.get("ENABLE_TESTNET_BROADCAST", "false").lower()
         if flag not in {"true", "false"}:
             raise ValueError("ENABLE_TESTNET_BROADCAST must be true or false")
         return cls(
             rpc_url=values.get("BASE_SEPOLIA_RPC_URL", ""),
-            chain_id=int(values.get("BASE_CHAIN_ID", str(BASE_CHAIN_ID))),
+            chain_id=_integer(values, "BASE_CHAIN_ID", BASE_CHAIN_ID),
             usdc_address=values.get("BASE_USDC_ADDRESS", BASE_USDC_ADDRESS),
             escrow_address=values.get("BASE_ESCROW_ADDRESS", BASE_ESCROW_ADDRESS),
             collector_address=values.get("BASE_ERC3009_COLLECTOR_ADDRESS", BASE_COLLECTOR_ADDRESS),
             provider_address=values.get("BASE_PROVIDER_ADDRESS") or None,
-            operator_private_key=values.get("BASE_OPERATOR_PRIVATE_KEY") or None,
-            confirmations=int(values.get("PAYMENT_CONFIRMATIONS", "2")),
+            operator_public_address=values.get("BASE_OPERATOR_ADDRESS") or None,
+            operator_private_key=(values.get("BASE_OPERATOR_PRIVATE_KEY") or None)
+            if include_signer
+            else None,
+            confirmations=_integer(values, "PAYMENT_CONFIRMATIONS", 2),
             enable_testnet_broadcast=flag == "true",
             journal_path=values.get("PAYMENT_JOURNAL_PATH", "artifacts/payment-journal.sqlite3"),
+            max_gas=_integer(values, "BASE_MAX_GAS", 1_000_000),
+            max_fee_per_gas=_integer(values, "BASE_MAX_FEE_PER_GAS", 10_000_000_000),
         )
 
     @property
     def operator_address(self) -> str | None:
         if not self.operator_private_key:
-            return None
+            return self.operator_public_address
         try:
-            return Account.from_key(self.operator_private_key).address
+            address = Account.from_key(self.operator_private_key).address
         except Exception:
             raise ValueError("BASE_OPERATOR_PRIVATE_KEY is not a valid dedicated EOA key") from None
+        if self.operator_public_address and address.lower() != self.operator_public_address.lower():
+            raise ValueError("BASE_OPERATOR_ADDRESS differs from the dedicated signer")
+        return address
+
+
+def _integer(values, name, default):
+    try:
+        return int(values.get(name, str(default)))
+    except (ValueError, TypeError):
+        raise ValueError(f"{name} must be an integer") from None
