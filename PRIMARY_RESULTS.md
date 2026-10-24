@@ -8,6 +8,13 @@ Later delivery commits contain reporting only; the archive receipt names its exa
 Main `62fe03542f18d9f7514550bcff25968ae2557c08` was integrated INTO this branch.
 No commit was pushed during this follow-up, no merge into main, deployment or real payment.
 
+Final upstream check: Lucas's PR #6 advanced `origin/main` to
+`5a68ea1586521438873da774ca7758fad92f6d78` during this task. Its diff from `62fe035`
+is frontend-only (42 files); no backend change overlaps this delivery. It was fetched
+read-only, NOT merged into this tested worktree. Preserve that newer UI during normal
+Git integration; never copy this archive's older frontend over current main. The ZIP
+is the immutable `db3bafd` export; this later notice changes documentation only.
+
 ## Implemented and reused
 
 - R3/R4 fixed in `agents/dataset.py`: explicit exclusion cannot become yoga-inclusive;

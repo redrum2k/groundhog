@@ -7,6 +7,14 @@ Final tested code (including second-question recovery): `ef8c99afb9cf5f3b6928f50
 These follow-up commits are local, not pushed. Main was merged INTO this feature,
 not the reverse. The earlier remote feature still contains `db7aab8`.
 
+**Upstream after verification:** Lucas's PR #6 advanced main to `5a68ea1` with
+frontend-only changes, including the aggregate intake at `/live`. We fetched but
+did not merge that UI revision. This worktree/archive remains based on `62fe035`.
+Integrate with Git while retaining Lucas's current files; do not copy the archive's
+frontend over main. All frontend-check claims here apply to the tested `62fe035`
+integration, not PR #6. The immutable ZIP was exported at `db3bafd`; this notice
+is a later documentation-only update, with no runtime/test change.
+
 Read [PRIMARY_RESULTS.md](PRIMARY_RESULTS.md) for observed results, costs and limits.
 The five DISPUTE documents and their exported cohort remain historical, unchanged.
 
