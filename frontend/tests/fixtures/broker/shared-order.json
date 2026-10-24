@@ -1,0 +1,2624 @@
+{
+ "id": "broker_33490e0c35a744afa892e3f08d683e67",
+ "draft_id": "broker_33490e0c35a744afa892e3f08d683e67",
+ "customer_id": "northwind",
+ "revision": 3,
+ "original_specification": {
+  "version": 1,
+  "product_id": "aggregate_regional_market_intelligence",
+  "template_version": "intake-v1",
+  "original_intent": "SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+  "requirements": [
+   {
+    "id": "req-freshness",
+    "dimension": "freshness",
+    "meaning": "Customer-confirmed freshness for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "recipe": "age_within_days",
+    "parameters": {
+     "freshness_basis": "observed_at",
+     "max_age_days": 90,
+     "as_of": "2026-10-24T16:10:00.434880Z",
+     "geography": null,
+     "boundary_version": null,
+     "region_ids": [],
+     "reference_period": null,
+     "metric_name": null,
+     "metric_unit": null,
+     "entity_unit": null,
+     "coverage_ids": [],
+     "max_missing_records": null,
+     "output_schema": null,
+     "output_format": null,
+     "revision_policy": null,
+     "conflict_policy": null
+    },
+    "missing_policy": "UNKNOWN",
+    "conflict_policy": "UNKNOWN",
+    "provenance": [
+     {
+      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "origin": "original_intent",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     }
+    ]
+   },
+   {
+    "id": "req-geography",
+    "dimension": "geography",
+    "meaning": "Customer-confirmed geography for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "recipe": "region_version",
+    "parameters": {
+     "freshness_basis": null,
+     "max_age_days": null,
+     "as_of": null,
+     "geography": "San Francisco",
+     "boundary_version": "2026-Q3",
+     "region_ids": [
+      "94102",
+      "94103",
+      "94107",
+      "94109",
+      "94110",
+      "94114",
+      "94117",
+      "94122",
+      "94129",
+      "94133"
+     ],
+     "reference_period": null,
+     "metric_name": null,
+     "metric_unit": null,
+     "entity_unit": null,
+     "coverage_ids": [],
+     "max_missing_records": null,
+     "output_schema": null,
+     "output_format": null,
+     "revision_policy": null,
+     "conflict_policy": null
+    },
+    "missing_policy": "UNKNOWN",
+    "conflict_policy": "UNKNOWN",
+    "provenance": [
+     {
+      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "origin": "original_intent",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     }
+    ]
+   },
+   {
+    "id": "req-reference_period",
+    "dimension": "reference_period",
+    "meaning": "Customer-confirmed reference period for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "recipe": "period_equals",
+    "parameters": {
+     "freshness_basis": null,
+     "max_age_days": null,
+     "as_of": null,
+     "geography": null,
+     "boundary_version": null,
+     "region_ids": [],
+     "reference_period": "2026-Q3",
+     "metric_name": null,
+     "metric_unit": null,
+     "entity_unit": null,
+     "coverage_ids": [],
+     "max_missing_records": null,
+     "output_schema": null,
+     "output_format": null,
+     "revision_policy": null,
+     "conflict_policy": null
+    },
+    "missing_policy": "UNKNOWN",
+    "conflict_policy": "UNKNOWN",
+    "provenance": [
+     {
+      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "origin": "original_intent",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     }
+    ]
+   },
+   {
+    "id": "req-metric",
+    "dimension": "metric",
+    "meaning": "Customer-confirmed metric for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "recipe": "metric_equals",
+    "parameters": {
+     "freshness_basis": null,
+     "max_age_days": null,
+     "as_of": null,
+     "geography": null,
+     "boundary_version": null,
+     "region_ids": [],
+     "reference_period": null,
+     "metric_name": "adults_25_34_interested_in_fitness",
+     "metric_unit": "people",
+     "entity_unit": null,
+     "coverage_ids": [],
+     "max_missing_records": null,
+     "output_schema": null,
+     "output_format": null,
+     "revision_policy": null,
+     "conflict_policy": null
+    },
+    "missing_policy": "UNKNOWN",
+    "conflict_policy": "UNKNOWN",
+    "provenance": [
+     {
+      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "origin": "original_intent",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     }
+    ]
+   },
+   {
+    "id": "req-entity_unit",
+    "dimension": "entity_unit",
+    "meaning": "Customer-confirmed entity unit for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "recipe": "unique_entity",
+    "parameters": {
+     "freshness_basis": null,
+     "max_age_days": null,
+     "as_of": null,
+     "geography": null,
+     "boundary_version": null,
+     "region_ids": [],
+     "reference_period": null,
+     "metric_name": null,
+     "metric_unit": null,
+     "entity_unit": "region",
+     "coverage_ids": [],
+     "max_missing_records": null,
+     "output_schema": null,
+     "output_format": null,
+     "revision_policy": null,
+     "conflict_policy": null
+    },
+    "missing_policy": "UNKNOWN",
+    "conflict_policy": "UNKNOWN",
+    "provenance": [
+     {
+      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "origin": "original_intent",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     }
+    ]
+   },
+   {
+    "id": "req-coverage",
+    "dimension": "coverage",
+    "meaning": "Customer-confirmed coverage for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "recipe": "coverage_ids",
+    "parameters": {
+     "freshness_basis": null,
+     "max_age_days": null,
+     "as_of": null,
+     "geography": null,
+     "boundary_version": null,
+     "region_ids": [],
+     "reference_period": null,
+     "metric_name": null,
+     "metric_unit": null,
+     "entity_unit": null,
+     "coverage_ids": [
+      "94102",
+      "94103",
+      "94107",
+      "94109",
+      "94110",
+      "94114",
+      "94117",
+      "94122",
+      "94129",
+      "94133"
+     ],
+     "max_missing_records": 0,
+     "output_schema": null,
+     "output_format": null,
+     "revision_policy": null,
+     "conflict_policy": null
+    },
+    "missing_policy": "UNKNOWN",
+    "conflict_policy": "UNKNOWN",
+    "provenance": [
+     {
+      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "origin": "original_intent",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     }
+    ]
+   },
+   {
+    "id": "req-source_lineage",
+    "dimension": "source_lineage",
+    "meaning": "Customer-confirmed source lineage for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "recipe": "exact_sources",
+    "parameters": {
+     "freshness_basis": null,
+     "max_age_days": null,
+     "as_of": null,
+     "geography": null,
+     "boundary_version": null,
+     "region_ids": [],
+     "reference_period": null,
+     "metric_name": null,
+     "metric_unit": null,
+     "entity_unit": null,
+     "coverage_ids": [],
+     "max_missing_records": null,
+     "output_schema": null,
+     "output_format": null,
+     "revision_policy": "exact_accepted_versions",
+     "conflict_policy": "UNKNOWN"
+    },
+    "missing_policy": "UNKNOWN",
+    "conflict_policy": "UNKNOWN",
+    "provenance": [
+     {
+      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "origin": "original_intent",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     }
+    ]
+   },
+   {
+    "id": "req-output_schema",
+    "dimension": "output_schema",
+    "meaning": "Customer-confirmed output schema for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "recipe": "market_schema_v1",
+    "parameters": {
+     "freshness_basis": null,
+     "max_age_days": null,
+     "as_of": null,
+     "geography": null,
+     "boundary_version": null,
+     "region_ids": [],
+     "reference_period": null,
+     "metric_name": null,
+     "metric_unit": null,
+     "entity_unit": null,
+     "coverage_ids": [],
+     "max_missing_records": null,
+     "output_schema": "market-v1",
+     "output_format": "json",
+     "revision_policy": null,
+     "conflict_policy": null
+    },
+    "missing_policy": "UNKNOWN",
+    "conflict_policy": "UNKNOWN",
+    "provenance": [
+     {
+      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "origin": "original_intent",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     },
+     {
+      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "origin": "customer_answer",
+      "actor_id": "customer"
+     }
+    ]
+   }
+  ],
+  "sources": [
+   {
+    "source_id": "vendor-fitness-panel",
+    "version": 1,
+    "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc"
+   }
+  ]
+ },
+ "amendments": [],
+ "questions": [],
+ "messages": [
+  {
+   "id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+   "actor_id": "customer",
+   "text": "SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+   "created_at": "2026-10-24T16:10:00.437906Z",
+   "field": null
+  },
+  {
+   "id": "answer_025fbe77013f4ad180138110e1ef91a3",
+   "actor_id": "customer",
+   "text": "\"San Francisco\"",
+   "created_at": "2026-10-24T16:10:00.452293Z",
+   "field": "geography"
+  },
+  {
+   "id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+   "actor_id": "customer",
+   "text": "\"2026-Q3\"",
+   "created_at": "2026-10-24T16:10:00.455146Z",
+   "field": "boundary_version"
+  },
+  {
+   "id": "answer_79de2aa0c71440e586b78165dad73aa8",
+   "actor_id": "customer",
+   "text": "[\"94102\",\"94103\",\"94107\",\"94109\",\"94110\",\"94114\",\"94117\",\"94122\",\"94129\",\"94133\"]",
+   "created_at": "2026-10-24T16:10:00.457756Z",
+   "field": "region_ids"
+  },
+  {
+   "id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+   "actor_id": "customer",
+   "text": "\"2026-Q3\"",
+   "created_at": "2026-10-24T16:10:00.460198Z",
+   "field": "reference_period"
+  },
+  {
+   "id": "answer_71d84b2f429041ccab07668153764fd1",
+   "actor_id": "customer",
+   "text": "\"adults_25_34_interested_in_fitness\"",
+   "created_at": "2026-10-24T16:10:00.462847Z",
+   "field": "metric_name"
+  },
+  {
+   "id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+   "actor_id": "customer",
+   "text": "\"people\"",
+   "created_at": "2026-10-24T16:10:00.467027Z",
+   "field": "metric_unit"
+  },
+  {
+   "id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+   "actor_id": "customer",
+   "text": "\"region\"",
+   "created_at": "2026-10-24T16:10:00.469697Z",
+   "field": "entity_unit"
+  },
+  {
+   "id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+   "actor_id": "customer",
+   "text": "[\"94102\",\"94103\",\"94107\",\"94109\",\"94110\",\"94114\",\"94117\",\"94122\",\"94129\",\"94133\"]",
+   "created_at": "2026-10-24T16:10:00.472060Z",
+   "field": "coverage_ids"
+  },
+  {
+   "id": "answer_e3432d3fd1414b648e36336e49262e10",
+   "actor_id": "customer",
+   "text": "0",
+   "created_at": "2026-10-24T16:10:00.474445Z",
+   "field": "max_missing_records"
+  },
+  {
+   "id": "answer_dd500438943f471eaa4e1417a9a480f7",
+   "actor_id": "customer",
+   "text": "\"exact_accepted_versions\"",
+   "created_at": "2026-10-24T16:10:00.476931Z",
+   "field": "revision_policy"
+  },
+  {
+   "id": "answer_d7c061e97993499c98394c34f30ea7d4",
+   "actor_id": "customer",
+   "text": "\"UNKNOWN\"",
+   "created_at": "2026-10-24T16:10:00.479508Z",
+   "field": "conflict_policy"
+  },
+  {
+   "id": "answer_28dd6c3788004e0b87db09fd93945bac",
+   "actor_id": "customer",
+   "text": "\"market-v1\"",
+   "created_at": "2026-10-24T16:10:00.483150Z",
+   "field": "output_schema"
+  },
+  {
+   "id": "answer_b77d893d80474dba822d2ab42f7f1232",
+   "actor_id": "customer",
+   "text": "\"json\"",
+   "created_at": "2026-10-24T16:10:00.486135Z",
+   "field": "output_format"
+  },
+  {
+   "id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+   "actor_id": "customer",
+   "text": "\"observed_at\"",
+   "created_at": "2026-10-24T16:10:00.491849Z",
+   "field": "freshness_basis"
+  },
+  {
+   "id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+   "actor_id": "customer",
+   "text": "90",
+   "created_at": "2026-10-24T16:10:00.498815Z",
+   "field": "max_age_days"
+  },
+  {
+   "id": "answer_805b384ebfe6498fb33b4e0de024b494",
+   "actor_id": "customer",
+   "text": "\"2026-10-24T16:10:00.434880+00:00\"",
+   "created_at": "2026-10-24T16:10:00.504344Z",
+   "field": "as_of"
+  }
+ ],
+ "human_tasks": [],
+ "source_artifact_ids": [
+  "artifact_1f4a9568f5234d158a6220b76a81509f"
+ ],
+ "delivery_artifact_ids": [
+  "artifact_635d1e6db3ac4c31827c4cb487f185af",
+  "artifact_3747a8387af1436e9e73fccee8b67dc1",
+  "artifact_48a06ed5f6fe449daa45347d83541c27"
+ ],
+ "issue_id": null,
+ "question_count": 0,
+ "overall_case_deadline": "2026-10-24T16:40:00.513986Z",
+ "resolution": null,
+ "parent_order_id": null,
+ "base_order": {
+  "order": {
+   "snapshot": {
+    "job_type": "regional_market_intelligence",
+    "order_id": "broker_33490e0c35a744afa892e3f08d683e67",
+    "snapshot_id": "broker_33490e0c35a744afa892e3f08d683e67:accepted:bc0689e06229e6cb1c2068a1d4be9a0db5e0b1b14d50dae73448413efc79220c",
+    "accepted_at": "2026-10-24T16:10:00.512313Z",
+    "accepted_brief": "SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+    "input_versions": [
+     {
+      "evidence_id": "artifact_db812b0af23749fdbd0433b685f92959",
+      "version": 1,
+      "sha256": "82651b5355d78ba96b82cc30516065cda7eca3d321b8f18fed38583f1920b533",
+      "storage_key": "jobflow/artifact_db812b0af23749fdbd0433b685f92959",
+      "media_type": "application/json",
+      "kind": "accepted_input",
+      "derived_from": []
+     },
+     {
+      "evidence_id": "artifact_1f4a9568f5234d158a6220b76a81509f",
+      "version": 1,
+      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+      "storage_key": "jobflow/artifact_1f4a9568f5234d158a6220b76a81509f",
+      "media_type": "application/json",
+      "kind": "accepted_input",
+      "derived_from": []
+     }
+    ],
+    "structured_data": [],
+    "price": {
+     "amount_minor": 12000,
+     "currency": "USDSIM",
+     "decimals": 2
+    },
+    "policy": {
+     "policy_version": "broker-review-v0.3",
+     "review_window_seconds": 600,
+     "free_regenerations": 1,
+     "max_questions": 2,
+     "max_question_rounds": 2,
+     "additional_processing_price": null,
+     "overall_case_seconds": 1800
+    },
+    "data_specification": {
+     "version": 1,
+     "product_id": "aggregate_regional_market_intelligence",
+     "template_version": "intake-v1",
+     "original_intent": "SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+     "requirements": [
+      {
+       "id": "req-freshness",
+       "dimension": "freshness",
+       "meaning": "Customer-confirmed freshness for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+       "recipe": "age_within_days",
+       "parameters": {
+        "freshness_basis": "observed_at",
+        "max_age_days": 90,
+        "as_of": "2026-10-24T16:10:00.434880Z",
+        "geography": null,
+        "boundary_version": null,
+        "region_ids": [],
+        "reference_period": null,
+        "metric_name": null,
+        "metric_unit": null,
+        "entity_unit": null,
+        "coverage_ids": [],
+        "max_missing_records": null,
+        "output_schema": null,
+        "output_format": null,
+        "revision_policy": null,
+        "conflict_policy": null
+       },
+       "missing_policy": "UNKNOWN",
+       "conflict_policy": "UNKNOWN",
+       "provenance": [
+        {
+         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "origin": "original_intent",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        }
+       ]
+      },
+      {
+       "id": "req-geography",
+       "dimension": "geography",
+       "meaning": "Customer-confirmed geography for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+       "recipe": "region_version",
+       "parameters": {
+        "freshness_basis": null,
+        "max_age_days": null,
+        "as_of": null,
+        "geography": "San Francisco",
+        "boundary_version": "2026-Q3",
+        "region_ids": [
+         "94102",
+         "94103",
+         "94107",
+         "94109",
+         "94110",
+         "94114",
+         "94117",
+         "94122",
+         "94129",
+         "94133"
+        ],
+        "reference_period": null,
+        "metric_name": null,
+        "metric_unit": null,
+        "entity_unit": null,
+        "coverage_ids": [],
+        "max_missing_records": null,
+        "output_schema": null,
+        "output_format": null,
+        "revision_policy": null,
+        "conflict_policy": null
+       },
+       "missing_policy": "UNKNOWN",
+       "conflict_policy": "UNKNOWN",
+       "provenance": [
+        {
+         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "origin": "original_intent",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        }
+       ]
+      },
+      {
+       "id": "req-reference_period",
+       "dimension": "reference_period",
+       "meaning": "Customer-confirmed reference period for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+       "recipe": "period_equals",
+       "parameters": {
+        "freshness_basis": null,
+        "max_age_days": null,
+        "as_of": null,
+        "geography": null,
+        "boundary_version": null,
+        "region_ids": [],
+        "reference_period": "2026-Q3",
+        "metric_name": null,
+        "metric_unit": null,
+        "entity_unit": null,
+        "coverage_ids": [],
+        "max_missing_records": null,
+        "output_schema": null,
+        "output_format": null,
+        "revision_policy": null,
+        "conflict_policy": null
+       },
+       "missing_policy": "UNKNOWN",
+       "conflict_policy": "UNKNOWN",
+       "provenance": [
+        {
+         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "origin": "original_intent",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        }
+       ]
+      },
+      {
+       "id": "req-metric",
+       "dimension": "metric",
+       "meaning": "Customer-confirmed metric for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+       "recipe": "metric_equals",
+       "parameters": {
+        "freshness_basis": null,
+        "max_age_days": null,
+        "as_of": null,
+        "geography": null,
+        "boundary_version": null,
+        "region_ids": [],
+        "reference_period": null,
+        "metric_name": "adults_25_34_interested_in_fitness",
+        "metric_unit": "people",
+        "entity_unit": null,
+        "coverage_ids": [],
+        "max_missing_records": null,
+        "output_schema": null,
+        "output_format": null,
+        "revision_policy": null,
+        "conflict_policy": null
+       },
+       "missing_policy": "UNKNOWN",
+       "conflict_policy": "UNKNOWN",
+       "provenance": [
+        {
+         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "origin": "original_intent",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        }
+       ]
+      },
+      {
+       "id": "req-entity_unit",
+       "dimension": "entity_unit",
+       "meaning": "Customer-confirmed entity unit for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+       "recipe": "unique_entity",
+       "parameters": {
+        "freshness_basis": null,
+        "max_age_days": null,
+        "as_of": null,
+        "geography": null,
+        "boundary_version": null,
+        "region_ids": [],
+        "reference_period": null,
+        "metric_name": null,
+        "metric_unit": null,
+        "entity_unit": "region",
+        "coverage_ids": [],
+        "max_missing_records": null,
+        "output_schema": null,
+        "output_format": null,
+        "revision_policy": null,
+        "conflict_policy": null
+       },
+       "missing_policy": "UNKNOWN",
+       "conflict_policy": "UNKNOWN",
+       "provenance": [
+        {
+         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "origin": "original_intent",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        }
+       ]
+      },
+      {
+       "id": "req-coverage",
+       "dimension": "coverage",
+       "meaning": "Customer-confirmed coverage for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+       "recipe": "coverage_ids",
+       "parameters": {
+        "freshness_basis": null,
+        "max_age_days": null,
+        "as_of": null,
+        "geography": null,
+        "boundary_version": null,
+        "region_ids": [],
+        "reference_period": null,
+        "metric_name": null,
+        "metric_unit": null,
+        "entity_unit": null,
+        "coverage_ids": [
+         "94102",
+         "94103",
+         "94107",
+         "94109",
+         "94110",
+         "94114",
+         "94117",
+         "94122",
+         "94129",
+         "94133"
+        ],
+        "max_missing_records": 0,
+        "output_schema": null,
+        "output_format": null,
+        "revision_policy": null,
+        "conflict_policy": null
+       },
+       "missing_policy": "UNKNOWN",
+       "conflict_policy": "UNKNOWN",
+       "provenance": [
+        {
+         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "origin": "original_intent",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        }
+       ]
+      },
+      {
+       "id": "req-source_lineage",
+       "dimension": "source_lineage",
+       "meaning": "Customer-confirmed source lineage for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+       "recipe": "exact_sources",
+       "parameters": {
+        "freshness_basis": null,
+        "max_age_days": null,
+        "as_of": null,
+        "geography": null,
+        "boundary_version": null,
+        "region_ids": [],
+        "reference_period": null,
+        "metric_name": null,
+        "metric_unit": null,
+        "entity_unit": null,
+        "coverage_ids": [],
+        "max_missing_records": null,
+        "output_schema": null,
+        "output_format": null,
+        "revision_policy": "exact_accepted_versions",
+        "conflict_policy": "UNKNOWN"
+       },
+       "missing_policy": "UNKNOWN",
+       "conflict_policy": "UNKNOWN",
+       "provenance": [
+        {
+         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "origin": "original_intent",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        }
+       ]
+      },
+      {
+       "id": "req-output_schema",
+       "dimension": "output_schema",
+       "meaning": "Customer-confirmed output schema for: SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
+       "recipe": "market_schema_v1",
+       "parameters": {
+        "freshness_basis": null,
+        "max_age_days": null,
+        "as_of": null,
+        "geography": null,
+        "boundary_version": null,
+        "region_ids": [],
+        "reference_period": null,
+        "metric_name": null,
+        "metric_unit": null,
+        "entity_unit": null,
+        "coverage_ids": [],
+        "max_missing_records": null,
+        "output_schema": "market-v1",
+        "output_format": "json",
+        "revision_policy": null,
+        "conflict_policy": null
+       },
+       "missing_policy": "UNKNOWN",
+       "conflict_policy": "UNKNOWN",
+       "provenance": [
+        {
+         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "origin": "original_intent",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        },
+        {
+         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "origin": "customer_answer",
+         "actor_id": "customer"
+        }
+       ]
+      }
+     ],
+     "sources": [
+      {
+       "source_id": "vendor-fitness-panel",
+       "version": 1,
+       "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc"
+      }
+     ]
+    }
+   },
+   "revision": 4,
+   "order_state": "closed",
+   "delivery_state": "passed",
+   "case_state": "none",
+   "payment_state": "mock",
+   "payment_phase": "booked",
+   "authorization_id": "mock_f804157472cb019699b409924a078a204b725090b8bcb69892ea5affbceb6356",
+   "authorization_expires_at": "2026-10-24T18:10:00.434880Z",
+   "authorization_receipt": {
+    "idempotency_key": "broker_33490e0c35a744afa892e3f08d683e67:base:authorize",
+    "operation_id": "mock_f804157472cb019699b409924a078a204b725090b8bcb69892ea5affbceb6356",
+    "operation": "authorize",
+    "mode": "mock",
+    "status": "mock",
+    "transaction_id": null
+   },
+   "deliveries": [
+    {
+     "order_id": "broker_33490e0c35a744afa892e3f08d683e67",
+     "snapshot_id": "broker_33490e0c35a744afa892e3f08d683e67:accepted:bc0689e06229e6cb1c2068a1d4be9a0db5e0b1b14d50dae73448413efc79220c",
+     "version": 1,
+     "delivered_at": "2026-10-24T16:10:00.575874Z",
+     "artifacts": [
+      {
+       "evidence_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+       "version": 1,
+       "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
+       "storage_key": "jobflow/artifact_635d1e6db3ac4c31827c4cb487f185af",
+       "media_type": "application/json",
+       "kind": "delivery_artifact",
+       "derived_from": []
+      },
+      {
+       "evidence_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+       "version": 1,
+       "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22",
+       "storage_key": "jobflow/artifact_3747a8387af1436e9e73fccee8b67dc1",
+       "media_type": "application/pdf",
+       "kind": "delivery_artifact",
+       "derived_from": []
+      }
+     ],
+     "structured_data": [
+      {
+       "evidence_id": "artifact_48a06ed5f6fe449daa45347d83541c27",
+       "version": 1,
+       "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
+       "storage_key": "jobflow/artifact_48a06ed5f6fe449daa45347d83541c27",
+       "media_type": "application/json",
+       "kind": "structured_data",
+       "derived_from": [
+        {
+         "evidence_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+         "version": 1,
+         "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606"
+        },
+        {
+         "evidence_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+         "version": 1,
+         "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22"
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "binding": {
+    "order_id": "broker_33490e0c35a744afa892e3f08d683e67",
+    "snapshot_id": "broker_33490e0c35a744afa892e3f08d683e67:accepted:bc0689e06229e6cb1c2068a1d4be9a0db5e0b1b14d50dae73448413efc79220c",
+    "delivery_version": 1,
+    "evidence_version": 1,
+    "proposal_version": 1
+   },
+   "evidence": [
+    {
+     "evidence_id": "artifact_db812b0af23749fdbd0433b685f92959",
+     "version": 1,
+     "sha256": "82651b5355d78ba96b82cc30516065cda7eca3d321b8f18fed38583f1920b533",
+     "storage_key": "jobflow/artifact_db812b0af23749fdbd0433b685f92959",
+     "media_type": "application/json",
+     "kind": "accepted_input",
+     "derived_from": []
+    },
+    {
+     "evidence_id": "artifact_1f4a9568f5234d158a6220b76a81509f",
+     "version": 1,
+     "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+     "storage_key": "jobflow/artifact_1f4a9568f5234d158a6220b76a81509f",
+     "media_type": "application/json",
+     "kind": "accepted_input",
+     "derived_from": []
+    },
+    {
+     "evidence_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+     "version": 1,
+     "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
+     "storage_key": "jobflow/artifact_635d1e6db3ac4c31827c4cb487f185af",
+     "media_type": "application/json",
+     "kind": "delivery_artifact",
+     "derived_from": []
+    },
+    {
+     "evidence_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+     "version": 1,
+     "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22",
+     "storage_key": "jobflow/artifact_3747a8387af1436e9e73fccee8b67dc1",
+     "media_type": "application/pdf",
+     "kind": "delivery_artifact",
+     "derived_from": []
+    },
+    {
+     "evidence_id": "artifact_48a06ed5f6fe449daa45347d83541c27",
+     "version": 1,
+     "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
+     "storage_key": "jobflow/artifact_48a06ed5f6fe449daa45347d83541c27",
+     "media_type": "application/json",
+     "kind": "structured_data",
+     "derived_from": [
+      {
+       "evidence_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+       "version": 1,
+       "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606"
+      },
+      {
+       "evidence_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+       "version": 1,
+       "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22"
+      }
+     ]
+    }
+   ],
+   "review_deadline": "2026-10-24T16:20:00.575874Z",
+   "case_id": "broker_33490e0c35a744afa892e3f08d683e67:delivery:1",
+   "complaint": null,
+   "refund_requested": false,
+   "questions": [],
+   "answers": [],
+   "questions_asked": 0,
+   "free_regenerations_used": 0,
+   "regeneration_pending": false,
+   "result": null,
+   "data_verification": {
+    "proposal": {
+     "order_id": "broker_33490e0c35a744afa892e3f08d683e67",
+     "snapshot_id": "broker_33490e0c35a744afa892e3f08d683e67:accepted:bc0689e06229e6cb1c2068a1d4be9a0db5e0b1b14d50dae73448413efc79220c",
+     "delivery_version": 1,
+     "evidence_version": 1,
+     "proposal_version": 1
+    },
+    "specification_sha256": "046c78ea2a8063c345b9b810e87689d76275f1b14ade04840bef68c680e78998",
+    "evidence_sha256": "435f7dc626daf6ecb7d7541f1bda6d5d8e1133eeaccf7aef9b742000068ab8d4",
+    "verified_at": "2026-10-24T16:10:00.603512Z",
+    "checks": [
+     {
+      "requirement_id": "req-freshness",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Compared observed_at with the accepted 90-day limit and as-of date.",
+      "citations": [
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/0/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/1/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/2/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/3/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/4/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/5/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/6/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/7/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/8/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/9/observed_at",
+        "value": "2026-10-10T00:00:00+00:00",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       }
+      ]
+     },
+     {
+      "requirement_id": "req-geography",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Compared named geography, boundary revision and every region code.",
+      "citations": [
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/geography",
+        "value": "San Francisco",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/boundary_version",
+        "value": "2026-Q3",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/0/region_id",
+        "value": "94102",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/1/region_id",
+        "value": "94103",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/2/region_id",
+        "value": "94107",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/3/region_id",
+        "value": "94109",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/4/region_id",
+        "value": "94110",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/5/region_id",
+        "value": "94114",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/6/region_id",
+        "value": "94117",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/7/region_id",
+        "value": "94122",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/8/region_id",
+        "value": "94129",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/9/region_id",
+        "value": "94133",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       }
+      ]
+     },
+     {
+      "requirement_id": "req-reference_period",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Compared reference period, independently of file export date.",
+      "citations": [
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/reference_period",
+        "value": "2026-Q3",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       }
+      ]
+     },
+     {
+      "requirement_id": "req-metric",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Compared the agreed statistical meaning and unit.",
+      "citations": [
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/metric_name",
+        "value": "adults_25_34_interested_in_fitness",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/metric_unit",
+        "value": "people",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       }
+      ]
+     },
+     {
+      "requirement_id": "req-entity_unit",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Checked uniqueness under the accepted entity unit.",
+      "citations": [
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/entity_unit",
+        "value": "region",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/*/entity_id",
+        "value": "['94102', '94103', '94107', '94109', '94110', '94114', '94117', '94122', '94129', '94133']",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       }
+      ]
+     },
+     {
+      "requirement_id": "req-coverage",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Coverage denominator=10; missing=0; unexpected=0.",
+      "citations": [
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows/*/entity_id",
+        "value": "['94102', '94103', '94107', '94109', '94110', '94114', '94117', '94122', '94129', '94133']",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       }
+      ]
+     },
+     {
+      "requirement_id": "req-source_lineage",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "All exact accepted source hashes and revisions are present.",
+      "citations": [
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/source_id",
+        "value": "vendor-fitness-panel",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       },
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/version",
+        "value": "1",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       }
+      ]
+     },
+     {
+      "requirement_id": "req-output_schema",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Source schema is supported; actual delivery is checked separately.",
+      "citations": [
+       {
+        "source_id": "vendor-fitness-panel",
+        "version": 1,
+        "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+        "locator": "/rows",
+        "value": "10 typed source records",
+        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+       }
+      ]
+     },
+     {
+      "requirement_id": "delivery-artifact_635d1e6db3ac4c31827c4cb487f185af",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Reopened and compared actual market-data.json with exact accepted sources and report content.",
+      "citations": [
+       {
+        "source_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+        "version": 1,
+        "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
+        "locator": "document",
+        "value": "market-data.json",
+        "artifact_id": "artifact_635d1e6db3ac4c31827c4cb487f185af"
+       }
+      ]
+     },
+     {
+      "requirement_id": "delivery-artifact_3747a8387af1436e9e73fccee8b67dc1",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Reopened and compared actual source-methodology.pdf with exact accepted sources and report content.",
+      "citations": [
+       {
+        "source_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+        "version": 1,
+        "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22",
+        "locator": "document",
+        "value": "source-methodology.pdf",
+        "artifact_id": "artifact_3747a8387af1436e9e73fccee8b67dc1"
+       }
+      ]
+     },
+     {
+      "requirement_id": "delivery-artifact_48a06ed5f6fe449daa45347d83541c27",
+      "verdict": "PASS",
+      "cause": "NONE",
+      "explanation": "Reopened and compared actual market-sidecar.json with exact accepted sources and report content.",
+      "citations": [
+       {
+        "source_id": "artifact_48a06ed5f6fe449daa45347d83541c27",
+        "version": 1,
+        "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
+        "locator": "document",
+        "value": "market-sidecar.json",
+        "artifact_id": "artifact_48a06ed5f6fe449daa45347d83541c27"
+       }
+      ]
+     }
+    ],
+    "verdict": "PASS"
+   },
+   "data_amendments": [],
+   "review_requires_customer_acceptance": false,
+   "failure": null,
+   "requires_quote": false,
+   "quote": null,
+   "quote_authorization": null,
+   "ledger": [
+    {
+     "entry_id": "broker_33490e0c35a744afa892e3f08d683e67:base:capture",
+     "kind": "base",
+     "amount": {
+      "amount_minor": 12000,
+      "currency": "USDSIM",
+      "decimals": 2
+     },
+     "recorded_at": "2026-10-24T16:10:00.614933Z",
+     "reason": "customer_acceptance",
+     "receipt": {
+      "idempotency_key": "broker_33490e0c35a744afa892e3f08d683e67:base:capture",
+      "operation_id": "mock_b7f0960552aacc2e67e2a0401fcaab1dd4a6f8663562d957a08a386a9da67641",
+      "operation": "capture",
+      "mode": "mock",
+      "status": "mock",
+      "transaction_id": null
+     }
+    }
+   ],
+   "scope_obligations": []
+  },
+  "server_time": "2026-10-24T16:10:00.615714Z",
+  "poll_after_ms": 2000,
+  "available_actions": [
+   "dispute"
+  ],
+  "display_status": "correct"
+ },
+ "colour": "green",
+ "owner": "customer",
+ "next_action": "Review the evidence-backed mock settlement"
+}

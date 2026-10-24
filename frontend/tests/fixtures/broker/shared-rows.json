@@ -1,0 +1,95 @@
+{
+ "rows": [
+  {
+   "entity_id": "94102",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94102",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 1820.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94103",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94103",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 2140.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94107",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94107",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 2960.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94109",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94109",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 3310.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94110",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94110",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 4120.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94114",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94114",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 2450.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94117",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94117",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 2780.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94122",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94122",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 3050.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94129",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94129",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 42.0,
+   "version": 1
+  },
+  {
+   "entity_id": "94133",
+   "observed_at": "2026-10-10T00:00:00Z",
+   "region_id": "94133",
+   "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
+   "source_id": "vendor-fitness-panel",
+   "value": 1990.0,
+   "version": 1
+  }
+ ],
+ "schema": "market-v1"
+}

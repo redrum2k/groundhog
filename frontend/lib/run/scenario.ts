@@ -21,7 +21,7 @@ export function holdFor(e: { type: RunEvent["type"] }): number {
     case "message": return 900;
     case "verdict": case "rule_updated": case "controller_decided": case "amendment_signed": case "books_posted": return 1400;
     case "check_passed": case "check_failed": case "check_fixed": return 600;
-    case "contract_line_drafted": case "contract_approved": case "delivery_ready": return 300;
+    case "contract_line_asked": case "contract_line_drafted": case "contract_approved": case "delivery_ready": return 300;
     case "step_started": return 1200;
     case "step_completed": return 700;
     case "dispute_opened": return 1800;
@@ -96,6 +96,7 @@ export const ROWS: ZipCount[] = [
   row("94110", "Mission", 4120), row("94114", "Castro", 2450), row("94117", "Haight", 2780), row("94122", "Sunset", 3050),
   row("94129", "Presidio", 42), row("94133", "North Beach", 1990),
 ];
+export const AREA_BY_ZIP: Record<string, string> = Object.fromEntries(ROWS.map((r) => [r.zip, r.area]));
 export const OAKLAND: ZipCount[] = [row("94607", "West Oakland", 1640, "added"), row("94610", "Lakeshore", 2210, "added"), row("94612", "Downtown Oakland", 1880, "added")];
 const PRIVACY_FLOOR = 50;
 const withheld = (rows: ZipCount[]) => rows.map((r) => (r.count < PRIVACY_FLOOR ? { ...r, flag: "withheld" as const } : r));
@@ -382,7 +383,7 @@ export function timeline(c: Case, ending: Ending, learned = false): { events: Ru
 }
 
 /** The canvas chip for a step, from what the step has been through. */
-export function chipFor(step: Step, n: { status: string; attempt: number; checks: number; sources: number; verdictKind?: string; verdictBy?: string; amendmentPrice?: number; waitingOn?: string; learned: boolean; disputed: boolean }): string | undefined {
+export function chipFor(step: Step, n: { status: string; attempt: number; checks: number; lines: number; sources: number; verdictKind?: string; verdictBy?: string; amendmentPrice?: number; waitingOn?: string; learned: boolean; disputed: boolean }): string | undefined {
   const { status, attempt } = n;
   if (status === "idle") return undefined;
   switch (step.kind) {
@@ -390,7 +391,7 @@ export function chipFor(step: Step, n: { status: string; attempt: number; checks
     case "paid": return "Done";
     case "produce":
       if (status === "running") return attempt > 1 ? (n.verdictKind === "agree" ? `Rerun · our cost $${S.rerunCost}` : n.amendmentPrice === S.oakland ? "Adding Oakland" : "Adding yoga") : "Checking";
-      return attempt > 1 ? (n.verdictKind === "agree" ? "Rechecked" : "Checks passed") : `${n.checks} of ${CONTRACT.length} passed`;
+      return attempt > 1 ? (n.verdictKind === "agree" ? "Rechecked" : "Checks passed") : `${n.checks} of ${n.lines} passed`;
     case "review": return status === "waiting" ? "Disputed" : status === "done" ? "Accepted" : attempt > 1 ? `New ${S.reviewHours}h window` : `${S.reviewHours}h window`;
     case "captured": return "Done";
     case "investigate": return status === "done" ? `${n.sources} source${n.sources === 1 ? "" : "s"}` : "Checking";
@@ -407,7 +408,8 @@ export function chipFor(step: Step, n: { status: string; attempt: number; checks
 }
 
 /** The caption under the canvas, for the events that change what the viewer should understand. */
-export function captionFor(e: RunEvent, ctx: { lane: Case; ending: Ending; learned: boolean; captured: number; verdictKind?: string }): string | undefined {
+export function captionFor(e: RunEvent, ctx: { lane: Case; ending: Ending; learned: boolean; captured: number; reviewWindow?: string }): string | undefined {
+  const window = ctx.reviewWindow ?? `${S.reviewHours} hours`;
   const s = "step" in e ? e.step : undefined;
   const attempt = "attempt" in e ? e.attempt ?? 1 : 1;
   if (e.type === "dispute_opened") return `Acme disputes: “${e.dispute.claim}”. The payment is on hold until it's resolved.`;
@@ -417,7 +419,7 @@ export function captionFor(e: RunEvent, ctx: { lane: Case; ending: Ending; learn
     if (s === "produce" && attempt === 1) return "We build the counts from rented vendor data and check every contract line.";
     if (s === "produce") return ctx.lane === "red" ? `The orb carries the job back to Produce. The rerun is on us: $${S.rerunCost}.`
       : ctx.lane === "green" ? "Back to Produce with the amended contract." : "Back to Produce to add yoga studio members.";
-    if (s === "review" && attempt === 1) return `Delivered. One ZIP was held back for privacy. Acme has ${S.reviewHours} hours to accept or dispute.`;
+    if (s === "review" && attempt === 1) return ctx.reviewWindow ? `Delivered. Acme has ${window} to accept or dispute.` : `Delivered. One ZIP was held back for privacy. Acme has ${window} to accept or dispute.`;
     if (s === "review") return ctx.lane === "red" ? "94110 added and rechecked against the official SF ZIP list. That check is now permanent."
       : ctx.lane === "green" ? "Oakland rows added and checked. New review window." : "Yoga members added and checked. New review window.";
     if (s === "investigate") return ctx.lane === "red" ? "The agent checks the contract against the delivered sheet."

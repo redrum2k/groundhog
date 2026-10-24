@@ -49,7 +49,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .shell { display: grid; grid-template-rows: auto auto minmax(0, 1fr); height: 100dvh; overflow-x: hidden; }
 .top { display: flex; align-items: center; gap: 24px; padding: 10px 20px; border-bottom: 1px solid var(--line); min-height: 58px; }
 .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.logo { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); }
+.logo { flex: none; }
 .title { font-size: 15px; white-space: nowrap; }
 .seatline { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .top-r { margin-left: auto; display: flex; align-items: center; gap: 10px; }

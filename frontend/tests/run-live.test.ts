@@ -28,7 +28,7 @@ function fakeServer(released: RunEvent[]) {
 
 const liveFeed = (): Feed => {
   const { events, start } = timeline("amber", "maya");
-  return { kind: "live", api: "/api/run-stub", ending: "maya", before: events.slice(0, start), ctx };
+  return { kind: "live", api: "/api/live", body: { case: "amber" }, before: events.slice(0, start), ctx };
 };
 
 beforeEach(() => vi.useFakeTimers());
@@ -47,12 +47,12 @@ describe("live feed", () => {
     expect(result.current.view.nodes.investigate?.status).toBe("running");
     expect(result.current.view.nodes.review.status).toBe("waiting");
     expect(result.current.view.coin).toMatchObject({ locked: true });
-    expect(server.calls[0]).toMatchObject({ method: "POST", url: "/api/run-stub/runs", body: { ending: "maya" } });
-    expect(server.calls[1].url).toBe("/api/run-stub/runs/run-1/events?after=0");
+    expect(server.calls[0]).toMatchObject({ method: "POST", url: "/api/live/runs", body: { case: "amber" } });
+    expect(server.calls[1].url).toBe("/api/live/runs/run-1/events?after=0");
 
     // the next poll asks only for what is new
     await act(async () => { await vi.advanceTimersByTimeAsync(10); });
-    expect(server.calls.at(-1)?.url).toBe("/api/run-stub/runs/run-1/events?after=6");
+    expect(server.calls.at(-1)?.url).toBe("/api/live/runs/run-1/events?after=6");
   });
 });
 
