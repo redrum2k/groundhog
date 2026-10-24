@@ -16,7 +16,8 @@ curl --fail http://127.0.0.1:8000/health
 
 `/docs` describes the polling and mutation API. `/health` reports mock mode and disabled
 live settlement. Startup opens a local SQLite DB and recovers expired reviews. A worker
-advances deadlines independently of browser polling. There is no frontend yet.
+advances deadlines independently of browser polling. The integrated Next.js workbench
+is under `frontend`; see [run instructions](RUN_INSTRUCTIONS.md).
 
 ```sh
 uv run --locked --directory backend pytest
@@ -36,10 +37,16 @@ uv run --locked --directory backend ruff format --check .
 | MOCK_PAYMENT_DB_PATH | Defaults to `artifacts/mock-payments.sqlite3` for the standalone adapter. |
 | ARTIFACT_ROOT | Approved local evidence directory; defaults to `artifacts`. Never point at the repository or evaluator keys. |
 | INTERNAL_API_TOKEN | Backend-only token for trusted delivery/failure/verdict/quote routes; never expose through NEXT_PUBLIC variables. |
-| ANTHROPIC_API_KEY | Reserved for future authorized model integration; unused now. |
+| ANTHROPIC_API_KEY | Application SDK key for explicitly requested bounded investigation. |
+| ANTHROPIC_MODEL | Explicit model ID; no implicit paid default. |
+| JOBFLOW_ANTHROPIC_MAX_CALLS | Durable database-wide authorized call cap; default zero. |
+| JOBFLOW_DEMO | Set 1 only for local synthetic cases and registered demo identities. |
+| BACKEND_URL | Frontend server-side backend URL, set before build. |
 
 The API currently has no customer authentication and is for local mock development.
-Use localhost. It does not generate PDFs, invoke a model/provider, move money or deploy.
+Use localhost. The integrated workflow generates source and register PDFs, validates
+real artifact bytes and supports a configured Anthropic adapter. It does not move
+live money or deploy automatically.
 Set a private worker token to exercise producer routes; tests inject their own local
 values and temporary databases. No credentials are needed for the test suite.
 

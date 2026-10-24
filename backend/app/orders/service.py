@@ -1,5 +1,6 @@
 import hashlib
 import json
+from contextlib import nullcontext
 from datetime import UTC, datetime, timedelta
 
 from app.contracts.api import (
@@ -12,6 +13,7 @@ from app.contracts.api import (
     OrderView,
     ProcessingQuote,
     PublishDelivery,
+    QuoteAuthorization,
     QuoteRequest,
     ReportFailure,
     SubmitAnswer,
@@ -81,10 +83,12 @@ class OrderService:
             ),
         )
 
-    def create(self, command: CreateOrder) -> OrderRecord:
+    def create(self, command: CreateOrder, *, connection=None) -> OrderRecord:
         order_id = command.snapshot.order_id
         fingerprint = self._fingerprint("create", command)
-        with self.repository.transaction() as db:
+        with (
+            nullcontext(connection) if connection is not None else self.repository.transaction()
+        ) as db:
             replay = self._replay(db, order_id, command.idempotency_key, fingerprint)
             if replay:
                 return replay
@@ -125,9 +129,13 @@ class OrderService:
                 self.repository.save(db, order)
             return order
 
-    def mutate(self, order_id: str, operation: str, command: Mutation) -> OrderRecord:
+    def mutate(
+        self, order_id: str, operation: str, command: Mutation, *, connection=None
+    ) -> OrderRecord:
         fingerprint = self._fingerprint(operation, command)
-        with self.repository.transaction() as db:
+        with (
+            nullcontext(connection) if connection is not None else self.repository.transaction()
+        ) as db:
             replay = self._replay(db, order_id, command.idempotency_key, fingerprint)
             if replay:
                 return replay
@@ -139,8 +147,9 @@ class OrderService:
                 order.revision += 1
                 self.repository.save(db, order)
                 # Deadline transitions survive a stale command's rejection.
-                db.commit()
-                db.execute("BEGIN IMMEDIATE")
+                if connection is None:
+                    db.commit()
+                    db.execute("BEGIN IMMEDIATE")
                 order = self.repository.get(db, order_id)
             if (
                 command.expected_revision != order.revision
@@ -194,7 +203,13 @@ class OrderService:
             return True
         if order.review_deadline is None or now < order.review_deadline:
             return False
-        if order.case_state == CaseState.OPEN or order.regeneration_pending:
+        if (
+            order.case_state == CaseState.OPEN
+            or order.regeneration_pending
+            or any(
+                not item.fulfilled and item.effective_at <= now for item in order.scope_obligations
+            )
+        ):
             self._hold(order, "Review cutoff reached without resolving the dispute.")
         elif order.order_state == OrderState.DELIVERED:
             self._capture(order, now, "review_cutoff")
@@ -379,16 +394,7 @@ class OrderService:
                     order.requires_quote = True
         elif result.verdict == "provider_defect":
             order.delivery_state = DeliveryState.NEEDS_REVIEW
-            if order.free_regenerations_used == 1:
-                self._hold(order, "The free regeneration still has a provider defect.")
-            else:
-                order.free_regenerations_used = 1
-                order.regeneration_pending = True
-                order.order_state = OrderState.PROCESSING
-                order.case_state = CaseState.RESOLVED
-                order.review_deadline = None
-                if order.payment_phase != "booked":
-                    order.payment_phase = "held"
+            self.reserve_free_regeneration(order)
         else:
             order.delivery_state = DeliveryState.NEEDS_REVIEW
             if order.complaint:
@@ -401,7 +407,21 @@ class OrderService:
                     order.questions = result.questions
                     order.questions_asked += len(result.questions)
 
+    def reserve_free_regeneration(self, order):
+        if order.free_regenerations_used == 1:
+            self._hold(order, "The free regeneration still has a provider defect.")
+        else:
+            order.free_regenerations_used = 1
+            order.regeneration_pending = True
+            order.order_state = OrderState.PROCESSING
+            order.case_state = CaseState.RESOLVED
+            order.review_deadline = None
+            if order.payment_phase != "booked":
+                order.payment_phase = "held"
+
     def _capture(self, order, now, reason):
+        if any(not item.fulfilled and item.effective_at <= now for item in order.scope_obligations):
+            raise DomainError(409, "Effective accepted scope remains unfulfilled")
         if any(entry.kind == "base" for entry in order.ledger):
             order.order_state = OrderState.CLOSED
             return
@@ -454,11 +474,18 @@ class OrderService:
         key = f"{order.case_id}:additional_processing"
         if any(entry.entry_id == key for entry in order.ledger):
             return
+        authority = order.quote_authorization if approved_quote else None
+        if approved_quote and (
+            authority is None or authority.amount != amount or now >= authority.expires_at
+        ):
+            raise DomainError(409, "accepted quote requires current payment authorization")
         intent = SettlementIntent(
             proposal=order.binding,
             action="additional_processing",
             amount=amount,
-            authorization_id=order.authorization_id,
+            authorization_id=authority.receipt.operation_id
+            if authority
+            else order.authorization_id,
             idempotency_key=key,
         )
         validate_additional_processing(
@@ -512,7 +539,22 @@ class OrderService:
             raise DomainError(409, "quote is missing or stale")
         if not order.requires_quote or now >= quote.expires_at:
             raise DomainError(409, "quote is expired or already accepted")
+        order.quote_authorization = self.authorize_quote(
+            quote.quote_id, quote.amount, "customer_quote_acceptance", quote.expires_at, now
+        )
         self._additional(order, quote.amount, now, "accepted_quote", approved_quote=quote.amount)
+
+    @staticmethod
+    def authorize_quote(quote_id, amount, actor_id, expires_at, now):
+        if now >= expires_at:
+            raise DomainError(409, "quote payment authorization must be unexpired")
+        return QuoteAuthorization(
+            quote_id=quote_id,
+            amount=amount,
+            authorized_by=actor_id,
+            expires_at=expires_at,
+            receipt=mock_receipt(f"{quote_id}:authorize", "authorize"),
+        )
 
     def view(self, order: OrderRecord) -> OrderView:
         now = self.clock()
