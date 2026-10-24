@@ -19,7 +19,7 @@ if (!['127.0.0.1', 'localhost'].includes(new URL(origin).hostname)) throw new Er
         const value = await response.json().catch(() => null); if(value?.jobs) latest=value;
       }
     });
-    await page.goto(origin, {waitUntil: 'networkidle'});
+    await page.goto(`${origin}/jobflow`, {waitUntil: 'networkidle'});
     const identity = page.getByLabel('Local demo identity');
     await identity.selectOption('customer');
     await page.getByRole('button', {name: /New Northwind case/}).click();
