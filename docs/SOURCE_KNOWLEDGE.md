@@ -75,19 +75,50 @@ experimental code, datasets, labels, database, or generated delivery is included
   experience records, procedure derivation and guarded reuse.
 - `backend/app/agents/source_preparation.py`: sandbox source preparation into the
   ordinary compiler/quote flow. Acceptance and funding remain separate.
-- `evals/source_learning/`: explicitly simulated fixtures, comparison and 28 tests.
+- `backend/app/catalog/preparation.py` and narrow `orders/catalog.py` hooks:
+  request-local sources, durable retries, and current authority checks at quote/acceptance.
+- `evals/source_learning/`: explicitly simulated fixtures, comparison and 38 tests.
 
 Both engine and memory constructors require sandbox opt-in. Production active-version
 pointers remain empty. Source reasoning is checked against commercial-action tripwires
 and protected-state comparisons. No startup hook, route, UI, shared payment module,
-existing runtime module, or global policy is changed.
+or global policy is changed. The compiler/quote source-selection seam is extended
+without changing payment or acceptance requirements.
 
 The review branch is rebuilt from main `3445e19` with only the source-learning change.
 The original experiment history and frozen outputs are preserved locally, not pushed.
-The two runtime modules and scenario/test definitions are unchanged from the source
-commit. The runner packaging removes a machine-specific path: the prior negative
+The initial PR preserved the original runtime and scenario/test definitions;
+the review fixes below extend preparation and its regression coverage. The runner
+packaging removes a machine-specific path: the prior negative
 audit is optional and explicitly reports when its private inputs were not supplied.
 This does not change the learning logic or comparison scenarios.
+
+## Greptile review fixes (October 24)
+
+Both P1 reports on PR #24 were reproduced as failing regression tests:
+
+- [Completed preparation retries fail](https://github.com/redrum2k/order-to-cash/pull/24#discussion_r4368855695):
+  reassessment rejected the already-ready draft. Exact retries now replay the saved
+  response before reassessment or source writes, including after restart/expiry.
+  The encounter-bound fingerprint rejects changed inputs under the same key.
+- [Another intake breaks quoting](https://github.com/redrum2k/order-to-cash/pull/24#discussion_r4368855700):
+  globally selected lineage versions invalidated another draft's frozen pins.
+  Derived data and supporting evidence now belong to each request, stored with
+  compilation reservation in the existing transaction. Preparation does not publish
+  or replace any shared registry source. Both overlapping intakes can quote,
+  explicitly accept, explicitly mock-fund and verify their own deliveries.
+
+Current registry equality and source-authority expiry are checked at preparation,
+quote and acceptance; draft-local evidence does not bypass genuine revocation.
+No new infrastructure or external dependency was introduced. Existing repository
+transactions, command responses, artifacts and compiler are reused.
+
+Verification: 38 focused tests pass; Ruff lint/format passes for changed Python
+files. The post-fix offline comparison still reports 9/9 correct for both arms,
+8 versus 6 reviews, zero paid calls and production activation false. Its immutable
+capsule is `761f4b2349fb8aa04d007d6df656fc38f22c703803760ae24ab8b76c8f7178d8`.
+The original 109-case results and earlier experiment artifacts were not modified
+or used for training. Full backend verification is in progress; no merge is authorized.
 
 ## Local verification
 

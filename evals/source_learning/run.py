@@ -341,6 +341,7 @@ def run(output, previous=None):
         for p in [
             ROOT / "backend/app/agents/source_knowledge.py",
             ROOT / "backend/app/agents/source_preparation.py",
+            ROOT / "backend/app/catalog/preparation.py",
             *sorted((ROOT / "evals/source_learning").glob("*.py")),
             ROOT / "backend/uv.lock",
             ROOT / "backend/app/datasets.py",

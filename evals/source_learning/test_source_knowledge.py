@@ -4,6 +4,7 @@ import json
 import os
 import sqlite3
 import sys
+from datetime import timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -27,6 +28,7 @@ from app.agents.source_preparation import compile_prepared_source
 from app.contracts.catalog import AcceptQuoteCommand, QuoteRequest
 from app.datasets import canonical, parse_csv
 from app.orders.catalog import CatalogService
+from app.orders.service import DomainError
 from app.storage.catalog import CatalogRepository
 
 
@@ -316,3 +318,106 @@ def test_no_published_source_before_resolution(service):
         assert (
             db.execute("SELECT count(*) FROM catalog_records WHERE kind='order'").fetchone()[0] == 0
         )
+
+
+def test_completed_preparation_retry_returns_saved_response_without_side_effects(service):
+    learner, case, _, _, _ = learn(service, setup_source(service))
+    ready = learner.assess(case)
+    draft = compile_prepared_source(learner, ready["encounter_id"], idempotency_key="retry")
+    with patch.object(learner, "assess", side_effect=AssertionError("retry reassessed")):
+        replay = compile_prepared_source(learner, ready["encounter_id"], idempotency_key="retry")
+    assert replay == draft
+    # Retry survives a new service/memory instance and even subsequent expiry.
+    service.clock.now += timedelta(hours=3)
+    restarted = CatalogService(service.repository, service.store.root, service.clock)
+    assert (
+        compile_prepared_source(
+            engine(restarted, "candidate"), ready["encounter_id"], idempotency_key="retry"
+        )
+        == draft
+    )
+
+
+@pytest.mark.parametrize("quote_first", [False, True])
+def test_preparing_second_intake_preserves_first_quote_and_acceptance(service, quote_first):
+    inputs = setup_source(service)
+    learner, first, _, _, _ = learn(service, inputs)
+    registry = service.registry.manifest(first.source.corpus_id)
+    a = compile_prepared_source(
+        learner, learner.assess(first)["encounter_id"], idempotency_key="prepare-a"
+    )
+    early_quote = (
+        service.issue_quote(
+            first.request_id, QuoteRequest(expected_revision=a.revision, idempotency_key="quote")
+        )
+        if quote_first
+        else None
+    )
+    second = make_case(service, inputs, "second")
+    b = compile_prepared_source(
+        learner, learner.assess(second)["encounter_id"], idempotency_key="prepare-b"
+    )
+    for case, draft in ((first, a), (second, b)):
+        quote = service.issue_quote(
+            case.request_id,
+            QuoteRequest(expected_revision=draft.revision, idempotency_key="quote"),
+        )
+        if case == first and early_quote:
+            assert quote == early_quote
+        order = service.accept_quote(
+            AcceptQuoteCommand(
+                quote_id=quote.quote_id,
+                customer_actor=CUSTOMER,
+                idempotency_key="accept-" + case.request_id,
+            )
+        )
+        assert order.authorization.status == "pending"
+        assert fund(service, order).verification.passed
+    assert service.registry.manifest(first.source.corpus_id) == registry
+
+
+def test_preparation_key_rejects_changed_encounter(service):
+    learner, case, _, _, _ = learn(service, setup_source(service))
+    ready = learner.assess(case)
+    other = learner.assess(case.model_copy(update={"case_id": "different"}))
+    compile_prepared_source(learner, ready["encounter_id"], idempotency_key="same")
+    with pytest.raises(DomainError, match="changed request"):
+        compile_prepared_source(learner, other["encounter_id"], idempotency_key="same")
+
+
+@pytest.mark.parametrize("stage", ["publish", "quote", "accept"])
+@pytest.mark.parametrize("change", ["revoked", "expired"])
+def test_prepared_sources_still_reject_authority_changes(service, stage, change):
+    now = service.clock()
+    if change == "expired":
+        service.clock.now = now - timedelta(hours=2) + timedelta(seconds=30)
+    inputs = setup_source(service)
+    service.clock.now = now
+    learner, case, _, _, _ = learn(service, inputs)
+    ready = learner.assess(case)
+
+    def invalidate():
+        if change == "revoked":
+            setup_source(service, head_version=2, status="revoked")
+        else:
+            # Expire only the authority, without first expiring intake/quote.
+            service.clock.now += timedelta(seconds=30)
+
+    if stage == "publish":
+        invalidate()
+        with pytest.raises((ValueError, DomainError)):
+            compile_prepared_source(learner, ready["encounter_id"], idempotency_key="prep")
+        return
+    draft = compile_prepared_source(learner, ready["encounter_id"], idempotency_key="prep")
+    command = QuoteRequest(expected_revision=draft.revision, idempotency_key="quote")
+    quote = service.issue_quote(case.request_id, command) if stage == "accept" else None
+    invalidate()
+    with pytest.raises(DomainError, match="changed or expired"):
+        if quote:
+            service.accept_quote(
+                AcceptQuoteCommand(
+                    quote_id=quote.quote_id, customer_actor=CUSTOMER, idempotency_key="accept"
+                )
+            )
+        else:
+            service.issue_quote(case.request_id, command)
