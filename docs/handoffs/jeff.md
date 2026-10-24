@@ -1,3 +1,33 @@
+# Current paid qualification and integration — October 24
+
+PR #12 now contains the completed R3/R4 and conversational-intake fixes, plus
+actual guarded Claude Opus 5.5 qualification. See
+[AGGREGATE_MODEL_QUALIFICATION](../../AGGREGATE_MODEL_QUALIFICATION.md) for frozen
+versions, retained failures, fresh follow-up cases, usage and test evidence.
+The feature branch incorporates main `b177d53`, preserving Lucas's frontend and
+Nikita's payment work. Model flags remain OFF by default; no main merge or
+deployment is authorized. The historical assignments below do not restart work.
+
+# Earlier integration status — October 24
+
+[Reviewed integration](../reviews/frontend-payment-integration.md) includes payment
+`593e02f` and published main `04756e1`, validated at `4a24c9f`. R3/R4 still fail
+under their original strict markers on this combined baseline (720 passes, two
+expected failures). They were neither removed nor reinstated by integration.
+
+Your published `origin/feature/aggregate-intake-integration-20261024` is available
+initially at `e774495192f903d0c1191590cf13cfc4a9439977`, including `d2b6ba1`,
+`5946378` and `ef8c99a`. The final fetch advanced it to
+`849e98a791551546ee29fda67392041301bf1a43`, including newly published intake work
+at `706f41e`. These commits remain a separate review/integration item. The reported `0983c1b`
+object is still unavailable. This integration does not qualify the newly published
+conversational-intake amendment or rewrite your existing branch. Prompt 10's audit
+reuse candidate is `tools/audit_primary_evidence.py` at `ef8c99a` (same blob at
+`e774495` and `849e98a`); inspect and attribute it separately, without running its private-path
+entry point or merging compiler/runtime changes just to obtain tooling.
+
+The review and job assignments below are preserved as historical checkpoints.
+
 # Review remediation — Jeff's remaining release blockers
 
 ## Primary semantic follow-up delivered locally
@@ -22,6 +52,21 @@ history and contractual clocks. Nikita's completed R1/R2/R5/R6/R7 work is retain
 Actual primary verdict/evidence examples: [JSON](primary-semantic-events.example.json).
 
 ## Prior remediation instructions (preserved)
+## Historical job after the payment-lease review — October 24
+
+Continue R3/R4 on your existing compiler branch/worktree; do not recreate or reset
+it. The full 09 backend suite still reports the two strict expected failures. No
+new compiler implementation was present in the fetched remote main (`63ac21f`).
+Your acceptance cases and ownership below remain unchanged.
+
+Nikita's payment commit `9622fe0` is held for
+[09b's two boundary fixes](../codex-prompts/09b-payment-attempt-boundaries.md), per
+the [09 review](../reviews/09-results-review.md). You do not need that branch to
+fix compiler semantics. Avoid payment executor/journal/HTTP/lab files; preserve
+the current 08b complaint and artifact safety behavior. Return your exact tested
+commit, commands and results; remove each strict expected-failure marker only when
+its original regression and related semantic cases pass. Integrate the two tasks
+only after independent review, preserving newer remote main and Lucas's UI work.
 
 ## Start from the shared remediation branch
 

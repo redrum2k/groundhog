@@ -119,7 +119,8 @@ def create_app(
                         ("catalog", app.state.catalog_worker.run_once, 0.25),
                         ("payments", lambda: app.state.orders.payments.work(limit=1), 0.25),
                         ("invoice", consume_jobflow, 0.25),
-                    )
+                    ),
+                    on_stop=app.state.orders.payments.executor.stop,
                 ):
                     yield
             else:
@@ -130,12 +131,9 @@ def create_app(
         version="0.4.0",
         lifespan=lifespan,
         responses={
-            status: {
-                "model": ErrorResponse,
-                # Keep current main's contract stable across Python HTTPStatus wording.
-                **({"description": "Unprocessable Content"} if status == 422 else {}),
-            }
-            for status in (403, 404, 409, 422, 503)
+            **{status: {"model": ErrorResponse} for status in (403, 404, 409, 503)},
+            # Python versions use different default reason phrases for 422.
+            422: {"model": ErrorResponse, "description": "Unprocessable Content"},
         },
         separate_input_output_schemas=False,
     )

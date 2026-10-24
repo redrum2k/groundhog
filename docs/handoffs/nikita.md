@@ -1,4 +1,94 @@
-# Review remediation and remaining shared payment work
+# Current integration — October 24
+
+Reviewed payment commit `593e02fcbc63b45d95d252e7314289eda39d4fb0` is merged in
+`4a24c9f91962c2924770614e38b6e6edee905a94`, preserving published main `04756e1`
+and the local frontend/schema checkpoint. Combined validation passed: 720 backend
+cases plus two unchanged R3/R4 expected failures, 109 frontend cases, 27 offline
+lab commands, both aggregate production smokes, root broker objection/acceptance,
+Recorded fallback and aggregate backend restart/reload. Exact inputs, review probes,
+commands and exclusions: [integration record](../reviews/frontend-payment-integration.md).
+Startup routes and manual checks: [testing guide](../TEST_PLATFORM_NOW.md).
+
+Next payment work is separately scoped exact-byte recovery, then separately
+authorized live proof. Jeff's feature branch remains unmerged pending its own
+review. Prompt 10 may inspect the audit tooling at `ef8c99a` without absorbing that
+runtime branch. No evaluation or recovery implementation belongs to this integration.
+
+The following records describe their own historical checkpoints; statements about
+unmerged work or missing renewal are not current integration status.
+
+# Historical 09b implementation handoff
+
+[Review amendment in workstream 09](../workstreams/09-payment-lease-renewal.md#review-amendment--finite-http-and-initial-buyer-authorization)
+continues local `9622fe0ecff1bcae01e4b7104f053c9d58e2e393` and closes R9-A/R9-B.
+The original Web3 15-second timeout was inactivity-only: the saved 100 ms streaming
+probe took 678 ms. The new HTTP-only child has one elapsed 15-second allowance,
+including a reserved 250 ms kill/reap interval, and checks cancellation/time at
+most 25 ms apart. It performs one direct POST, no retry/redirect, with no inherited
+environment or journal/signer code; all waits/cleanup remain outside SQLite locks.
+Responses are capped at 4 MiB, default TLS verification remains on, and proxy
+environment discovery is disabled. Process scheduling is not a real-time guarantee.
+
+Initial funding now checks after buyer signing and inside the existing reservation
+transaction, including write-lock wait time. A late new authorization leaves no
+operation or private capability; a concurrent durable operation/nonce/bytes survives.
+The API-adapted saved probe now stops at 78 ms and the late signer returns status 3
+with zero operations/broadcasts. Loopback HTTP and deterministic signing/lock tests
+cover cleanup, cancellation and financial expiry. Validation: **63 focused passes**,
+**377 payment/runtime/dataset/API passes**, **720 full-backend passes**, with the
+same two compiler xfails; all **27** offline lab examples, backend/tools/lab Ruff,
+Node **24.14.1** generated-contract freshness and whitespace checks passed. The
+original 695-pass record remains historical; exact commands/timings are in 09.
+
+Submitted identity remains unresolved on timeout; inspection after financial expiry
+uses that same saved identity without resend. No transaction recovery or live proof
+is added. No main merge/push occurred; preserve newer Lucas main changes and integrate
+Jeff's exact reviewed compiler commit separately. Public contracts/frontend and
+Jeff's two strict expected failures remain unchanged.
+
+[Workstream 09](../workstreams/09-payment-lease-renewal.md) implements fenced renewal
+and finite shared attempts from reviewed main `62fe03542f18d9f7514550bcff25968ae2557c08`.
+A 120-second lease renews cooperatively every 30 elapsed seconds; submission has a
+300-second total budget including lab preflight/staging, and receipt inspection a
+180-second budget independent of financial expiry. Presign/send and durable-write
+checks preserve accepted financial cutoffs, ownership and current policy. Shutdown
+signals active attempts, then drains synchronous calls. Lease loss is not a payment
+outcome. Transient stops retain the original reservation/nonce; submitted bytes stay
+unresolved and are never automatically resent.
+
+The historical sections below describe their original checkpoints. Prompt 07's
+readiness test and lab call sites were narrowly adapted as listed in 09; historical
+reports remain unchanged. Exact-byte recovery, live latency/deployment/receipt proof
+and Jeff's R3/R4 compiler blockers remain outstanding. No live run is authorized.
+
+
+# Historical 09 review — two remaining boundaries
+
+Review of `9622fe0ecff1bcae01e4b7104f053c9d58e2e393` independently reproduced
+695 passing backend tests, two Jeff-owned expected failures, 38 focused cases,
+27 offline lab commands, lint/format and generated-contract freshness.
+The implementation is not merged: [two additional probes](../reviews/09-results-review.md)
+found that streaming HTTP can overrun the claimed request/attempt bound, and a
+buyer authorization returned after the budget expires is still persisted.
+
+Run [09b](../codex-prompts/09b-payment-attempt-boundaries.md) in the existing
+`../order-to-cash-payment-lease-renewal` worktree. Keep its renewal mechanism and
+passing regressions; fix R9-A/R9-B, update its 09 handoff/runbook and return an exact
+tested local commit. No new worktree, broad rewrite, recovery implementation,
+main merge, push, real RPC or broadcast belongs to that implementation pass.
+
+After independent review, integrate with current remote main, preserving Lucas's
+changes (remote was `63ac21f` at this review). Jeff continues R3/R4 independently;
+do not pull an unfinished compiler branch into 09b. Exact-persisted-byte recovery
+is the next separate payment task, followed by separately authorized live proof.
+The 120-second worker lease is not a payment-expiry or automatic-void timer.
+
+The sections below describe earlier checkpoints. Their statements that renewal
+is wholly unimplemented or all prompt-07 files remain unchanged are historical;
+09 narrowly adapts those lab call sites and retains their original failure evidence.
+
+
+# Historical review remediation and remaining shared payment work
 
 [Workstream 08](../workstreams/08-review-remediation.md) records R1/R2/R5/R6 fixes,
 tested historical replay and Jeff-owned R3/R4 blockers. Continue on the reviewed

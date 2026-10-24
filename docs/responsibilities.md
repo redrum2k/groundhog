@@ -11,6 +11,35 @@ This replaces all earlier ownership assignments. The product refactor is authori
 wait for teammate permission to implement it. Nikita and Jeff jointly own shared contracts;
 Lucas joins decisions affecting API/display behavior. Preserve each other's working changes.
 
+## Current integration status — October 24
+
+The [frontend/payment integration](reviews/frontend-payment-integration.md) merges
+reviewed `593e02f` with published main `04756e1`; implementation merge `4a24c9f`
+passed combined offline validation. Nikita's 09b boundary work is complete.
+Exact-byte transaction recovery and live proof remain separate future work.
+Jeff's published compiler/intake branch advanced from `e774495` to `849e98a`
+at the final fetch, including `706f41e`; it remains available but unreviewed/unmerged;
+R3/R4 remain two strict expected failures on this main baseline. Prompt 10 may
+review audit tooling at `ef8c99a`; no evaluator implementation is included here.
+Lucas's `/` retained-broker canvas and `/live` aggregate intake both remain intact.
+
+## Historical jobs after the 09 review — October 24
+
+The [09 review](reviews/09-results-review.md) independently reproduced 695 passing
+backend tests and the two known compiler failures, but found two untested attempt
+boundaries. Commit `9622fe0` is **not approved for integration yet**.
+
+| Owner | Current job | Completion / next dependency |
+| --- | --- | --- |
+| Nikita | Finish [09b](codex-prompts/09b-payment-attempt-boundaries.md) in the existing `codex/payment-lease-renewal` worktree: bound slow-streaming HTTP calls and discard late buyer authorizations before reservation. | Exact reviewed commit and boundary regressions; then integrate with current remote main. Scope exact-byte recovery afterward; no live execution is authorized. |
+| Jeff | Continue R3/R4 in the existing compiler branch: yoga exclusion/negation and explicit question-bound cohort/geography corrections. | Preserve original cases/history/budgets; remove strict expected-failure markers only after the fixes pass; return an exact independently tested commit. See [handoff](handoffs/jeff.md). |
+
+These jobs can proceed independently. Jeff does not need the unfinished payment
+branch; Nikita must preserve the compiler cases. Keep Lucas's newer frontend main
+commits during eventual integration. No 09 merge or remote push occurred in this
+review. Earlier first-deliverable paragraphs below are historical scope, not a
+request to restart completed workstreams.
+
 ## Nikita — runtime, agent infrastructure and financial execution
 
 Own `app/orders/catalog.py`, `app/storage/`, `app/runtime/`, `app/payments/`,

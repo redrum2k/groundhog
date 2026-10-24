@@ -19,8 +19,9 @@ describe("broker stream → canvas", () => {
   it("walks the no-dispute order from interview to a mock capture", () => {
     const v = view("shared");
     expect(v.nodes.clarify.messages[0].text).toMatch(/SF adults 25-34/);
-    expect(v.contract.lines.map((l) => l.id)).toEqual(["freshness", "geography", "reference_period", "metric", "entity_unit", "coverage", "source_lineage", "output_schema"]);
-    expect(v.contract.lines[1].text).toBe("San Francisco only, 10 ZIPs, boundary 2026-Q3");
+    // in the order the interview settled them; freshness was answered last in this recording
+    expect(v.contract.lines.map((l) => l.id)).toEqual(["geography", "reference_period", "metric", "entity_unit", "coverage", "source_lineage", "output_schema", "freshness"]);
+    expect(v.contract.lines.find((l) => l.id === "geography")?.text).toBe("San Francisco only, 10 ZIPs, boundary 2026-Q3");
     expect(v.payments[0]).toMatchObject({ amount: S.price, rail: "mock", mock: true });
     expect(v.nodes.produce.chip).toBe("8 of 8 passed");
     expect(v.deliveries.at(-1)?.rows.map((r) => r.zip)).toContain("94110");
@@ -38,6 +39,11 @@ describe("broker stream → canvas", () => {
     expect(asked.length).toBeGreaterThan(0);
     expect(asked.some((t) => /undefined|NaN/.test(t))).toBe(false);
     expect(asked).toContain("Which area, boundary and ZIPs");
+    // the approved contract lists its lines in the order the interview settled them
+    const drafted = events.flatMap((e) => (e.type === "contract_line_drafted" ? [e.line.id] : []));
+    const approved = events.flatMap((e) => (e.type === "contract_approved" ? [e.contract.lines.map((l) => l.id)] : []))[0];
+    expect(approved).toEqual(drafted);
+    expect(events.some((e) => e.type === "contract_line_drafted" && /adults 25-34 interested in fitness/.test(e.line.text))).toBe(true);
     // the intent, then each question with its answer, in turn
     const turns = events.flatMap((e) => (e.type === "message" && e.step === "clarify" ? [e.message.from] : []));
     expect(turns.slice(0, 5)).toEqual(["buyer", "agent", "buyer", "agent", "buyer"]);

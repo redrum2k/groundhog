@@ -13,7 +13,7 @@ fs.mkdirSync(output,{recursive:true});
  const page=await context.newPage();
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  try {
-  await page.goto(origin);
+  await page.goto(new URL('/live', origin).href);
   await page.getByLabel('Dataset request').fill('SF adults 25–34, gym members or fitness-app users, grouped by ZIP.');
   await page.getByRole('button',{name:'Create request',exact:true}).click();
   await page.getByRole('button',{name:'Prepare quote',exact:true}).click({timeout:20000});

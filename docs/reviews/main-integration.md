@@ -1,3 +1,7 @@
+> Current route and validation update: see [frontend/payment integration](frontend-payment-integration.md).
+> `/` is the retained-broker DataPact canvas; `/live` is funded aggregate intake.
+> The checkpoint below retains its historical results and route descriptions.
+
 # Main integration — October 24, 2026
 
 Initially integrated remote main `c2f5619` with `codex/review-remediation` at

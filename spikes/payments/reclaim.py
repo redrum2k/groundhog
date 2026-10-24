@@ -6,6 +6,7 @@ lease/reconciliation transitions, and confirmation. A shared signer-selection ho
 replace this helper later. No SQL schema, journal, or executor implementation is forked.
 """
 
+from app.payments.attempt import PaymentAttempt, checkpoint, current_attempt
 from app.payments.base_rpc import BaseTransportError
 from app.payments.executor import SignedTransaction
 from eth_account import Account
@@ -42,6 +43,7 @@ def stage_reclaim(journal, transport, operation_id, buyer_key):
     in the same private outbox used by PaymentExecutor. Failed inspection holds the
     reservation for explicit recovery instead of making a fresh attempt.
     """
+    attempt = current_attempt() or PaymentAttempt()
     with journal.transaction() as db:
         operation = journal.get(db, operation_id)
         if operation.intent.action != "reclaim" or operation.intent.mode != "base_sepolia":
@@ -52,7 +54,13 @@ def stage_reclaim(journal, transport, operation_id, buyer_key):
         if token is None:
             raise BaseTransportError("reclaim is leased; inspect the existing operation")
         terms = journal.payment_terms(db, operation.intent.payment_id)
-    try:
+    attempt.configure("reclaim", terms)
+
+    def guard(db, operation):
+        return journal.payment(db, operation.intent.payment_id).state == "funded"
+
+    with attempt.scope(), attempt.claim(journal, operation_id, token, guard):
+        checkpoint(effect=True)
         if not transport.config.enable_testnet_broadcast:
             raise BaseTransportError("payer signing requires explicit testnet or offline opt-in")
         try:
@@ -64,6 +72,7 @@ def stage_reclaim(journal, transport, operation_id, buyer_key):
         transport.preflight(terms, action="reclaim")
         pending = transport.pending_nonce(signer.address)
         with journal.transaction() as db:
+            attempt.check_db(db, effect=True)
             if not journal.owns(db, operation_id, token):
                 raise BaseTransportError("reclaim lease expired before nonce reservation")
             payment = journal.payment(db, operation.intent.payment_id)
@@ -73,15 +82,14 @@ def stage_reclaim(journal, transport, operation_id, buyer_key):
             if nonce is None:
                 raise BaseTransportError("payer has another unresolved operation; reconcile it")
         request = transport.transaction_request("reclaim", terms, nonce)
+        checkpoint(effect=True)
         try:
             raw = bytes(signer.sign_transaction(request).raw_transaction)
         except Exception:
             raise BaseTransportError("isolated payer transaction signing failed") from None
         signed = SignedTransaction(raw, "0x" + keccak(raw).hex(), signer.address, nonce)
         with journal.transaction() as db:
+            attempt.check_db(db, effect=True)
             if not journal.owns(db, operation_id, token):
                 raise BaseTransportError("reclaim lease expired before signature persistence")
             journal.save_signed(db, operation_id, signed)
-    finally:
-        with journal.transaction() as db:
-            journal.release_claim(db, operation_id, token)
