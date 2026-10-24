@@ -83,7 +83,7 @@ def queue_investigation(service, db, order, issue_id, mode, now, emit, question_
     return {"run_id": run.id}
 
 
-def validate_outcome(order, raw, request, *, store=None, db=None):
+def validate_outcome(order, raw, request, *, store=None, db=None, now=None):
     outcome = InvestigationOutcome.model_validate(raw)
     asked = sum(len(issue.questions) for issue in order.issues)
     if outcome.questions and asked + len(outcome.questions) > 2:
@@ -139,7 +139,7 @@ def validate_outcome(order, raw, request, *, store=None, db=None):
                 or citation.rectangle[1] >= citation.rectangle[3]
             ):
                 raise DomainError("Invalid normalized citation rectangle")
-    baseline = assess(order, outcome.issue_id) if outcome.questions else None
+    baseline = assess(order, outcome.issue_id, now=now) if outcome.questions else None
     for index, question in enumerate(outcome.questions):
         if (
             question.issue_id != outcome.issue_id

@@ -97,8 +97,11 @@ class OrderService:
                 raise DomainError(
                     422, "acceptance must be in the past and authorization must be unexpired"
                 )
-            if not command.snapshot.structured_data or not any(
-                item.media_type == "application/pdf" for item in command.snapshot.input_versions
+            if command.snapshot.job_type == "invoice_register" and (
+                not command.snapshot.structured_data
+                or not any(
+                    item.media_type == "application/pdf" for item in command.snapshot.input_versions
+                )
             ):
                 raise DomainError(
                     422, "invoice orders require source PDF and retained structured data"
@@ -212,7 +215,16 @@ class OrderService:
         ):
             self._hold(order, "Review cutoff reached without resolving the dispute.")
         elif order.order_state == OrderState.DELIVERED:
-            self._capture(order, now, "review_cutoff")
+            from app.data_products import current_data_verification
+
+            if order.snapshot.policy.policy_version == "broker-review-v0.3" and (
+                not current_data_verification(order, now)
+                or order.delivery_state != DeliveryState.PASSED
+                or order.review_requires_customer_acceptance
+            ):
+                self._hold(order, "Review cutoff lacks current verification PASS.")
+            else:
+                self._capture(order, now, "review_cutoff")
         else:
             self._hold(order, "Delivery is unavailable at review cutoff.")
         return True
@@ -228,6 +240,7 @@ class OrderService:
             proposal_version=old.proposal_version + 1 if old else 1,
         )
         order.result = None
+        order.data_verification = None
         order.quote = None
         order.requires_quote = False
 
@@ -272,6 +285,7 @@ class OrderService:
         order.regeneration_pending = False
         order.failure = None
         order.review_deadline = now + timedelta(seconds=order.snapshot.policy.review_window_seconds)
+        order.review_requires_customer_acceptance = False
         if order.payment_phase != "booked":
             order.payment_phase = "open"
         self.investigation_input(order)
@@ -365,6 +379,8 @@ class OrderService:
         )
 
     def _investigation(self, order, command: SubmitInvestigation, now):
+        if order.snapshot.job_type != "invoice_register":
+            raise DomainError(409, "broker verification uses the source-bound data validators")
         if order.order_state not in (OrderState.DELIVERED, OrderState.CLOSED) or order.questions:
             raise DomainError(
                 409, "investigation requires an active review with no unanswered question"
@@ -420,6 +436,14 @@ class OrderService:
                 order.payment_phase = "held"
 
     def _capture(self, order, now, reason):
+        if order.snapshot.policy.policy_version == "broker-review-v0.3":
+            from app.data_products import current_data_verification
+
+            if not current_data_verification(order, now):
+                raise DomainError(
+                    409,
+                    "Broker capture requires complete current spec/evidence/delivery verification",
+                )
         if any(not item.fulfilled and item.effective_at <= now for item in order.scope_obligations):
             raise DomainError(409, "Effective accepted scope remains unfulfilled")
         if any(entry.kind == "base" for entry in order.ledger):
@@ -433,18 +457,36 @@ class OrderService:
             idempotency_key=f"{order.snapshot.order_id}:base:capture",
         )
         result = order.result
+        data_result = order.data_verification
+        is_broker = order.snapshot.policy.policy_version == "broker-review-v0.3"
         context = CaptureContext(
             current_proposal=order.binding,
-            order_state=OrderState.DELIVERED,
+            order_state=order.order_state,
             delivery_state=order.delivery_state,
             case_state=order.case_state,
             payment_state=order.payment_state,
-            verification_binding=result.proposal if result else None,
-            evidence_verdict=result.verdict if result else None,
+            verification_binding=data_result.proposal
+            if is_broker and data_result
+            else result.proposal
+            if result
+            else None,
+            evidence_verdict=(
+                {
+                    "PASS": "compliant",
+                    "FAIL": "provider_defect",
+                    "UNKNOWN": "insufficient_evidence",
+                }[data_result.verdict]
+                if is_broker and data_result
+                else result.verdict
+                if result
+                else None
+            ),
             customer_acceptance=order.binding if reason == "customer_acceptance" else None,
             authorization_id=order.authorization_id,
             authorized_amount=order.snapshot.price,
             authorization_expires_at=order.authorization_expires_at,
+            review_deadline=order.review_deadline,
+            review_requires_customer_acceptance=order.review_requires_customer_acceptance,
         )
         validate_capture(
             order.snapshot, order.deliveries[-1], intent, context, now=now, simulation=True
@@ -464,7 +506,12 @@ class OrderService:
         order.order_state = OrderState.CLOSED
 
     def _accept(self, order, command, now):
-        if order.order_state != OrderState.DELIVERED or order.case_state != CaseState.NONE:
+        allowed = (
+            (CaseState.NONE, CaseState.RESOLVED)
+            if order.snapshot.policy.policy_version == "broker-review-v0.3"
+            else (CaseState.NONE,)
+        )
+        if order.order_state != OrderState.DELIVERED or order.case_state not in allowed:
             raise DomainError(409, "acceptance requires an active, undisputed delivery")
         self._capture(order, now, "customer_acceptance")
 

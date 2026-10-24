@@ -22,4 +22,14 @@ in the implementation/design handoff.
 
 ## Progress
 
-1. Continuity and clean baseline verified. Implementation in progress.
+1. Continuity and clean baseline verified.
+2. Broker profile now runs actual intake/acceptance, JSON/CSV/PDF production, source-bound
+   three-valued checks, review/capture, disputes and bounded correction on OrderService.
+   Eight first-path tests passed; all 224 prior tests passed with these additions.
+3. Raw question worker completed in its own worktree; integrated commit `1e64e64`.
+   Parent review also corrected runtime clock injection in question validation.
+   Combined focused broker/question tests: 48 passed.
+4. No application Anthropic key/model/call allocation is configured. No values or
+   credential files were read. Live generation is BLOCKED; independent local work continues.
+5. Improvement persistence/types are present; executable proposal/probe/activation work
+   is next. The typed records alone are not a completed learning feature.

@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.agents.gateway import ClaudeGateway
+from app.api.broker import router as broker_router
 from app.api.catalog import reviewer, router
 from app.api.catalog import worker as catalog_worker
 from app.api.jobflow import router as jobflow_router
@@ -17,6 +18,7 @@ from app.contracts.http import Capabilities, ErrorResponse
 from app.orders.catalog import CatalogService
 from app.orders.service import DomainError, utc_now
 from app.payments import configured_payment_mode
+from app.runtime.broker import Broker
 from app.runtime.jobflow import Jobflow
 from app.runtime.jobflow_worker import recover, run_once
 from app.storage.catalog import CatalogRepository
@@ -72,7 +74,10 @@ def create_app(
         app.state.jobflow = service or Jobflow(
             path, demo=os.getenv("JOBFLOW_DEMO") == "1", clock=clock
         )
+        app.state.broker = Broker(app.state.jobflow)
         jobflow_app.state.jobflow = app.state.jobflow
+        broker_app.state.jobflow = app.state.jobflow
+        broker_app.state.broker = app.state.broker
 
         async def sweep():
             while True:
@@ -164,6 +169,13 @@ def create_app(
     jobflow_app.add_exception_handler(ValueError, invalid_operation)
     jobflow_app.include_router(jobflow_router)
     app.mount("/api/jobflow", jobflow_app)
+    broker_app = FastAPI(title="Broker review profile API", version="0.3.0")
+    broker_app.add_exception_handler(JobflowError, jobflow_error)
+    broker_app.add_exception_handler(DomainError, domain_error)
+    broker_app.add_exception_handler(RequestValidationError, validation_error)
+    broker_app.add_exception_handler(ValueError, invalid_operation)
+    broker_app.include_router(broker_router)
+    app.mount("/api/broker", broker_app)
     return app
 
 

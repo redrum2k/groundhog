@@ -10,6 +10,8 @@ The application must execute its own improvement loop; source edits by a coding
 assistant are not runtime learning. Distinguish deterministic infrastructure results
 from an authorized real model run. No new paid access is authorized.
 
-Baseline is green. No V5 application behavior implemented at this checkpoint. The
-initial additive question metadata schema is ready for the bounded question worker.
+Baseline is green; broker flow and bound question delivery are implemented. Focused
+broker/question tests: 48 passed. All 224 existing tests also passed after the broker
+addition. Executable improvement runtime is next; only its contracts/storage exist.
+Application model access is absent: do not report real generation as demonstrated.
 Implementation start/cutoff are in WORK_LOG.md. Do not invoke or repair RAP.

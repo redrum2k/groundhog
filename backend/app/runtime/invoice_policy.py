@@ -35,6 +35,8 @@ class CaptureContext(Contract):
     authorized_amount: Money
     authorization_expires_at: AwareDatetime
     evidence_verdict: Literal["compliant", "provider_defect", "insufficient_evidence"] | None = None
+    review_deadline: AwareDatetime | None = None
+    review_requires_customer_acceptance: bool = False
 
 
 def validate_capture(
@@ -95,6 +97,17 @@ def validate_capture(
         seconds=snapshot.policy.review_window_seconds
     )
     evidenced = context.evidence_verdict == "compliant" and context.verification_binding == binding
+    if snapshot.policy.policy_version == "broker-review-v0.3":
+        if not evidenced or context.delivery_state != DeliveryState.PASSED:
+            raise ValueError("broker capture requires current source-backed verification PASS")
+        deadline = context.review_deadline or review_deadline
+        if context.review_requires_customer_acceptance and context.customer_acceptance is None:
+            raise ValueError("a resolved overdue review requires explicit customer acceptance")
+        if context.customer_acceptance is None and now < deadline:
+            raise ValueError(
+                "broker verification opens review; it does not authorize early capture"
+            )
+        return
     if context.customer_acceptance is None and not evidenced and now < review_deadline:
         raise ValueError("evidence verdict, customer acceptance or review expiry is required")
 
