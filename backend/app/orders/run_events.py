@@ -20,7 +20,7 @@ DISPUTE_STEPS = [
     for key, title, detail in (
         ("investigate", "Investigate", "Resolve the complaint against cited evidence"),
         ("verdict", "Finding", "Evidence assessment; no payment authority"),
-        ("decide", "Maya reviews", "Bounded reviewer actions on current evidence"),
+        ("decide", "Human reviews", "Bounded reviewer actions on current evidence"),
     )
 ]
 
@@ -200,7 +200,7 @@ class CanvasEffects:
                 f"reviewer:{order.revision}",
                 type="step_waiting",
                 step="decide",
-                waitingOn=order.error or "Maya's review",
+                waitingOn=order.error or "Human's review",
             )
 
     def job(self, db, order, job):
