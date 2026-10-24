@@ -1,10 +1,25 @@
 # Current aggregate integration pickup
 
-Latest correctness pass: [GREPTILE_P1_REMEDIATION.md](GREPTILE_P1_REMEDIATION.md).
-All three reported P1 findings reproduced and fixed at `43cb18c`; main `947140e`
-is incorporated. 411 relevant tests pass; full backend 925 pass / 16 documented
-Windows failures. No new paid calls; frontend/payment code and historical evidence
-remain intact. Request fresh independent review of PR #12; do not self-merge.
+Latest correctness pass: [BROKER_RECOVERY_REMEDIATION.md](BROKER_RECOVERY_REMEDIATION.md).
+The two subsequent Greptile findings on `e60aa6f` were reproduced before fixing:
+accepted amendments now fulfill through the shared successful-verification helper;
+pending dispute work and command receipts now commit atomically. The existing
+backend worker recovers known-unsent work; uncertain attempts are never retried.
+Backend fixes: `ba79817`; frontend integration: `e45ddde`, importing Lucas's PR #20
+from main `3d69b92` unchanged. Focused tests: 44 pass. Frontend: 120 tests plus
+generated-contract checks, TypeScript and build pass. Full-suite evidence is in
+the current report. The earlier three P1 fixes remain preserved at `43cb18c`.
+
+Next: inspect the fresh Greptile review for PR #12 at its exact head, resolve any
+backend findings, and recheck main before merge. Main merges automatically create
+`calm-serenity / production` deployments; do not merge until that consequence is
+explicitly resolved against the prior no-deployment boundary. Upstream PR #20's
+inspector colors UNKNOWN citations as failures; flag for Lucas, do not silently
+rewrite his frontend. No new paid calls or spending-window extension is authorized.
+The existing $45 ledger and historical qualification evidence remain unchanged.
+For new outbox work recovery is automatic while eligible; old pre-outbox receipts
+are adopted only by exact replay in an unambiguous OPEN/current-PASS state. Old
+UNKNOWN/question or FAIL/correction receipts retain their completed effects.
 
 Read [AGGREGATE_MODEL_QUALIFICATION.md](AGGREGATE_MODEL_QUALIFICATION.md) first:
 30 actual Claude Opus 5.5 calls, preserved negative pilot results, fresh post-fix

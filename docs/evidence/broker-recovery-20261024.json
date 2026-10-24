@@ -1,0 +1,193 @@
+{
+  "tested_backend_commit": "ba79817191449cd64fb9b096788c81c739128264",
+  "frontend_integration_commit": "e45ddde81e8abac8b7c96b53d9831eca1c241a4a",
+  "backend_unchanged_by_frontend_integration": true,
+  "starting_pr_head": "e60aa6fce72af374e3e68be72d456ff5c05cdad9",
+  "test_first_commit": "30ddd34",
+  "integrated_main": "3d69b92181327b7ebf44324e0fdb3603008a1c2c",
+  "raw_artifact_root": "backend/artifacts/broker-recovery-20261024",
+  "reports": [
+    {
+      "artifact": "valid-reproductions-e60aa6f.xml",
+      "sha256": "be57c14bbbee29bf9c04fb8c5140e895765db7beeecd0ad96dd02361456146c1",
+      "tests": 4,
+      "passed": 1,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 8.638
+    },
+    {
+      "artifact": "upgrade-before.xml",
+      "sha256": "3688ad0e7850a5f3c2ed8b0bd2e2c12339d0094a73fdcc4b56f284feef0eac8d",
+      "tests": 16,
+      "passed": 13,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 9.364
+    },
+    {
+      "artifact": "legacy-question-before.xml",
+      "sha256": "b14cf4dda8ea1caa737d78092f0bd5c19f95ffc88cd54d7887c8031f79e5151b",
+      "tests": 1,
+      "passed": 0,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 1.537
+    },
+    {
+      "artifact": "focused-origin-guard.xml",
+      "sha256": "d414efbc061122d144ce1a0a7d0f76d4342413b5e80709d12cad1278386933f1",
+      "tests": 44,
+      "passed": 44,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 21.759
+    },
+    {
+      "artifact": "relevant.xml",
+      "sha256": "caa08fedc0f0422b0ad4203c733c61540b215522f19fcfaffaf983ba918ff8a5",
+      "tests": 181,
+      "passed": 180,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 134.588
+    },
+    {
+      "artifact": "full.xml",
+      "sha256": "16b5ee11ce087fd71a7e5615b9b278b74271e68a353a3c21bc58db83ec91b70f",
+      "tests": 958,
+      "passed": 942,
+      "failed": 16,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 384.68
+    },
+    {
+      "artifact": "full-final.xml",
+      "sha256": "9c2b1d408ec20639dec845bd5916fdba1cdc27519a0aa2e4aa71b2d98256a8e5",
+      "tests": 960,
+      "passed": 944,
+      "failed": 16,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 382.341,
+      "failures": [
+        {
+          "test": "tests.evals.test_runner::test_leakage_stable_report_additive_runs_and_no_gold_claim"
+        },
+        {
+          "test": "tests.evals.test_runner::test_real_child_timeout_then_unrelated_case_continues"
+        },
+        {
+          "test": "tests.evals.test_runner::test_step_limit_preserves_partial_state_and_reports"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[stream]"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[headers]"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[success]"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[rpc_error]"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[redirect]"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_cancellation_kills_http_before_return_and_cannot_deliver_late_result"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[budget]"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[financial]"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_process_interruption_also_reaps_request"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_actual_http_allowance_is_reserved_before_launch[inspection]"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_ambiguous_http_send_retains_durable_identity_and_only_reconciles"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline"
+        },
+        {
+          "test": "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments"
+        }
+      ]
+    }
+  ],
+  "phase_notes": {
+    "valid-reproductions-e60aa6f.xml": "Unchanged e60aa6f runtime: amendment regression, receipt replay and actual lifespan restart fail; deterministic control passes.",
+    "upgrade-before.xml": "Compatibility regressions before already-resolved/pre-outbox recovery additions; not additional failures on e60aa6f.",
+    "legacy-question-before.xml": "Additional adversarial regression on 36e9eb8: enabling feature must not reinterpret completed deterministic UNKNOWN/question receipt.",
+    "focused-origin-guard.xml": "Final backend: all 19 new cases and 25 original dispute assessment cases pass.",
+    "relevant.xml": "Earlier intermediate broker/runtime/API suite; final full suite covers later additions.",
+    "full.xml": "Intermediate full suite on 36e9eb87572cfd8b013b36efc478246a8c085152; superseded by full-final.xml.",
+    "full-final.xml": "Final backend tree: 944 passed and exactly the 16 previously documented Windows failures, zero skipped/errors. Main's frontend-only integration did not alter the backend during this run."
+  },
+  "checks": {
+    "ruff_check": "PASS",
+    "ruff_format": "PASS: 210 files",
+    "frontend": {
+      "tested_commit": "e45ddde81e8abac8b7c96b53d9831eca1c241a4a",
+      "tests_passed": 120,
+      "files_passed": 19,
+      "generated_contracts": "PASS",
+      "typecheck": "PASS",
+      "build": "PASS",
+      "visual_qualification": false
+    }
+  },
+  "financial": {
+    "new_paid_calls": 0,
+    "new_broadcasts": 0,
+    "model_features_default": "OFF",
+    "shared_ledger_sha256": "000cfe72360895d2ae1c0fec6ed6023499d31bcbcb265ea699930f4a23b7fad5",
+    "historical_costs_unchanged": true,
+    "spending_window_extended": false
+  },
+  "limitations": [
+    "Uncertain DISPATCHED work is never automatically retried, including crash immediately before actual transport invocation.",
+    "Pre-outbox replay adoption is restricted to exact current OPEN/PASS receipts; UNKNOWN/FAIL completed effects are not reinterpreted.",
+    "Pre-delivery amendment fixture exposed an existing missing-binding failure; not qualified or fixed here.",
+    "Upstream main PR20 inspector colors unknown-* citation IDs as failed checks; frontend kept intact and caveat recorded, not visually qualified.",
+    "Main merge creates production deployments; prior no-deployment boundary requires explicit resolution before merge."
+  ],
+  "production_observation": {
+    "latest_main": "3d69b92181327b7ebf44324e0fdb3603008a1c2c",
+    "deployment_id": 7304755498,
+    "environment": "calm-serenity / production",
+    "state": "success",
+    "created_at": "2026-10-24T21:30:01Z",
+    "success_at": "2026-10-24T21:30:48Z"
+  },
+  "baseline_comparison": {
+    "source": "docs/evidence/greptile-p1-20261024.json",
+    "report": "full.xml",
+    "failure_ids_match": true,
+    "new_failure_ids": [],
+    "normal_full_suite_green": false
+  },
+  "commands": {
+    "full_backend": "ENABLE_PAID_MODELS=false ENABLE_TESTNET_BROADCAST=false PAYMENT_ADAPTER=mock uv run --locked --directory backend pytest --tb=short --show-capture=no --junitxml=artifacts/broker-recovery-20261024/full-final.xml",
+    "focused": "uv run --locked --directory backend pytest tests/broker/test_assessment_recovery.py tests/broker/test_dispute_assessment.py --tb=short --show-capture=no --junitxml=artifacts/broker-recovery-20261024/focused-origin-guard.xml",
+    "frontend": [
+      "npm --prefix frontend run generate:check",
+      "npm --prefix frontend test -- --run",
+      "npm --prefix frontend run typecheck",
+      "npm --prefix frontend run build"
+    ]
+  }
+}

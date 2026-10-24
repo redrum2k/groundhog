@@ -1,5 +1,9 @@
 # PR #12 — three P1 correctness fixes
 
+Historical evidence for the first three findings. The subsequent accepted-scope
+and durable-dispatch fixes, latest integration and tests are documented in
+[BROKER_RECOVERY_REMEDIATION.md](BROKER_RECOVERY_REMEDIATION.md).
+
 Scope: the user's October 24 focused remediation request, not another paid model
 experiment. PR remains unmerged. No paid calls, broadcasts, deployment, shared procedure
 activation or frontend/payment implementation changes are part of this work.
