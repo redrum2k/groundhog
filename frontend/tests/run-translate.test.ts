@@ -21,7 +21,7 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.clarify.messages[0].text).toMatch(/SF adults 25-34/);
     // in the order the interview settled them; freshness was answered last in this recording
     expect(v.contract.lines.map((l) => l.id)).toEqual(["geography", "reference_period", "metric", "entity_unit", "coverage", "source_lineage", "output_schema", "freshness"]);
-    expect(v.contract.lines[1].text).toBe("San Francisco only, 10 ZIPs, boundary 2026-Q3");
+    expect(v.contract.lines.find((l) => l.id === "geography")?.text).toBe("San Francisco only, 10 ZIPs, boundary 2026-Q3");
     expect(v.payments[0]).toMatchObject({ amount: S.price, rail: "mock", mock: true });
     expect(v.nodes.produce.chip).toBe("8 of 8 passed");
     expect(v.deliveries.at(-1)?.rows.map((r) => r.zip)).toContain("94110");
