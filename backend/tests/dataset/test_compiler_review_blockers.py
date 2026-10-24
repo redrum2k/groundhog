@@ -114,6 +114,8 @@ def test_category_polarity_not_substring_matching(dataset_service, instruction, 
         ("SF adults 18-24", "Use adults 25-34 in SF or Oakland.", False),
         ("SF adults 18-24", "Not adults 18-24 but SF adults 25-34.", True),
         ("SF adults 18-24", "No, keep adults 18-24 in SF.", False),
+        ("Oakland adults 25-34", "Use San Francisco adults 25-34. Do not include Oakland.", True),
+        ("SF adults 18-24", "SF adults 25-34. Do not include adults 18-24.", True),
     ],
 )
 def test_bound_correction_and_contradictions_preserve_history(

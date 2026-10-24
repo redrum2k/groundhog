@@ -2689,6 +2689,94 @@
         "title": "DatasetEvidenceAnswer",
         "type": "object"
       },
+      "DatasetFinding": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted_specification_sha256": {
+            "title": "Accepted Specification Sha256",
+            "type": "string"
+          },
+          "assessed_binding": {
+            "$ref": "#/components/schemas/Binding"
+          },
+          "attempt_id": {
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "binding": {
+            "$ref": "#/components/schemas/DecisionBinding"
+          },
+          "candidate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Assessment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decided_by": {
+            "enum": [
+              "model",
+              "rules",
+              "unresolved"
+            ],
+            "title": "Decided By",
+            "type": "string"
+          },
+          "effective": {
+            "$ref": "#/components/schemas/Assessment"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "kind": {
+            "enum": [
+              "supported",
+              "contradicted",
+              "unclear"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "validation": {
+            "enum": [
+              "DISPATCHED",
+              "VALIDATED",
+              "ADVISORY",
+              "INVALID",
+              "FAILED",
+              "STALE"
+            ],
+            "title": "Validation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "reason",
+          "evidence_ids",
+          "decided_by",
+          "binding",
+          "assessed_binding",
+          "accepted_specification_sha256",
+          "attempt_id",
+          "candidate",
+          "effective",
+          "validation"
+        ],
+        "title": "DatasetFinding",
+        "type": "object"
+      },
       "DatasetReference": {
         "additionalProperties": false,
         "properties": {
@@ -7168,7 +7256,9 @@
             "enum": [
               "rules",
               "controller",
-              "contract"
+              "contract",
+              "model",
+              "unresolved"
             ],
             "title": "Decidedby",
             "type": "string"
@@ -7179,6 +7269,16 @@
             },
             "title": "Evidenceids",
             "type": "array"
+          },
+          "finding": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DatasetFinding"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "kind": {
             "enum": [

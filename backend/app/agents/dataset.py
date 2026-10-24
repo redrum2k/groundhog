@@ -18,7 +18,8 @@ def _cohort(text):
             prefix = clause[: match.start()]
             negative = bool(
                 re.search(
-                    r"\b(?:not|exclude|excluding|except|without)\s*(?:adults?\s*(?:aged?\s*)?)?$",
+                    r"\b(?:not|exclude|excluding|except|without)\s*(?:include\s+)?"
+                    r"(?:adults?\s*(?:aged?\s*)?)?$",
                     prefix,
                 )
             )
@@ -27,7 +28,8 @@ def _cohort(text):
             city = "oakland" if match[0] == "oakland" else "san francisco"
             negative = bool(
                 re.search(
-                    r"\b(?:not|exclude|excluding|except|without)\s*$", clause[: match.start()]
+                    r"\b(?:not|exclude|excluding|except|without)\s*(?:include\s+)?$",
+                    clause[: match.start()],
                 )
             )
             (excluded_cities if negative else cities).add(city)

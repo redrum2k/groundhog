@@ -328,10 +328,65 @@ export interface VerdictEvent {
   verdict: Verdict;
 }
 export interface Verdict {
-  decidedBy: "rules" | "controller" | "contract";
+  decidedBy: "rules" | "controller" | "contract" | "model" | "unresolved";
   evidenceIds: string[];
+  finding?: DatasetFinding | null;
   kind: "agree" | "disagree" | "grey";
   reason: string;
+}
+export interface DatasetFinding {
+  accepted_specification_sha256: string;
+  assessed_binding: Binding;
+  attempt_id: string;
+  binding: DecisionBinding;
+  candidate: Assessment | null;
+  decided_by: "model" | "rules" | "unresolved";
+  effective: Assessment;
+  evidence_ids: string[];
+  kind: "supported" | "contradicted" | "unclear";
+  reason: string;
+  validation: "DISPATCHED" | "VALIDATED" | "ADVISORY" | "INVALID" | "FAILED" | "STALE";
+}
+export interface Binding {
+  delivery_version: number;
+  evidence_revision: number;
+  snapshot_id: string;
+}
+export interface Assessment {
+  citations?: (Span | DatasetReference)[];
+  conflicting_evidence?: (Span | DatasetReference)[];
+  explanation: string;
+  missing_facts?: string[];
+  obligation_id: string;
+  provenance: Provenance;
+  reason_code: string;
+  requested_evidence?: string | null;
+  result: "PASS" | "FAIL" | "UNKNOWN" | "CONFLICT";
+}
+export interface Span {
+  artifact_id: string;
+  end: number;
+  highlight: PdfHighlight;
+  page: number;
+  quote: string;
+  sha256: string;
+  start: number;
+}
+/**
+ * One-based page; normalized rectangle on the displayed page, top-left origin.
+ */
+export interface PdfHighlight {
+  page_number: number;
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+}
+export interface Provenance {
+  assessor: string;
+  kind: "deterministic" | "model";
+  model_score?: number | null;
+  version: string;
 }
 export interface ControllerDecided {
   action: "approve" | "reject" | "ask" | "escalate";
@@ -744,11 +799,6 @@ export interface Quote {
   sources: Source[];
   specification: Specification;
   work_description: string;
-}
-export interface Binding {
-  delivery_version: number;
-  evidence_revision: number;
-  snapshot_id: string;
 }
 export interface Policy {
   authorization_seconds?: 3600;
