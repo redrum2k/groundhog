@@ -65,9 +65,10 @@ def test_mock_supports_authorization_and_release(tmp_path, investigation_input, 
         adapter.close()
 
 
-def test_live_adapter_cannot_be_enabled(monkeypatch, tmp_path):
-    monkeypatch.setenv("PAYMENT_ADAPTER", "live")
-    with pytest.raises(ValueError, match="payment spike"):
+@pytest.mark.parametrize("mode", ["live", "base_sepolia"])
+def test_legacy_adapter_cannot_be_enabled(monkeypatch, tmp_path, mode):
+    monkeypatch.setenv("PAYMENT_ADAPTER", mode)
+    with pytest.raises(ValueError, match="PAYMENT_ADAPTER|legacy payment adapter"):
         get_payment_adapter(tmp_path / "payments.sqlite3")
 
 

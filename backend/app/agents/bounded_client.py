@@ -40,7 +40,7 @@ class BoundedClient:
     def __init__(self, *, purpose="catalog", client=None, budget=None, final_evaluation=False):
         self.budget = budget or ModelBudget.configured()
         self.client = client or anthropic.Anthropic(
-            base_url="https://api.anthropic.com", timeout=60.0, max_retries=0
+            base_url="https://api.anthropic.com", timeout=20.0, max_retries=0
         )
         self.purpose = purpose
         self.messages = self
@@ -64,7 +64,11 @@ class BoundedClient:
                 from anthropic.lib._parse._transform import transform_schema
 
                 schema = kwargs["output_format"]
-                wire = {key: value for key, value in kwargs.items() if key != "output_format"}
+                wire = {
+                    key: value
+                    for key, value in kwargs.items()
+                    if key not in {"output_format", "timeout"}
+                }
                 wire["output_config"] = {
                     "format": {
                         "type": "json_schema",
@@ -72,7 +76,7 @@ class BoundedClient:
                     }
                 }
                 raw = self.client.messages.with_raw_response.create(
-                    **wire, timeout=remaining_timeout(self.budget)
+                    **wire, timeout=min(remaining_timeout(self.budget), kwargs.get("timeout", 60.0))
                 )
                 self.last_response = raw.http_response.json()
                 self.budget.finish(call, self.last_response.get("usage"))

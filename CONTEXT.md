@@ -1,6 +1,6 @@
-# Custom data deliverables
+# Aggregate data brokerage
 
-Shared language for specifying, producing, reviewing and paying for catalog shortlist work.
+Shared language for aggregate datasets, evidence, commercial consent and payment.
 
 ## Language
 
@@ -24,7 +24,7 @@ remedy or settlement eligibility.
 **Grey zone**: The lifecycle outcome where material evidence remains unresolved and prevents
 a justified decision. It is not a model-confidence score.
 
-**Source manifest**: The exact set of provider-registered source editions and artifact versions
+**Source manifest**: The exact registered dataset editions, hashes and authority records
 selected for an agreement.
 
 **Source policy**: The accepted rules for source authority, precedence and later evidence or
@@ -53,7 +53,8 @@ published delivery version.
 **Delivery version**: One published provider output, retained together with its verification
 and customer review context.
 
-**Structured sidecar**: Internal source-derived records and citations accompanying a PDF.
+**Structured sidecar**: Internal source-derived records and citations accompanying a
+historical catalog PDF. New dataset deliveries use a preview/manifest.
 
 **Provider defect**: An established failure of produced work to satisfy the accepted agreement.
 An unresolved source fact does not by itself establish provider fault.
@@ -120,3 +121,30 @@ It is distinct from irreversible finality.
 
 **Confirmed settlement**: A payment outcome established by authoritative reconciliation.
 A mock booking or submitted transaction is not confirmed settlement.
+
+
+**Dataset specification**: The requested cohort, grouping, measurement and output rules.
+
+**Coverage universe**: A frozen authoritative list of expected geographic keys, separate
+from rows present in a vendor file.
+
+**Dataset delivery**: Immutable CSV and its structured JSON preview/manifest, retaining
+stable row identities, schema, hashes and verification context.
+
+**Evidence reference**: A persisted message or dataset cell identified by source/delivery,
+version/hash, stable row and column. An absence claim also identifies its expected key
+and the artifact in which it is absent.
+
+**Suppressed count**: A deliberately withheld value represented as null with an explicit
+suppression status, distinct from an unknown count.
+
+**Substantive replacement**: A separate accepted agreement replacing uncaptured parent
+work, with child funding dependent on the parent's confirmed return.
+
+**Run**: The durable event history of a request and its accepted order. It begins before
+acceptance or funding and does not confer either.
+
+**Attempt**: A production pass, independent of delivery version and evidence revision.
+
+**Latest safe submission**: The policy cutoff before capture authority expires, reserving
+a positive transaction margin without extending signed terms.

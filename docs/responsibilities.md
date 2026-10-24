@@ -1,5 +1,12 @@
 # Team responsibilities — catalog v0.3 / payments v1
 
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
+
+
 This replaces all earlier ownership assignments. The product refactor is authorized; do not
 wait for teammate permission to implement it. Nikita and Jeff jointly own shared contracts;
 Lucas joins decisions affecting API/display behavior. Preserve each other's working changes.
@@ -21,11 +28,14 @@ versioned deliveries, durable payment operations/confirmed bookings and polling 
 
 First deliverable: draft -> accepted contract -> mock authorization -> durable work -> verified
 delivery -> gated mock settlement. It is implemented by the offline repaired journey.
-Independent next slice: reusable Base adapter plus terminal payment laboratory using synthetic
-accepted terms and a fixture settlement decision, not an AI verdict. Preflight → prepare/sign →
+Integrated offline: automatic catalog runtime, reusable Base adapter and terminal payment
+laboratory using synthetic accepted terms and a fixture settlement decision, not an AI verdict.
+See workstreams/04-integration.md. The next separately authorized milestone is observed live
+proof: preflight → prepare/sign →
 confirmed funding → restart → full capture; separately fund → full void, 0.10 test USDC each.
-Offline/mock/fake implementation does not depend on Jeff's prompts or Lucas's UI. Integrate the
-same adapter with the existing compiler/verification journey. Broadcasts need separate human
+Offline/mock/fake implementation does not depend on Jeff's prompts or Lucas's UI. The same
+adapter is integrated with the compiler/verification journey and validated through
+injected RPC; actual chain evidence remains outstanding. Broadcasts need separate human
 authorization. Customer authentication/production isolation precede deployment.
 Complete when restart/concurrent retries cannot duplicate acceptance, jobs or capture and
 failed/stale/expired work remains blocked. Run tests/catalog, tests/api and tests/payments.
@@ -62,7 +72,8 @@ independent review. Run tests/catalog/test_verification.py and tests/investigati
 
 ## Lucas — complete frontend
 
-Own `frontend/`, including planned React/TypeScript UI and frontend deployment. Cover prompt
+Own `frontend/`, including the preserved invoice UI, planned catalog React/TypeScript UI and
+frontend deployment. Cover prompt
 intake/clarification, specification/quote approval, work/delivery/financial status, PDF viewer
 and source highlights, targeted complaints, evidence-request answers and amendment upload/
 status/approval, additional-work acceptance, reviewer table/controls, polling, stale versions

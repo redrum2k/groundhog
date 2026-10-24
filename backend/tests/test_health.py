@@ -9,12 +9,14 @@ def test_health_discloses_mock_mode(tmp_path):
     assert response.status_code == 200
     assert response.json() == {
         "status": "ok",
+        "primary_product": "aggregate_dataset",
+        "brokerage_policy": "aggregate-brokerage-v1",
         "payment_mode": "mock",
         "live_settlement_enabled": False,
         "contract_version": "catalog-api-v1",
         "payment_policy": "catalog-payments-v1",
         "buyer_signature_validation": True,
         "mock_funding_requires_authorization": True,
-        "live_adapter": "planned",
+        "live_adapter": "disabled",
         "customer_authentication": False,
     }

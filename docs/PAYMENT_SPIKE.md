@@ -1,4 +1,4 @@
-# Base escrow payment laboratory — Phase 1 / next milestone
+# Base escrow payment laboratory — integrated offline, live proof pending
 
 Owner: Nikita. Main payment is customer → provider using Base Commerce Payments on Base
 Sepolia and a dedicated platform operator EOA. The contract holds funds; buyers/providers
@@ -10,18 +10,23 @@ mainnet, arbitrary assets or account abstraction is in scope.
 **Observed real testnet transactions: none.** This amendment authorizes local code and offline
 tests only. No broadcast, deployment, token purchase or paid model call is authorized.
 
-## Implemented offline versus planned
+## Implemented offline versus observed live
 
-Phase 1 supplies payment DTOs and immutable accepted terms, public funding/payment routes,
-explicit mock authorization, durable mock operations, EOA signature verification, protocol
-hash/nonce/typed-data helpers, pinned interface/source provenance and all-state frontend
-fixtures. Mock typed data uses a non-chain domain and cannot authorize on-chain USDC.
-The mock terminal capture/release is atomic; asynchronous terminal/reorg states are fixtures.
+The integrated application supplies immutable schema-4 payment terms and public funding/payment
+routes, explicit mock authorization, automatic catalog dispatch, asynchronous capture/void gates,
+durable signed outbox/nonces, atomic confirmation/booking, EOA signature verification, verified
+USDC domain lookup, pinned ABI encoding, operator signing and receipt/event/state/canonical-block
+reconciliation. `BasePaymentTransport` is selected only by explicit Base startup configuration;
+mock remains default. Import/schema export never loads a private .env or calls RPC.
 
-Live RPC preflight, transaction signing/broadcast, live receipt/event/state reconciliation
-and the executable isolated payment runner are **planned**, not a working live integration.
-Pure encodings/signature recovery are not a deployment check or proof of funds. The source
-pin and reviewed addresses are:
+The executable isolated runner supports preflight, prepare, fund, status, capture, void, reconcile
+and payer reclaim. Offline examples use independent capture/void/reclaim fixtures. Combined
+application tests exercise the actual transport through synthetic RPC, funding → restart →
+automatic repair/PDF delivery → capture and independent funding → human review → void.
+Mock receipts remain mock. Fake-chain observations are test evidence, not live confirmations.
+
+Live deployment/balance checks, actual RPC latency and observed testnet settlement are **not yet
+verified**. The source pin and reviewed configuration addresses remain unchanged:
 
 | Item | Configuration |
 | --- | --- |
@@ -35,7 +40,8 @@ pin and reviewed addresses are:
 and [Circle token addresses](https://developers.circle.com/stablecoins/usdc-contract-addresses)
 support configuration research. [ABI provenance](../backend/app/payments/abi/README.md)
 discloses minimal interfaces transcribed from pinned Solidity, not full compiler artifacts.
-Before broadcast, independently verify RPC chain ID, deployed code/version compatibility,
+Startup/action preflight implements read probes; before any authorized live broadcast,
+independently verify RPC chain ID, deployed code/version compatibility,
 collector.authCaptureEscrow(), USDC decimals/domain and balances. None of those live checks
 has run. v1.1 capture takes absolute `feeAmount`, not v1.0 `feeBps`.
 
@@ -53,8 +59,8 @@ refund); never extend them on retry. Full capture uses amount_atomic, feeAmount=
 accepted fee receiver; full return uses void(originalPaymentInfo). Expiry permits payer
 reclaim but is not returned money. refundableAmount accounts for captured value, not held cash.
 
-The planned live executor must persist signed bytes/hash before broadcast, serialize operator
-nonces, reserve only one terminal action and reconcile ambiguous receipt/event/state evidence.
+The integrated executor persists signed bytes/hash before broadcast, serializes operator
+nonces, reserves only one terminal action and reconciles ambiguous receipt/event/state evidence.
 Never create a fresh payment/salt/nonce after a lost response. Two canonical confirmations are
 the configurable demo threshold, not Ethereum/L1 finality. Reorg recovery must not reissue
 transfers or fulfillment automatically. Signed capabilities stay private; reports are redacted.

@@ -228,12 +228,16 @@ def decision(
     },
 )
 def artifact(order_id: str, artifact_id: str, orders: Service):
-    order = orders.get(order_id)
+    from app.contracts.catalog import CatalogOrder
+    from app.datasets import is_dataset, public_bytes
+
+    with orders.repository.transaction() as db:
+        order = orders.repository.load(db, "order", order_id, CatalogOrder)
     evidence = next((a for a in order.artifacts if a.artifact_id == artifact_id), None)
     if not evidence:
         raise DomainError(404, "artifact not registered for this order")
     return Response(
-        orders.store.read(evidence),
+        public_bytes(evidence, orders.store) if is_dataset(order) else orders.store.read(evidence),
         media_type=evidence.media_type,
         headers={"Cache-Control": "no-store"},
     )

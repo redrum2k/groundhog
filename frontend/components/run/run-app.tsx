@@ -4,6 +4,7 @@ import type { LaneId, Step } from "../../lib/run/contract";
 import { project, type FoldContext, type View } from "../../lib/run/fold";
 import { CASE_NAME, CONTRACT_V1, ENDINGS, LANES, MAIN, S, controllerContinuation, stamp, timeline, type Case, type Ending } from "../../lib/run/scenario";
 import { LIVE_API, usePlayback, type Feed } from "../../lib/run/source";
+import LiveRun from "./live-run";
 import Canvas, { type CanvasView, type CNode } from "./canvas";
 import { IcLogo, IcPause, IcPlay, IcReplay } from "./icons";
 import Panel, { PanelBody } from "./panel";
@@ -35,6 +36,11 @@ const canvasView = (v: View, prefix = ""): CanvasView => ({
 });
 
 export default function RunApp() {
+  const [recorded, setRecorded] = useState(false);
+  return recorded ? <><button className="btn" onClick={()=>setRecorded(false)}>Live backend</button><RecordedRunApp/></> : <LiveRun recorded={()=>setRecorded(true)}/>;
+}
+
+export function RecordedRunApp() {
   const [tab, setTab] = useState<"run" | "customer">("run");
   const [run, setRun] = useState<Case>("shared");
   const [zoom, setZoom] = useState(true);
@@ -91,7 +97,7 @@ export default function RunApp() {
     const e = opts.ending ?? ending, l = opts.learned ?? false, m = opts.mode ?? mode;
     setRun(c); setZoom(true); setPanel(null); setLearned(l); setEnding(e);
     const ctx = ctxFor(c, e, l);
-    if (m === "live" && !l) setFeed({ kind: "live", api: LIVE_API, body: { case: c }, before: [], ctx });
+    if (m === "live" && !l) setFeed({ kind: "fixture", api: LIVE_API, body: { case: c }, before: [], ctx });
     else setFeed({ kind: "recorded", ...timeline(c, e, l), autoplay: opts.autoplay ?? true, ctx });
   };
   const toOverview = () => { setZoom(false); playback.pause(); setPanel(null); };
@@ -131,10 +137,10 @@ export default function RunApp() {
           {zoom && !learned && (
             <div className="seg" aria-label="Feed">
               <button className={mode === "recorded" ? "on" : ""} onClick={() => { setMode("recorded"); start(run, { mode: "recorded" }); }}>Recorded</button>
-              <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start(run, { mode: "live" }); }}>Live</button>
+              <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start(run, { mode: "live" }); }}>Legacy broker demo</button>
             </div>
           )}
-          <span className="tag">{playback.live ? "Live backend · synthetic data · mock payments" : "Sample run · synthetic data · mock payments"}</span>
+          <span className="tag">{playback.live ? "Legacy broker demo · scripted parties · mock payments" : "Recorded illustration · synthetic data · simulated decisions"}</span>
         </div>
       </header>
 

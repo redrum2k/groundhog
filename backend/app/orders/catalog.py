@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from app.agents.compiler import OfflineCompiler
+from app.agents.dataset import compile_dataset
 from app.agents.gateway import ModelFailure
 from app.catalog.amendments import assess_amendment
 from app.catalog.artifacts import ArtifactStore
@@ -24,6 +25,7 @@ from app.contracts.catalog import (
     Case,
     CatalogOrder,
     ClarificationAnswer,
+    DatasetDelivery,
     Delivery,
     DisputeContext,
     EvidenceRequest,
@@ -37,20 +39,25 @@ from app.contracts.catalog import (
     ReviewerDecision,
     Snapshot,
 )
+from app.contracts.dataset import BrokeragePolicy, DatasetSpecification
 from app.contracts.models import Money
+from app.datasets import delivery_artifact, is_dataset
 from app.investigation.catalog import CatalogInvestigator
+from app.orders.dataset import DatasetLifecycle
 from app.orders.review import review_table
+from app.orders.run_events import CanvasEffects
 from app.orders.service import DomainError, utc_now
 from app.payments.catalog import CatalogPayments
 from app.payments.mock import mock_receipt
 from app.runtime.catalog_policy import authorization_ready, capture_allowed
+from app.runtime.dataset_policy import cutoff, fits
 
 
 def identifier(prefix):
     return f"{prefix}-{uuid4().hex}"
 
 
-class CatalogService:
+class CatalogService(DatasetLifecycle):
     def __init__(
         self,
         repository,
@@ -60,22 +67,30 @@ class CatalogService:
         compiler=None,
         assessor=None,
         auto_mock_funding=False,
+        payment_mode="mock",
+        payment_config=None,
+        payment_transport=None,
     ):
         self.repository = repository
         self.clock = clock
         self.store = ArtifactStore(artifact_root)
         self.registry = SourceRegistry(repository, self.store)
         self.compiler = compiler or OfflineCompiler()
+        self.dataset_compiler = compiler
         self.investigator = CatalogInvestigator(assessor)
         self.policy = Policy()
         self.auto_mock_funding = auto_mock_funding
-        self.payments = CatalogPayments(self)
+        self.effects = CanvasEffects(self)
+        self.payments = CatalogPayments(
+            self, mode=payment_mode, config=payment_config, transport=payment_transport
+        )
 
     def _save(self, db, order):
         if order.schema_version < 4:
             raise DomainError(409, "historical catalog orders are read-only")
         self.payments.sync(db, order)
         self.repository.put(db, "order", order.snapshot.order_id, order)
+        self.effects.state(db, order)
 
     @staticmethod
     def _response_key(scope, key):
@@ -114,6 +129,8 @@ class CatalogService:
                 deadline=now + timedelta(seconds=self.policy.clarification_seconds),
             )
             self.repository.put(db, "request", draft.request_id, draft)
+            if draft.corpus_id.endswith("aggregate-v1"):
+                self.effects.created(db, draft)
             self.repository.remember(db, "requests", command.idempotency_key, fingerprint, draft)
             return draft
 
@@ -124,6 +141,8 @@ class CatalogService:
                 draft.status, draft.error = "human_review", "Pre-contract clarification expired."
                 draft.revision += 1
                 self.repository.put(db, "request", request_id, draft)
+                if draft.corpus_id.endswith("aggregate-v1"):
+                    self.effects.compiled(db, draft)
             return draft
 
     def compile_request(self, request_id, command):
@@ -141,7 +160,11 @@ class CatalogService:
                 raise DomainError(409, "draft revision/state is stale")
             if draft.compiler_calls >= 4:
                 draft.status, draft.error = "human_review", "Compiler call budget exhausted."
+                draft.revision += 1
                 self.repository.put(db, "request", request_id, draft)
+                if draft.corpus_id.endswith("aggregate-v1"):
+                    self.effects.compiled(db, draft)
+                self.repository.remember(db, scope, command.idempotency_key, fingerprint, draft)
                 return draft
             sources = self.registry.manifest(draft.corpus_id, db)
             draft.compiler_calls += 1
@@ -151,41 +174,65 @@ class CatalogService:
             self.repository.remember(db, scope, command.idempotency_key, fingerprint, draft)
         # No database lock during model calls; only allowlisted request and registry evidence.
         try:
-            observations = []
-            for source in sources:
-                extracted = extract_source(source, self.store)
-                observations.extend(extracted.parse_errors)
-                missing = [
-                    p.product_id
-                    for p in extracted.products
-                    if p.net_kg is None or p.unit_price is None
-                ]
-                if missing:
-                    observations.append(
-                        f"{source.source_id}: unreadable required values for {', '.join(missing)}; "
-                        "evidence repair may block fulfillment."
-                    )
-                if source.authority == "unverified":
-                    observations.append(f"{source.source_id}: supplier authority is unverified.")
-            result = self.compiler.compile(
-                PrecontractContext(
-                    draft=draft, sources=sources, source_observations=tuple(observations)
+            dataset = draft.corpus_id.endswith("aggregate-v1")
+            if dataset:
+                context = PrecontractContext(draft=draft, sources=sources)
+                result = (
+                    self.dataset_compiler.compile(context)
+                    if self.dataset_compiler
+                    else compile_dataset(context, self.store)
                 )
-            )
-            result = result.model_copy(
-                update={"limitations": tuple(dict.fromkeys((*result.limitations, *observations)))}
-            )
+                if result.terms and not isinstance(result.terms, DatasetSpecification):
+                    raise ValueError("aggregate intake requires a versioned dataset specification")
+            else:
+                observations = []
+                for source in sources:
+                    extracted = extract_source(source, self.store)
+                    observations.extend(extracted.parse_errors)
+                    missing = [
+                        p.product_id
+                        for p in extracted.products
+                        if p.net_kg is None or p.unit_price is None
+                    ]
+                    if missing:
+                        observations.append(
+                            f"{source.source_id}: unreadable required values for "
+                            f"{', '.join(missing)}; "
+                            "evidence repair may block fulfillment."
+                        )
+                    if source.authority == "unverified":
+                        observations.append(
+                            f"{source.source_id}: supplier authority is unverified."
+                        )
+                result = self.compiler.compile(
+                    PrecontractContext(
+                        draft=draft, sources=sources, source_observations=tuple(observations)
+                    )
+                )
+                result = result.model_copy(
+                    update={
+                        "limitations": tuple(dict.fromkeys((*result.limitations, *observations)))
+                    }
+                )
             failure = None
         except (ModelFailure, ValueError) as exc:
             result, failure = None, str(exc)
         with self.repository.transaction() as db:
             current = self.repository.load(db, "request", request_id, RequestDraft)
-            if current.revision != reserved_revision or self.clock() >= current.deadline:
+            if (
+                current.revision != reserved_revision
+                or current.status != "compiling"
+                or self.clock() >= current.deadline
+            ):
                 raise DomainError(409, "stale compiler result; refetch draft")
             if failure:
                 current.status, current.error = "human_review", failure
             elif result.question:
-                if current.questions_asked >= self.policy.clarification_rounds:
+                if current.questions_asked >= (
+                    2
+                    if current.corpus_id.endswith("aggregate-v1")
+                    else self.policy.clarification_rounds
+                ):
                     current.status, current.error = (
                         "human_review",
                         "Clarification budget exhausted.",
@@ -203,6 +250,8 @@ class CatalogService:
                 current.question, current.status = None, "ready"
             current.revision += 1
             self.repository.put(db, "request", request_id, current)
+            if current.corpus_id.endswith("aggregate-v1"):
+                self.effects.compiled(db, current)
             db.execute(
                 "UPDATE catalog_commands SET response=? WHERE scope=? AND key=?",
                 (current.model_dump_json(), scope, command.idempotency_key),
@@ -231,6 +280,14 @@ class CatalogService:
                 *draft.answers,
                 ClarificationAnswer(question_id=command.question_id, text=command.text),
             )
+            if draft.corpus_id.endswith("aggregate-v1"):
+                self.effects.message(
+                    db,
+                    request_id,
+                    f"answer:{draft.question.question_id}",
+                    command.text,
+                    speaker="buyer",
+                )
             draft.question, draft.status = None, "compiling"
             draft.revision += 1
             self.repository.put(db, "request", request_id, draft)
@@ -252,22 +309,38 @@ class CatalogService:
             draft = self.repository.load(db, "request", request_id, RequestDraft)
             if draft.revision != command.expected_revision or draft.status != "ready":
                 raise DomainError(409, "quote requires current completed specification")
+            dataset = isinstance(draft.specification.terms, DatasetSpecification)
+            if dataset and any(
+                q.request_id == request_id and q.purpose != "initial"
+                for q in self.repository.all(db, "quote", Quote)
+            ):
+                raise DomainError(409, "Child offer price and purpose are fixed; accept that offer")
+            price = (
+                Money(amount_minor=12000, currency="USD", decimals=2)
+                if dataset
+                else self.price("initial")
+            )
             quote = Quote(
                 quote_id=identifier("quote"),
                 request_id=request_id,
                 request_revision=draft.revision,
                 specification=draft.specification,
                 sources=self.registry.manifest(draft.corpus_id, db),
-                amount=self.price("initial"),
+                amount=price,
+                policy=BrokeragePolicy() if dataset else self.policy,
                 payment_terms=self.payments.terms(
-                    self.price("initial"), getattr(command, "payer", None), self.clock()
+                    price, getattr(command, "payer", None), self.clock()
                 ),
                 expires_at=min(draft.deadline, self.clock() + timedelta(seconds=180)),
                 work_description=(
-                    "Produce and verify a complete cited supplier-catalog PDF shortlist."
+                    "Produce and independently verify synthetic aggregate CSV and JSON preview."
+                    if dataset
+                    else "Produce and verify a complete cited supplier-catalog PDF shortlist."
                 ),
             )
             self.repository.put(db, "quote", quote.quote_id, quote)
+            if dataset:
+                self.effects.quoted(db, quote)
             self.repository.remember(db, scope, command.idempotency_key, fingerprint, quote)
             return quote
 
@@ -351,14 +424,27 @@ class CatalogService:
                 artifacts=tuple(s.artifact for s in quote.sources),
                 jobs=(Job(job_id=f"{order_id}:initial", kind="fulfill", binding=binding),),
             )
-            self.payments.initialize(db, order, self.auto_mock_funding)
+            replacement = parent is not None and quote.purpose == "substantive_amendment"
+            self.payments.initialize(
+                db, order, self.auto_mock_funding, parent=parent if replacement else None
+            )
+            if is_dataset(order):
+                if quote.purpose != "initial":
+                    draft = self.repository.load(db, "request", quote.request_id, RequestDraft)
+                    draft.status, draft.order_id = "accepted", order_id
+                    draft.revision += 1
+                    self.repository.put(db, "request", draft.request_id, draft)
+                if self.auto_mock_funding:
+                    raise DomainError(409, "brokerage requires explicit funding authorization")
+                self.effects.accepted(db, order)
             # Funding gates execution; accepting terms only reserves the durable job.
             self._save(db, order)
             if parent:
                 parent.children = (*parent.children, order_id)
                 if quote.purpose == "substantive_amendment":
-                    self._release(parent, now)
-                    parent.order_state, parent.authority_state = "closed", "clear"
+                    self._release(parent, now, db=db)
+                    if not self.payments.is_live(parent):
+                        parent.order_state, parent.authority_state = "closed", "clear"
                 parent.revision += 1
                 self._save(db, parent)
             self._remember_order(db, "acceptance", command.idempotency_key, fingerprint, order)
@@ -369,7 +455,7 @@ class CatalogService:
             with self.repository.transaction() as read_db:
                 return self.get(order_id, db=read_db)
         order = self.repository.load(db, "order", order_id, CatalogOrder)
-        if self._advance(order, self.clock()):
+        if self._advance(order, self.clock(), db=db):
             order.revision += 1
             self._save(db, order)
         return order
@@ -387,11 +473,19 @@ class CatalogService:
         ):
             raise DomainError(409, "stale revision or evidence binding; refetch")
 
-    def mutate(self, order_id, operation, command, *, actor=None):
-        self.get(order_id)
+    def mutate(self, order_id, operation, command, *, actor=None, advance=True):
+        if advance:
+            with self.repository.transaction() as db:
+                current = self.repository.load(db, "order", order_id, CatalogOrder)
+            if not is_dataset(current):
+                self.get(order_id)
         fingerprint = self.repository.fingerprint(
             operation if actor is None else f"{operation}:{actor}", command
         )
+        if operation == "dispute" and command.complaint.column is None:
+            historical = json.loads(fingerprint)
+            historical["payload"]["complaint"].pop("column")
+            fingerprint = json.dumps(historical, sort_keys=True)
         with self.repository.transaction() as db:
             replay = self.repository.replay(
                 db, order_id, command.idempotency_key, fingerprint, CatalogOrder
@@ -409,7 +503,10 @@ class CatalogService:
                 "review": self._review,
                 "retry": self._retry,
             }[operation]
-            handler(order, command, self.clock(), actor)
+            if operation in ("accept", "review", "dispute"):
+                handler(order, command, self.clock(), actor, db=db)
+            else:
+                handler(order, command, self.clock(), actor)
             order.revision += 1
             self._save(db, order)
             self._remember_order(db, order_id, command.idempotency_key, fingerprint, order)
@@ -424,10 +521,12 @@ class CatalogService:
             for c in order.cases
         )
 
-    def _advance(self, order, now):
+    def _advance(self, order, now, *, db=None):
         if order.schema_version < 4 or order.order_state == "closed":
             return False
         terms = order.snapshot.quote.payment_terms
+        if self.payments.is_live(order) and self.payments.reconciling(db, order):
+            return False
         if (
             terms
             and order.authorization.status == "pending"
@@ -443,6 +542,25 @@ class CatalogService:
             order.authorization = order.authorization.model_copy(update={"status": "expired"})
             self._human(order, "Authorization expired; no reviewer can override expiry.")
             return True
+        if is_dataset(order) and now >= cutoff(order) and order.authorization.status != "released":
+            if (
+                order.order_state == "human_review"
+                and order.error
+                == "Capture scheduling budget exhausted; release/reclaim requires confirmed return."
+            ):
+                return False
+            self._human(
+                order,
+                "Capture scheduling budget exhausted; release/reclaim requires confirmed return.",
+            )
+            return True
+        if (
+            is_dataset(order)
+            and order.order_state == "processing"
+            and not fits(order, now, "publication")
+        ):
+            self._human(order, "Processing cannot finish within the full accepted review budget.")
+            return True
         if order.order_state == "human_review":
             return False
         if any(c.status == "open" and now >= c.deadline for c in order.cases):
@@ -455,9 +573,15 @@ class CatalogService:
         ):
             self._human(order, "Evidence repair or approval deadline expired.")
             return True
+        if self.payments.is_live(order) and self.payments.journal.terminal(db, order.payment_id):
+            return False
         if order.deliveries and now >= order.deliveries[-1].review_deadline:
-            if capture_allowed(order, now):
-                self._capture(order, now)
+            if (
+                capture_allowed(order, now)
+                and self.payments.work_allowed(db, order)
+                and self.current_dataset_checks(order)
+            ):
+                self._capture(order, now, db=db)
                 return True
             if order.order_state == "delivered" and not any(
                 c.status == "open" for c in order.cases
@@ -473,7 +597,7 @@ class CatalogService:
         changed = 0
         with self.repository.transaction() as db:
             for order in self.repository.all(db, "order", CatalogOrder):
-                if self._advance(order, self.clock()):
+                if self._advance(order, self.clock(), db=db):
                     order.revision += 1
                     self._save(db, order)
                     changed += 1
@@ -485,12 +609,17 @@ class CatalogService:
                     draft.status, draft.error = "human_review", "Pre-contract deadline expired."
                     draft.revision += 1
                     self.repository.put(db, "request", draft.request_id, draft)
+                    if draft.corpus_id.endswith("aggregate-v1"):
+                        self.effects.compiled(db, draft)
                     changed += 1
         return changed
 
-    def _capture(self, order, now):
-        if not capture_allowed(order, now):
+    def _capture(self, order, now, *, db=None):
+        if not capture_allowed(order, now) or not self.current_dataset_checks(order):
             raise DomainError(409, "capture gates do not pass")
+        if self.payments.is_live(order):
+            self.payments.reserve_terminal(db, order, "capture")
+            return
         key = f"{order.snapshot.order_id}:capture"
         order.ledger = (
             *order.ledger,
@@ -504,9 +633,9 @@ class CatalogService:
             ),
         )
         order.order_state = "closed"
+        self.effects.payment(db, order, "capture", order.ledger[-1].receipt)
 
-    @staticmethod
-    def _release(order, now):
+    def _release(self, order, now, *, db=None):
         if any(b.kind == "capture" for b in order.ledger):
             raise DomainError(
                 409, "captured money needs a refund; refund execution is not implemented"
@@ -515,6 +644,9 @@ class CatalogService:
             return
         if order.authorization.receipt is None:
             raise DomainError(409, "unfunded payment has no held funds to return")
+        if self.payments.is_live(order):
+            self.payments.reserve_terminal(db, order, "void")
+            return
         key = f"{order.snapshot.order_id}:release"
         order.ledger = (
             *order.ledger,
@@ -529,13 +661,13 @@ class CatalogService:
         )
         order.authorization = order.authorization.model_copy(update={"status": "released"})
 
-    def _accept(self, order, command, now, actor):
+    def _accept(self, order, command, now, actor, *, db=None):
         if order.order_state != "delivered" or any(
             c.status in ("open", "scope_change", "human_review") for c in order.cases
         ):
             raise DomainError(409, "acceptance requires undisputed delivered work")
         order.customer_acceptance = order.binding
-        self._capture(order, now)
+        self._capture(order, now, db=db)
 
     def _invalidate(self, order):
         order.binding = order.binding.model_copy(
@@ -563,24 +695,36 @@ class CatalogService:
             return
         order.jobs = (*order.jobs, Job(job_id=identifier("job"), kind=kind, binding=order.binding))
 
-    def _dispute(self, order, command, now, actor):
+    def _dispute(self, order, command, now, actor, *, db=None):
+        submitted = self.payments.submitted_capture(db, order)
         if (
-            order.order_state != "delivered"
-            or not order.deliveries
-            or now >= order.deliveries[-1].review_deadline
+            not is_dataset(order)
+            and not submitted
+            and (
+                order.order_state != "delivered"
+                or not order.deliveries
+                or now >= order.deliveries[-1].review_deadline
+            )
         ):
             raise DomainError(409, "dispute requires an active unclosed delivery review")
+        if not order.deliveries:
+            raise DomainError(409, "a complaint requires a published delivery")
         if any(
-            c.complaint.artifact_id == order.deliveries[-1].pdf.artifact_id for c in order.cases
+            c.complaint.artifact_id == delivery_artifact(order.deliveries[-1]).artifact_id
+            for c in order.cases
         ):
             raise DomainError(409, "this delivery already has a dispute case")
         complaint = command.complaint
-        if complaint.artifact_id != order.deliveries[
-            -1
-        ].pdf.artifact_id or complaint.requirement_id not in {
+        if is_dataset(order):
+            self.validate_dataset_complaint(order, complaint)
+        if complaint.artifact_id != delivery_artifact(
+            order.deliveries[-1]
+        ).artifact_id or complaint.requirement_id not in {
             r.requirement_id for r in order.snapshot.quote.specification.requirements
         }:
-            raise ValueError("complaint must target the current PDF and an accepted requirement")
+            raise ValueError(
+                "complaint must target the current delivery and an accepted requirement"
+            )
         order.cases = (
             *order.cases,
             Case(
@@ -590,11 +734,28 @@ class CatalogService:
                 deadline=now + timedelta(seconds=60),
             ),
         )
+        self.effects.disputed(db, order)
+        if (
+            submitted
+            or is_dataset(order)
+            and (
+                order.ledger or now >= cutoff(order) or now >= order.deliveries[-1].review_deadline
+            )
+        ):
+            self._human(
+                order,
+                "Late complaint recorded; retain human review and reconcile any submitted payment.",
+            )
+            return
         self._invalidate(order)
         order.delivery_state = "needs_review"
         self._enqueue(order, "reverify")
 
     def _answer(self, order, command, now, actor):
+        if is_dataset(order):
+            raise DomainError(
+                422, "dataset answers require the request-bound /runs answer contract"
+            )
         case = order.cases[-1] if order.cases else None
         if not case or case.status != "open" or not case.question or now >= case.deadline:
             raise DomainError(409, "no current investigation question")
@@ -648,7 +809,7 @@ class CatalogService:
             source = self.registry.identify(amendment.artifact)
             self._apply_repair(order, amendment, source)
 
-    def _review(self, order, command, now, actor):
+    def _review(self, order, command, now, actor, *, db=None):
         if order.order_state != "human_review":
             raise DomainError(409, "reviewer decisions require human review")
         for span in command.supporting_evidence:
@@ -664,8 +825,9 @@ class CatalogService:
         )
         order.decisions = (*order.decisions, decision)
         if command.action == "release_authorization":
-            self._release(order, now)
-            order.order_state = "closed"
+            self._release(order, now, db=db)
+            if not self.payments.is_live(order):
+                order.order_state = "closed"
         elif command.action == "propose_exception":
             order.authority_state = "pending_consent"
             order.error = (
@@ -775,6 +937,10 @@ class CatalogService:
                 return replay
             current = self.repository.load(db, "order", order_id, CatalogOrder)
             self._check(current, command)
+            if is_dataset(current):
+                raise DomainError(
+                    422, "Use the versioned run evidence-answer endpoint for datasets"
+                )
             pending = next(
                 (
                     r
@@ -878,6 +1044,8 @@ class CatalogService:
             self._check(order, command)
             if self.clock() >= order.authorization.expires_at:
                 raise DomainError(409, "original authority expired; human resolution required")
+            if is_dataset(order):
+                raise DomainError(422, "Use the versioned run offer endpoint for datasets")
             sources = order.sources
             purpose = "additional_work"
             if command.amendment_id:
@@ -941,6 +1109,7 @@ class CatalogService:
                 order.schema_version < 4
                 or order.order_state
                 in ("human_review", "closed", "pending_approval", "waiting_evidence")
+                or not self.payments.work_allowed(db, order)
                 or not authorization_ready(order.authorization)
                 or now >= order.authorization.expires_at
             ):
@@ -959,6 +1128,19 @@ class CatalogService:
             )
             if candidate is None:
                 raise DomainError(409, "no dispatchable work")
+            if is_dataset(order) and not fits(
+                order, now, "dispatch" if candidate.kind != "reverify" else "publication"
+            ):
+                self._human(
+                    order,
+                    (
+                        "Insufficient capture budget for full work, review, dispute and "
+                        "permitted correction windows."
+                    ),
+                )
+                order.revision += 1
+                self._save(db, order)
+                return order, None
             if candidate.attempts >= 3:
                 self._human(order, "Durable worker retry budget exhausted.")
                 order.revision += 1
@@ -975,9 +1157,10 @@ class CatalogService:
             order.jobs = tuple(job if j.job_id == job.job_id else j for j in order.jobs)
             order.revision += 1
             self._save(db, order)
+            self.effects.job(db, order, job)
             return order, job
 
-    def _check_job(self, order, job):
+    def _check_job(self, order, job, *, db=None):
         current = next((j for j in order.jobs if j.job_id == job.job_id), None)
         if (
             current is None
@@ -986,6 +1169,7 @@ class CatalogService:
             or current.binding != order.binding
             or self.clock() >= current.lease_until
             or order.order_state in ("human_review", "closed", "pending_approval")
+            or not self.payments.work_allowed(db, order)
         ):
             raise DomainError(409, "worker lease or evidence binding is stale")
         if self.clock() >= order.authorization.expires_at:
@@ -1002,6 +1186,8 @@ class CatalogService:
         order, job = self.claim_job(order_id)
         if job is None:
             return order
+        if is_dataset(order):
+            return self.run_dataset(order, job)
         pending = next((a for a in order.amendments if a.classification == "pending"), None)
         try:
             if pending:
@@ -1068,7 +1254,7 @@ class CatalogService:
     def fail_job(self, order_id, job, reason):
         with self.repository.transaction() as db:
             order = self.repository.load(db, "order", order_id, CatalogOrder)
-            self._check_job(order, job)
+            self._check_job(order, job, db=db)
             self._finish_job(order, job, "failed", reason)
             order.order_state, order.delivery_state, order.error = (
                 "operational_failure",
@@ -1085,7 +1271,7 @@ class CatalogService:
         self.get(order_id)
         with self.repository.transaction() as db:
             order = self.repository.load(db, "order", order_id, CatalogOrder)
-            self._check_job(order, job)
+            self._check_job(order, job, db=db)
             for assessment in assessments:
                 for span in (*assessment.citations, *assessment.conflicting_evidence):
                     self.store.resolve(span, order.artifacts)
@@ -1133,6 +1319,12 @@ class CatalogService:
             return order
 
     def _reserve_correction(self, order):
+        if is_dataset(order) and not fits(order, self.clock(), "correction"):
+            self._human(
+                order,
+                "Insufficient capture budget for correction and full fresh review/dispute windows.",
+            )
+            return
         if order.free_corrections_used:
             self._human(order, "Further provider defect after the single free correction.")
             return
@@ -1145,7 +1337,7 @@ class CatalogService:
         self.get(order_id)
         with self.repository.transaction() as db:
             order = self.repository.load(db, "order", order_id, CatalogOrder)
-            self._check_job(order, job)
+            self._check_job(order, job, db=db)
             publishes = sidecar is not None
             expected = (
                 order.binding.model_copy(update={"delivery_version": len(order.deliveries) + 1})
@@ -1160,6 +1352,7 @@ class CatalogService:
                 for span in (*assessment.citations, *assessment.conflicting_evidence):
                     self.store.resolve(span, evidence)
             self._finish_job(order, job)
+            # Keep immutable evidence. Dataset downloads separately enforce safe-count validation.
             order.artifacts = evidence
             if order.verification:
                 order.verification_history = (*order.verification_history, order.verification)
@@ -1168,7 +1361,17 @@ class CatalogService:
                 report = report.model_copy(update={"binding": order.binding})
             order.verification = report
             now = self.clock()
-            if report.provider_defect:
+            published = False
+            if publishes and is_dataset(order) and not fits(order, now, "publication"):
+                order.verification = report.model_copy(update={"binding": order.binding})
+                self._human(
+                    order,
+                    (
+                        "Delivery cannot be published: full review/dispute/correction "
+                        "budget no longer fits."
+                    ),
+                )
+            elif report.provider_defect:
                 if order.cases and order.cases[-1].status == "open":
                     order.cases = (
                         *order.cases[:-1],
@@ -1185,24 +1388,34 @@ class CatalogService:
             else:
                 if publishes:
                     order.binding = expected
-                    delivery = Delivery(
+                    delivery_type = DatasetDelivery if is_dataset(order) else Delivery
+                    files = (
+                        {"csv": pdf, "preview": sidecar}
+                        if is_dataset(order)
+                        else {"pdf": pdf, "sidecar": sidecar}
+                    )
+                    delivery = delivery_type(
                         version=len(order.deliveries) + 1,
-                        pdf=pdf,
-                        sidecar=sidecar,
+                        **files,
                         published_at=now,
                         review_deadline=now + timedelta(seconds=60),
                         binding=expected,
                     )
                     order.deliveries = (*order.deliveries, delivery)
+                    published = True
                     order.customer_acceptance = None
                 order.order_state, order.delivery_state = "delivered", "verified"
                 order.repair_deadline = None
                 if order.cases and order.cases[-1].status == "open":
-                    self._resolve_complaint(order, semantic)
+                    if is_dataset(order):
+                        self.resolve_dataset_complaint(db, order, semantic)
+                    else:
+                        self._resolve_complaint(order, semantic)
                 if capture_allowed(order, now):
-                    self._capture(order, now)
+                    self._capture(order, now, db=db)
             order.revision += 1
             self._save(db, order)
+            self.effects.verified(db, order, job, report, published)
             return order
 
     def _resolve_complaint(self, order, semantic=None):
@@ -1255,12 +1468,11 @@ class CatalogService:
         return review_table(order, self.store)
 
     def view(self, order, *, db=None):
-        actions = []
         if db is None:
             with self.repository.transaction() as read_db:
-                payment = self.payments.view(read_db, order)
-        else:
-            payment = self.payments.view(db, order)
+                return self.view(order, db=read_db)
+        actions = []
+        payment = self.payments.view(db, order)
         if (
             payment
             and payment.payment.state == "awaiting_signature"
@@ -1274,7 +1486,7 @@ class CatalogService:
             ):
                 actions.append("accept")
             if self.clock() < order.deliveries[-1].review_deadline and not any(
-                case.complaint.artifact_id == order.deliveries[-1].pdf.artifact_id
+                case.complaint.artifact_id == delivery_artifact(order.deliveries[-1]).artifact_id
                 for case in order.cases
             ):
                 actions.append("dispute")
@@ -1284,6 +1496,28 @@ class CatalogService:
             actions.append("upload_evidence")
         if any(a.status == "pending" for a in order.approvals):
             actions.append("approve_amendment")
+        if payment and payment.payment.terms.mode == "base_sepolia":
+            if payment.payment.state != "funded":
+                actions = [
+                    a
+                    for a in actions
+                    if a not in ("accept", "upload_evidence", "approve_amendment", "answer")
+                ]
+            if (
+                any(
+                    o.intent.action == "capture" and o.state in ("submitted", "uncertain")
+                    for o in payment.operations
+                )
+                and order.deliveries
+                and not any(
+                    c.complaint.artifact_id == delivery_artifact(order.deliveries[-1]).artifact_id
+                    for c in order.cases
+                )
+                and "dispute" not in actions
+            ):
+                actions.append("dispute")
+            if not self.payments._parent_returned(db, payment.payment):
+                actions = []
         if order.schema_version < 4:
             actions = []
         return OrderView(

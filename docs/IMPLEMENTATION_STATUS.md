@@ -1,129 +1,101 @@
-# Implementation status — catalog v0.3 / payment Phase 1
+# Implementation status — aggregate brokerage v1
 
-Updated October 23, 2026. This supersedes invoice v0.2 behavior and ownership. The original catalog refactor began at 111 passing tests and reached a verified **130-test
-baseline** before this payment amendment. The amendment preserves the actively modified
-working tree; no teammate edits were reset.
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
 
-## Implemented foundation
 
-| Area | Delivered behavior |
+## Current integrated result — October 24, 2026
+
+Branch `codex/data-broker-migration` contains backend baseline `39dd586`, reviewed
+main `5c8dc72` (including Lucas `46f6c07`), migration `1956f18` and Prompt 7 `f8a929a`
+through merge `6a714cf`. The original checkout and Prompt 7-owned source files were
+not edited by the migration.
+
+- Primary intake and canvas: aggregate dataset contracts, explicit acceptance and
+  mock funding, independently verified CSV/JSON, durable events and resolving citations.
+- Payment gates: frozen dataset check registry, full-window scheduling budget and
+  positive capture margin; existing payment executor/journal, not a second ledger.
+- Compatibility: historical catalog, invoice/jobflow, broker-review-v0.3 and scoped
+  improvements keep their policies, clocks, artifacts and financial isolation.
+- Validation: **615 backend tests**, **88 frontend tests**, all generated clients,
+  typecheck, production build, Ruff lint/format and 27 offline lab processes pass.
+- Actual browser: development 3016 and production 3017 against mock backend 8016 pass.
+  Production Playwright run `request-61e0d9c0fe1f4779b4a02c0d333c090d` has no browser
+  errors, one capture/booking, matching downloaded CSV and working reload.
+  `/private/tmp/datumco-browser-final` contains screenshots, trace and payment evidence.
+- React Doctor: remote score unavailable; one maintainability warning and polling/
+  proxy diagnostics triaged in [workstream 06](workstreams/06-data-broker.md).
+- Scope: synthetic data, offline reasoning and mock/injected-chain validation only.
+  Real application settlement and hosted authentication remain unvalidated.
+
+Commands, detailed evidence, migration boundaries and PR description are in
+[workstream 06](workstreams/06-data-broker.md).
+
+## Historical backend integration result
+
+Updated October 24, 2026. Runtime, Base transport and catalog settlement are integrated on
+`codex/backend-integration`. [Exact commits, tests and limitations](workstreams/04-integration.md).
+The catalog API remains 0.4.0 / `catalog-api-v1`; payment policy remains `catalog-payments-v1`.
+The invoice workbench retains its own policy and API at `/api/jobflow`.
+
+## Demonstrated behavior
+
+| Area | Integrated result |
 | --- | --- |
-| Precontract | Persisted requests, targeted clarification, deadlines/budgets, typed Terms, stable requirement IDs, readable summary and actual-source limitations. |
-| Compiler/gateway | Injectable ContractCompiler and SemanticAssessor, offline substitutes, optional Claude Messages structured-output adapter, timeout/token/input limits, refusal/malformed-output handling and stale-result rejection. |
-| Quote/acceptance | Server price rule, immutable revision/manifest/policy/expiry binding, schema-4 immutable payment terms, separate acceptance/funding and one runnable job only after funding, exact persisted retries and changed-payload rejection. |
-| Sources | Provider-owned immutable registry versions/hashes/edition/authority records and content-addressed artifact storage. Four synthetic supplier PDFs, 48 products. |
-| Documents | Real ReportLab PDFs; pdfplumber extraction, Decimal normalization/comparisons, source-derived structured sidecars, exact text spans and line highlights. |
-| Verification | Allowlisted per-record and global checks, actual output PDF verification independent of its sidecar, PASS/FAIL/UNKNOWN/CONFLICT and dependency-based material blockers. |
-| Evidence repair | Pre/post-delivery request-bound bounded PDF uploads, immutable amendments, identity/edition/consistency/authority checks, repair/substantive/unresolved classification, consent gates and invalidation. |
-| Substantive change | Explicit provider offer + customer acceptance -> linked child order with new snapshot/manifest/authorization/job; parent-release dependency preserving history; current mock release is atomic. |
-| Durable work | Persisted jobs/leases/attempts/errors, authorization gate before dispatch, expired lease recovery and stale result rejection. Model/document work outside long DB transactions. |
-| Disputes/correction | Targeted product/field/requirement complaints, distinct scope change, two question rounds, no unsupported-complaint fee, one durable free correction and repeated-failure escalation. |
-| Review/capture | 60-second delivery and dispute windows; unchanged deadlines on answers; current complete verification, clear authority/dispute gates, acceptance/cutoff, valid exact authorization and no prior capture required. |
-| Human review | Relevant evidence table with source/delivery citations, remedy/financial/authority context; separate reviewer token; reason/evidence/binding/idempotency-backed decisions and negotiated-exception records. |
-| Compatibility | Additive catalog/payment tables, schema-4 accepted terms, readable historical mock snapshots and exact historical order/idempotent response retention. No historical policy/ledger rewrite. |
-| Integration | Updated root/nested instructions, ownership/API/architecture/payment guidance, exported OpenAPI, React/TypeScript contract examples, executable offline journeys. |
+| Request and agreement | Automatic persisted compilation/clarification, immutable server quote and schema-4 accepted payment terms. Stable checks, price/amount/parties/deadlines cannot be replaced by model output. |
+| Runtime | CatalogWorker selects eligible drafts/jobs; independent catalog/invoice deadline, catalog work, invoice work and payment lanes. Bounded calls, durable leases, restart recovery, fenced stale results and draining shutdown. |
+| Funding and fulfillment | Explicit simulated mock funding or confirmed Base funding enables the one reserved job. Actual source/PDF verification, source-derived sidecar and citations. No work on acceptance/signature/submission alone. |
+| Repair and unresolved evidence | Registered same-edition repair produces a verified PDF. Unregistered readable repair reaches useful human review with no capture. Consent and substantive changes retain separate authority gates. |
+| Settlement | Mock terminal booking is atomic. Base capture/void stays pending until matching canonical payment evidence and catalog booking commit once, in the same SQLite transaction. |
+| Safety and recovery | Current binding/checks/evidence/amount/review/expiry gates before submission; late disputes cannot cancel submitted capture; uncertainty/reorg holds, exact replay, nonce serialization and one terminal operation. Replacement waits for confirmed parent void and its own funding. |
+| Base transport | Pinned ABI, verified USDC domain, read-only deployment probes, dedicated operator signing, exact-byte outbox, event/state/receipt reconciliation. Fully exercised with synthetic RPC; no actual chain proof. |
+| Configuration | Mock default; Base selected only during lifespan, with startup preflight. Missing signer/preflight failure disables submission without mock fallback. Import and OpenAPI export do not initialize RPC/signers or load .env. |
+| Frontend contract | Same 26 catalog paths / 66 schemas, generated TypeScript and 12 simulated payment fixtures. Only health's existing live_adapter default changed from planned to disabled. Invoice's 10 paths/schema remain separate. |
+| Ownership | Lucas's existing Next/React invoice UI is preserved; no catalog screens/server bridge were implemented. Jeff's semantics/documents remain intact. |
 
-## Phase 1 payment/frontend contract handoff
+## Validation
 
-Implemented offline: `catalog-payments-v1` DTOs, exact integer/decimal-string token amounts,
-explicit USD:USDC conversion, frozen PaymentInfo/hash/nonce/parties/deadlines, schema-4 snapshots
-with historical schema-3 mock compatibility, separate funding preparation/authorization/payment
-views, EOA signature verification and explicit mock simulation, durable mock operations,
-generated complete OpenAPI/TypeScript contracts and focused frontend helpers. The mock signing
-domain cannot authorize live USDC. Validation errors redact input/signatures.
+Final backend suite: **442 passed in 57.00s**, one upstream websockets deprecation warning.
+Ruff lint/format pass (107 Python files). Exact checks and commands are recorded in
+[workstream 04](workstreams/04-integration.md).
+The integrated HTTP/lifespan tests use temporary SQLite stores, synthetic PDFs, injected clocks,
+offline compiler results and the actual Base transport with an RPC double. Independent synthetic
+fund/capture and fund/void runs cross restart and only book after released confirmation evidence.
+Tests also cover auth boundaries, signature redaction, stale 409s, exact response replay, model/RPC
+lane isolation, shutdown, all payment states, legacy snapshots and invoice compatibility.
 
-All 12 payment account states have Pydantic-validated runnable JSON fixtures. Exact protocol
-hashes/nonces validate too. `tools/frontend_mock.py` serves the frozen payment endpoint without
-external services. Main-app mock capture/release completes atomically; pending terminal/reorg
-states are frontend fixtures for future asynchronous execution, not observed transactions.
+README repaired journey: closed, one mock capture, verified PDF. Unresolved journey: human_review,
+nine evidence rows, zero bookings. The lab executes all 27 offline subprocess commands, including
+separate expiry/reclaim. Local Uvicorn OpenAPI equals the export; the fixture server serves all
+12 simulated states. Catalog generation/freshness and strict TypeScript compilation pass.
+Frontend invoice generation check, typecheck, 29 tests and production build pass with Node 24.14.1.
 
-Offline protocol helpers and minimal ABI/source provenance are pinned to Base Commerce Payments
-v1.1.0 commit b748fdd7a830a655a19a530edcf2a94b9dc7d25f. They are not an RPC integration. Live
-preflight, operator transaction signing/broadcast, authoritative chain reconciliation and the
-standalone payment runner remain the next independent Nikita milestone. `/health` reports this
-capability as planned. **No real testnet receipt exists.** See PAYMENT_RUNBOOK.md for current
-commands and explicitly planned runner commands. Lucas can implement now from handoffs/lucas.md.
+## Evidence levels and remaining work
 
-## Phase 1 validation and publication
+- **Mock:** simulated funding/booking, no chain transaction IDs or explorer links. Historical
+  mock snapshots/responses stay mock and unchanged even when read by a Base-configured service.
+- **Fake chain:** actual transport encoding/signing/reconciliation against injected RPC and public
+  synthetic scalars. This is not EVM execution, deployed bytecode attestation or an actual receipt.
+- **Implemented, not live verified:** RPC preflight, operator submission and lab payer reclaim.
+  No real testnet transactions or live balances have been observed. No broadcasts are authorized.
+- **Outstanding live milestone:** separately authorize fresh disposable setup; verify deployment,
+  domain, historical RPC support, latency, test ETH/USDC, provider non-authority and independent
+  100000-atomic-USDC fund/restart/capture and fund/void receipts. USD 15 catalog work still requires
+  15000000 atomic USDC. [Runbook](PAYMENT_RUNBOOK.md) and [spike](PAYMENT_SPIKE.md).
+- **Recovery limits:** no automatic rebroadcast, fee bump/replacement, orphaned-operation recovery,
+  catalog payer-reclaim endpoint or refunds. Crash around durable submission may need manual
+  recovery. Individual RPC calls are bounded; long multi-read preflight may exceed the payment
+  lease and is fenced. Shutdown drains calls rather than killing Python threads.
+- **Product limits:** local customer audit labels are not authentication; tenant isolation,
+  production settlement, public deployment, arbitrary scanned PDF/OCR and live supplier authority
+  remain outside the demonstrated demo. Offline model/semantic quality needs independent evaluation.
+- **Team next steps:** Lucas owns catalog screens/wallet/server bridge; Jeff owns semantic/document
+  quality; Rehan owns independent outcomes and actual sponsor requirements. Nikita owns the separate
+  live preflight/proof and payment recovery. [Lucas recipe](handoffs/lucas.md).
 
-- **180 tests pass**, including wallet typed-data/signature round trips, funding gates,
-  durable replay, expiration, journal rollback, mock capture/void, all-state HTTP fixtures,
-  historical read-only behavior and catalog regressions. Ruff lint and formatting pass.
-- OpenAPI matches the runtime: **26 paths, 66 schemas**, API 0.4.0 / `catalog-api-v1`.
-  Generated TypeScript passes its freshness check and strict TypeScript 5.9.3 compilation.
-- The runnable localhost mock server returned valid responses for all 12 payment states;
-  the temporary server was stopped after verification.
-- Publication branch: `nikita/catalog-payment-handoff`, based on `06112e2`. Remote main
-  gained Jeff's integrated jobflow commit `39538c0` during this work. This handoff is kept
-  separate initially to preserve that concurrent implementation. PR #2 now reconciles
-  both workflows without replacing either API contract; see integration details below.
-
-## Catalog baseline validation (before this amendment)
-
-- **130 tests passed at the pre-amendment baseline**: current catalog/API/runtime/gateway/payment behavior plus historical DTO
-  decoding. Superseded invoice fee/timeout tests were replaced, not treated as current policy.
-- Ruff lint and format checks pass. The locked uv environment includes the new PDF dependencies.
-- The pre-amendment OpenAPI exported 22 paths (including health) with catalog models, 60-second policy fields,
-  distinct privileged routes and no client-manufactured order snapshot creation endpoint.
-  At that baseline the export matched the running localhost Uvicorn schema; /health and /openapi.json
-  returned HTTP 200, and the temporary server was stopped.
-- The v0.3 wheel builds and was inspected: no evaluator keys, corpus tooling, test fixtures,
-  local databases or environment files are packaged.
-- Repaired journey: clarification -> accepted quote -> pre-delivery source issue -> evidence
-  request -> registered repair -> independently verified PDF -> one mock capture at cutoff.
-- Unregistered-authority and conflicting-date journeys: human review, nine relevant evidence
-  rows each, no capture. These are engineering scenarios, not independent gold evaluation.
-- Rendered and visually inspected the four original source PDFs and all three delivery pages.
-  No clipping/overlap; product groups stay together, synthetic/mock disclosure is visible.
-
-Commands and configuration are in README.md. No paid model calls, broadcasts, infrastructure
-changes or deployments were performed. Generated PDFs/databases/reports remain ignored.
-
-## Mocks, limitations and remaining decisions
-
-- Customer identity strings are demo audit labels. Customer authentication, tenant isolation,
-  production worker isolation, upload malware/resource sandboxing and deployment are future work.
-- The parser supports the documented synthetic catalog layout with extractable text; arbitrary
-  supplier layouts, scans/OCR and real crop/rotation examples need Jeff/Lucas integration.
-- Supplier authority is a synthetic trusted provider registry. Real supplier registration and
-  authorized-representative attestation workflows are not implemented. A logo is never authority.
-- Offline compiler/semantic implementations are deliberately bounded. Claude is implemented
-  behind explicit opt-in, validated with injected responses, but not live-tested or quality-evaluated.
-  Semantic/tool disagreement escalates rather than being treated as independent ground truth.
-- Runtime model work is injectable; durable jobs are dispatched explicitly through the worker
-  API or offline harness. There is no automatic paid provider scheduler or frontend implementation.
-- Compilation interrupted between reservation and result retains its budget/reservation; a
-  worker refetches and uses a new retry key within the existing deadline/call budget.
-- Financial execution remains mock in Phase 1. Base Sepolia/test USDC/Commerce Payments and a
-  dedicated platform operator are decided. Live RPC/transaction integration and testnet evidence
-  are not complete; production finality/refunds remain outside scope. No x402 or verification fee.
-- Rehan's independent gold labels/usefulness evaluation and actual Hyphenate/Coinbase/Microsoft
-  sponsor requirements are outstanding. Jev is optional and absent. A RegressionRuleProposal
-  contract is an offline extension point, not autonomous production self-improvement.
-
-## First teammate tasks
-
-Nikita: finish the independent reusable Base adapter/terminal laboratory after the frontend
-contract handoff, then integrate the same adapter with the offline catalog journey. Jeff: extend semantic/document intelligence and evaluate independent-from-producer checks.
-Lucas: build complete request/approve/inspect/respond and buyer-wallet UI against the frozen
-API/types/mock responses, including every pending/uncertain/expired display. Rehan: independently label
-clean, defective, repaired, substantively amended and unresolved cases and prepare the demo/sponsor
-checklist. Exact module ownership/interfaces/completion criteria: responsibilities.md.
-
-Deadline: **Sunday, October 25, 2026, 9 a.m. America/Los_Angeles**.
-
-## Main-branch integration (PR #2)
-
-Jeff's existing invoice workbench and backend are preserved at `/api/jobflow`, with
-OpenAPI at `/api/jobflow/openapi.json`. Catalog routes, schema component names,
-TypeScript handoff and mock payment contracts retain their existing root paths.
-Invoice policy is retained explicitly in `docs/jobflow/INVOICE_POLICY.md`; its
-executor and policy live in isolated compatibility modules. The invoice sweep
-only advances records owned by `jf_orders`, preserving unrelated historical rows.
-Separate background tasks prevent invoice processing from blocking catalog clocks.
-The existing invoice UI has not been converted into the catalog/wallet frontend.
-
-Integration validation: 296 backend tests; Ruff lint/format; 29 frontend tests;
-frontend contract-generation check, strict typecheck and production build. Catalog
-OpenAPI and generated TypeScript remain unchanged and pass their freshness checks.
-No paid model calls, testnet broadcasts or deployments were performed.
+No paid models, existing secrets/private databases, deployment, push or main-branch mutation were
+used. The earlier 130-test catalog baseline, 180-test payment handoff and 296-test invoice merge
+are historical milestones; final combined validation supersedes their completion claims.

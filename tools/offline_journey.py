@@ -10,11 +10,14 @@ from pathlib import Path
 from app.contracts.catalog import (
     AcceptQuoteCommand,
     ClarifyCommand,
+    OrderCommand,
     RequestCommand,
     RevisionCommand,
     UploadCommand,
 )
+from app.contracts.payments import FundingAuthorization
 from app.orders.catalog import CatalogService
+from app.runtime.catalog_worker import CatalogWorker
 from app.storage.catalog import CatalogRepository
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -42,9 +45,11 @@ def run(scenario, output):
     output.mkdir(parents=True, exist_ok=True)
     clock = Clock()
     service = CatalogService(
-        CatalogRepository(output / "orders.sqlite3"), output / "evidence", clock,
-        auto_mock_funding=True,
+        CatalogRepository(output / "orders.sqlite3"),
+        output / "evidence",
+        clock,
     )
+    worker = CatalogWorker(service)
     fixtures = seed(service)
     draft = service.create_request(
         RequestCommand(
@@ -53,10 +58,8 @@ def run(scenario, output):
             idempotency_key="request",
         )
     )
-    draft = service.compile_request(
-        draft.request_id,
-        RevisionCommand(expected_revision=draft.revision, idempotency_key="compile-1"),
-    )
+    worker.run_once()
+    draft = service.get_request(draft.request_id)
     if draft.question is None:
         raise RuntimeError("journey expected material weight-concept clarification")
     draft = service.clarify(
@@ -68,10 +71,8 @@ def run(scenario, output):
             text="Use net unit weight.",
         ),
     )
-    draft = service.compile_request(
-        draft.request_id,
-        RevisionCommand(expected_revision=draft.revision, idempotency_key="compile-2"),
-    )
+    worker.run_once()
+    draft = service.get_request(draft.request_id)
     quote = service.issue_quote(
         draft.request_id, RevisionCommand(expected_revision=draft.revision, idempotency_key="quote")
     )
@@ -81,7 +82,28 @@ def run(scenario, output):
         )
     )
     order_id = order.snapshot.order_id
-    order = service.run_one(order_id)
+    preparation = service.payments.prepare(
+        order_id,
+        OrderCommand(
+            expected_revision=order.revision,
+            expected_binding=order.binding,
+            idempotency_key="prepare-funding",
+        ),
+    )
+    service.payments.authorize(
+        order_id,
+        FundingAuthorization(
+            expected_revision=order.revision,
+            expected_binding=order.binding.model_dump(),
+            idempotency_key="simulate-funding",
+            funding_attempt_id=preparation.funding_attempt_id,
+            payment_hash=preparation.terms.payment_hash,
+            simulate=True,
+        ),
+    )
+    service.payments.work(limit=1)
+    worker.run_once()
+    order = service.get(order_id)
     if order.order_state != "waiting_evidence" or order.deliveries:
         raise RuntimeError(
             f"expected pre-delivery evidence repair, got {order.order_state}: {order.error}"
@@ -107,9 +129,11 @@ def run(scenario, output):
             pdf_base64=base64.b64encode(service.store.read(artifact)).decode(),
         ),
     )
-    order = service.run_one(order_id)
+    worker.run_once()
+    order = service.get(order_id)
     if scenario == "repaired":
-        order = service.run_one(order_id)
+        worker.run_once()
+        order = service.get(order_id)
         if order.order_state != "delivered":
             raise RuntimeError(f"repair failed: {order.order_state}: {order.error}")
         clock.advance(60)

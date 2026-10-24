@@ -35,7 +35,8 @@ curl --fail http://127.0.0.1:4173/__mock/states
 | `reorg_hold` | Chain evidence changed; human recovery needed | Hold and refetch; never rerun payment/work. |
 
 The fixture API performs no wallet action. The main app's current mock capture/release completes
-atomically; terminal pending/reorg fixtures exercise planned asynchronous Base UI states.
+atomically; terminal pending/reorg fixtures exercise the integrated asynchronous Base states.
+These files remain simulated and unchanged; they are not observed chain evidence.
 
 `expired_not_returned` represents previously held funds; unfunded expiry is failed/human review.
 A reviewer release without held funds returns 409.
