@@ -117,8 +117,8 @@ def scoped_sources(order: OrderView, issue_id: str) -> list[Evidence]:
     return allowed
 
 
-def _question(issue_id: str, text: str, recipient: str = "customer") -> Question:
-    digest = hashlib.sha256((issue_id + "\0" + text).encode()).hexdigest()[:16]
+def _question(issue_id: str, text: str, recipient: str = "customer", basis: str = "") -> Question:
+    digest = hashlib.sha256((issue_id + "\0" + text + "\0" + basis).encode()).hexdigest()[:16]
     return Question(id=f"question-{digest}", issue_id=issue_id, text=text, recipient=recipient)
 
 
@@ -262,6 +262,23 @@ def assess(order: OrderView, issue_id: str, *, now: datetime | None = None) -> I
     for finding in findings:
         for citation in finding.citations:
             validate_citation(sources, citation)
+    answered = [q for q in issue.questions if q.status == "ANSWERED"]
+    if questions and answered:
+        basis = "|".join(q.answer_id or q.id for q in answered)
+        if len([q for q in answered if q.recipient == "customer"]) >= 2:
+            questions = [
+                _question(
+                    issue_id,
+                    "Customer replies have not established accepted scope. "
+                    "Please make an authorized judgment or hand off this issue.",
+                    "controller",
+                    basis,
+                )
+            ]
+        else:
+            questions = [_question(issue_id, q.text, q.recipient, basis) for q in questions]
+    existing_open = {q.id for q in issue.questions if q.status == "OPEN"}
+    questions = [q for q in questions if q.id not in existing_open]
     return InvestigationOutcome(
         issue_id=issue_id,
         revision=order.revision,

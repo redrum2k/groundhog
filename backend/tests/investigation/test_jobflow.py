@@ -109,6 +109,23 @@ def test_question_id_stable_on_repeated_investigation():
     assert assess(current, "issue-1").questions == assess(current, "issue-1").questions
 
 
+def test_open_question_is_not_repeated_and_insufficient_answer_has_new_id():
+    current = order()
+    question = assess(current, "issue-1").questions[0]
+    current.issues[0].questions.append(question)
+    assert assess(current, "issue-1").questions == []
+    question.status = "ANSWERED"
+    question.answer_id = "answer-1"
+    followup = assess(current, "issue-1").questions[0]
+    assert followup.id != question.id
+    assert followup.issue_id == question.issue_id
+    followup.status = "ANSWERED"
+    followup.answer_id = "answer-2"
+    current.issues[0].questions.append(followup)
+    third = assess(current, "issue-1").questions[0]
+    assert third.recipient == "controller"
+
+
 def test_missing_accepted_evidence_requires_specific_request():
     current = order()
     current.evidence = current.evidence[1:]
