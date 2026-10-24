@@ -1,7 +1,6 @@
 import asyncio
-import logging
 import os
-from contextlib import asynccontextmanager, nullcontext, suppress
+from contextlib import asynccontextmanager, nullcontext
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -17,13 +16,13 @@ from app.contracts.http import Capabilities, ErrorResponse
 from app.orders.catalog import CatalogService
 from app.orders.service import DomainError, utc_now
 from app.payments import configured_payment_mode
+from app.runtime.background import background_workers
+from app.runtime.catalog_worker import CatalogWorker
 from app.runtime.jobflow import Jobflow
 from app.runtime.jobflow_worker import recover, run_once
 from app.storage.catalog import CatalogRepository
 from app.storage.jobflow import DomainError as JobflowError
 from app.storage.jobflow_lock import worker_ownership
-
-logger = logging.getLogger(__name__)
 
 
 def create_app(
@@ -74,41 +73,32 @@ def create_app(
         )
         jobflow_app.state.jobflow = app.state.jobflow
 
-        async def sweep():
-            while True:
-                try:
-                    await asyncio.to_thread(app.state.orders.expire_due)
-                    await asyncio.to_thread(app.state.orders.payments.work)
-                    await asyncio.to_thread(app.state.jobflow.base.expire_due)
-                except Exception:
-                    logger.exception("Deadline recovery failed; persisted work will be retried")
-                await asyncio.sleep(1)
-
-        async def consume_jobflow():
-            while True:
-                try:
-                    if await run_once(app.state.jobflow):
-                        continue
-                except Exception:
-                    logger.exception("Jobflow worker interrupted; persisted work needs recovery")
-                    recover(app.state.jobflow)
-                await asyncio.sleep(0.25)
+        def consume_jobflow():
+            # Keep even synchronous invoice claim/result writes off the lifespan loop.
+            try:
+                return asyncio.run(run_once(app.state.jobflow))
+            except Exception:
+                recover(app.state.jobflow)
+                raise
 
         ownership = worker_ownership(path) if run_worker else nullcontext()
         with ownership:
             app.state.orders.expire_due()
-            tasks = []
             if run_worker:
                 recover(app.state.jobflow)
-                tasks = [asyncio.create_task(sweep()), asyncio.create_task(consume_jobflow())]
-            try:
+                app.state.catalog_worker = CatalogWorker(app.state.orders)
+                async with background_workers(
+                    (
+                        ("catalog-deadlines", lambda: app.state.orders.expire_due(), 1),
+                        ("invoice-deadlines", lambda: app.state.jobflow.base.expire_due(), 1),
+                        ("catalog", app.state.catalog_worker.run_once, 0.25),
+                        ("payments", lambda: app.state.orders.payments.work(limit=1), 0.25),
+                        ("invoice", consume_jobflow, 0.25),
+                    )
+                ):
+                    yield
+            else:
                 yield
-            finally:
-                for task in tasks:
-                    task.cancel()
-                for task in tasks:
-                    with suppress(asyncio.CancelledError):
-                        await task
 
     app = FastAPI(
         title="Catalog order to cash",
