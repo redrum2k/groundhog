@@ -1,0 +1,33 @@
+[project]
+name = "order-to-cash-backend"
+version = "0.1.0"
+description = "Cal Hacks document-processing order contracts and backend scaffold"
+requires-python = ">=3.12"
+dependencies = [
+  "anthropic>=0.40,<1",
+  "fastapi>=0.115,<1",
+  "langgraph>=1,<2",
+  "pydantic>=2.10,<3",
+  "uvicorn>=0.30,<1",
+]
+
+[dependency-groups]
+dev = ["httpx>=0.28,<1", "pytest>=8,<10", "ruff>=0.9,<1"]
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
