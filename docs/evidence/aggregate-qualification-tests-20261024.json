@@ -1,0 +1,155 @@
+{
+  "final_backend_commit": "b9476d930b413f03a6d86582d9596c1e3a052a2f",
+  "reports": [
+    {
+      "artifact": "cohort-confirmation-before.xml",
+      "sha256": "9eed92898b035ea183cd9467dd5c04e275154b0c272f278121b7757f223b6d6c",
+      "tests": 2,
+      "passed": 0,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 0.914,
+      "failures": [
+        {
+          "test": "tests.dataset.test_cohort_confirmation::test_yes_to_explicit_supported_cohort_offer_progresses[False]",
+          "message": "AssertionError: assert 'clarification' == 'ready'\n  \n  - ready\n  + clarification"
+        },
+        {
+          "test": "tests.dataset.test_cohort_confirmation::test_yes_to_explicit_supported_cohort_offer_progresses[True]",
+          "message": "AssertionError: assert 'clarification' == 'ready'\n  \n  - ready\n  + clarification"
+        }
+      ]
+    },
+    {
+      "artifact": "focused-final.xml",
+      "sha256": "7e1c7cf2163b31a86353215176c70058494ad99b6ec8b3f733a0d3cce1faa2a3",
+      "tests": 108,
+      "passed": 108,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 17.724,
+      "failures": []
+    },
+    {
+      "artifact": "full-qualified.xml",
+      "sha256": "adbfda5242c1dd5d2eccd50c3cf62f42e157c69539dd2d18154a05263d478372",
+      "tests": 805,
+      "passed": 794,
+      "failed": 11,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 325.743,
+      "failures": [
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[None]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[preflight]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[prepare]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[fund]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[status]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[capture]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[void]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[reconcile]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[reclaim]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline",
+          "message": "AssertionError: assert (33206 & 511) == 384\n +  where 33206 = os.stat_result(st_mode=33206, st_ino=28710447626593201, st_dev=12725089181132977750, st_nlink=1, st_uid=0, st_gid=0, st_size=69632, st_atime=1792872323, st_mtime=1792872323, st_ctime=1792872323).st_mode\n +    where os.stat_result(st_mode=33206, st_ino=28710447626593201, st_dev=12725089181132977750, st_nlink=1, st_uid=0, st_gid=0, st_siz"
+        },
+        {
+          "test": "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments",
+          "message": "FileNotFoundError: [WinError 2] The system cannot find the file specified"
+        }
+      ]
+    },
+    {
+      "artifact": "full-final-confirmation.xml",
+      "sha256": "47798b08fd152dc9f698bbd2e6242edd61d4ee54b942eb656476f3333e5c59d3",
+      "tests": 811,
+      "passed": 799,
+      "failed": 12,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 329.416,
+      "failures": [
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[None]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[preflight]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[prepare]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[fund]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[status]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[capture]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[void]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[reconcile]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_help_has_examples_and_no_rpc_or_journal[reclaim]",
+          "message": "AssertionError: assert 1 == 0\n +  where 1 = CompletedProcess(args=['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\\\backend\\\\.venv\\\\Scripts\\\\python.exe', 'D:\\\\Down...    import _overlapped\\nOSError: [WinError 10106] The requested service provider could not be loaded or initialized\\n').returncode"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline",
+          "message": "AssertionError: assert (33206 & 511) == 384\n +  where 33206 = os.stat_result(st_mode=33206, st_ino=3096224745935274, st_dev=12725089181132977750, st_nlink=1, st_uid=0, st_gid=0, st_size=69632, st_atime=1792872723, st_mtime=1792872723, st_ctime=1792872723).st_mode\n +    where os.stat_result(st_mode=33206, st_ino=3096224745935274, st_dev=12725089181132977750, st_nlink=1, st_uid=0, st_gid=0, st_size="
+        },
+        {
+          "test": "tests.runtime.test_backend_integration::test_http_automatic_repair_and_settlement_with_restart[unresolved-base_sepolia]",
+          "message": "assert 0 == 1\n +  where 0 = len([])\n +    where [] = <test_backend_integration.DelayedRpc object at 0x000001D3B0432EA0>.broadcasts"
+        },
+        {
+          "test": "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments",
+          "message": "FileNotFoundError: [WinError 2] The system cannot find the file specified"
+        }
+      ]
+    }
+  ],
+  "paid_model_environment": false,
+  "live_rpc": false,
+  "notes": "Before-fix and intermediate failures retained; no payment test changes. Public report contains metadata, not credential-bearing subprocess environments."
+}

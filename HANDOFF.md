@@ -1,12 +1,15 @@
 # Current aggregate integration pickup
 
-Read [AGGREGATE_INTEGRATION.md](AGGREGATE_INTEGRATION.md) first: current-main backend
-integration, conversational consent fix, bounded Claude intake wiring, tests, exact
-event seam and limitations. Branch `feature/aggregate-intake-integration-20261024`,
+Read [AGGREGATE_MODEL_QUALIFICATION.md](AGGREGATE_MODEL_QUALIFICATION.md) first:
+30 actual Claude Opus 5.5 calls, preserved negative pilot results, fresh post-fix
+dispute/intake qualification, cumulative costs and model features OFF by default.
+[AGGREGATE_INTEGRATION.md](AGGREGATE_INTEGRATION.md) retains the prior integration
+checkpoint and exact event seam. Branch `feature/aggregate-intake-integration-20261024`,
 PR https://github.com/redrum2k/order-to-cash/pull/12 targeting main. Do not self-merge.
-Latest frontend and Human naming are preserved. No new paid calls; the existing
-window expired. Model-dependent features remain OFF, with injected intake tests
-explicitly distinguished from historical real primary-dispute calls.
+Latest frontend and Human naming are preserved. The user's separate 90-minute
+qualification window runs conservatively from 12:52 to 14:22 Pacific on October 24.
+Old windows/spending were not reset. Real API evidence is distinct from injected
+tests; no production/shared-main enablement or main merge occurred.
 
 The original semantic evidence in [PRIMARY_HANDOFF.md](PRIMARY_HANDOFF.md) and
 [PRIMARY_RESULTS.md](PRIMARY_RESULTS.md) is frozen history, not current integration

@@ -1,5 +1,11 @@
 # Aggregate backend integration — qualification and Lucas handoff
 
+Subsequent real-model qualification is now recorded in
+[AGGREGATE_MODEL_QUALIFICATION.md](AGGREGATE_MODEL_QUALIFICATION.md). This document
+preserves the earlier `849e98a` integration checkpoint, including its then-expired
+window and absence of new paid calls. The later explicitly authorized window and
+live evidence supersede those statements as current status; defaults remain OFF.
+
 ## Delivery scope
 
 Branch: `feature/aggregate-intake-integration-20261024`.
