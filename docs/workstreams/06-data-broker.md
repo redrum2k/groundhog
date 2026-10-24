@@ -1,3 +1,7 @@
+> Current route and validation update: see [frontend/payment integration](../reviews/frontend-payment-integration.md).
+> `/` is the retained-broker DataPact canvas; `/live` is funded aggregate intake.
+> The checkpoint below retains its historical results and route descriptions.
+
 # 06 — Aggregate brokerage and live DatumCo canvas
 
 Branch: `codex/data-broker-migration`. Local integration merge: `41ecf61`.

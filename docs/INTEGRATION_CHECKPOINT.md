@@ -1,3 +1,7 @@
+> Current route and validation update: see [frontend/payment integration](reviews/frontend-payment-integration.md).
+> `/` is the retained-broker DataPact canvas; `/live` is funded aggregate intake.
+> The checkpoint below retains its historical results and route descriptions.
+
 # Shared integration checkpoint — aggregate brokerage v1
 
 > Aggregate brokerage update (October 24): new default intake uses

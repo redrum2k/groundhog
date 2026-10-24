@@ -1,3 +1,21 @@
+# Current integration status — October 24
+
+[Reviewed integration](../reviews/frontend-payment-integration.md) includes payment
+`593e02f` and published main `04756e1`, validated at `4a24c9f`. R3/R4 still fail
+under their original strict markers on this combined baseline (720 passes, two
+expected failures). They were neither removed nor reinstated by integration.
+
+Your published `origin/feature/aggregate-intake-integration-20261024` is available
+at `e774495192f903d0c1191590cf13cfc4a9439977`, including `d2b6ba1`, `5946378` and
+`ef8c99a`; it remains a separate review/integration item. The reported `0983c1b`
+object is still unavailable. This integration does not qualify an unpublished
+conversational-intake amendment or rewrite your existing branch. Prompt 10's audit
+reuse candidate is `tools/audit_primary_evidence.py` at `ef8c99a` (same blob at
+`e774495`); inspect and attribute it separately, without running its private-path
+entry point or merging compiler/runtime changes just to obtain tooling.
+
+The review and job assignments below are preserved as historical checkpoints.
+
 # Review remediation — Jeff's remaining release blockers
 
 ## Current job after the payment-lease review — October 24

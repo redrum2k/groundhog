@@ -1,12 +1,18 @@
 # Current integration — October 24
 
-Independent review of `593e02fcbc63b45d95d252e7314289eda39d4fb0` reproduced
-78 ms streaming termination, no late buyer reservation, 63 passing boundary cases
-and all 27 offline lab commands. It is being integrated with published main
-`04756e131233d47739dfa6c3eb89b917f2b60284` and the scoped frontend/schema checkpoint.
-Combined-tree validation and publication are pending. Jeff's published feature
-branch remains a separate review item. Exact-byte recovery and live proof remain
-future work; no paid calls, real RPC or broadcasts are authorized.
+Reviewed payment commit `593e02fcbc63b45d95d252e7314289eda39d4fb0` is merged in
+`4a24c9f91962c2924770614e38b6e6edee905a94`, preserving published main `04756e1`
+and the local frontend/schema checkpoint. Combined validation passed: 720 backend
+cases plus two unchanged R3/R4 expected failures, 109 frontend cases, 27 offline
+lab commands, both aggregate production smokes, root broker objection/acceptance,
+Recorded fallback and aggregate backend restart/reload. Exact inputs, review probes,
+commands and exclusions: [integration record](../reviews/frontend-payment-integration.md).
+Startup routes and manual checks: [testing guide](../TEST_PLATFORM_NOW.md).
+
+Next payment work is separately scoped exact-byte recovery, then separately
+authorized live proof. Jeff's feature branch remains unmerged pending its own
+review. Prompt 10 may inspect the audit tooling at `ef8c99a` without absorbing that
+runtime branch. No evaluation or recovery implementation belongs to this integration.
 
 The following records describe their own historical checkpoints; statements about
 unmerged work or missing renewal are not current integration status.

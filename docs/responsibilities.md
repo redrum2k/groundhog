@@ -11,7 +11,18 @@ This replaces all earlier ownership assignments. The product refactor is authori
 wait for teammate permission to implement it. Nikita and Jeff jointly own shared contracts;
 Lucas joins decisions affecting API/display behavior. Preserve each other's working changes.
 
-## Current jobs after the 09 review — October 24
+## Current integration status — October 24
+
+The [frontend/payment integration](reviews/frontend-payment-integration.md) merges
+reviewed `593e02f` with published main `04756e1`; implementation merge `4a24c9f`
+passed combined offline validation. Nikita's 09b boundary work is complete.
+Exact-byte transaction recovery and live proof remain separate future work.
+Jeff's published compiler/intake branch at `e774495` is available but unmerged;
+R3/R4 remain two strict expected failures on this main baseline. Prompt 10 may
+review audit tooling at `ef8c99a`; no evaluator implementation is included here.
+Lucas's `/` retained-broker canvas and `/live` aggregate intake both remain intact.
+
+## Historical jobs after the 09 review — October 24
 
 The [09 review](reviews/09-results-review.md) independently reproduced 695 passing
 backend tests and the two known compiler failures, but found two untested attempt
