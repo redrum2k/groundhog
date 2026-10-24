@@ -58,14 +58,17 @@ function Decision({ title, open, taken, done, slot = "decision", orb, children, 
 }
 
 /** A stretch of the conversation: open and scrolling in its own box while it is the live thing, folded once the decision it fed is taken. */
-function Transcript({ title, count, open, stop, children }: { title: string; count?: number; open: boolean; stop?: Stop; children: ReactNode }) {
+/** `compact`: it stays open but short, pinned to the latest turn, so the decision it fed stays in view. */
+function Transcript({ title, count, open, compact, children }: { title: string; count?: number; open: boolean; compact?: boolean; children: ReactNode }) {
+  const body = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => { if (compact && body.current) body.current.scrollTop = body.current.scrollHeight; }, [compact]);
   const [pinned, setPinned] = useState<boolean | null>(null); // the viewer's own toggle wins until the section changes state
   useEffect(() => { setPinned(null); }, [open]);
   const isOpen = pinned ?? open;
   return (
     <details className="cust-sec" open={isOpen} onToggle={(e) => { const o = e.currentTarget.open; if (o !== isOpen) setPinned(o); }}>
-      <summary className="cust-step"><IcChevronRight size={12} strokeWidth={2} className="chev" />{title}{count ? <span className="faint">{count} {count === 1 ? "turn" : "turns"}</span> : null}{stop && <OrbSlot name={stop} />}</summary>
-      <div className="cust-body">{children}</div>
+      <summary className="cust-step"><IcChevronRight size={12} strokeWidth={2} className="chev" />{title}{count ? <span className="faint">{count} {count === 1 ? "turn" : "turns"}</span> : null}</summary>
+      <div className={`cust-body${compact ? " short" : ""}`} ref={body}>{children}</div>
     </details>
   );
 }
@@ -158,7 +161,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
           </div>
 
           {clarify && (n.clarify?.messages.length ?? 0) > 0 && (
-            <Transcript title={clarify.title} count={n.clarify?.messages.length} open={n.clarify?.status === "running" && awaiting !== "approve" && moved?.at !== "contract"} stop="transcript"><PanelBody step={clarify} {...bodyProps} customer /></Transcript>
+            <Transcript title={clarify.title} count={n.clarify?.messages.length} open compact={n.clarify?.status !== "running" || awaiting === "approve" || moved?.at === "contract"}><PanelBody step={clarify} {...bodyProps} customer /></Transcript>
           )}
 
           {contractLines.length > 0 && (

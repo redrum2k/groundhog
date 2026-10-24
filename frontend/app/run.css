@@ -336,6 +336,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .cust-sec[open] > .cust-step .chev { transform: rotate(90deg); }
 /* the live stretch of conversation scrolls in its own box; the page stays short enough to keep the decision in view */
 .cust-body { max-height: min(46vh, 440px); overflow: auto; }
+.cust-body.short { max-height: min(28vh, 240px); }
 .cust-body .panel-sec.sticky { top: 0; box-shadow: none; }
 
 @media (max-width: 760px) {
@@ -362,8 +363,12 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .cust-money { display: flex; align-items: center; gap: 8px; }
 /* the orb's places in this view; away from home it hangs off the row it marks, so nothing reflows when it comes and goes */
 .orb-slot { position: relative; display: inline-flex; flex: none; }
-.slot-transcript, .slot-decision, .slot-inspect { margin-left: auto; width: 34px; height: 0; align-self: center; }
-.slot-transcript > .cust-orb, .slot-decision > .cust-orb, .slot-inspect > .cust-orb { position: absolute; top: -17px; left: 0; }
+.slot-decision, .slot-inspect { margin-left: auto; width: 34px; height: 0; align-self: center; }
+.slot-decision > .cust-orb, .slot-inspect > .cust-orb { position: absolute; top: -17px; left: 0; }
+/* in Acme's own view Acme writes on the right; our agent answers on the left, the orb beside its newest message */
+.customer .b-buyer { align-self: flex-end; }
+.customer .b-agent, .customer .b-controller { align-self: flex-start; margin-left: 42px; }
+.bub .slot-transcript { position: absolute; left: -42px; bottom: 0; width: 34px; height: 34px; }
 .slot-inspect { z-index: 3; } /* the inspector flies over the card's rows and checks */
 .cust-orb { display: block; pointer-events: none; }
 .orb-flyer { position: fixed; left: 0; top: 0; z-index: 5; transform-origin: 0 0; }

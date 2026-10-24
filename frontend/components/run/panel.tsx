@@ -6,6 +6,7 @@ import type { CellEvidence } from "../../lib/runs.generated";
 import { CONTRACT, CONTRACT_V2, S, type Case, type Ending } from "../../lib/run/scenario";
 import TodoList, { type ChecklistItem } from "./checklist";
 import { IcCheck, IcChevronRight, IcLock, IcX } from "./icons";
+import { OrbSlot } from "./guide";
 import Label from "./label";
 
 // One right-side panel holds every step's detail. It renders whatever the event stream attached
@@ -18,7 +19,8 @@ function CiteChip({ e, onCite }: { e: Evidence; onCite: (s: Source) => void }) {
   return <button className="cite" onClick={() => onCite(e.source)}><Label text={e.label} /><IcChevronRight size={11} strokeWidth={1.8} /></button>;
 }
 
-function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View; highlight?: string; onCite: (s: Source) => void }) {
+/** `guide`: the customer view's orb sits beside our agent's newest message (outside that view the slot renders nothing). */
+function Chat({ items, view, highlight, onCite, guide }: { items: Message[]; view: View; highlight?: string; onCite: (s: Source) => void; guide?: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const seen = useRef(items.length);
   const height = useRef(0); // the pane's scroll height before the latest messages landed
@@ -36,10 +38,12 @@ function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View
     const below = last.getBoundingClientRect().bottom - pane.getBoundingClientRect().bottom;
     if (below > 0) pane.scrollBy?.({ top: below + 12, behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [items.length]);
+  const newest = guide ? items.findLast((m) => m.from === "agent")?.id : undefined;
   return (
     <div className="chat" ref={box}>
       {items.map((m) => (
         <div key={m.id} id={`msg-${m.id}`} className={`bub b-${m.from}${highlight === m.id ? " flash" : ""}`}>
+          {m.id === newest && <OrbSlot name="transcript" />}
           <span className="bub-who">{m.from === "buyer" ? S.buyerAgent : m.from === "controller" ? <Label text={`${S.controller} · ${S.controllerRole}`} quiet="tail" /> : S.agent}</span>
           <div className="bub-text">
             {m.text}
@@ -107,7 +111,8 @@ function Books({ node }: { node: NodeState }) {
 }
 
 /** The interview with the contract checklist ticking above it as answers settle lines. */
-function Interview({ view, highlight, onCite }: { view: View; highlight?: string; onCite: (s: Source) => void }) {
+/** In the customer view the contract card below already lists the terms as they're written, so its interview is the chat alone. */
+function Interview({ view, highlight, onCite, customer }: { view: View; highlight?: string; onCite: (s: Source) => void; customer?: boolean }) {
   const n = view.nodes.clarify;
   const drafted = new Set(n?.drafted.map((l) => l.id));
   const asked = new Set(n?.asked);
@@ -120,10 +125,10 @@ function Interview({ view, highlight, onCite }: { view: View; highlight?: string
   if (view.contract.version >= 2) items.push({ id: CONTRACT_V2.id, title: CONTRACT_V2.text, status: "completed", detail: "v2" });
   return (
     <>
-      <div className="panel-sec sticky">
+      {!customer && <div className="panel-sec sticky">
         <TodoList title={`Data contract v${view.contract.version}`} items={items.length ? items : [{ id: "x", title: "Waiting for the first answer", status: "pending" }]} />
-      </div>
-      <Chat items={n?.messages ?? []} view={view} highlight={highlight} onCite={onCite} />
+      </div>}
+      <Chat items={n?.messages ?? []} view={view} highlight={highlight} onCite={onCite} guide />
     </>
   );
 }
@@ -204,7 +209,7 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
   </>);
   else if (!node) content = <p className="faint">{step.detail}</p>;
   else switch (step.kind) {
-    case "clarify": content = <Interview view={view} onCite={onCite} />; break;
+    case "clarify": content = <Interview view={view} onCite={onCite} customer={customer} />; break;
     case "paid": {
       const pay = view.payments[0];
       content = (<div className="pay"><div className="pay-amt">${(pay?.amount ?? S.price).toFixed(2)}</div>
