@@ -3,63 +3,65 @@
 // by seq. Both produce the same RunEvent list, folded by the same function.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Binding, ControllerAction, RunEvent } from "./contract";
-import { project, type RunState } from "./fold";
-import { controllerContinuation, holdFor, stamp, type Draft } from "./scenario";
+import { project, type FoldContext, type View } from "./fold";
+import { controllerContinuation, holdFor, stamp, type Draft, type Ending } from "./scenario";
 
 export const STUB_API = "/api/run-stub";
 
 export type Feed =
-  | { kind: "still"; events: RunEvent[] } // the whole timeline at once, not playing
-  | { kind: "recorded"; events: RunEvent[]; start: number }
-  | { kind: "live"; api: string; ending: "disagree" | "agree" | "controller"; before: RunEvent[] };
+  | { kind: "still"; events: RunEvent[]; ctx: FoldContext } // the whole timeline at once, not playing
+  | { kind: "recorded"; events: RunEvent[]; start: number; autoplay: boolean; ctx: FoldContext }
+  | { kind: "live"; api: string; ending: Ending; before: RunEvent[]; ctx: FoldContext };
 
-export type Status = "idle" | "playing" | "waiting" | "done" | "error";
+export type Status = "idle" | "playing" | "paused" | "waiting" | "done" | "error";
 export interface Playback {
-  run: RunState;
+  view: View;
   status: Status;
   error?: string;
   live: boolean;
+  played: number; // events applied so far
   /** The controller's click: appends the recorded continuation, or posts to the live run. */
   decide: (action: ControllerAction, binding: Binding) => Promise<string | null>;
+  play: () => void;
+  pause: () => void;
   skip: () => void;
 }
 
 /** The scenario stops here until a controller clicks; what follows depends on the click. */
-const atControllerGate = (events: RunEvent[]) => { const l = events[events.length - 1]; return l?.type === "step_waiting" && l.step === "controller"; };
+const atControllerGate = (events: RunEvent[]) => { const l = events[events.length - 1]; return l?.type === "step_waiting" && l.step === "decide"; };
 
-export function usePlayback(source: Feed): Playback {
+export function usePlayback(feed: Feed): Playback {
   const [events, setEvents] = useState<RunEvent[]>([]);
   const [cursor, setCursor] = useState(0);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string>();
   const runId = useRef<string | null>(null);
   const lastSeq = useRef(0); // the live cursor; recorded events before it keep their own seqs
-  const live = source.kind === "live";
+  const live = feed.kind === "live";
 
-  // A new source resets playback
+  // A new feed resets playback
   useEffect(() => {
     runId.current = null;
     setError(undefined);
-    if (source.kind === "still") { setEvents(source.events); setCursor(source.events.length); setStatus("done"); return; }
-    if (source.kind === "recorded") { setEvents(source.events); setCursor(source.start); setStatus("playing"); return; }
-    setEvents(source.before); setCursor(source.before.length); setStatus("playing");
+    if (feed.kind === "still") { setEvents(feed.events); setCursor(feed.events.length); setStatus("done"); return; }
+    if (feed.kind === "recorded") { setEvents(feed.events); setCursor(feed.start); setStatus(feed.autoplay ? "playing" : "idle"); return; }
+    setEvents(feed.before); setCursor(feed.before.length); setStatus("playing");
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const poll = async () => {
       try {
         if (!runId.current) {
-          const res = await fetch(`${source.api}/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ending: source.ending }) });
+          const res = await fetch(`${feed.api}/runs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ending: feed.ending }) });
           if (!res.ok) throw new Error(`Could not start the live run (${res.status})`);
           runId.current = ((await res.json()) as { id: string }).id;
         }
-        const after = lastSeq.current;
-        const res = await fetch(`${source.api}/runs/${runId.current}/events?after=${after}`, { cache: "no-store" });
+        const res = await fetch(`${feed.api}/runs/${runId.current}/events?after=${lastSeq.current}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`The run stopped answering (${res.status})`);
         const { events: fresh, poll_after_ms } = (await res.json()) as { events: RunEvent[]; poll_after_ms: number };
         if (cancelled) return;
-        if (fresh.length) {
-          const next = fresh.filter((e) => e.seq > lastSeq.current);
-          lastSeq.current = next.length ? next[next.length - 1].seq : lastSeq.current;
+        const next = fresh.filter((e) => e.seq > lastSeq.current);
+        if (next.length) {
+          lastSeq.current = next[next.length - 1].seq;
           setEvents((prev) => [...prev, ...next]);
           setCursor((c) => c + next.length);
         }
@@ -73,34 +75,34 @@ export function usePlayback(source: Feed): Playback {
     lastSeq.current = 0;
     void poll();
     return () => { cancelled = true; if (timer) clearTimeout(timer); };
-  }, [source]);
+  }, [feed]);
 
-  // Recorded playback: advance on a timer, pause where the scenario waits on the controller
+  // Recorded playback: advance on a timer, stop where the scenario waits on the controller
   useEffect(() => {
-    if (source.kind !== "recorded" || status !== "playing") return;
+    if (feed.kind !== "recorded" || status !== "playing") return;
     if (cursor >= events.length) { setStatus(atControllerGate(events) ? "waiting" : "done"); return; }
-    const id = setTimeout(() => setCursor(cursor + 1), cursor > source.start ? holdFor(events[cursor - 1]) : 0);
+    const id = setTimeout(() => setCursor(cursor + 1), cursor > feed.start ? holdFor(events[cursor - 1]) : 400);
     return () => clearTimeout(id);
-  }, [source, status, cursor, events]);
+  }, [feed, status, cursor, events]);
 
-  // Live: the stream is done when its last event closes the books or a learned step
+  // Live: the stream is done when its last event closes the capture
   useEffect(() => {
-    if (source.kind !== "live" || status !== "playing" || events.length <= source.before.length) return;
+    if (feed.kind !== "live" || status !== "playing" || events.length <= feed.before.length) return;
     const last = events[events.length - 1];
-    if (last?.type === "step_completed" && (last.step === "books" || last.step === "learned")) setStatus("done");
+    if (last?.type === "step_completed" && last.step === "captured") setStatus("done");
     else if (atControllerGate(events)) setStatus("waiting");
-  }, [source, status, events]);
+  }, [feed, status, events]);
 
-  const run = useMemo(() => project(events.slice(0, cursor)), [events, cursor]);
+  const view = useMemo(() => project(events.slice(0, cursor), feed.ctx), [events, cursor, feed.ctx]);
 
   const decide = useCallback(async (action: ControllerAction, binding: Binding) => {
-    if (source.kind === "live") {
-      const res = await fetch(`${source.api}/runs/${runId.current}/decisions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, binding }) });
+    if (feed.kind === "live") {
+      const res = await fetch(`${feed.api}/runs/${runId.current}/decisions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, binding }) });
       if (!res.ok) { const { detail } = (await res.json().catch(() => ({ detail: `Request failed (${res.status})` }))) as { detail: string }; return detail; }
       setStatus("playing");
       return null;
     }
-    // Recorded: drop the scripted continuation and append the one for this action
+    // Recorded: append the continuation for this action
     setEvents((prev) => {
       const kept = prev.slice(0, cursor);
       const drafts: Draft[] = controllerContinuation(action, binding);
@@ -108,9 +110,11 @@ export function usePlayback(source: Feed): Playback {
     });
     setStatus("playing");
     return null;
-  }, [source, cursor]);
+  }, [feed, cursor]);
 
-  const skip = useCallback(() => { setCursor(events.length); setStatus("done"); }, [events.length]);
+  const play = useCallback(() => setStatus((s) => (s === "idle" || s === "paused" ? "playing" : s)), []);
+  const pause = useCallback(() => setStatus((s) => (s === "playing" && !live ? "paused" : s)), [live]);
+  const skip = useCallback(() => { setCursor(events.length); setStatus(atControllerGate(events) ? "waiting" : "done"); }, [events]);
 
-  return { run, status, error, live, decide, skip };
+  return { view, status, error, live, played: cursor, decide, play, pause, skip };
 }

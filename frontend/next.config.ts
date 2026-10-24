@@ -6,6 +6,7 @@ const backend = (process.env.BACKEND_URL ?? "http://127.0.0.1:8000").replace(
 );
 const config: NextConfig = {
   agentRules: false,
+  devIndicators: false,
   output: "standalone",
   async rewrites() {
     return [

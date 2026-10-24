@@ -1,80 +1,104 @@
 import { describe, expect, it } from "vitest";
-import { bindingFor, coinFor, locate, nodeKey, project } from "../lib/run/fold";
-import { CO, controllerContinuation, ENDINGS, LANES, stamp, timeline } from "../lib/run/scenario";
+import type { DataContract } from "../lib/run/contract";
+import { bindingFor, project, type FoldContext } from "../lib/run/fold";
+import { CONTRACT_V1, controllerContinuation, ENDINGS, LANES, S, stamp, timeline, type Case, type Ending } from "../lib/run/scenario";
 import { createRun, decide, eventsAfter } from "../lib/run/stub-store";
 
+const ctx = (lane: Case, ending: Ending = "maya", learned = false): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 as DataContract });
+const CASES: Case[] = ["shared", ...LANES];
+
+/** The whole recorded run, with Maya's approval appended when the ending waits on her. */
+function full(c: Case, ending: Ending, learned = false) {
+  const { events } = timeline(c, ending, learned);
+  if (c !== "amber" || ending !== "maya" || learned) return events;
+  const v = project(events, ctx(c, ending, learned));
+  return [...events, ...stamp("amber", controllerContinuation("approve", bindingFor(v)), events.length)];
+}
+
 describe("scenario integrity", () => {
-  for (const [ending] of ENDINGS) {
-    it(`every event lands on a planned step (${ending})`, () => {
-      const { events } = timeline("all", ending);
+  for (const c of CASES) for (const [ending] of ENDINGS) {
+    it(`every event lands on a planned step (${c}, ${ending})`, () => {
+      const events = full(c, ending);
       const planned = new Set<string>();
       for (const e of events) {
-        if (e.type === "steps_planned") { for (const s of e.steps) planned.add(nodeKey(e.track, s.id)); continue; }
-        if ("step" in e) expect(planned.has(nodeKey(e.track, e.step)), `${e.type} on ${e.track}/${e.step}`).toBe(true);
+        if (e.type === "steps_planned") { for (const s of e.steps) planned.add(s.id); continue; }
+        if ("step" in e) expect(planned.has(e.step), `${e.type} on ${e.step}`).toBe(true);
       }
       expect(events.map((e) => e.seq)).toEqual(events.map((_, i) => i + 1));
     });
   }
 
-  it("every citation points at a message or cell that exists", () => {
-    const run = project([...timeline("all", "controller").events, ...stamp("amber", controllerContinuation("approve", { deliveryVersion: 1, evidenceVersion: 3 }), 10_000)]);
-    for (const e of Object.values(run.evidence)) {
-      const src = e.source;
-      if (src.kind === "none") continue;
-      const node = run.nodes[locate(run, src)!.key];
-      if (src.kind === "message") expect(node.messages.some((m) => m.id === src.messageId), e.id).toBe(true);
-      else expect(node.delivery?.version, e.id).toBe(src.version);
+  it("every citation points at a message or a sheet row that is on screen", () => {
+    for (const c of LANES) {
+      const v = project(full(c, "maya"), ctx(c));
+      const messages = new Set(Object.values(v.nodes).flatMap((n) => n.messages.map((m) => m.id)));
+      for (const e of Object.values(v.evidence)) {
+        const src = e.source;
+        if (src.kind === "message") expect(messages.has(src.messageId), `${c}: ${e.id}`).toBe(true);
+        if (src.kind === "cell") expect(v.deliveries.some((d) => d.version === src.version), `${c}: ${e.id}`).toBe(true);
+      }
     }
   });
 
-  it("the shared path ends captured and each lane ends in its books", () => {
-    const run = project(timeline("all", "agree").events);
-    expect(coinFor(run, "shared")).toMatchObject({ amount: CO.price, state: "captured", mock: true });
-    for (const lane of LANES) {
-      expect(run.nodes[nodeKey(lane, "books")].status).toBe("done");
-      expect(run.nodes[nodeKey(lane, "books")].margin).toBeDefined();
-      expect(coinFor(run, lane)?.state).toBe("captured");
+  it("every case ends captured with books and a margin", () => {
+    const expected: Record<Case, number> = { shared: S.price, red: S.price, green: S.price + S.oakland, amber: S.price };
+    for (const c of CASES) {
+      const v = project(full(c, "maya"), ctx(c));
+      expect(v.nodes.captured.status, c).toBe("done");
+      expect(v.nodes.captured.margin?.revenue, c).toBe(expected[c]);
+      expect(v.coin, c).toMatchObject({ done: true, text: `$${expected[c]} captured · mock` });
     }
-    expect(coinFor(run, "green")?.amount).toBe(CO.price + CO.oakland);
+    expect(project(full("amber", "rules_no"), ctx("amber", "rules_no")).coin?.text).toBe(`$${S.price + S.yoga} captured · mock`);
+  });
+
+  it("a dispute re-enters Produce as attempt 2 and draws the return loop", () => {
+    const v = project(full("red", "maya"), ctx("red"));
+    expect(v.nodes.produce.attempt).toBe(2);
+    expect(v.loops).toEqual(["verdict"]);
+    expect(v.nodes.verdict.status).toBe("fail");
+    expect(v.nodes.verdict.chip).toBe("Our miss");
+    expect(v.cards.some((c) => c.tone === "rule" && c.node === "produce")).toBe(true);
   });
 
   it("the shared check fixes the privacy line and the delivery withholds the ZIP", () => {
-    const run = project(timeline("all", "agree").events);
-    expect(run.nodes["shared/check"].checks.privacy).toMatchObject({ passed: true, fix: expect.stringContaining("94129") });
-    const row = run.nodes["shared/deliver"].delivery?.rows.find((r) => r.zip === "94129");
-    expect(row?.count).toBeNull();
+    const v = project(full("shared", "maya"), ctx("shared"));
+    expect(v.nodes.produce.checks.privacy).toMatchObject({ passed: true, fix: expect.stringContaining("94129") });
+    expect(v.deliveries.at(-1)?.rows.find((r) => r.zip === "94129")?.flag).toBe("withheld");
+    expect(v.nodes.produce.chip).toBe("5 of 5 passed");
   });
 
-  it("a controller approval leads to contract v2 and a rule-decided rerun", () => {
-    const { events } = timeline("amber", "controller");
-    const run = project(events);
-    expect(run.nodes["amber/controller"].status).toBe("waiting");
-    const after = project([...events, ...stamp("amber", controllerContinuation("approve", bindingFor(run, "amber")), events.length)]);
-    expect(after.tracks.amber.contract?.version).toBe(2);
-    expect(after.nodes["amber/learned"].ruleApplied).toEqual({ ruleId: "rule-yoga", outcome: "agree" });
-    expect(after.nodes["amber/learned"].status).toBe("done");
+  it("the grey area waits on the controller, then learns contract v2", () => {
+    const { events } = timeline("amber", "maya");
+    const v = project(events, ctx("amber"));
+    expect(v.nodes.decide.status).toBe("waiting");
+    expect(v.orb).toEqual({ step: "decide", mode: "wait" });
+    const after = project(full("amber", "maya"), ctx("amber"));
+    expect(after.contract.version).toBe(2);
+    expect(after.nodes.decide.chip).toBe("Rule learned");
+    const learned = project(full("amber", "maya", true), ctx("amber", "maya", true));
+    expect(learned.nodes.grey.chip).toBe("Covered");
+    expect(learned.nodes.captured.status).toBe("done");
   });
 });
 
 describe("stub run", () => {
   it("releases events on a clock and holds for the controller", () => {
-    const run = createRun("controller");
+    const run = createRun("maya");
     expect(eventsAfter(run.id, 0)?.length).toBe(1);
     expect(eventsAfter("nope", 0)).toBeNull();
     expect(decide(run.id, "approve", { deliveryVersion: 1, evidenceVersion: 3 })).toMatchObject({ ok: false, status: 409 });
   });
 
   it("refuses a decision bound to stale evidence", () => {
-    const run = createRun("controller");
-    const releaseAll = Date.now() + 120_000;
-    const spy = Date.now;
-    Date.now = () => releaseAll;
+    const run = createRun("maya");
+    const now = Date.now;
+    Date.now = () => now() + 120_000;
     try {
       expect(decide(run.id, "approve", { deliveryVersion: 1, evidenceVersion: 2 })).toMatchObject({ ok: false, status: 409 });
       expect(decide(run.id, "approve", { deliveryVersion: 1, evidenceVersion: 3 })).toEqual({ ok: true });
       expect(eventsAfter(run.id, 0)?.some((e) => e.type === "controller_decided")).toBe(true);
     } finally {
-      Date.now = spy;
+      Date.now = now;
     }
   });
 });

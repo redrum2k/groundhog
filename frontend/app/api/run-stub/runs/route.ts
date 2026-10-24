@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createRun } from "../../../../lib/run/stub-store";
 import type { Ending } from "../../../../lib/run/scenario";
 
-const ENDINGS = new Set<Ending>(["disagree", "agree", "controller"]);
+const ENDINGS = new Set<Ending>(["rules_no", "rules_yes", "maya"]);
 
 // Stand-in for the backend: starts a live amber run. Replace the base URL in lib/run/source.ts
 // with Nikita's endpoint when it lands; the canvas does not change.

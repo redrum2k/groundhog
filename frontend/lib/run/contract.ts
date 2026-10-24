@@ -6,7 +6,7 @@
 export type Money = number; // USD, settled as USDC on Base
 
 export type LaneId = "red" | "green" | "amber";
-/** "shared" is the path every order takes once; a lane is one way a dispute can go. */
+/** "shared" is the normal path; a lane is one way a dispute can go. */
 export type Track = "shared" | LaneId;
 
 /** One line of the data contract. "Contract" is the buyer-facing name; functionally it is a
@@ -18,7 +18,7 @@ export interface ContractLine {
 }
 
 export interface DataContract {
-  version: number; // 1 at order time; 2 after a controller ruling changes a line
+  version: number; // 1 at order time; 2 after a controller ruling adds a line
   buyer: string;
   title: string;
   price: Money;
@@ -30,38 +30,39 @@ export interface Amendment {
   id: string;
   summary: string;
   price: Money;
-  lines: ContractLine[]; // the full contract once the amendment applies
+  line: ContractLine; // the line the amendment adds to the contract
 }
 
-/** count null means the ZIP was withheld; note says why. */
-export interface ZipCount { zip: string; count: number | null; note?: string }
+/** A delivered row. flag says how the row differs from what the contract promised. */
+export interface ZipCount { zip: string; area: string; count: number; flag?: "withheld" | "missing" | "added" | "yoga" }
 export interface Delivery {
   version: number;
   file: string;
   rows: ZipCount[];
-  changed?: string[]; // ZIPs added or changed since the previous delivery
   reviewClosesAt?: string; // server time; each delivery gets its own review window
 }
 
-/** Where a citation points on the canvas. */
+/** Where a citation points: an interview line, a sheet row, or a document that isn't on screen. */
 export type Source =
-  | { kind: "message"; track: Track; step: string; messageId: string }
-  | { kind: "cell"; track: Track; step: string; version: number; row: string; column: string }
-  | { kind: "none"; reason: string }; // the card says the source can't be shown
+  | { kind: "message"; messageId: string }
+  | { kind: "cell"; version: number; row: string; column: string }
+  | { kind: "none"; reason: string };
 
+interface EvidenceBase { id: string; label: string; note: string; source: Source } // label is the short text of the canvas card
 export type Evidence =
-  | { id: string; kind: "interview_quote"; speaker: string; quote: string; note: string; source: Source }
-  | { id: string; kind: "sheet_cell"; file: string; row: string; column: string; value: string | null; note: string; source: Source }
-  | { id: string; kind: "vendor_category"; vendor: string; item: string; category: string; note: string; source: Source };
+  | (EvidenceBase & { kind: "interview_quote"; speaker: string; quote: string })
+  | (EvidenceBase & { kind: "sheet_cell"; file: string; row: string; column: string; value: string | null })
+  | (EvidenceBase & { kind: "vendor_category"; vendor: string; item: string; category: string })
+  | (EvidenceBase & { kind: "claim"; speaker: string; quote: string });
 
 export interface Dispute { id: string; claim: string; raisedBy: string }
 
-/** Is the complaint justified? agree = our fault, disagree = we were right, grey = rules can't tell. */
+/** Is the complaint justified? agree = they're right, disagree = we're right, grey = rules can't tell. */
 export type VerdictKind = "agree" | "disagree" | "grey";
 export interface Verdict {
   kind: VerdictKind;
   reason: string;
-  decidedBy: "rules" | "controller";
+  decidedBy: "rules" | "controller" | "contract"; // contract: a line added earlier settles it, no person
   evidenceIds: string[];
 }
 
@@ -76,42 +77,41 @@ export interface Payment {
   mock: boolean; // a mock payment never carries a transaction and is labeled mock on screen
 }
 
-/** A controller ruling saved so the next similar dispute is decided by rules alone. */
-export interface RuleUpdate { id: string; text: string; decidedBy: string }
+/** A controller ruling saved so the next similar dispute is decided without a person. */
+export interface RuleUpdate { id: string; label: string; text: string; decidedBy: string }
 
 export interface JournalEntry { id: string; memo: string; debit: string; credit: string; amount: Money }
 export interface Margin { revenue: Money; cost: Money } // margin = revenue - cost
 
 /** What a chat line carries besides its text, by reference so it never goes stale. */
 export type Attachment =
-  | { kind: "checklist" } // the contract lines drafted so far on this track
-  | { kind: "evidence"; evidenceId: string }
-  | { kind: "sheet"; version: number; rows: string[] }; // a few delivery rows, by ZIP
+  | { kind: "checklist" } // the contract lines drafted so far
+  | { kind: "evidence"; evidenceId: string }; // rendered as a citation chip
 
 export interface Message {
   id: string;
   from: "buyer" | "agent" | "controller";
-  name: string;
   text: string;
+  asks?: string; // the contract line this question is pinning down
   attach?: Attachment[];
 }
 
-export type StepKind =
-  | "request" | "interview" | "contract" | "produce" | "check" | "deliver" | "review"
-  | "dispute" | "verdict" | "investigate" | "amend" | "controller" | "learned" | "books";
-export interface Step { id: string; kind: StepKind; title: string; detail: string }
+export type StepKind = "clarify" | "paid" | "produce" | "review" | "captured" | "investigate" | "verdict" | "amend" | "grey" | "decide";
+/** panel: the canvas opens this step's panel when the step starts while following. */
+export interface Step { id: string; kind: StepKind; title: string; detail: string; panel?: boolean }
 
 /** Versions a human action is bound to; the server answers 409 when they moved on. */
 export interface Binding { deliveryVersion: number; evidenceVersion: number }
 
 /** seq is the poll cursor (GET /runs/{id}/events?after=seq); at is server time. */
 interface Base { seq: number; at: string; track: Track }
-type StepEvent<T> = Base & { step: string } & T;
+/** A rerun or an amendment re-enters produce with attempt 2; the step id stays the same. */
+type StepEvent<T> = Base & { step: string; attempt?: number } & T;
 /** allowedBy is the plain-language check or policy line that let the action happen. */
 type Acts = { allowedBy: string };
 
 export type RunEvent =
-  | (Base & { type: "steps_planned"; steps: Step[] }) // appends to the track; a verdict plans the rest of its lane
+  | (Base & { type: "steps_planned"; steps: Step[] })
   | StepEvent<{ type: "step_started" }>
   | StepEvent<{ type: "step_waiting"; waitingOn: string }>
   | StepEvent<{ type: "step_completed" }>
@@ -119,16 +119,15 @@ export type RunEvent =
   | StepEvent<{ type: "contract_line_drafted"; line: ContractLine }>
   | StepEvent<{ type: "contract_approved"; contract: DataContract } & Acts>
   | StepEvent<{ type: "delivery_ready"; delivery: Delivery }>
-  | StepEvent<{ type: "check_passed"; lineId: string }>
+  | StepEvent<{ type: "check_passed"; lineId: string; detail?: string }>
   | StepEvent<{ type: "check_failed"; lineId: string; reason: string }>
   | StepEvent<{ type: "check_fixed"; lineId: string; fix: string }> // the agent corrected its own output and the line passes
   | StepEvent<{ type: "evidence_found"; evidence: Evidence }>
   | StepEvent<{ type: "dispute_opened"; dispute: Dispute }>
   | StepEvent<{ type: "verdict"; verdict: Verdict } & Acts>
   | StepEvent<{ type: "controller_decided"; action: ControllerAction; by: string; note: string; binding: Binding }>
-  | StepEvent<{ type: "amendment_approved"; amendment: Amendment } & Acts>
+  | StepEvent<{ type: "amendment_signed"; amendment: Amendment } & Acts>
   | StepEvent<{ type: "rule_updated"; rule: RuleUpdate }>
-  | StepEvent<{ type: "rule_applied"; ruleId: string; outcome: VerdictKind } & Acts> // decided by a saved rule, no person
   | StepEvent<{ type: "books_posted"; entries: JournalEntry[]; margin: Margin }>
   | (Base & { type: "payment_authorized"; payment: Payment } & Acts)
   | (Base & { type: "payment_captured"; paymentId: string; captureTx: string | null } & Acts);

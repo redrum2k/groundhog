@@ -1,35 +1,21 @@
 "use client";
-import { IcLock, IcSheet } from "./icons";
-import { basescan, type Coin } from "../../lib/run/fold";
+import type { OrbMode } from "../../lib/run/fold";
+import { IcScroll } from "./icons";
 
-// The agent's mascot: a flat blue orb with two eyes, carrying the order's money as a coin.
-// Moods are state indicators (like a spinner): their loops run only in that state, and the
-// reduced-motion version holds a still pose instead.
-export type Mood = "float" | "carry" | "look" | "blink";
-
-export default function Orb({ x, y, mood, coin, label }: { x: number; y: number; mood: Mood; coin: Coin | null; label: string }) {
+// The agent's mascot: a flat blue orb with two eyes. Its mode is a state indicator (like a
+// spinner): float along, carry a sheet back, look around while investigating, blink slowly
+// while waiting on Maya, squint happily when the money lands.
+export default function Orb({ mode }: { mode: OrbMode }) {
   return (
-    <div className={`orb-at m-${mood}`} style={{ transform: `translate(${x}px, ${y}px)` }}>
-      <span className="orb" role="img" aria-label={label}>
-        <span className="eyes"><i /><i /></span>
-        {mood === "carry" && <span className="orb-sheet"><IcSheet size={11} /></span>}
-      </span>
-      {coin && (
-        <span className={`coin c-${coin.state}`} role="status">
-          <span className="coin-face" aria-hidden>{coin.state === "locked" ? <IcLock size={10} strokeWidth={1.8} /> : "$"}</span>
-          <span key={coin.state} className="coin-t">
-            ${coin.amount} {coin.state}
-            {coin.state === "captured" && (coin.mock
-              ? <span className="faint"> · mock</span>
-              : coin.tx && <> · <a href={basescan(coin.tx)} target="_blank" rel="noreferrer">Basescan</a></>)}
-          </span>
-        </span>
-      )}
-    </div>
+    <span className={`orb orb-${mode}`} aria-hidden>
+      {mode === "carry" && <span className="orb-sheet"><IcScroll size={10} strokeWidth={1.8} /></span>}
+      <svg viewBox="0 0 28 28" width="28" height="28">
+        <circle cx="14" cy="14" r="13" className="orb-body" />
+        <g className="orb-eyes">
+          <rect x="8.6" y="10" width="3.2" height="6.4" rx="1.6" />
+          <rect x="16.2" y="10" width="3.2" height="6.4" rx="1.6" />
+        </g>
+      </svg>
+    </span>
   );
 }
-
-/** The orb's face on its own, for chat lines and the workspace mark. */
-export const OrbMark = ({ size = 18 }: { size?: number }) => (
-  <span className="orb mark" style={{ width: size, height: size }} aria-hidden><span className="eyes"><i /><i /></span></span>
-);

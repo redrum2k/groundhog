@@ -4,8 +4,6 @@
 // the data contract as a checklist: lines appear as the interview drafts them and tick as checks pass.
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useId, useState } from "react";
-import type { ContractLine } from "../../lib/run/contract";
-import type { Check } from "../../lib/run/fold";
 import { IcChevron, IcList } from "./icons";
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
@@ -13,13 +11,8 @@ const SPRING_SWAP = { type: "spring", stiffness: 520, damping: 34 } as const;
 const SPRING_LAYOUT = { type: "spring", stiffness: 380, damping: 36 } as const;
 
 export type ItemStatus = "pending" | "in-progress" | "completed" | "cancelled";
-const LABEL: Record<ItemStatus, string> = { "in-progress": "Checking", completed: "Passed", cancelled: "Failed", pending: "Not checked yet" };
-
-/** Which line is being checked right now: the first one without a result, while the step runs. */
-export function statusOf(line: ContractLine, checks: Record<string, Check>, next?: ContractLine): ItemStatus {
-  const c = checks[line.id];
-  return c ? (c.passed ? "completed" : "cancelled") : line === next ? "in-progress" : "pending";
-}
+export interface ChecklistItem { id: string; title: string; status: ItemStatus; detail?: string }
+const LABEL: Record<ItemStatus, string> = { "in-progress": "In progress", completed: "Completed", cancelled: "Failed", pending: "Pending" };
 
 function RollNumber({ value }: { value: number }) {
   const reduce = useReducedMotion() ?? false;
@@ -40,7 +33,7 @@ export function StatusIcon({ status }: { status: ItemStatus }) {
   const color = status === "cancelled" ? "var(--red)" : status === "completed" ? "var(--green)" : status === "in-progress" ? "var(--blue)" : "var(--ink-3)";
   return (
     // plain svg root: motion keeps the style color it was mounted with, so the status color would never change
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="ck-icon" style={{ color }}>
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="todo-sicon" style={{ color }}>
       <motion.circle cx="12" cy="12" r="9" fill="currentColor" stroke="currentColor" strokeWidth="1.5"
         strokeDasharray={status === "pending" ? "2 3" : undefined} strokeLinecap="round" initial={false}
         animate={{ fillOpacity: status === "completed" ? 0.08 : 0 }} transition={reduce ? { duration: 0 } : { duration: 0.18, ease: EASE_OUT }}
@@ -59,9 +52,7 @@ export function StatusIcon({ status }: { status: ItemStatus }) {
   );
 }
 
-export interface ChecklistItem { line: ContractLine; status: ItemStatus; detail?: string }
-
-export default function Checklist({ items, title, defaultOpen = true }: { items: ChecklistItem[]; title: string; defaultOpen?: boolean }) {
+export default function TodoList({ items, title, defaultOpen = true }: { items: ChecklistItem[]; title: string; defaultOpen?: boolean }) {
   const reduce = useReducedMotion() ?? false;
   const baseId = useId();
   const [open, setOpen] = useState(defaultOpen);
@@ -69,31 +60,32 @@ export default function Checklist({ items, title, defaultOpen = true }: { items:
   const all = items.length > 0 && completed === items.length;
 
   return (
-    <section aria-label={title} className="ck">
-      <button id={`${baseId}-t`} type="button" aria-expanded={open} aria-controls={`${baseId}-c`} onClick={() => setOpen(!open)} className="ck-head">
-        <span aria-hidden className="ck-hicon" style={{ color: all ? "var(--green)" : "var(--ink-2)" }}><IcList size={15} /></span>
+    <section aria-label={title} className="todo">
+      <button id={`${baseId}-t`} type="button" aria-expanded={open} aria-controls={`${baseId}-c`} onClick={() => setOpen(!open)} className="todo-head">
+        <span aria-hidden className="todo-hicon" style={{ color: all ? "var(--green)" : "var(--ink-2)" }}><IcList size={15} /></span>
         <h3>{title}</h3>
-        <span className={`ck-count${all ? " all" : ""}`}>
-          <span className="sr-only">{completed} of {items.length} lines passed</span>
+        <span className={`todo-count${all ? " all" : ""}`}>
+          <span className="sr-only">{completed} of {items.length} completed</span>
           <span aria-hidden style={{ display: "inline-flex" }}><RollNumber value={completed} /><span>/</span><span>{items.length}</span></span>
         </span>
-        <motion.span aria-hidden animate={{ rotate: open ? 180 : 0 }} transition={reduce ? { duration: 0 } : SPRING_SWAP} className="ck-chev"><IcChevron size={13} /></motion.span>
+        <motion.span aria-hidden animate={{ rotate: open ? 180 : 0 }} transition={reduce ? { duration: 0 } : SPRING_SWAP} className="todo-chev"><IcChevron size={13} /></motion.span>
       </button>
       <AnimatePresence initial={false}>
         {open && (
           <motion.div id={`${baseId}-c`} role="region" aria-labelledby={`${baseId}-t`} key="c"
             initial={reduce ? false : { height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
             transition={reduce ? { duration: 0 } : SPRING_LAYOUT} style={{ overflow: "hidden" }}>
-            <ol aria-live="polite" className="ck-list">
+            <ol aria-live="polite" className="todo-list">
               <AnimatePresence initial={false} mode="popLayout">
-                {items.map(({ line, status, detail }) => (
-                  <motion.li layout="position" key={line.id} initial={reduce ? { opacity: 1 } : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                {items.map((item) => (
+                  <motion.li layout="position" key={item.id} initial={reduce ? { opacity: 1 } : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                     exit={reduce ? { opacity: 0 } : { opacity: 0, y: -3 }}
                     transition={reduce ? { duration: 0 } : { opacity: { duration: 0.18, ease: EASE_OUT }, y: SPRING_LAYOUT, layout: SPRING_LAYOUT }}
-                    className={`ck-item s-${status}`}>
-                    <StatusIcon status={status} />
-                    <span className="sr-only">{LABEL[status]}: </span>
-                    <span className="ck-title">{line.text}{detail && <span className={`ck-why${status === "cancelled" ? " bad" : ""}`}>{detail}</span>}</span>
+                    className={`todo-item s-${item.status}`}>
+                    <StatusIcon status={item.status} />
+                    <span className="sr-only">{LABEL[item.status]}: </span>
+                    <span className="todo-title">{item.title}</span>
+                    {item.detail && <span className="todo-detail">{item.detail}</span>}
                   </motion.li>
                 ))}
               </AnimatePresence>
