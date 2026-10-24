@@ -1,4 +1,4 @@
-"""Profile integration must not change the catalog default or mix payment clocks."""
+"""The brokerage default preserves accepted compatibility contracts and payment clocks."""
 
 from fastapi.testclient import TestClient
 
@@ -29,7 +29,8 @@ def test_catalog_invoice_and_broker_keep_separate_contracts_in_one_app(setup):
     app = create_app(service=jobflow, artifact_root=service.store.root, run_worker=False)
     with TestClient(app) as client:
         root = client.get("/openapi.json").json()
-        assert root["info"]["title"] == "Catalog order to cash"
+        assert root["info"]["title"] == "Aggregate dataset brokerage"
+        assert "/runs" in root["paths"]
         assert "FundingAuthorization" in root["components"]["schemas"]
         assert "BrokerRecord" not in root["components"]["schemas"]
         assert "/quote-acceptance" in root["paths"]

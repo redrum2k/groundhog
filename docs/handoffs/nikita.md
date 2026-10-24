@@ -11,7 +11,9 @@ scheduling policy adds a 120-second submission margin and reserves full potentia
 review/dispute/correction windows; already submitted actions still reconcile.
 Broker deadline sweeps and improvement recovery coexist with independent catalog,
 payment and invoice lanes. Prompt 7 owns its isolated lab files; do not retrofit
-its synthetic terms as a customer application agreement.
+its synthetic terms as a customer application agreement. Completed Prompt 7 commit
+`f8a929a` is integrated unchanged by local merge `6a714cf`; its four owned files
+were not rewritten by this migration.
 
 ## Historical catalog handoff
 

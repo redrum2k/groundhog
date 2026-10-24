@@ -1,4 +1,4 @@
-# Shared integration checkpoint — catalog v0.3 / payments v1
+# Shared integration checkpoint — aggregate brokerage v1
 
 > Aggregate brokerage update (October 24): new default intake uses
 > `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
@@ -6,6 +6,15 @@
 > compatibility boundaries and validation limitations. The catalog-specific details
 > below remain historical compatibility guidance and do not set new dataset policy.
 
+
+The current combined task branch contains reviewed main, baseline backend, the
+migration and completed Prompt 7 work. The 615-test backend suite, 88 frontend tests,
+production build and actual production browser flow pass. Exact startup commands,
+policy boundaries, screenshot/trace/payment evidence and PR description are in
+[workstream 06](workstreams/06-data-broker.md). Mock remains the default; no live
+application payment, hosted-auth boundary or deployment has been validated.
+
+## Historical catalog checkpoint
 
 Deadline: Sunday, October 25, 2026, 9 a.m. America/Los_Angeles. Hold the first integration
 checkpoint 90 minutes after the team starts its split; check the shared fixture at 30 minutes.

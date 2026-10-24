@@ -1,4 +1,4 @@
-# Implementation status — integrated catalog v0.3 / payments v1
+# Implementation status — aggregate brokerage v1
 
 > Aggregate brokerage update (October 24): new default intake uses
 > `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
@@ -6,6 +6,35 @@
 > compatibility boundaries and validation limitations. The catalog-specific details
 > below remain historical compatibility guidance and do not set new dataset policy.
 
+
+## Current integrated result — October 24, 2026
+
+Branch `codex/data-broker-migration` contains backend baseline `39dd586`, reviewed
+main `5c8dc72` (including Lucas `46f6c07`), migration `1956f18` and Prompt 7 `f8a929a`
+through merge `6a714cf`. The original checkout and Prompt 7-owned source files were
+not edited by the migration.
+
+- Primary intake and canvas: aggregate dataset contracts, explicit acceptance and
+  mock funding, independently verified CSV/JSON, durable events and resolving citations.
+- Payment gates: frozen dataset check registry, full-window scheduling budget and
+  positive capture margin; existing payment executor/journal, not a second ledger.
+- Compatibility: historical catalog, invoice/jobflow, broker-review-v0.3 and scoped
+  improvements keep their policies, clocks, artifacts and financial isolation.
+- Validation: **615 backend tests**, **88 frontend tests**, all generated clients,
+  typecheck, production build, Ruff lint/format and 27 offline lab processes pass.
+- Actual browser: development 3016 and production 3017 against mock backend 8016 pass.
+  Production Playwright run `request-61e0d9c0fe1f4779b4a02c0d333c090d` has no browser
+  errors, one capture/booking, matching downloaded CSV and working reload.
+  `/private/tmp/datumco-browser-final` contains screenshots, trace and payment evidence.
+- React Doctor: remote score unavailable; one maintainability warning and polling/
+  proxy diagnostics triaged in [workstream 06](workstreams/06-data-broker.md).
+- Scope: synthetic data, offline reasoning and mock/injected-chain validation only.
+  Real application settlement and hosted authentication remain unvalidated.
+
+Commands, detailed evidence, migration boundaries and PR description are in
+[workstream 06](workstreams/06-data-broker.md).
+
+## Historical backend integration result
 
 Updated October 24, 2026. Runtime, Base transport and catalog settlement are integrated on
 `codex/backend-integration`. [Exact commits, tests and limitations](workstreams/04-integration.md).

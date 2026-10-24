@@ -23,8 +23,9 @@ npm run build
 
 Use Node 24 (minimum 22.12). The offline runner saves source/authority/coverage
 artifacts, event traces, CSVs and final payment bookings in a fresh directory.
-A real production browser smoke remains blocked in the agent sandbox because local
-ports cannot be bound; see the handoff to run it outside that sandbox.
+The live development and production browser flows passed against a fresh mock backend:
+explicit quote acceptance, funding, all eight checks, CSV download, reload and capture.
+See the handoff for reproducible commands and saved evidence.
 
 The payment rail is direct Base Commerce Payments on Base Sepolia, with a trusted
 platform operator; no x402 facilitator or CDP server-wallet operator is implemented.

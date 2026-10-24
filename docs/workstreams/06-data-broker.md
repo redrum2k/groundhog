@@ -5,7 +5,9 @@ Backend baseline `39dd58602b3f8ac0a7906b4db4ddbbdb57b3d981`, reviewed main
 `5c8dc726326bb9e3539cdb51e5aec221868223bc`, and Lucas merge
 `46f6c07994bae4f1f0dec7c4c0d3d367b4e8f0d1` are ancestors. Main was verified
 through the connected GitHub API after shell fetch failed DNS. No original feature
-branch was merged twice. Work is isolated from the original checkout.
+branch was merged twice. Work is isolated from the original checkout. Implementation
+checkpoint: `1956f18`. Completed Prompt 7 commit `f8a929a` is integrated unchanged
+by merge `6a714cf`; only its four owned files entered through that merge.
 
 ## Migration map
 
@@ -164,13 +166,17 @@ Terminal B, frontend directory (set PATH to your documented Node 24 installation
 ```sh
 npm ci
 npm run generate:check
-npm run build
+BACKEND_URL=http://127.0.0.1:8016 BROKER_BUILD_DIR=.next-broker-production npm run build
+BROKER_BUILD_DIR=.next-broker-production \
 BACKEND_URL=http://127.0.0.1:8016 BROKER_LOCAL_DEMO=1 \
 INTERNAL_API_TOKEN=local-broker-worker REVIEWER_API_TOKEN=local-broker-reviewer \
-npm run start -- --hostname 127.0.0.1 --port 3016
+npm run start -- --hostname 127.0.0.1 --port 3017
 ```
 
-Open `http://127.0.0.1:3016/`. Create request, answer the gym/app clarification,
+Open `http://127.0.0.1:3017/`. The isolated build directory also permits an
+independent `npm run dev -- --port 3016` with the same bridge environment. Set BACKEND_URL at build time as well as startup because
+the retained jobflow/broker/improvement rewrites are compiled during the build.
+Create request, answer the gym/app clarification,
 prepare quote, explicitly accept $120, open Funding, prepare funding, explicitly
 simulate mock funding, open Delivery & review, inspect/download, then accept delivery
 or record a complaint. Worker/background payments run automatically. Reload resumes.
@@ -182,17 +188,37 @@ Browser smoke, frontend directory, with both production servers already running:
 
 ```sh
 npx playwright install chromium
-BROKER_SMOKE_ORIGIN=http://127.0.0.1:3016 \
-BROKER_SMOKE_OUTPUT=/private/tmp/datumco-browser \
+BROKER_SMOKE_ORIGIN=http://127.0.0.1:3017 \
+BROKER_SMOKE_OUTPUT=/private/tmp/datumco-browser-final \
 node scripts/brokerage-smoke.cjs
 ```
 
 This is separate from the invoice acceptance script. It refuses live payment mode,
 uses real commands, verifies reload identity, CSV suppression/coverage and mock
 capture, and saves `delivery.png`, `captured.png`, `delivery.csv`, `events-payment.json`
-and `trace.zip`. Production port binding was denied by this agent's sandbox; the
-actual browser smoke is **not validated** in this session. Do not equate unit tests
-or recorded playback with that missing check. No screenshot is claimed as observed.
+and `trace.zip`. The agent sandbox cannot bind/connect the host's local server ports;
+the user started the servers, and the agent validated the real UI in Chrome.
+Development run `request-e858effb8cca4241a23537b6d77f23dc` completed acceptance,
+explicit mock funding, eight checks, capture and reload; a persisted source citation
+resolved to version 1, age_min 25 and the frozen hash. Production run
+`request-c2485a1fa6a7459e83ba39274442b81d` repeated the full journey on 3017:
+all five canvas steps finished, $120 captured remained labeled mock, and reload
+retained identity. Its actual downloaded CSV was independently checked locally:
+27 unique ZIPs, 94110 count 170, 94129 suppressed with an empty/null count,
+SHA-256 `72af48f698cc4857f784f51a5e75f4c017d88e5232fc3556c008f1007de0037f`.
+The browser saved it as `/Users/nikitaafanaskin/Downloads/72af48f698cc4857f784f51a.csv`.
+No recorded playback was used as acceptance evidence.
+
+The repeatable Playwright production smoke also passed, executed from the user's
+terminal against the same servers (Chromium 156.0.8078.4; no browser errors):
+`request-61e0d9c0fe1f4779b4a02c0d333c090d`. Saved artifacts at
+`/private/tmp/datumco-browser-final/{delivery.png,captured.png,delivery.csv,events-payment.json,trace.zip}`
+were inspected locally: CSV hash/coverage/suppression match the manual download,
+exactly one payment_captured and one books_posted event exist, payment is captured
+and simulated, no explorer links exist, and the trace archive is valid. These
+local temporary artifacts are not committed; the script regenerates them from a
+clean checkout. The screenshot shows the original canvas design with completed steps
+and a clearly labeled $120 mock capture.
 
 Offline acceptance (no server ports), repository root:
 
@@ -212,20 +238,65 @@ npx react-doctor@latest --verbose --scope changed
 The offline runner creates a fresh subdirectory per invocation and preserves previous
 outputs. It saves report.json, per-case order/payment/ledger JSON, event traces, CSVs,
 immutable source/authority/coverage files and the temporary DB. Observed output:
-`/private/tmp/datumco-acceptance/broker-vxl8sv8y/report.json` — conforming capture booked
+`/private/tmp/datumco-acceptance-final/broker-eok8knnc/report.json` — conforming capture booked
 once with null tx; explicit producer fault corrected once; independently accepted/
 funded Oakland delivery; cited yoga resolution with no fee.
 
 ## Validation status
 
-Merged baseline before new work: 561 backend tests passed. The first migration full
-run failed only the stale OpenAPI snapshot; generation was then extended and the
-focused handoff/dataset/health suite passed. Final counts are recorded in the status
-handoff after the final combined run. Frontend initial new test run: 73 passed;
-production build passed. React Doctor reported no findings on its changed-file scan;
-score service was unreachable, so no numeric score/regression claim is made.
+Merged baseline before new work: 561 backend tests passed. The final combined
+suite passed **615 tests in 80.29 seconds**, with one upstream websockets deprecation
+warning. It includes the original catalog/invoice, Jeff broker/question/resume/improvement,
+new dataset and Prompt 7 payment-readiness regressions. An obsolete primary API
+name assertion was deliberately updated; legacy financial/clock checks were retained.
+
+Observed frontend checks: 88 tests pass, strict typecheck passes, all five generated
+contract families plus root OpenAPI are fresh, and isolated production build passes
+with Node 24.14.1. Ruff lint/format passes across 147 Python files including the runner.
+The development and production live browser journeys above both pass. The merged
+payment lab's 27 subprocess commands also pass (capture, void and expiry/reclaim);
+log: `/private/tmp/datumco-payment-examples-final.jsonl`. Lab Ruff lint/format passes
+for all five files. All four required ancestry checks passed; Prompt 7-owned paths
+are byte-identical to its completed commit.
+
+React Doctor's changed-file scan reports eight hypotheses; its remote score API is
+unreachable, so no numeric score comparison is claimed. Review confirmed one
+maintainability warning (the live panel's control-flow complexity). The remaining
+reports are covered by explicit behavior: the proxy preserves upstream HTTP status;
+manual cursor polling is intentional; timers and requests are cleared/aborted;
+post-await state updates check abort/generation; switching runs intentionally clears
+busy state. Delayed-response, cancellation, backend-failure and 409 tests pass.
+No diagnostic was suppressed. Consider splitting panel rendering in a later UI refactor.
 
 No paid application models, live RPC, broadcasts, wallet access, push, deployment or
-main merge occurred. Authenticated wallet availability does not alter this offline
-migration's scope. Real signing, testnet observations, hosted authentication and the
-blocked real browser run remain distinct readiness requirements.
+main merge occurred in this migration. Authenticated wallet availability does not
+alter its offline scope. Prompt 7's separately recorded readiness evidence is in
+its unchanged handoff; it is not a live application settlement. Real buyer signing,
+full testnet application settlement and hosted authentication remain separate milestones.
+
+## PR-ready description
+
+**Title:** Make aggregate dataset brokerage the primary funded live workflow
+
+New DatumCo requests now create immutable synthetic aggregate data contracts and
+produce independently checked CSV/JSON through the existing funded worker. Eight
+server-owned checks, a frozen coverage registry, safe suppressed counts and explicit
+review/deadline budgets guard capture. Source deficiencies, provider correction,
+additional scope and replacement consent retain distinct treatment.
+
+Lucas's canvas consumes transactionally persisted run events from intake through
+mock settlement, with generated contracts, resumable polling, resolving citations,
+separate quote/funding controls and current-binding reviewer decisions. The trusted
+loopback Next bridge keeps worker and reviewer credentials server-only; recorded
+rehearsal remains separate. Historical catalog, invoice/jobflow, broker v0.3 and
+improvement profiles retain their accepted policies. Reviewed main and Prompt 7's
+completed lab-only commit are integrated without duplicate feature-branch merges.
+
+Validation: 615 combined backend tests, 88 frontend tests, locked dependency setup,
+Ruff lint/format, all generated clients, typecheck, production build, 27 offline lab
+commands, offline brokerage acceptance and real development/production browser
+journeys pass. Production smoke records one $120 mock capture/booking, reload
+identity and a matching downloaded CSV, with screenshots/trace. React Doctor's
+remote score is unavailable; diagnostics and their code-level triage are recorded
+above. No live application settlement, hosted authorization, full x402 compliance
+or post-capture refund support is claimed. No push or deployment is included.

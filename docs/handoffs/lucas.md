@@ -10,9 +10,12 @@ tokens. `lib/run/live.ts` resumes and polls persisted events; `contract.ts` reex
 Pydantic-generated types. `live-run.tsx` reuses your Canvas/checklist/styles, with real
 agreement, funding, review and evidence controls. Recorded rehearsal is separate.
 UI prices, deadlines, permissions and bindings come from the server. 409 refreshes
-without retrying consent. Unknown costs stay unavailable. The production build and
-unit tests pass; actual browser validation is blocked by sandbox port binding and
-must not be advertised as passed. Use `scripts/brokerage-smoke.cjs`, not invoice smoke.
+without retrying consent. Unknown costs stay unavailable. All 88 frontend tests,
+typecheck, generated-client freshness and the production build pass. Actual Chrome
+flows passed on development port 3016 and production port 3017 against mock backend
+8016, including downloaded-byte/hash verification, reload and capture. The user
+started the servers outside the agent sandbox. Use `scripts/brokerage-smoke.cjs`,
+not invoice smoke; evidence locations and exact commands are in workstream 06.
 
 ## Historical catalog handoff
 
