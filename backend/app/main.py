@@ -116,6 +116,7 @@ def create_app(
                         ("catalog-deadlines", lambda: app.state.orders.expire_due(), 1),
                         ("invoice-deadlines", lambda: app.state.jobflow.base.expire_due(), 1),
                         ("broker-deadlines", lambda: app.state.broker.expire_due(), 1),
+                        ("broker-assessments", app.state.broker.recover_assessments, 0.25),
                         ("catalog", app.state.catalog_worker.run_once, 0.25),
                         ("payments", lambda: app.state.orders.payments.work(limit=1), 0.25),
                         ("invoice", consume_jobflow, 0.25),

@@ -17,6 +17,12 @@ def migrate(store):
             "request_json TEXT NOT NULL, raw_response_json TEXT, candidate_json TEXT, "
             "validation_json TEXT, failure TEXT, latency_seconds REAL)"
         )
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS br_assessment_work (id TEXT PRIMARY KEY, "
+            "order_id TEXT NOT NULL, actor_id TEXT NOT NULL, causal_id TEXT NOT NULL, "
+            "binding_json TEXT NOT NULL, resume INTEGER NOT NULL, status TEXT NOT NULL, "
+            "attempt_id TEXT, failure TEXT, UNIQUE(actor_id,causal_id))"
+        )
 
 
 def get(db, table, identifier, model):
