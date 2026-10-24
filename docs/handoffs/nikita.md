@@ -1,4 +1,29 @@
-# Review remediation and remaining shared payment work
+# Current job — complete 09's two remaining boundaries
+
+Review of `9622fe0ecff1bcae01e4b7104f053c9d58e2e393` independently reproduced
+695 passing backend tests, two Jeff-owned expected failures, 38 focused cases,
+27 offline lab commands, lint/format and generated-contract freshness.
+The implementation is not merged: [two additional probes](../reviews/09-results-review.md)
+found that streaming HTTP can overrun the claimed request/attempt bound, and a
+buyer authorization returned after the budget expires is still persisted.
+
+Run [09b](../codex-prompts/09b-payment-attempt-boundaries.md) in the existing
+`../order-to-cash-payment-lease-renewal` worktree. Keep its renewal mechanism and
+passing regressions; fix R9-A/R9-B, update its 09 handoff/runbook and return an exact
+tested local commit. No new worktree, broad rewrite, recovery implementation,
+main merge, push, real RPC or broadcast belongs to that implementation pass.
+
+After independent review, integrate with current remote main, preserving Lucas's
+changes (remote was `63ac21f` at this review). Jeff continues R3/R4 independently;
+do not pull an unfinished compiler branch into 09b. Exact-persisted-byte recovery
+is the next separate payment task, followed by separately authorized live proof.
+The 120-second worker lease is not a payment-expiry or automatic-void timer.
+
+The sections below describe earlier checkpoints. Their statements that renewal
+is wholly unimplemented or all prompt-07 files remain unchanged are historical;
+09 narrowly adapts those lab call sites and retains their original failure evidence.
+
+# Historical review remediation and remaining shared payment work
 
 [Workstream 08](../workstreams/08-review-remediation.md) records R1/R2/R5/R6 fixes,
 tested historical replay and Jeff-owned R3/R4 blockers. Continue on the reviewed

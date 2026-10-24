@@ -129,7 +129,11 @@ def create_app(
         title="Aggregate dataset brokerage",
         version="0.4.0",
         lifespan=lifespan,
-        responses={status: {"model": ErrorResponse} for status in (403, 404, 409, 422, 503)},
+        responses={
+            **{status: {"model": ErrorResponse} for status in (403, 404, 409, 503)},
+            # Python versions use different default reason phrases for 422.
+            422: {"model": ErrorResponse, "description": "Unprocessable Content"},
+        },
         separate_input_output_schemas=False,
     )
     app.add_middleware(

@@ -1,6 +1,7 @@
-# DatumCo canvas — Lucas
+# DataPact canvas — Lucas
 
-The primary route is the live aggregate brokerage canvas. Preserve its visual design.
+The run canvas at `/` uses the retained broker demo or recorded rehearsal. The
+aggregate brokerage intake is at `/live`. Preserve both routes and their visual design.
 Use lib/run/live.ts and generated Pydantic DTOs for production events, bindings and
 permissions. lib/run/source.ts and scenario.ts are recorded rehearsal only.
 Read HACK.md and docs/workstreams/06-data-broker.md for current prices and timing.

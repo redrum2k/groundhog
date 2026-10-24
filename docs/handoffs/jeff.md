@@ -1,5 +1,21 @@
 # Review remediation — Jeff's remaining release blockers
 
+## Current job after the payment-lease review — October 24
+
+Continue R3/R4 on your existing compiler branch/worktree; do not recreate or reset
+it. The full 09 backend suite still reports the two strict expected failures. No
+new compiler implementation was present in the fetched remote main (`63ac21f`).
+Your acceptance cases and ownership below remain unchanged.
+
+Nikita's payment commit `9622fe0` is held for
+[09b's two boundary fixes](../codex-prompts/09b-payment-attempt-boundaries.md), per
+the [09 review](../reviews/09-results-review.md). You do not need that branch to
+fix compiler semantics. Avoid payment executor/journal/HTTP/lab files; preserve
+the current 08b complaint and artifact safety behavior. Return your exact tested
+commit, commands and results; remove each strict expected-failure marker only when
+its original regression and related semantic cases pass. Integrate the two tasks
+only after independent review, preserving newer remote main and Lucas's UI work.
+
 ## Start from the shared remediation branch
 
 The combined 06/07 work, prompt 08's reviewed implementation (`692f500`) and

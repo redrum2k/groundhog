@@ -98,8 +98,9 @@ broker-review-v0.3 with its 600-second review, 1,800-second case bound and USDSI
 mock authority; `/api/improvements` retains Jeff's scoped proposal/probe/approval/
 activation/revoke loop. None is reinterpreted as a newly funded aggregate order.
 
-Live canvas at `/` consumes persisted backend events from intake onward. Recorded
-rehearsal is explicitly separate. The Next bridge requires trusted loopback demo
+Aggregate intake at `/live` consumes persisted backend events from intake onward.
+The DataPact canvas at `/` uses the retained broker demo or recorded rehearsal.
+The Next bridge requires trusted loopback demo
 mode and distinct server-only worker/reviewer tokens. Hosted access requires a
 separate authentication/deployment design; no tenant isolation is claimed.
 See [workstream 06](docs/workstreams/06-data-broker.md) for implementation and evidence.

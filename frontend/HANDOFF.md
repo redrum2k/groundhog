@@ -1,8 +1,12 @@
 # Current integration pickup
 
-The live aggregate brokerage canvas is implemented at `/`; recorded rehearsal is
-separate. Use [workstream 06](../docs/workstreams/06-data-broker.md) for production
+The DataPact run canvas is at `/`, with retained broker live-demo and recorded
+feeds. The funded aggregate intake is at `/live`; these are distinct backend
+profiles. Use [workstream 06](../docs/workstreams/06-data-broker.md) for production
 local-demo commands, generated contracts, signing/events/actions and smoke tests.
+The aggregate smoke scripts target `/live`. The root canvas's live demo also needs
+`JOBFLOW_DEMO=1` on the loopback backend; the aggregate bridge needs
+`BROKER_LOCAL_DEMO=1` and distinct server-only worker/reviewer tokens on Next.
 The historical design brief below is preserved as reference, not implementation status.
 
 # UI handoff: order-to-cash agent for a data broker (Cal Hacks 13.0)
