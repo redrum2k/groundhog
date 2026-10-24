@@ -34,6 +34,8 @@ def delivered_question(h, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "synthetic-no-network")
     monkeypatch.setenv("ANTHROPIC_MODEL", "injected-test-model")
     monkeypatch.setenv("JOBFLOW_ANTHROPIC_MAX_CALLS", "1")
+    monkeypatch.setenv("ENABLE_PAID_MODELS", "true")
+    monkeypatch.setenv("APPLICATION_MODEL_BUDGET_PATH", "injected-unused-ledger")
 
     async def injected(snapshot, issue_id, *, mode, **kwargs):
         baseline = assess(snapshot, issue_id, now=h.now)

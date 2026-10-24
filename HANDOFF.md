@@ -1,4 +1,12 @@
-# V5 pickup and evidence
+# Current follow-up pickup
+
+The backend dispute follow-up is delivered **feature OFF / not qualified**.
+Read [DISPUTE_HANDOFF.md](DISPUTE_HANDOFF.md) and [DISPUTE_RESULTS.md](DISPUTE_RESULTS.md)
+for current state, verified calls/tests, remaining blockers and the expired-or-bounded
+authorization window. The V5 handoff below is preserved historical evidence, not the
+current qualification result; no V6 evidence or original clock was reset.
+
+# V5 pickup and evidence (historical)
 
 This change adds source-checked broker review, bounded questions/human handoff, and
 an application-run prospective improvement loop. It integrates current main

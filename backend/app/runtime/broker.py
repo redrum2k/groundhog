@@ -3,6 +3,7 @@
 import base64
 import binascii
 import json
+import os
 from datetime import timedelta
 
 from app.contracts.api import (
@@ -69,21 +70,34 @@ def reference(metadata, kind, derived_from=()):
 
 
 class Broker:
-    def __init__(self, jobflow, *, producer=build_package):
+    def __init__(
+        self,
+        jobflow,
+        *,
+        producer=build_package,
+        dispute_assessor=None,
+        dispute_assessment_enabled=None,
+    ):
         self.jobflow = jobflow
         self.store, self.base, self.clock = jobflow.store, jobflow.base, jobflow.clock
         self.producer = producer
+        self.dispute_assessor = dispute_assessor
+        self.dispute_assessment_enabled = (
+            os.getenv("ENABLE_BROKER_DISPUTE_ASSESSMENT") == "true"
+            if dispute_assessment_enabled is None
+            else dispute_assessment_enabled
+        )
         storage.migrate(self.store)
         improvements.migrate(self.store)
 
-    def _emit(self, db, record, actor, causal, kind, **payload):
+    def _emit(self, db, record, actor, causal, event_type, **payload):
         return storage.event(
             db,
             record.id,
             actor.id if hasattr(actor, "id") else actor,
             causal,
             self.clock(),
-            kind,
+            event_type,
             revision=record.revision,
             **payload,
         )
@@ -755,6 +769,7 @@ class Broker:
                     issue_id=question.issue_id,
                     reason="Evidence or effective specification changed",
                 )
+        previous_verification = base.data_verification
         base.data_verification = DataVerification(
             proposal=base.binding,
             specification_sha256=specification_digest(specification),
@@ -772,6 +787,30 @@ class Broker:
             verdict=base.data_verification.verdict,
             specification_sha256=specification_digest(specification),
         )
+        if self.dispute_assessment_enabled and base.complaint and record.issue_id:
+            # Global PASS is not refutation of an arbitrary complaint. Assessment
+            # runs only after this command commits; never inside the DB transaction.
+            if (
+                base.case_state == CaseState.RESOLVED
+                and previous_verification
+                and previous_verification.proposal == base.binding
+                and previous_verification.specification_sha256
+                == specification_digest(specification)
+                and previous_verification.evidence_sha256 == evidence_digest(base)
+            ):
+                # A new idempotency key is not new evidence and cannot reopen a
+                # resolved issue or consume its correction again.
+                base.revision += 1
+                self.base.repository.save(db, base)
+                return base
+            base.case_state = CaseState.OPEN
+            record.resolution = None
+            base.delivery_state = DeliveryState.NEEDS_REVIEW
+            if base.payment_phase != "booked":
+                base.payment_phase = "held"
+            base.revision += 1
+            self.base.repository.save(db, base)
+            return base
         if base.data_verification.verdict == "PASS":
             base.delivery_state = DeliveryState.PASSED
             base.failure = None
@@ -970,6 +1009,42 @@ class Broker:
             return base
 
     def command(self, actor, order_id, request):
+        with self.store.connect() as db:
+            replay = self.store.replay(
+                db,
+                actor.id,
+                request.idempotency_key,
+                {
+                    "route": "broker.command",
+                    "id": order_id,
+                    "body": request.model_dump(mode="json"),
+                },
+            )
+        result = self._command(actor, order_id, request)
+        if (
+            replay is None
+            and self.dispute_assessment_enabled
+            and request.verb
+            in {
+                "investigate",
+                "answer",
+                "resolve_human",
+            }
+        ):
+            from app.runtime.dispute_assessment import run_assessment
+
+            run_assessment(
+                self,
+                actor,
+                order_id,
+                request.idempotency_key,
+                resume=request.verb == "resolve_human" and request.decision == "RESUME",
+            )
+        # Immutable command receipt acknowledges acquisition; read current outcome
+        # from the existing event stream/order. Replays return the identical receipt.
+        return result
+
+    def _command(self, actor, order_id, request):
         self.view(actor, order_id)
         envelope = {
             "route": "broker.command",

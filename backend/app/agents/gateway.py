@@ -7,6 +7,7 @@ from typing import Protocol, TypeVar
 import anthropic
 from pydantic import BaseModel, ValidationError
 
+from app.agents.bounded_client import BoundedClient
 from app.contracts.catalog import (
     Assessment,
     CompilerOutput,
@@ -59,7 +60,7 @@ class ClaudeGateway:
         self.model = model or os.getenv("CLAUDE_MODEL")
         if not self.model:
             raise ModelFailure("CLAUDE_MODEL must name a structured-output capable model.")
-        self.client = client or anthropic.Anthropic(timeout=20.0, max_retries=0)
+        self.client = client or BoundedClient(purpose="catalog")
 
     def parse(self, schema: type[T], instruction: str, payload: dict) -> T:
         encoded = json.dumps(payload, sort_keys=True)

@@ -180,6 +180,11 @@ only the future-template pointer. No command can submit a raw arbitrary template
 generated code, changed accepted amount or new payment permission.
 
 Generated DTOs: `frontend/lib/{jobflow,broker,improvement}.generated.ts`.
+The optional, default-OFF dispute follow-up adds a typed `dispute.assessed` payload;
+see `DISPUTE_EVENT_CONTRACT.md`. Raw candidate, validation and effective disposition
+are distinct. Command receipts acknowledge acquisition and remain immutable; retrieve
+the later disposition from the existing event/order reads. This feature did not pass
+full qualification and must remain disabled pending frontend and semantic integration.
 Client helpers: `frontend/lib/broker-api.ts`. Stable prepared mutations are explicit;
 polling/replay/focus never dispatch a POST. Lucas can consume these without a new UI
 stack. `POLICY_DELTA.md` defines the versioned financial semantics.
