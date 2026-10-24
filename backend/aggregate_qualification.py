@@ -116,7 +116,45 @@ DISPUTES = (
         basis="New negative-scope paraphrase; explicit exclusion is accepted.",
     ),
 )
-COHORTS = {"pilot": (INTAKE, DISPUTES)}
+FOLLOWUP = (
+    dict(
+        id="F1",
+        expanded=False,
+        taxonomy=None,
+        text="Under our agreed terms, standalone yoga qualifies as gym membership.",
+        expected="UNKNOWN",
+        basis="Fresh taxonomy paraphrase; null is missing authority, not false.",
+    ),
+    dict(
+        id="F2",
+        expanded=False,
+        text="Our accepted cohort doesn't include people whose only membership is standalone yoga.",
+        expected="PASS",
+        basis="Fresh scope-first negative form under accepted exclusion.",
+    ),
+    dict(
+        id="F3",
+        expanded=True,
+        text="The agreed population includes adults whose only activity is standalone yoga.",
+        expected="PASS",
+        basis="Positive scope-first counterpart under an explicitly expanded contract.",
+    ),
+    dict(
+        id="F4",
+        expanded=False,
+        text="Standalone yoga satisfies the agreed gym membership category.",
+        expected="FAIL",
+        basis="A false taxonomy cell contradicts equivalence; not automatic UNKNOWN.",
+    ),
+    dict(
+        id="F5",
+        expanded=False,
+        text="Our accepted definition guarantees wellness-ready prospects.",
+        expected="UNKNOWN",
+        basis="Undefined quality language still lacks an accepted metric.",
+    ),
+)
+COHORTS = {"pilot": (INTAKE, DISPUTES), "followup": ((), FOLLOWUP)}
 
 
 def observe(gateway, target):

@@ -148,6 +148,13 @@ def investigate_dataset(order, report, store, assessor, *, audit=None, candidate
         f"Customer testimony: {case.answers}. Testimony is not source authority. "
         "PASS supports THIS complaint; FAIL contradicts it; missing contractual meaning "
         "is UNKNOWN, not contradiction. Supporting a claim does not prove provider fault. "
+        "Distinguish contractual inclusion from taxonomic membership: a contract may "
+        "exclude standalone yoga without establishing whether yoga qualifies as gym "
+        "membership. For a taxonomy claim (counts as/qualifies as/satisfies gym membership), "
+        "require the registered yoga_is_gym value. A null/Unknown value is missing authority, "
+        "not false; return UNKNOWN rather than infer taxonomy from the accepted product label "
+        "or its exclusion wording. Explicit inclusion/exclusion claims can instead be checked "
+        "against accepted scope and the verified category. Never invent a missing value. "
         + json.dumps(
             {
                 "binding": order.binding.model_dump(mode="json"),
@@ -235,6 +242,16 @@ def interpret_claim(complaint):
         r"(?:(?:fitness|gym/app) )?(?:scope|definition|category|contract)"
     )
     if complaint.field == "category":
+        # Scope-first wording names the same bounded category predicate. Match the
+        # whole clause so price promises, mixed scope and extra qualifiers stay unknown.
+        population = r"(?:our|the) (?:accepted|agreed) (?:population|cohort)"
+        yoga_only = r"(?:a person|people|adults) whose only (?:activity|membership) is " + yoga
+        for asserted, verbs in (
+            (True, r"counts|includes|covers"),
+            (False, r"(?:does not|doesn't) (?:count|include|cover)"),
+        ):
+            if re.fullmatch(population + " (?:" + verbs + ") " + yoga_only, text):
+                return "contract_includes_yoga", asserted
         for asserted, verbs in (
             (
                 True,
