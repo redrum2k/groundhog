@@ -1,7 +1,7 @@
 # V5 evaluation
 
-After rebase onto main `ac385a1`, **415 backend tests passed in 155.83 seconds**.
-Ruff check/format pass (123 files). Frontend: **32 tests in 7 files**, generated
+After integration with main `46f6c07`, **415 backend tests passed in 155.83 seconds**.
+Ruff check/format pass (123 files). Frontend: **59 tests in 10 files**, generated
 contract check, TypeScript and Next production build pass. Root catalog OpenAPI
 is structurally identical to main's frozen `docs/openapi.json`. New integration tests
 prove route and review-clock isolation; no original main test was removed or weakened.
@@ -17,7 +17,11 @@ This immutable packet records pre-rebase source `150dab9`, its completed evidenc
 negative findings, configuration, source snapshots and `COMPLETION_MANIFEST.json`.
 Prior verified 341-backend/32-frontend results were reused for that deadline. The
 new finite offline run returned LOCAL_INFRASTRUCTURE_PASS with zero mismatches.
-A separate post-rebase artifact run is next; it will not overwrite the early packet.
+The separate post-rebase run at `c85d9cc` also returned LOCAL_INFRASTRUCTURE_PASS:
+`D:\Downloads\OBJECTION_V5_Integrated_20261024`. The later frontend-only rebase
+preserved its exact backend/lockfile fingerprint:
+`fa1b5bb680a3dc83bbf92ed299ebb05c7a662d4e08cfe979708643a9205a39ab`.
+Those verified backend results were reused; the original packet was not overwritten.
 
 ## Finite offline comparison
 
@@ -64,8 +68,16 @@ Real-backend acceptance passed on Edge 156.0.4314.42 at 1280x720 and 1440x900:
 79 green/20 red/1 orange initially; all 100 original jobs later validated; base held
 while a separate authorized 800-minor-unit addition is paid; zero replay mutations
 and JavaScript errors. Source highlight and full-page screenshots were inspected.
-This is the preserved invoice UI; broker interfaces are supplied for Lucas's UI work.
+The same acceptance passed after the invoice UI moved to `/jobflow` on current main.
+The root run canvas, components, styles, runtime and dependency choices remain main's
+unchanged UI. Broker interfaces are supplied for Lucas's UI work; his recorded/stub
+run-canvas seam is not relabeled as a live broker/model integration.
 
 The original broker PDF was readable but orphaned its final heading. The renderer
-now keeps headings with content and adds page numbers. Final visual inspection will
-be recorded with the post-rebase artifacts.
+now keeps headings with content and adds page numbers. The final one-page PDF was
+rendered and visually inspected: no clipping, overlap or orphaned section heading.
+
+Live same-origin access testing caught an improvement-root redirect that discarded
+the bearer header. An exact proxy mapping now reaches the backend's slash-root
+without a cross-origin redirect. The frontend regression checks its ordering before
+the wildcard route; the live authenticated smoke check verifies the behavior.

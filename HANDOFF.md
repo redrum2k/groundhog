@@ -1,86 +1,75 @@
-# V5 results-first handoff
+# V5 pickup and evidence
 
-The bounded offline run at source revision `150dab924f107eefa7653301eb32fd61e03bdd76`
-passed. Evidence is in `D:\Downloads\OBJECTION_V5_Results_20261024`; the portable
-handoff is `D:\Downloads\OBJECTION_V5_Results_20261024.zip`. Start with the ZIP's
-`COMPLETION_MANIFEST.json`, then `evidence/result.json` and `evidence/offline-score.json`.
-The manifest distinguishes reused verification from the newly executed offline run.
+This change adds source-checked broker review, bounded questions/human handoff, and
+an application-run prospective improvement loop. It integrates current main
+`46f6c07` without replacing its catalog/payment architecture or frontend.
 
-## What works
+## What is verified
 
-- Typed, mutually accepted broker specifications; source-bound JSON/CSV/PDF checking;
-  green/red/orange workflow; bounded questions and free correction; owned human holds.
-- New broker PASS opens 600-second review, not capture. Current complete verification,
-  the accepted review trigger, exact amount and independent authorization are required.
-  Accepted invoice v0.2 remains separate. Additional work requires its own acceptance
-  and authorization. No live payment or automatic new fee was introduced.
-- The application's deterministic improvement mechanism generated two candidates,
-  rejected the vague-question candidate, probed/approved/activated the retained one,
-  reused recorded experience in a second proposal, and verified revoke/restart.
-- Twelve development and six reserved transfer worlds match all expected endpoints
-  and financial effects in static, memory-only and evolving-process arms. Historical
-  ambiguous contracts stay UNKNOWN. Accepted versions survive rollback unchanged.
-- Reused integrated verification: 341 backend tests; 32 frontend tests; generated-type
-  drift check; TypeScript; production frontend build; Ruff check/format. Four genuine
-  acceptance counterexamples are fixed with regressions retained.
+- 415 backend tests; Ruff check/format (123 files).
+- 59 frontend tests in 10 files, generated drift, TypeScript and production build.
+- Catalog root OpenAPI exactly matches the frozen main schema.
+- Both existing screens remain main's code: Lucas's canvas at `/`, invoice workbench
+  at `/jobflow`. No replacement component, screen, style or UI dependency is added.
+- Real-backend invoice browser acceptance: 100 original jobs validated, held base,
+  separate 800-minor-unit addition paid, no replay mutations or JavaScript errors.
+- Live same-origin checks: both screens and all three mounted OpenAPI routes return
+  200; an authenticated improvement-view request works through Next.
+- Actual final broker PDF is one page, visually inspected without clipping/overlap.
+- Two candidates, one rejected; 12 development and 6 reserved transfer worlds;
+  all three arms have 18/18 endpoint and 18/18 financial matches. Approval,
+  activation, experience reuse, revoke/restart and immutable accepted versions work.
 
-## What the results mean
+These are deterministic synthetic application-command results, not live-model
+quality or real settlement. Missing approved model/key/allocation leaves real model
+generation BLOCKED with zero calls. Details and negative findings:
+EVALUATION_RESULTS.md, WORK_LOG.md and IMPROVEMENT_DESIGN.md.
 
-These are synthetic deterministic application-command runs, not real-model quality
-or enterprise accuracy results. All three arms achieve 18/18 expected endpoints and
-18/18 financial effects. The process candidate reduces scripted intake intervention
-events from 30 to 0 in development and 18 to 3 in transfer; required review tasks and
-customer-answer counts do not change. These counts are not measured staff time or
-dollar savings. Second-cycle effectiveness is not qualified. Real application-model
-generation is BLOCKED: no approved key/model/allocation is configured; zero calls ran.
+## Evidence locations
 
-## Integration state and decisions
+The results-first ZIP was delivered within the user's 30-minute limit:
+`D:\Downloads\OBJECTION_V5_Results_20261024.zip`, 3,198,759 bytes. Its immutable
+completion manifest records pre-rebase revision `150dab9`; it must not be relabeled.
 
-The feature is `feature/grey-area-reduction-v5-20261023`, based on main `39538c0`.
-Newer main `ac385a1abf1ce66dfd1f792cac021cfa5286d7ae` arrived during implementation.
-It makes catalog/payment handoff the default and moves invoice compatibility into
-`backend/app/orders/invoice_compat.py` and `runtime/invoice_policy.py`. No rebase or
-merge has begun. The ZIP includes both exact source snapshots for comparison.
+The later integrated run is `D:\Downloads\OBJECTION_V5_Integrated_20261024`,
+executed at `c85d9cc`. The frontend-only rebase and proxy fix leave its backend/lockfile
+fingerprint unchanged:
+`fa1b5bb680a3dc83bbf92ed299ebb05c7a662d4e08cfe979708643a9205a39ab`.
+Reuse these results unless the implementation changes. The runner rejects an
+existing output directory. A new run must preserve earlier failures.
 
-Preserve the newer catalog product, its catalog-v0.3 60-second policy, payment journal,
-API and DTOs. Do not replace these with the feature's older OrderService/main.py.
-Broker-review-v0.3 is a separate accepted 600-second profile, not a migration of
-catalog or invoice terms. Keep one app/DB and existing financial authority. Lucas
-owns UI design. No new paid budget, chain broadcast, deployment or auto-merge.
+## Contracts and integration decisions
 
-The Harness2 audit and build-versus-borrow decision are in IMPROVEMENT_DESIGN.md:
-use the small typed adapter and existing application primitives, not an imported
-executor, arbitrary code mutation or expanded credential authority. Gold remains
-under evals/expected, never in runtime/model context.
+Catalog stays default with its existing funding/journal/60-second policy.
+Invoice v0.2 remains isolated. Broker-review-v0.3 is a separate 600-second accepted
+profile: PASS opens review; acceptance or undisputed expiry plus current complete
+verification and exact unexpired authority permit capture. UNKNOWN/disputes hold;
+one free correction, two questions, 1,800-second case bound. Added work needs its
+own accepted offer and authorization. No automatic fee, renewal or live payment.
 
-## Negative findings and gotchas
+The broker reuses `orders/invoice_compat.py` and `runtime/invoice_policy.py`;
+the catalog financial authority is untouched. All share the app/DB, with mounted
+`/api/jobflow`, `/api/broker` and `/api/improvements` schemas. Historical unrelated
+rows stay read-only. New proxy routes are additive; the exact improvement-root
+rewrite avoids an auth-losing slash redirect. Scoped LF attributes preserve pinned
+payment hashes and generated-schema comparisons on Windows.
 
-- The rejected candidate causes acceptance/completion regressions; its full probe
-  remains in evidence/probes. Do not remove failures from the denominator.
-- The acceptance worker found cutoff bypass, stale questions, cross-source duplicate
-  entities and stale human-task evidence. Its historical red report is retained in
-  the packet; WORK_LOG.md records the fixes and the green integrated suite.
-- An old worker's deadline-test observer missed a persisted capture. The existing
-  test later passed unchanged on the integrated tree; no timeout was weakened.
-- The runner refuses an existing output directory. Reuse this completed run; if a
-  changed implementation needs another run, use a new named directory and preserve
-  this evidence. Approval binds the backend/lockfile hash, so source changes require
-  fresh probes; do not relabel these results as evidence for a later revision.
+Read API_CONTRACT.md for broker/improvement DTOs and RUN_INSTRUCTIONS.md for commands.
+Existing run-canvas events are still recorded/stub data owned by Lucas, not silently
+connected to the broker or relabeled as live learning. HACK.md/POLICY_DELTA.md govern
+accepted policies; old UI design notes do not replace them with 48-hour review/x402.
 
-## Ordered remaining work
+## Remaining owner work
 
-1. Read current-main AGENTS.md/HACK.md/CONTEXT.md and its payment/interface documents.
-   Rebase on current main, preserving the catalog default and invoice compatibility.
-   Port profile extensions to the moved compatibility seams without restoring retired
-   root invoice routes or overriding catalog financial controls.
-2. Run required merged regression/type/build checks once the integration changes.
-   Keep broker, legacy invoice and catalog policy tests distinct and intact.
-3. Render/inspect the actual result PDF and run existing browser acceptance. Neither
-   visual polish nor browser evidence is a prerequisite for this results ZIP.
-4. Reconcile final docs, inspect the sanitized diff, push only the feature branch,
-   and verify the remote SHA. Do not auto-merge. No push has happened for V5 yet.
-5. Real-model evaluation requires existing approved application access to be available;
-   do not create spending authority. Keep that status separate from local completion.
+1. Lucas + Nikita: connect the existing run-canvas event/action seam to the chosen
+   real backend profile using its exact identities, revisions and deadlines. Keep
+   recorded/stub versus actual application evidence distinct.
+2. Jeff: if existing approved application access becomes available, run the bounded
+   real-model evaluation and report it separately. No new spending is authorized.
+3. Rehan: independently review finite fixture labels and sponsor requirements.
+4. Nikita: production identity and any separately authorized live-payment milestone.
 
-Do not repair RAP/Goal Autopilot or repeat the old WAITING_HUMAN checkpoint. The user
-prioritized this under-512-MB ZIP within 30 minutes, then continuation of remaining work.
+The user subsequently requested a main merge with the short subject
+"Add broker review and improvement workflow", explicitly preserving existing UI.
+No deployment, live transfer, new budget or destructive cleanup is included.
+Do not repair RAP/Goal Autopilot or reopen the resolved financial-policy decision.

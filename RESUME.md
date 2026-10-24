@@ -1,22 +1,19 @@
 # V5 pickup
 
-Work only on `feature/grey-area-reduction-v5-20261023`, based on current main
-`39538c0`. V4 PR #1 is already merged. Do not merge V5 automatically.
+Read HANDOFF.md for current state, EVALUATION_RESULTS.md for measured results, and
+WORK_LOG.md for preserved incidents. The source is integrated with main `46f6c07`.
+The user now requests main merge with "Add broker review and improvement workflow".
 
-Read WORK_LOG.md and the complete packet at
-`D:\Downloads\OBJECTION_V5_Implementation`. Preserve legacy v0.2; add v0.3 for new
-broker orders. One shared OrderService/DB/financial ledger. Lucas owns UI design.
-The application must execute its own improvement loop; source edits by a coding
-assistant are not runtime learning. Distinguish deterministic infrastructure results
-from an authorized real model run. No new paid access is authorized.
+Verified: 415 backend tests, 59 frontend tests, generated contracts, typecheck/build,
+frozen catalog OpenAPI, actual browser route/proxy access and the 12+6 offline loop.
+The existing root run canvas and /jobflow frontend are preserved, not replaced.
+Catalog funding/payment architecture and separate accepted profiles remain intact.
 
-Broker flow, bound question delivery, persistent human resume and the executable
-prospective improvement loop are implemented. Integrated suite: 341 backend tests
-pass; 32 frontend tests, generated types, typecheck and build pass. Four acceptance
-counterexamples are fixed with their regressions retained. No original tests removed.
-Run `evals/run_v5.py` into a NEW results directory for the finite 12+6 evidence packet,
-then render/inspect its PDF and run the existing browser acceptance. Finish handoff,
-fetch/reconcile current main, scan staged contents and push only the feature branch.
-Application model access is absent: real generation remains BLOCKED. Deterministic
-infrastructure and injected transports must not be presented as real-model evidence.
-Implementation start/cutoff are in WORK_LOG.md. Do not invoke or repair RAP.
+The first results ZIP (3.2 MB) was delivered within 30 minutes and is immutable.
+A later integrated run is in D:\Downloads\OBJECTION_V5_Integrated_20261024; its
+backend fingerprint is unchanged by the frontend-only rebase. Reuse verified
+results, preserve negative findings, and do not rerun merely for documentation.
+
+Real application-model access remains unavailable; deterministic/injected results
+are not real-model results. Next owner work is in HANDOFF.md. No new paid calls,
+chain broadcasts or deployment are authorized. Do not invoke or repair RAP.

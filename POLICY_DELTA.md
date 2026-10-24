@@ -1,6 +1,6 @@
 # Accepted policy profiles
 
-V5 is rebased onto `main` (`ac385a1`); its early results ZIP records the original
+V5 is rebased onto `main` (`46f6c07`, including the `ac385a1` payment handoff); its early results ZIP records the original
 pre-integration `150dab9` revision separately. No accepted order is migrated.
 Catalog remains the default product, with CatalogService, catalog-payments-v1,
 schema-4 funding terms and the existing payment journal unchanged. Its review is

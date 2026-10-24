@@ -1,3 +1,5 @@
 # Pinned payment interface/source hashes are hashes of these exact LF bytes.
 backend/app/payments/abi/*.json text eol=lf
 backend/app/payments/abi/source/*.sol text eol=lf
+# Generated text is compared byte-for-byte by the drift check.
+frontend/lib/*.generated.ts text eol=lf

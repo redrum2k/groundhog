@@ -45,3 +45,18 @@ Synthetic portrait PDF coordinates were inspected; arbitrary crop/rotation is no
 claimed verified. Run commands are in RUN_INSTRUCTIONS.md.
 
 Release secret scan and remote commit verification are recorded in the draft PR.
+
+## V5 and current-main integration
+
+October 24, 2026: 415 backend tests passed in 155.83 seconds; Ruff check/format pass
+(123 files). Latest frontend: 59 tests across 10 files, generated drift, TypeScript
+and Next production build pass. Main `46f6c07`'s existing screens/styles/components
+are preserved. Root catalog OpenAPI equals the frozen main schema.
+
+The 12-development/6-transfer improvement run passes all endpoint/financial checks
+across static, memory-only and evolving-process arms. A bad candidate is retained as
+negative evidence; actual approval/activation, experience reuse and rollback run.
+Browser acceptance at `/jobflow` validates all 100 original jobs, held base/separate
+paid addition, no replay mutations or JavaScript errors. Final broker PDF visually
+passes as a one-page source/methodology report. See EVALUATION_RESULTS.md for exact
+counts, modes, preserved failures, source fingerprints and the early results ZIP.

@@ -8,8 +8,22 @@ import {
 } from "../lib/broker-api";
 import { mergeEvents } from "../lib/projection";
 import { event } from "./fixtures";
+import nextConfig from "../next.config";
 
 afterEach(() => vi.unstubAllGlobals());
+
+it("keeps the improvement root request same-origin without a backend auth-losing redirect", async () => {
+  const rewrites = await nextConfig.rewrites?.();
+  expect(Array.isArray(rewrites)).toBe(true);
+  if (!Array.isArray(rewrites)) throw new Error("Expected ordered rewrite rules");
+  const root = rewrites.findIndex((rule) => rule.source === "/api/improvements");
+  const children = rewrites.findIndex(
+    (rule) => rule.source === "/api/improvements/:path*",
+  );
+  expect(root).toBeGreaterThanOrEqual(0);
+  expect(root).toBeLessThan(children);
+  expect(rewrites[root].destination).toMatch(/\/api\/improvements\/$/);
+});
 
 it("reads broker state and versioned events without mutation side effects", async () => {
   const fetcher = vi

@@ -24,7 +24,8 @@ $env:BACKEND_URL = 'http://127.0.0.1:8000'
 npm.cmd run dev
 ```
 
-Open http://127.0.0.1:3000. Customer creates a Northwind case; provider corrects the
+Open http://127.0.0.1:3000/jobflow for the preserved invoice workbench. The root URL
+serves Lucas's run canvas. Customer creates a Northwind case; provider corrects the
 20 failures. Investigator reviews the disputed scope from actual sources; customer
 answers or both parties sign an amendment. Controller approves the supported remedy;
 executor executes that exact approval. For additional work, customer accepts the quote

@@ -19,6 +19,10 @@ const config: NextConfig = {
         destination: `${backend}/api/broker/:path*`,
       },
       {
+        source: "/api/improvements",
+        destination: `${backend}/api/improvements/`,
+      },
+      {
         source: "/api/improvements/:path*",
         destination: `${backend}/api/improvements/:path*`,
       },

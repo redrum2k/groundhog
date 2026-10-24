@@ -81,3 +81,19 @@ This is separate from a settlement failure; the test passed unchanged on the int
   test servers stopped in finally; no background app was left running.
 - Original PDF visual review found an orphaned final heading. Applied bounded renderer
   spacing/keep-with-next/page-footer polish; no data or financial semantics changed.
+- A second main update (`46f6c07`) added Lucas's run canvas and moved the invoice UI
+  to `/jobflow`. Rebased without altering those screens/styles/components. Backend
+  fingerprint remained exactly equal to the passing `c85d9cc` artifact run, so reused
+  the 415-test backend result and reran only affected frontend/build/browser checks.
+- Windows checkout also converted generated TypeScript to CRLF, creating false drift.
+  Scoped LF attributes now cover generated DTOs; no schema check was weakened.
+- Latest frontend: 59 tests in 10 files; TypeScript/build pass. Existing `/jobflow`
+  acceptance passed after relocation. The final broker PDF is one page and visually clean.
+- An extra access probe ran after its owned demo servers had already shut down.
+  Moved that probe inside the bounded server-owning runner rather than leaving a
+  terminal/server alive. The live probe then exposed a genuine proxy-root 307 -> 401:
+  Next stripped the slash and the backend redirect dropped the bearer header. Added
+  an exact same-origin root rewrite ahead of the wildcard, with a regression check.
+- User now explicitly requested main merge, compatibility with the existing frontend,
+  and a short broad commit subject. Use "Add broker review and improvement workflow";
+  no new UI replacement, deployment or live transaction is authorized.

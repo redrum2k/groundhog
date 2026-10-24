@@ -75,5 +75,14 @@ Keep the V5 application/schema when rolling back a template. Do not replace a V5
 with an older parser or restore an old DB over new orders as a template rollback.
 
 The original V4 PR is already merged at main `39538c0`. V5 is a separate feature
-branch; it must not be auto-merged or deployed. See EVALUATION_RESULTS.md and the
-updated run instructions for evidence and exact owner follow-up.
+change on current main `46f6c07`. The user subsequently requested merging this work
+with the simple subject "Add broker review and improvement workflow", preserving
+the existing frontend. No deployment or live-money action was added to that scope.
+See EVALUATION_RESULTS.md and updated run instructions for evidence and follow-up.
+
+The current `/` run canvas and `/jobflow` workbench are unchanged from main. Added
+frontend files are typed broker/improvement clients and generated DTOs; proxy routes
+are additive. The run canvas's recorded/stub event seam remains Lucas's integration
+surface, not an invented backend or payment authority. HACK.md and POLICY_DELTA.md
+govern real accepted policies; older design notes mentioning 48-hour review or x402
+do not replace the current catalog/broker contracts or Nikita's payment architecture.

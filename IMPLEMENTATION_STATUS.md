@@ -9,8 +9,9 @@
 The broker backend, actual data/PDF verification, versioned review policy, persistent
 question/human paths and bounded prospective improvement loop are implemented in
 the same application. Generated APIs/types and compatibility helpers are ready for
-Lucas. Rebased on main `ac385a1`, preserving catalog default/payment architecture.
-Current checks: 415 backend tests, 32 frontend tests, generated-contract check,
+Lucas. Rebased on main `46f6c07`, preserving catalog default/payment architecture
+and the existing root run canvas plus `/jobflow` frontend.
+Current checks: 415 backend tests, 59 frontend tests, generated-contract check,
 TypeScript, production build and real-backend browser acceptance pass. The results-first
 ZIP and 12+6 evaluation are recorded in EVALUATION_RESULTS.md. Real generation is BLOCKED by missing
 application configuration; deterministic infrastructure tests are not labeled live.
