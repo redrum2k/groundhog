@@ -13,6 +13,91 @@ commit remains `1956f18`). Do not treat the passing suite or happy-path browser
 smoke as approval for a new feature/deployment milestone. Live payment execution
 also remains blocked on the separately scoped recovery and measured preflight below.
 
+## R7 follow-up — unavailable preview recovery
+
+Continued the same worktree from clean `086b5ba596af445dcf8009b6c3ddc82b03ac69de`,
+matching `origin/codex/review-remediation` and retaining reviewed `692f500` and the
+combined 06/07 history. This follow-up owns only `orders/dataset.py`, its new HTTP
+regressions and this record. No Jeff branch was merged; his compiler and R3/R4
+tests are unchanged. Earlier validation below records the original 08 pass.
+
+**Cause and fix:** `DatasetLifecycle.complaint_targets` reopened the delivered
+preview before returning mandatory targets. Hash mismatch raised 409 and absence
+raised 404, aborting caught-up status pages and valid complaints. Both failures
+were reproduced on the starting descendant using newly created temporary DBs,
+synthetic sources, explicit mock funding and an injected clock. Target construction
+now uses the immutable accepted requirement IDs/checks and coverage keys. It performs
+no artifact I/O and retains the existing field/row/column validation. Unexpected
+delivery rows cannot add accepted row identities; the whole-dataset artifact target
+remains available to report delivery defects.
+
+`tests/dataset/test_review_artifact_availability.py` adds eight HTTP regressions,
+covering both missing and overwritten previews:
+
+- Three-event pages reach catch-up, followed by an empty caught-up page. Events,
+  binding, current funded payment metadata and deadlines stay intact. Controls remain
+  withheld until catch-up, and future cursors/oversized pages are rejected.
+- Complete SQLite dumps are unchanged after reads, including reads crossing review
+  and authorization expiry. Application restart precedes clock advancement because
+  startup has an existing explicit deadline sweep; GET does not perform that sweep.
+  Neither missing files nor overwritten bytes are repaired by polling.
+- A current R-ARTIFACT/dataset complaint records once and replays the exact HTTP
+  response after restart and dispute expiry. Prior events, snapshots and delivery
+  records remain intact. Invalid targets/intents, changed idempotent requests and
+  stale bindings remain rejected without writes.
+- Preview downloads still return 404/409 and expose no substituted bytes. Independent
+  verification rejects the preview, HTTP acceptance refuses capture before and after
+  restart, and the explicit deadline sweep retains human review with funded payment
+  metadata and no capture/return booking.
+
+Commands actually run from this worktree:
+
+```sh
+# Before the fix: polling reproduced 409/404; valid complaints independently did too.
+uv run --locked --directory backend pytest tests/dataset/test_review_artifact_availability.py -q --tb=short
+uv run --locked --directory backend pytest tests/dataset/test_review_artifact_availability.py -k whole_dataset -q --tb=short
+# After the fix:
+uv run --locked --directory backend ruff format tests/dataset/test_review_artifact_availability.py
+uv run --locked --directory backend pytest tests/dataset/test_review_artifact_availability.py -q --tb=short
+uv run --locked --directory backend pytest tests/dataset tests/api -q --tb=short -rx
+uv run --locked --directory backend pytest tests/dataset/test_lifecycle.py::test_reads_replay_restart_concurrency_and_cursor --tb=short
+uv run --locked --directory backend pytest tests/dataset tests/api --tb=short -rx
+uv run --locked --directory backend pytest tests/dataset/test_compiler_review_blockers.py --runxfail -q --tb=short
+uv run --locked --directory backend pytest
+uv run --locked --directory backend ruff check . ../tools/brokerage_acceptance.py
+uv run --locked --directory backend ruff format --check . ../tools/brokerage_acceptance.py
+git diff --check
+git diff 086b5ba -- backend/app/agents/dataset.py backend/tests/dataset/test_compiler_review_blockers.py
+git diff f8a929a7fab2ac10ffee2a0aca112ca93a72fb2d -- spikes/payments/run.py spikes/payments/README.md backend/tests/payments/test_payment_readiness.py docs/workstreams/07-payment-readiness.md
+# From frontend, using Node 24.14.1 and uv on PATH:
+env PATH=/Users/nikitaafanaskin/.nvm/versions/node/v24.14.1/bin:/Users/nikitaafanaskin/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin npm run generate:check
+```
+
+Validation: **664 passed, 2 expected failures in 108.53 s** in the full backend
+suite; the final focused dataset/API run had **112 passed, 2 expected failures
+in 19.96 s**. All eight R7 cases pass. Ruff lint/format passes (154 Python files),
+all generated contracts are current, and whitespace checks pass. One upstream
+websockets deprecation warning remains.
+
+The first focused run encountered an artifact-storage collision in the existing
+concurrent run-creation test, inside `seed_registry` / `ArtifactStore.put`, before
+any delivery or complaint-target construction. The unchanged test passed on its
+targeted rerun, the full backend run and the final focused rerun. This intermittent
+concurrent artifact-write failure is disclosed for separate follow-up; R7 does not
+repair that path. R3/R4 still produce exactly two failures with `--runxfail`; they
+are not fixed or waived. The compiler integration and the payment lease/recovery/
+preflight limitations below remain outstanding. No independently reviewed Jeff
+commit was supplied in this pass. Prompt 07's four owned files remain byte-identical
+to `f8a929a`.
+
+No frontend or contract files changed, so frontend tests, typecheck, builds and
+browser smokes were not rerun for this API-only follow-up. Their earlier results
+below remain historical evidence. Use the **Clean-checkout local demo** commands
+below to start the mock backend on 8028 and frontend on 3028 with a fresh temporary
+DB. For R7 specifically, run the new test module above; it creates and faults only
+its own temporary artifacts. No private state, paid calls, live RPC, broadcasts,
+push, main merge or deployment were used.
+
 ## Review mapping and evidence
 
 | Review | Implementation and regression | Status |

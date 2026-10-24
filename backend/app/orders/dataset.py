@@ -1,7 +1,7 @@
 """Dataset-specific hooks on the existing CatalogService lifecycle and durable jobs."""
 
 from app.contracts.catalog import FulfillmentContext
-from app.contracts.dataset import DATASET_CHECKS, DatasetComplaintTarget, DatasetManifest
+from app.contracts.dataset import DatasetComplaintTarget
 from app.datasets import is_dataset, produce_dataset, verify_dataset
 from app.investigation.dataset import investigate_dataset
 from app.orders.service import DomainError
@@ -11,17 +11,9 @@ class DatasetLifecycle:
     def complaint_targets(self, order):
         if not order.deliveries:
             return ()
-        delivery = order.deliveries[-1]
-        manifest = DatasetManifest.model_validate_json(self.store.read(delivery.preview))
-        rows = tuple(
-            dict.fromkeys(
-                (
-                    "dataset",
-                    *order.snapshot.quote.specification.terms.coverage.expected_keys,
-                    *(r.zip for r in manifest.rows),
-                )
-            )
-        )
+        # Complaints must remain possible when the delivery bytes themselves are unavailable.
+        specification = order.snapshot.quote.specification
+        rows = tuple(dict.fromkeys(("dataset", *specification.terms.coverage.expected_keys)))
         columns = {
             "coverage": ("zip", "count", "status"),
             "suppression": ("count", "status"),
@@ -30,12 +22,12 @@ class DatasetLifecycle:
         }
         return tuple(
             DatasetComplaintTarget(
-                requirement_id=f"R-{field.upper()}",
-                field=field,
-                row_ids=rows if field in columns else ("dataset",),
-                columns=columns.get(field, ()),
+                requirement_id=requirement.requirement_id,
+                field=requirement.check,
+                row_ids=rows if requirement.check in columns else ("dataset",),
+                columns=columns.get(requirement.check, ()),
             )
-            for field in DATASET_CHECKS
+            for requirement in specification.requirements
         )
 
     def validate_dataset_complaint(self, order, complaint):
