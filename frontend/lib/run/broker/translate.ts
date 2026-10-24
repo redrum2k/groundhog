@@ -9,20 +9,21 @@ import type { BrokerCheck, BrokerEvent, BrokerOrder, BrokerSnapshot, DataRow } f
 type Detour = "dispute" | "unknown" | "failed";
 
 /** The eight accepted requirements, in the order the backend checks them, with our wording. */
-const DIMENSIONS: [string, string[], (p: Record<string, unknown>) => string][] = [
-  ["freshness", ["freshness_basis", "max_age_days", "as_of"], (p) => `Fresh: ${p.freshness_basis ?? "observation"} within ${p.max_age_days} days of the as-of date`],
-  ["geography", ["geography", "boundary_version", "region_ids"], (p) => `${p.geography} only, ${count(p.region_ids)} ZIPs, boundary ${p.boundary_version}`],
-  ["reference_period", ["reference_period"], (p) => `Reference period ${p.reference_period}`],
-  ["metric", ["metric_name", "metric_unit"], (p) => `Metric: ${words(p.metric_name)}, in ${p.metric_unit}`],
-  ["entity_unit", ["entity_unit"], (p) => `One record per ${p.entity_unit}`],
-  ["coverage", ["coverage_ids", "max_missing_records"], (p) => `Every ZIP present: ${count(p.coverage_ids)} expected, ${p.max_missing_records} may be missing`],
-  ["source_lineage", ["revision_policy", "conflict_policy"], () => "Exact accepted source versions; conflicts need review"],
-  ["output_schema", ["output_schema", "output_format"], (p) => `Output: ${p.output_schema} as ${String(p.output_format ?? "json").toUpperCase()}`],
+const DIMENSIONS: [string, string[], (p: Record<string, unknown>) => string, string][] = [
+  ["freshness", ["freshness_basis", "max_age_days", "as_of"], (p) => `Fresh: ${p.freshness_basis ?? "observation"} within ${p.max_age_days} days of the as-of date`, "How fresh the data must be"],
+  ["geography", ["geography", "boundary_version", "region_ids"], (p) => `${p.geography} only, ${count(p.region_ids)} ZIPs, boundary ${p.boundary_version}`, "Which area, boundary and ZIPs"],
+  ["reference_period", ["reference_period"], (p) => `Reference period ${p.reference_period}`, "Which reference period"],
+  ["metric", ["metric_name", "metric_unit"], (p) => `Metric: ${words(p.metric_name)}, in ${p.metric_unit}`, "Which metric, in what unit"],
+  ["entity_unit", ["entity_unit"], (p) => `One record per ${p.entity_unit}`, "One record per what"],
+  ["coverage", ["coverage_ids", "max_missing_records"], (p) => `Every ZIP present: ${count(p.coverage_ids)} expected, ${p.max_missing_records} may be missing`, "Which ZIPs must be present, and how many may be missing"],
+  ["source_lineage", ["revision_policy", "conflict_policy"], () => "Exact accepted source versions; conflicts need review", "Exact accepted source versions; conflicts need review"],
+  ["output_schema", ["output_schema", "output_format"], (p) => `Output: ${p.output_schema} as ${String(p.output_format ?? "json").toUpperCase()}`, "Output schema and format"],
 ];
 const count = (v: unknown) => (Array.isArray(v) ? v.length : 0);
 const words = (v: unknown) => String(v ?? "").replace(/_/g, " ");
 const dimensionOf = (field: string) => DIMENSIONS.find(([, fields]) => fields.includes(field))?.[0];
 const lineFor = (d: string, answered: Record<string, unknown>): ContractLine => ({ id: d, text: DIMENSIONS.find(([id]) => id === d)![2](answered), check: "code" });
+const askFor = (d: string): ContractLine => ({ id: d, text: DIMENSIONS.find(([id]) => id === d)![3], check: "code" });
 
 const POLICY = {
   accepted: "Both parties accepted the specification digest",
@@ -75,6 +76,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
   const complete = (step: string, attempt = 1) => { const k = `${step}#${attempt}`; if (!completed.has(k)) { completed.add(k); emit({ type: "step_completed", step, attempt }); } };
 
   const answered: Record<string, unknown> = {};
+  const answers: Record<string, { id: string; text: string }> = {}; // Acme's own words per contract line, to cite
   const drafted = new Set<string>();
   const asked = new Set<string>();
   let contractVersion = 0;
@@ -88,9 +90,21 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
     if (!detour) return;
     if (detour === "dispute" && !verdictDone) {
       const kind = order.resolution === "CORRECTED" ? "agree" : "disagree";
+      const cites: string[] = [];
+      if (kind === "disagree") {
+        const geo = answers.geography;
+        if (geo) {
+          cites.push("cite-geography");
+          emit({ type: "evidence_found", step: "investigate", evidence: { id: "cite-geography", kind: "interview_quote", label: `Contract: ${answered.geography} only`, note: "The geography line of the contract, in Acme's own words.", speaker: S.buyerAgent, quote: geo.text, source: { kind: "message", messageId: geo.id } } });
+        }
+        const zips = count(answered.coverage_ids);
+        cites.push("cite-coverage");
+        emit({ type: "evidence_found", step: "investigate", evidence: { id: "cite-coverage", kind: "sheet_cell", label: `${zips} of ${zips} ZIPs delivered`, note: "Every ZIP the contract names is in the delivery.", file: "market-data.json", row: "", column: "", value: `${zips} of ${zips}`, source: { kind: "cell", version: delivery, row: "", column: "" } } });
+        say("investigate", { id: `defense-${delivery}`, from: "agent", text: `Checked the delivery against every accepted line again: all pass. The contract covers ${answered.geography} only, ${zips} ZIPs, and all ${zips} are in the delivery. Nothing was missing from what was agreed, and there is no charge for asking.`, attach: cites.map((evidenceId) => ({ kind: "evidence" as const, evidenceId })) });
+      }
       complete("investigate");
       emit({ type: "step_started", step: "verdict" });
-      emit({ type: "verdict", step: "verdict", verdict: { kind, decidedBy: "rules", evidenceIds: [], reason: kind === "agree" ? "A requirement failed and was corrected." : "Every accepted requirement passed; nothing was missing from what was agreed." }, allowedBy: POLICY.checks });
+      emit({ type: "verdict", step: "verdict", verdict: { kind, decidedBy: "rules", evidenceIds: cites, reason: kind === "agree" ? "A requirement failed and was corrected." : "Every accepted requirement passed; nothing was missing from what was agreed." }, allowedBy: POLICY.checks });
       verdictDone = true;
     }
     for (const s of detourSteps(detour, order.resolution)) complete(s.id);
@@ -113,7 +127,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         const q = p.question as { id: string; field: string; prompt: string };
         const dim = dimensionOf(q.field);
         say("clarify", { id: q.id, from: "agent", text: q.prompt, asks: dim });
-        if (dim && !asked.has(dim)) { asked.add(dim); emit({ type: "contract_line_asked", step: "clarify", line: lineFor(dim, answered) }); }
+        if (dim && !asked.has(dim)) { asked.add(dim); emit({ type: "contract_line_asked", step: "clarify", line: askFor(dim) }); }
         break;
       }
       case "spec.answer_received": {
@@ -121,6 +135,8 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         if (!m) break;
         say("clarify", { id: m.id, from: "buyer", text: plain(m.text) });
         if (m.field) answered[m.field] = parse(m.text);
+        const dim = m.field ? dimensionOf(m.field) : undefined;
+        if (dim) answers[dim] = { id: m.id, text: plain(m.text) };
         for (const [d, fields] of DIMENSIONS) if (!drafted.has(d) && fields.every((f) => f in answered)) { drafted.add(d); emit({ type: "contract_line_drafted", step: "clarify", line: lineFor(d, answered) }); }
         break;
       }

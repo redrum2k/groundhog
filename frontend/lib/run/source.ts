@@ -71,7 +71,7 @@ export function usePlayback(feed: Feed): Playback {
         const next = fresh.filter((e) => e.seq > lastSeq.current);
         if (next.length) {
           lastSeq.current = next[next.length - 1].seq;
-          setEvents((prev) => [...prev, ...next]);
+          setEvents((prev) => [...prev, ...next.map((e,i)=>({...e,seq:prev.length+i+1}))]);
           setCursor((c) => c + next.length);
         }
         timer = setTimeout(poll, poll_after_ms);

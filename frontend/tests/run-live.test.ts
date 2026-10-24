@@ -28,13 +28,13 @@ function fakeServer(released: RunEvent[]) {
 
 const liveFeed = (): Feed => {
   const { events, start } = timeline("amber", "maya");
-  return { kind: "live", api: "/api/live", body: { case: "amber" }, before: events.slice(0, start), ctx };
+  return { kind: "live", api: "/api/broker-run", body: { case: "amber" }, before: events.slice(0, start), ctx };
 };
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
-describe("live feed", () => {
+describe("recorded API fixture", () => {
   it("starts a run, then folds the events it polls after the last seq it saw", async () => {
     const amber = stamp("amber", [...amberOpen("maya", false), ...amberEnding("maya", false)]);
     const server = fakeServer(amber.slice(0, 6)); // up to the dispute and the start of Investigate
@@ -47,16 +47,16 @@ describe("live feed", () => {
     expect(result.current.view.nodes.investigate?.status).toBe("running");
     expect(result.current.view.nodes.review.status).toBe("waiting");
     expect(result.current.view.coin).toMatchObject({ locked: true });
-    expect(server.calls[0]).toMatchObject({ method: "POST", url: "/api/live/runs", body: { case: "amber" } });
-    expect(server.calls[1].url).toBe("/api/live/runs/run-1/events?after=0");
+    expect(server.calls[0]).toMatchObject({ method: "POST", url: "/api/broker-run/runs", body: { case: "amber" } });
+    expect(server.calls[1].url).toBe("/api/broker-run/runs/run-1/events?after=0");
 
     // the next poll asks only for what is new
     await act(async () => { await vi.advanceTimersByTimeAsync(10); });
-    expect(server.calls.at(-1)?.url).toBe("/api/live/runs/run-1/events?after=6");
+    expect(server.calls.at(-1)?.url).toBe("/api/broker-run/runs/run-1/events?after=6");
   });
 });
 
-describe("live feed at the controller gate", () => {
+describe("recorded API fixture at the controller gate", () => {
   it("waits on the controller, surfaces a 409 on a stale decision, then resumes to done", async () => {
     const open = stamp("amber", amberOpen("maya", false));
     const gate = stamp("amber", amberEnding("maya", false), open.length); // ends with step_waiting on Maya
@@ -96,7 +96,7 @@ describe("live feed at the controller gate", () => {
   });
 });
 
-describe("live feed failure", () => {
+describe("recorded API fixture failure", () => {
   it("reports an error instead of guessing when the server stops answering", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => json({ detail: "boom" }, 503)));
     const feed = liveFeed();

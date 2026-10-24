@@ -32,11 +32,21 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.captured.entries?.[0]).toMatchObject({ amount: S.price });
   });
 
+  it("asks each contract line as a question until Acme's answer settles its wording", () => {
+    const events = translate(snapshot("green"), "green");
+    const asked = events.flatMap((e) => (e.type === "contract_line_asked" ? [e.line.text] : []));
+    expect(asked.length).toBeGreaterThan(0);
+    expect(asked.some((t) => /undefined|NaN/.test(t))).toBe(false);
+    expect(asked).toContain("Which area, boundary and ZIPs");
+  });
+
   it("maps a refuted dispute onto the We're-right detour and back to capture", () => {
     const v = view("green");
     expect(v.dispute?.claim).toMatch(/Oakland/);
     expect(v.nodes.investigate.messages[0].from).toBe("buyer");
-    expect(v.nodes.verdict.verdict).toMatchObject({ kind: "disagree", decidedBy: "rules" });
+    expect(v.nodes.verdict.verdict).toMatchObject({ kind: "disagree", decidedBy: "rules", evidenceIds: ["cite-geography", "cite-coverage"] });
+    expect(v.nodes.investigate.evidence.map((e) => e.label)).toEqual(["Contract: San Francisco only", expect.stringMatching(/^\d+ of \d+ ZIPs delivered$/)]);
+    expect(v.nodes.investigate.messages.at(-1)).toMatchObject({ from: "agent", attach: [{ kind: "evidence", evidenceId: "cite-geography" }, { kind: "evidence", evidenceId: "cite-coverage" }] });
     expect(v.nodes.verdict.chip).toBe("We're right");
     expect(v.nodes.review.attempt).toBe(2);
     expect(v.nodes.captured.status).toBe("done");

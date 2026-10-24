@@ -37,10 +37,12 @@ export function buyerMove(run: Run, m: BuyerMove): { status: number; detail?: st
 const key = () => crypto.randomUUID();
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const PACE = 1400; // between party actions, so the canvas can follow
+// market-v1 takes numeric values only, so the suppressed ZIP stays out of the vendor panel and the coverage
+const SOURCE_ROWS = ROWS.flatMap((r) => (r.count === null ? [] : [{ zip: r.zip, count: r.count }]));
 
 /** Our order in the backend's parameters: SF ZIPs, a fitness-interest metric, no missing records. */
 export function parameters(now: Date) {
-  const zips = ROWS.map((r) => r.zip);
+  const zips = SOURCE_ROWS.map((r) => r.zip);
   return {
     freshness_basis: "observed_at", max_age_days: 90, as_of: now.toISOString(),
     geography: "San Francisco", boundary_version: "2026-Q3", region_ids: zips,
@@ -53,7 +55,7 @@ export function parameters(now: Date) {
 /** The vendor panel as a source snapshot. Version 1 carries the case's flaw; version 2 is clean. */
 export function sourceSnapshot(c: Case, version = 1) {
   const flawed = version === 1;
-  const rows = ROWS
+  const rows = SOURCE_ROWS
     .filter((r) => !(flawed && c === "red" && r.zip === "94110")) // the vendor's list lacks the Mission ZIP
     .map((r) => ({ entity_id: r.zip, region_id: r.zip, value: r.count, observed_at: flawed && c === "amber" && r.zip === "94110" ? null : "2026-10-10T00:00:00Z" }));
   return {

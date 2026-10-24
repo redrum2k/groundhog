@@ -1,4 +1,4 @@
-"""Stable public errors and Phase 1 capabilities; never echo sensitive request inputs."""
+"""Stable public errors and startup capabilities; never echo sensitive request inputs."""
 
 from typing import Literal
 
@@ -19,11 +19,13 @@ class ErrorResponse(Contract):
 
 class Capabilities(Contract):
     status: Literal["ok"] = "ok"
+    primary_product: Literal["aggregate_dataset"] = "aggregate_dataset"
+    brokerage_policy: Literal["aggregate-brokerage-v1"] = "aggregate-brokerage-v1"
     contract_version: Literal["catalog-api-v1"] = "catalog-api-v1"
     payment_policy: Literal["catalog-payments-v1"] = "catalog-payments-v1"
     payment_mode: PaymentMode = "mock"
     live_settlement_enabled: bool = False
     buyer_signature_validation: bool = True
     mock_funding_requires_authorization: bool = True
-    live_adapter: Literal["planned", "disabled", "ready", "unavailable"] = "planned"
+    live_adapter: Literal["planned", "disabled", "ready", "unavailable"] = "disabled"
     customer_authentication: bool = False

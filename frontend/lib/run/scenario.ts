@@ -90,26 +90,26 @@ export const INTERVIEW: Message[] = [
 ];
 const SETTLES: Record<string, string> = { m3: "fitness", m5: "city", m7: "ages", m9: "privacy", m11: "coverage" };
 
-const row = (zip: string, area: string, count: number, flag?: ZipCount["flag"]): ZipCount => ({ zip, area, count, flag });
+const row = (zip: string, area: string, count: number | null, flag?: ZipCount["flag"]): ZipCount => ({ zip, area, count, flag });
 export const ROWS: ZipCount[] = [
   row("94102", "Tenderloin", 1820), row("94103", "SoMa", 2140), row("94107", "Potrero Hill", 2960), row("94109", "Nob Hill", 3310),
   row("94110", "Mission", 4120), row("94114", "Castro", 2450), row("94117", "Haight", 2780), row("94122", "Sunset", 3050),
-  row("94129", "Presidio", 42), row("94133", "North Beach", 1990),
+  row("94129", "Presidio", null, "withheld"), row("94133", "North Beach", 1990),
 ];
 export const AREA_BY_ZIP: Record<string, string> = Object.fromEntries(ROWS.map((r) => [r.zip, r.area]));
 export const OAKLAND: ZipCount[] = [row("94607", "West Oakland", 1640, "added"), row("94610", "Lakeshore", 2210, "added"), row("94612", "Downtown Oakland", 1880, "added")];
 const PRIVACY_FLOOR = 50;
-const withheld = (rows: ZipCount[]) => rows.map((r) => (r.count < PRIVACY_FLOOR ? { ...r, flag: "withheld" as const } : r));
+const withheld = (rows: ZipCount[]) => rows.map((r) => (r.count === null || r.count < PRIVACY_FLOOR ? { ...r, flag: "withheld" as const } : r));
 // The vendor's ZIP list leaves out 94110, and our check compared against it until the red lane's fix
 const VENDOR = ROWS.filter((r) => r.zip !== "94110");
-const yoga = (rows: ZipCount[]) => rows.map((r) => (r.flag === "withheld" ? r : { ...r, count: Math.round(r.count * 1.09), flag: "yoga" as const }));
+const yoga = (rows: ZipCount[]) => rows.map((r) => (r.flag === "withheld" ? r : { ...r, count: Math.round((r.count ?? 0) * 1.09), flag: "yoga" as const }));
 const closes = (hours: number) => new Date(T0 + hours * 3_600_000).toISOString();
 const SHEET_V1: Delivery = { version: 1, file: "acme-sf-fitness-v1.csv", rows: withheld(VENDOR), reviewClosesAt: closes(48) };
 const sheet = (version: number, file: string, rows: ZipCount[]): Delivery => ({ version, file, rows, reviewClosesAt: closes(96) });
 
 export const MAIN: Step[] = [
   { id: "clarify", kind: "clarify", title: "Clarify the order", detail: `Interview to a $${S.price} contract`, panel: true },
-  { id: "paid", kind: "paid", title: "Paid upfront", detail: `$${S.price} authorized via x402` },
+  { id: "paid", kind: "paid", title: "Paid upfront", detail: `$${S.price} authorized, not taken` },
   { id: "produce", kind: "produce", title: "Produce & check", detail: "Rented data → counts", panel: true },
   { id: "review", kind: "review", title: "Customer review", detail: `${S.reviewHours}h to accept or dispute` },
   { id: "captured", kind: "captured", title: "Captured", detail: "Payment taken, books posted", panel: true },
@@ -121,7 +121,7 @@ const done = (s: string, attempt = 1): Draft => ({ type: "step_completed", step:
 const wait = (s: string, on: string, attempt = 1): Draft => ({ type: "step_waiting", step: s, waitingOn: on, attempt });
 const say = (s: string, message: Message, attempt = 1): Draft => ({ type: "message", step: s, message, attempt });
 const found = (s: string, evidence: Evidence): Draft => ({ type: "evidence_found", step: s, evidence });
-const pay = (id: string, amount: number): Payment => ({ id, amount, rail: "x402", network: "base-sepolia", mock: true });
+const pay = (id: string, amount: number): Payment => ({ id, amount, rail: "commerce-payments", network: "base-sepolia", mock: true });
 let j = 0;
 const entry = (memo: string, debit: string, credit: string, amount: number): JournalEntry => ({ id: `j${++j}`, memo, debit, credit, amount });
 
@@ -129,8 +129,8 @@ const passAll = (attempt: number, detailFor: (id: string) => string | undefined)
   CONTRACT.map((l) => ({ type: "check_passed", step: "produce", attempt, lineId: l.id, detail: detailFor(l.id) }));
 const firstRunChecks: Draft[] = [
   ...CONTRACT.slice(0, 3).map((l): Draft => ({ type: "check_passed", step: "produce", lineId: l.id })),
-  { type: "check_failed", step: "produce", lineId: "privacy", reason: `ZIP 94129 has 42 people, under ${PRIVACY_FLOOR}` },
-  { type: "check_fixed", step: "produce", lineId: "privacy", fix: "94129 withheld (42)" },
+  { type: "check_failed", step: "produce", lineId: "privacy", reason: `ZIP 94129 is suppressed, below ${PRIVACY_FLOOR}` },
+  { type: "check_fixed", step: "produce", lineId: "privacy", fix: "94129 withheld" },
   { type: "delivery_ready", step: "produce", delivery: SHEET_V1 },
   { type: "check_passed", step: "produce", lineId: "coverage", detail: "vs vendor list" },
 ];
@@ -195,7 +195,7 @@ const rewalk = (delivery: Delivery, checkDetail: (id: string) => string | undefi
   books(1, captured, extra),
   done("captured"),
 ];
-const tenOfTen = (id: string) => (id === "coverage" ? "10 of 10" : id === "privacy" ? "94129 withheld (42)" : undefined);
+const tenOfTen = (id: string) => (id === "coverage" ? "10 of 10" : id === "privacy" ? "94129 withheld" : undefined);
 
 const E = {
   line5: { id: "e-line5", kind: "interview_quote", label: "Contract line 5 · every SF ZIP", speaker: S.buyerAgent, quote: "Approved.", note: "Line 5 of the contract: every SF ZIP present.", source: { kind: "message", messageId: "m11" } },
@@ -243,7 +243,7 @@ export const GREEN: Draft[] = [
   start("amend"),
   say("amend", buyer("m-yes", "Yes, add Oakland.")),
   say("amend", agent("m-offer", `Amendment: + Oakland (3 ZIPs), $${S.oakland}. Same rules otherwise. Approve and sign?`)),
-  say("amend", buyer("m-signed", `Approved. Signed $${S.oakland} via x402.`)),
+  say("amend", buyer("m-signed", `Approved. Signed $${S.oakland}.`)),
   { type: "amendment_signed", step: "amend", amendment: ADD_OAKLAND, allowedBy: POLICY.amendment },
   { type: "payment_authorized", payment: pay("extra", S.oakland), allowedBy: POLICY.amendment },
   done("amend"),
@@ -299,7 +299,7 @@ export function amberOpen(ending: Ending, learned: boolean): Draft[] {
 
 const yogaRerun = (extra: JournalEntry[] = []) => rewalk(YOGA_SHEET, tenOfTen, S.price, [entry("Rerun with yoga, our cost", "Data cost", "Cash", S.rerunCost), ...extra]);
 const yogaAmendment: Draft[] = [
-  say("decide", buyer("m-signed", `Yes. Signed $${S.yoga} via x402.`)),
+  say("decide", buyer("m-signed", `Yes. Signed $${S.yoga}.`)),
   { type: "amendment_signed", step: "decide", amendment: YOGA, allowedBy: POLICY.amendment },
   { type: "payment_authorized", payment: pay("extra", S.yoga), allowedBy: POLICY.amendment },
   done("decide"),

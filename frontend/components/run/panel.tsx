@@ -2,6 +2,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { Binding, ContractLine, ControllerAction, Delivery, Evidence, Message, Source, Step, ZipCount } from "../../lib/run/contract";
 import { bindingFor, type NodeState, type View } from "../../lib/run/fold";
+import type { CellEvidence } from "../../lib/runs.generated";
 import { CONTRACT, CONTRACT_V2, S, type Case, type Ending } from "../../lib/run/scenario";
 import TodoList, { type ChecklistItem } from "./checklist";
 import { IcCheck, IcChevronRight, IcLens, IcLock, IcX } from "./icons";
@@ -73,7 +74,7 @@ function Sheet({ rows, highlight, note, lens }: { rows: ZipCount[]; highlight?: 
           {rows.map((r, i) => (
             <tr key={r.zip} id={`row-${r.zip}`} className={`${r.flag ? "f-" + r.flag : ""}${highlight === r.zip ? " flash" : ""}`}>
               <td className="rn">{i + 1}</td><td className="mono">{r.zip}</td><td>{r.area}</td>
-              <td className="num">{r.flag === "missing" ? "missing" : r.flag === "withheld" ? "withheld" : r.count.toLocaleString("en-US")}{r.flag === "yoga" && <span className="delta"> +yoga</span>}</td>
+              <td className="num">{r.flag === "missing" ? "missing" : r.flag === "withheld" ? "withheld" : r.count?.toLocaleString("en-US") ?? "unknown"}{r.flag === "yoga" && <span className="delta"> +yoga</span>}</td>
             </tr>
           ))}
         </tbody>
@@ -86,7 +87,7 @@ function Sheet({ rows, highlight, note, lens }: { rows: ZipCount[]; highlight?: 
 function sheetRows(view: View, node: NodeState): ZipCount[] {
   const d = node.delivery ?? view.deliveries[view.deliveries.length - 1];
   if (!d) return [];
-  const missing = node.evidence.filter((e): e is Extract<Evidence, { kind: "sheet_cell" }> => e.kind === "sheet_cell" && e.value === null && e.source.kind === "cell" && e.source.version === d.version);
+  const missing = node.evidence.filter((e): e is CellEvidence => e.kind === "sheet_cell" && e.value === null && e.source.kind === "cell" && e.source.version === d.version);
   const rows = [...d.rows];
   for (const m of missing) if (!rows.some((r) => r.zip === m.row)) rows.push({ zip: m.row, area: AREA[m.row] ?? "", count: 0, flag: "missing" });
   return rows.sort((a, b) => a.zip.localeCompare(b.zip));
@@ -112,8 +113,8 @@ function Books({ node }: { node: NodeState }) {
         <thead><tr><th>Entry</th><th>Debit</th><th>Credit</th><th className="num">Amount</th></tr></thead>
         <tbody>{entries.map((e) => <tr key={e.id}><td>{e.memo}</td><td>{e.debit}</td><td>{e.credit}</td><td className="num">${e.amount.toFixed(2)}</td></tr>)}</tbody>
       </table>
-      {margin && <div className="margin">Margin <b>${(margin.revenue - margin.cost).toFixed(2)}</b> <span className="faint">after ${margin.cost.toFixed(2)} of data and compute</span></div>}
-      <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Capture is a mock until the real x402 transaction lands on Base Sepolia. The Basescan link appears then.</div>
+      {margin && margin.cost !== null && <div className="margin">Margin <b>${(margin.revenue - margin.cost).toFixed(2)}</b> <span className="faint">after ${margin.cost.toFixed(2)} of data and compute</span></div>}
+      <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Capture is a mock until the observed Commerce Payments transaction lands on Base Sepolia. The Basescan link appears then.</div>
     </div>
   );
 }
@@ -126,7 +127,9 @@ function Interview({ view, highlight, onCite }: { view: View; highlight?: string
   // Recorded runs ask about the scenario's lines; a live stream names its own as it goes
   const known: ContractLine[] = [...(n?.drafted ?? []), ...Object.values(n?.pending ?? {})];
   const source = known.length ? known : CONTRACT.filter((l) => asked.has(l.id) || drafted.has(l.id));
-  const items: ChecklistItem[] = source.map((l) => ({ id: l.id, title: l.text, status: drafted.has(l.id) ? "completed" : "in-progress" }));
+  // A live interview asks everything up front; only the line being answered spins, the rest wait
+  let open = true;
+  const items: ChecklistItem[] = source.map((l) => { const done = drafted.has(l.id); const status = done ? "completed" : open ? "in-progress" : "pending"; if (!done) open = false; return { id: l.id, title: l.text, status }; });
   if (view.contract.version >= 2) items.push({ id: CONTRACT_V2.id, title: CONTRACT_V2.text, status: "completed", detail: "v2" });
   return (
     <>
@@ -148,7 +151,7 @@ function Checks({ node, view }: { node: NodeState; view: View }) {
   return (
     <>
       <div className="panel-sec"><TodoList title="Contract checks" items={items} /></div>
-      {privacy?.fix && node.attempt === 1 && <div className="callout">Privacy self-fix: ZIP 94129 has 42 people, under the 50 minimum, so it's held back before delivery. No customer involved.</div>}
+      {privacy?.fix && node.attempt === 1 && <div className="callout">Privacy self-fix: ZIP 94129 has suppressed people, under the 50 minimum, so it's held back before delivery. No customer involved.</div>}
       <Sheet rows={sheetRows(view, node)} highlight={privacy && !("coverage" in node.checks) ? "94129" : undefined} note={node.attempt > 1 ? "rerun" : undefined} />
     </>
   );
@@ -228,7 +231,7 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
     case "captured": content = <Books node={node} />; break;
     case "investigate": case "verdict": case "grey": {
       const msgs = investigate?.messages ?? [];
-      const cited = investigate?.evidence.find((e): e is Extract<Evidence, { kind: "sheet_cell" }> => e.kind === "sheet_cell");
+      const cited = investigate?.evidence.find((e): e is CellEvidence => e.kind === "sheet_cell");
       const lens = step.kind === "investigate" && investigate && (investigate.status === "running" || cited) ? { row: cited?.row } : undefined;
       content = (<>
         <Chat items={msgs} view={view} highlight={hl.msg} onCite={onCite} />

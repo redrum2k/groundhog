@@ -1,14 +1,24 @@
 # Local catalog API — catalog v0.3 / payments v1
 
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
+
+
 Run as in README.md. `/docs` and `/openapi.json` are the exact Pydantic/OpenAPI contracts.
-Local demo only: customer authentication and tenancy are unimplemented. Phase 1 provides
-mock/fake payment contracts and fixtures; no successful live Base transaction is claimed.
+Local demo only: customer authentication and tenancy are unimplemented. Automatic dispatch and
+asynchronous Base settlement are integrated and tested offline; no successful live Base transaction is claimed.
 New accepted snapshots use schema 4 and `catalog-payments-v1`; old schema-3 mock records
 remain readable and never become live obligations.
 The current API does **not** accept a manufactured accepted snapshot or client price.
 
 API metadata version is 0.4.0; `/health` identifies `catalog-api-v1` and `catalog-payments-v1`.
-Health reports the live adapter as planned and live settlement disabled in this phase.
+Health reports implemented but unselected Base as `disabled`, selected but unconfigured/failed
+preflight as `unavailable`, and configured signer plus successful startup preflight as `ready`.
+`live_settlement_enabled` additionally requires explicit broadcast opt-in. This is startup
+capability, not proof of funding or settlement. See PAYMENT_RUNBOOK.md.
 
 ## Request and acceptance
 
@@ -26,7 +36,7 @@ Health reports the live adapter as planned and live settlement disabled in this 
 {"prompt":"Find storage products under 2 kg and unit price no more than USD 40.","corpus_id":"storage-2026","idempotency_key":"customer-request-1"}
 ```
 
-A worker invokes compile, then the customer answers the resulting `question_id` with, for
+The automatic worker invokes compile, then the customer answers the resulting `question_id` with, for
 example, `Use net unit weight`. After another compile, request a server quote and display its
 complete terms, limitations and source manifest. Only the quote ID and explicit customer
 acceptance create an order. The compiler cannot choose the price or remove mandatory checks.
@@ -149,7 +159,7 @@ repair-attempt allowance never grants extra dispute rounds.
 | POST `/orders/{id}/funding-preparation` | Current `OrderCommand` → `FundingPreparation`. |
 | POST `/orders/{id}/funding-authorizations` | `FundingAuthorization` → `OrderView`. |
 | GET `/orders/{id}/payment` | `PaymentView`, public/redacted state and operation evidence. |
-| POST `/internal/payments/work` | No body → `{processed: number, simulated: true}`; internal token only. |
+| POST `/internal/payments/work` | No body → `{processed: number, simulated: boolean}`; internal token only. |
 
 `FundingPreparation` contains `funding_attempt_id`, `payment_id`, `order_id`, current `binding`,
 frozen `terms`, exact EIP-712 `typed_data`, `prepared_at` and `expires_at`. The buyer signs that
@@ -192,8 +202,10 @@ Two canonical receipt confirmations are the configured demo threshold, not Ether
 Use actual observed transaction links only in Base mode. [Lucas handoff](handoffs/lucas.md) and
 [12 runnable payment fixtures](../frontend/fixtures/README.md) cover displays/errors/signing.
 
-Phase-1 mock capture/release completes atomically; pending terminal/reorg responses are UI
-fixtures for planned asynchronous Base behavior. Domain errors, including invalid recovered signatures (422), use `{detail: string}`; schema validation (422) uses
+Mock capture/release completes atomically. Base capture/void stays pending until confirmed
+evidence and booking commit together; pending/uncertain/reorg fixtures remain explicitly simulated.
+Automatic payment turns process at most one operation; the protected manual route processes at most 20.
+Processed means attempted/audited, not successful settlement. Domain errors, including invalid recovered signatures (422), use `{detail: string}`; schema validation (422) uses
 `{detail: "request validation failed", issues: [{loc, msg, type}]}` without echoing sensitive input.
 
 Current OrderView/order/payment/ETag are read from one database snapshot. Full HTTP mutation

@@ -5,6 +5,7 @@ import type {
   RuleUpdate, RunEvent, Step, Verdict,
 } from "./contract";
 import { captionFor, chipFor, type Case, type Ending } from "./scenario";
+import type { PaymentStateChanged } from "../runs.generated";
 
 export type NS = "idle" | "running" | "done" | "waiting" | "fail" | "grey";
 export type OrbMode = "float" | "carry" | "look" | "inspect" | "wait" | "happy";
@@ -47,46 +48,77 @@ export interface View {
   deliveries: Delivery[];
   payments: Payment[];
   captured: Record<string, string | null>;
+  paymentStates: Record<string, PaymentStateChanged["state"]>;
   lastLane?: string; // the lane step the orb was on before going back up
   started: number; // step starts so far, for the caption's counter
   reviewWindow?: string; // from the server's review deadline, when a live stream sets one
   lastSeq: number;
+  binding?: Binding;
 }
-export interface FoldContext { lane: Case; ending: Ending; learned: boolean; contract: DataContract }
+export interface FoldContext { lane: Case; ending: Ending; learned: boolean; contract: DataContract; live?: boolean }
 
 const blankNode = (step: Step): NodeState => ({ step, status: "idle", attempt: 1, messages: [], asked: [], drafted: [], pending: {}, checks: {}, evidence: [], allowedBy: [] });
 const LANE_KINDS = new Set(["investigate", "verdict", "amend", "grey", "decide"]);
 
 export function emptyView(contract: DataContract): View {
-  return { nodes: {}, order: [], orb: { step: "clarify", mode: "float" }, coin: null, loops: [], cards: [], contract, caption: "", evidence: {}, deliveries: [], payments: [], captured: {}, started: 0, lastSeq: 0 };
+  return { nodes: {}, order: [], orb: { step: "clarify", mode: "float" }, coin: null, loops: [], cards: [], contract, caption: "", evidence: {}, deliveries: [], payments: [], captured: {}, paymentStates: {}, started: 0, lastSeq: 0 };
 }
 
 const money = (v: View) => v.payments.reduce((sum, p) => sum + p.amount, 0);
 function coinFor(v: View): Coin | null {
   if (!v.payments.length) return null;
+  const labels: Record<PaymentStateChanged["state"], string> = {
+    blocked_parent:"waiting for parent return", awaiting_signature:"awaiting funding",
+    funding_pending:"funding pending", funded:"held", capture_pending:"capture pending",
+    captured:"captured", void_pending:"return pending", voided:"returned",
+    uncertain:"outcome uncertain", failed:"payment needs review",
+    expired_not_returned:"expired · not returned", reorg_hold:"reorg hold",
+  };
+  if (v.payments.some(p => v.paymentStates[p.id])) {
+    const states = v.payments.map(p => v.paymentStates[p.id] ?? (p.id in v.captured ? "captured" : "funded"));
+    return {
+      text:v.payments.map((p,i)=>`$${p.amount} ${labels[states[i]]}${p.mock ? " · mock" : ""}`).join(" + "),
+      done:states.every(s=>s==="captured" || s==="voided"),
+      locked:states.some(s=>!["captured","voided","awaiting_signature","blocked_parent"].includes(s)),
+    };
+  }
   const parts = v.payments.map((p) => `$${p.amount}`).join(" + ");
   if (v.payments.every((p) => p.id in v.captured)) return { text: `$${money(v)} captured${v.payments.some((p) => p.mock) ? " · mock" : ""}`, done: true };
-  return { text: `${parts} authorized`, locked: !!v.dispute };
+  if (v.payments.every((p) => p.rail === "mock")) return { text: `${parts} authorized`, locked: !!v.dispute };
+  return { text: `${parts} held${v.payments.some(p => p.mock) ? " · mock" : ""}`, locked: !!v.dispute };
 }
 
 /** Applies one event; mutates and returns the same view so callers can fold incrementally. */
 export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
-  v.lastSeq = Math.max(v.lastSeq, e.seq);
+  if (e.seq <= v.lastSeq) return v;
+  v.lastSeq = e.seq;
   if (e.type === "delivery_ready" && e.delivery.reviewClosesAt) v.reviewWindow = windowLabel(Date.parse(e.delivery.reviewClosesAt) - Date.parse(e.at));
-  const caption = captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
+  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? e.state : "") : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
   if (e.type === "steps_planned") {
     for (const s of e.steps) { v.nodes[s.id] ??= blankNode(s); v.nodes[s.id].step = s; if (!v.order.includes(s.id)) v.order.push(s.id); }
     return v;
   }
   if (e.type === "caption") { v.caption = e.text; return v; }
-  if (e.type === "payment_authorized") { v.payments.push(e.payment); v.coin = coinFor(v); return v; }
+  if (e.type === "payment_authorized") { v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment]; v.coin = coinFor(v); return v; }
   if (e.type === "payment_captured") { v.captured[e.paymentId] = e.captureTx; v.coin = coinFor(v); return v; }
+  if (e.type === "payment_state_changed") {
+    v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment];
+    v.paymentStates[e.payment.id] = e.state;
+    v.coin = coinFor(v);
+    return v;
+  }
+  // Historical run effects already carried a state, before the explicit payment effect.
+  if (e.type === "state_changed" && e.paymentState && v.payments.length === 1) {
+    v.paymentStates[v.payments[0].id] = e.paymentState;
+    v.coin = coinFor(v);
+  }
   const n = v.nodes[e.step];
   if (!n) return v; // an event for a step that was never planned: ignore rather than crash the canvas
   const attempt = e.attempt ?? 1;
-  if (attempt > n.attempt) { n.attempt = attempt; n.checks = {}; n.messages = []; n.allowedBy = []; }
+  if (attempt > n.attempt) { Object.assign(n, blankNode(n.step), { attempt }); v.cards = v.cards.filter(c => c.node !== e.step); }
   if ("allowedBy" in e && !n.allowedBy.includes(e.allowedBy)) n.allowedBy.push(e.allowedBy);
   switch (e.type) {
+    case "state_changed": v.binding = e.binding; n.waitingOn = e.reason ?? undefined; break;
     case "step_started":
       n.status = "running"; n.waitingOn = undefined; v.started += 1;
       if (attempt > 1 && n.step.kind === "produce" && v.lastLane) v.loops = [...v.loops, v.lastLane];
@@ -102,10 +134,11 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       break;
     case "message": if (n.status === "waiting") n.status = "running"; n.messages.push(e.message); if (e.message.asks) n.asked.push(e.message.asks); break;
     case "contract_line_asked": if (!n.asked.includes(e.line.id)) n.asked.push(e.line.id); n.pending[e.line.id] = e.line; break;
+    case "contract_line_approved":
     case "contract_line_drafted": n.drafted.push(e.line); delete n.pending[e.line.id]; break;
     case "contract_approved": n.contract = e.contract; v.contract = e.contract; break;
     case "delivery_ready": n.delivery = e.delivery; v.deliveries = [...v.deliveries.filter((d) => d.version !== e.delivery.version), e.delivery]; break;
-    case "check_passed": n.checks[e.lineId] = { passed: true, detail: e.detail }; break;
+    case "check_passed": n.checks[e.lineId] = { passed: true, detail: e.detail ?? undefined }; break;
     case "check_failed": n.checks[e.lineId] = { passed: false, reason: e.reason }; break;
     case "check_fixed": n.checks[e.lineId] = { passed: true, reason: n.checks[e.lineId]?.reason, fix: e.fix, detail: e.fix }; break;
     case "evidence_found":
@@ -117,9 +150,9 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     case "controller_decided": n.decision = { action: e.action, by: e.by, note: e.note }; break;
     case "amendment_signed": n.amendment = e.amendment; break;
     case "rule_updated": n.rule = e.rule; v.cards = [...v.cards, { id: e.rule.id, node: e.step, text: e.rule.label, tone: "rule" }]; break;
-    case "books_posted": n.entries = e.entries; n.margin = e.margin; break;
+    case "books_posted": n.entries = e.entries; n.margin = e.margin ?? undefined; break;
   }
-  n.chip = chipFor(n.step, {
+  n.chip = ctx.live ? (n.waitingOn ?? n.status) : chipFor(n.step, {
     status: n.status, attempt: n.attempt, checks: Object.values(n.checks).filter((c) => c.passed).length, lines: v.contract.lines.length, sources: n.evidence.length,
     verdictKind: n.verdict?.kind ?? laneVerdict(v)?.kind, verdictBy: n.verdict?.decidedBy, amendmentPrice: n.amendment?.price ?? laneAmendment(v)?.price,
     waitingOn: n.waitingOn, learned: ctx.learned, disputed: !!v.dispute, decided: n.decision?.action, ruled: !!n.rule,
@@ -139,6 +172,7 @@ export function project(events: RunEvent[], ctx: FoldContext): View {
 }
 
 export function bindingFor(v: View): Binding {
+  if (v.binding) return v.binding;
   return { deliveryVersion: Math.max(0, ...v.deliveries.map((d) => d.version)), evidenceVersion: Object.keys(v.evidence).length };
 }
 

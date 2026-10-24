@@ -1,6 +1,9 @@
 """Commercial authority is deterministic and independent of semantic scores."""
 
 from app.catalog.verification import material_blockers
+from app.contracts.dataset import DATASET_CHECKS, BrokeragePolicy
+from app.datasets import is_dataset
+from app.runtime.dataset_policy import cutoff
 
 
 def authorization_ready(authorization):
@@ -24,33 +27,57 @@ def capture_allowed(order, now):
         return False
     if any(c.status in ("open", "human_review", "scope_change") for c in order.cases):
         return False
+    if any(a.status == "pending" for a in order.approvals):
+        return False
     if (
         report is None
         or report.binding != order.binding
         or report.stage not in ("delivery", "dispute")
     ):
         return False
-    if (
-        not report.passed
-        or report.provider_defect
-        or material_blockers(report.obligations, report.assessments)
-    ):
+    if not report.passed or report.provider_defect:
         return False
-    if any(
-        o.mandatory and a.result != "PASS"
-        for o, a in zip(report.obligations, report.assessments, strict=True)
+    try:
+        if material_blockers(report.obligations, report.assessments):
+            return False
+    except ValueError:
+        return False
+    assessments = {a.obligation_id: a for a in report.assessments}
+    if len(assessments) != len(report.assessments) or any(
+        o.mandatory
+        and (o.obligation_id not in assessments or assessments[o.obligation_id].result != "PASS")
+        for o in report.obligations
     ):
         return False
     mandatory = {o.obligation_id for o in report.obligations if o.mandatory}
-    required = {"global:pdf", "global:fields", "global:completeness", "global:provenance"}
-    required.update(f"{s.source_id}:index" for s in order.sources)
+    if is_dataset(order):
+        if not isinstance(order.snapshot.quote.policy, BrokeragePolicy):
+            return False
+        required = {f"dataset:{key}" for key in DATASET_CHECKS}
+        if any(
+            a.provenance.kind != "deterministic"
+            or a.provenance.assessor != "aggregate-byte-validator"
+            for a in report.assessments
+        ):
+            return False
+    else:
+        if isinstance(order.snapshot.quote.policy, BrokeragePolicy):
+            return False
+        required = {"global:pdf", "global:fields", "global:completeness", "global:provenance"}
+        required.update(f"{s.source_id}:index" for s in order.sources)
     if not required.issubset(mandatory):
         return False
-    if not authorization_ready(order.authorization) or now >= order.authorization.expires_at:
+    if not authorization_ready(order.authorization) or now >= cutoff(order):
         return False
     if order.authorization.amount != order.snapshot.quote.amount or any(
-        b.kind == "capture" for b in order.ledger
+        b.kind in ("capture", "release") for b in order.ledger
     ):
         return False
     current = order.deliveries[-1]
+    if (
+        current.version != order.binding.delivery_version
+        or current.binding.snapshot_id != order.binding.snapshot_id
+        or current.binding.delivery_version != order.binding.delivery_version
+    ):
+        return False
     return order.customer_acceptance == order.binding or now >= current.review_deadline

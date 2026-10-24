@@ -449,6 +449,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create */
+        post: operations["create_runs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/runs/{run_id}/answers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Answer */
+        post: operations["answer_runs__run_id__answers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/runs/{run_id}/decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Decide */
+        post: operations["decide_runs__run_id__decisions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/runs/{run_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Events */
+        get: operations["events_runs__run_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/runs/{run_id}/evidence/{evidence_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Evidence */
+        get: operations["evidence_runs__run_id__evidence__evidence_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/runs/{run_id}/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Offer */
+        post: operations["offer_runs__run_id__offers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -461,6 +563,15 @@ export interface components {
             idempotency_key: string;
             /** Quote Id */
             quote_id: string;
+        };
+        /** ActionAvailability */
+        ActionAvailability: {
+            /** Action */
+            action: string;
+            /** Enabled */
+            enabled: boolean;
+            /** Reason */
+            reason: string;
         };
         /** Amendment */
         Amendment: {
@@ -505,6 +616,37 @@ export interface components {
             target_source_id: string;
             /** Target Version */
             target_version: number;
+        };
+        /** AmendmentSigned */
+        AmendmentSigned: {
+            /** Allowedby */
+            allowedBy: string;
+            amendment: components["schemas"]["CanvasAmendment"];
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "amendment_signed";
         };
         /** AnswerCommand */
         AnswerCommand: {
@@ -558,7 +700,7 @@ export interface components {
              * Media Type
              * @enum {string}
              */
-            media_type: "application/pdf" | "application/json";
+            media_type: "application/pdf" | "application/json" | "text/csv";
             /** Sha256 */
             sha256: string;
             /** Storage Key */
@@ -575,12 +717,12 @@ export interface components {
              * Citations
              * @default []
              */
-            citations?: components["schemas"]["Span"][];
+            citations?: (components["schemas"]["Span"] | components["schemas"]["DatasetReference"])[];
             /**
              * Conflicting Evidence
              * @default []
              */
-            conflicting_evidence?: components["schemas"]["Span"][];
+            conflicting_evidence?: (components["schemas"]["Span"] | components["schemas"]["DatasetReference"])[];
             /** Explanation */
             explanation: string;
             /**
@@ -721,8 +863,208 @@ export interface components {
              */
             recorded_at: string;
         };
+        /** BooksPosted */
+        BooksPosted: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Entries */
+            entries: components["schemas"]["JournalEntry"][];
+            margin?: components["schemas"]["Margin"] | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Operationids
+             * @default []
+             */
+            operationIds?: string[];
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "books_posted";
+        };
+        /** BrokeragePolicy */
+        BrokeragePolicy: {
+            /**
+             * Authorization Seconds
+             * @default 3600
+             * @constant
+             */
+            authorization_seconds?: 3600;
+            /**
+             * Clarification Rounds
+             * @default 2
+             * @constant
+             */
+            clarification_rounds?: 2;
+            /**
+             * Clarification Seconds
+             * @default 300
+             * @constant
+             */
+            clarification_seconds?: 300;
+            /**
+             * Correction Seconds
+             * @default 135
+             * @constant
+             */
+            correction_seconds?: 135;
+            /**
+             * Dispute Seconds
+             * @default 60
+             * @constant
+             */
+            dispute_seconds?: 60;
+            /**
+             * Evidence Attempts
+             * @default 2
+             * @constant
+             */
+            evidence_attempts?: 2;
+            /**
+             * Evidence Repair Seconds
+             * @default 120
+             * @constant
+             */
+            evidence_repair_seconds?: 120;
+            /**
+             * Free Corrections
+             * @default 1
+             * @constant
+             */
+            free_corrections?: 1;
+            /**
+             * Fulfillment Seconds
+             * @default 135
+             * @constant
+             */
+            fulfillment_seconds?: 135;
+            /**
+             * Max Questions
+             * @default 2
+             * @constant
+             */
+            max_questions?: 2;
+            /**
+             * Pricing Version
+             * @default datumco-demo-pricing-v1
+             * @constant
+             */
+            pricing_version?: "datumco-demo-pricing-v1";
+            /**
+             * Review Seconds
+             * @default 60
+             * @constant
+             */
+            review_seconds?: 60;
+            /**
+             * Scheduling Version
+             * @default broker-budget-v1
+             * @constant
+             */
+            scheduling_version?: "broker-budget-v1";
+            /**
+             * Transaction Margin Seconds
+             * @default 120
+             * @constant
+             */
+            transaction_margin_seconds?: 120;
+            /**
+             * Version
+             * @default aggregate-brokerage-v1
+             * @constant
+             */
+            version?: "aggregate-brokerage-v1";
+        };
+        /** CanvasAmendment */
+        CanvasAmendment: {
+            /** Id */
+            id: string;
+            line: components["schemas"]["ContractLine"];
+            /** Price */
+            price: number;
+            /** Summary */
+            summary: string;
+        };
+        /** CanvasBinding */
+        CanvasBinding: {
+            /** Deliveryversion */
+            deliveryVersion: number;
+            /** Evidenceversion */
+            evidenceVersion: number;
+            /** Orderid */
+            orderId?: string | null;
+            /** Revision */
+            revision?: number | null;
+            /** Runid */
+            runId?: string | null;
+            /** Snapshotid */
+            snapshotId?: string | null;
+        };
+        /** CanvasDelivery */
+        CanvasDelivery: {
+            /** Artifactid */
+            artifactId?: string | null;
+            /** File */
+            file: string;
+            /** Previewartifactid */
+            previewArtifactId?: string | null;
+            /** Reviewclosesat */
+            reviewClosesAt?: string | null;
+            /** Rows */
+            rows: components["schemas"]["ZipCount"][];
+            /** Sha256 */
+            sha256?: string | null;
+            /** Version */
+            version: number;
+        };
+        /** CanvasPayment */
+        CanvasPayment: {
+            /** Amount */
+            amount: number;
+            /** Id */
+            id: string;
+            /** Mock */
+            mock: boolean;
+            /**
+             * Network
+             * @default base-sepolia
+             * @constant
+             */
+            network?: "base-sepolia";
+            /**
+             * Rail
+             * @default commerce-payments
+             * @enum {string}
+             */
+            rail?: "commerce-payments" | "mock";
+        };
         /** Capabilities */
         Capabilities: {
+            /**
+             * Brokerage Policy
+             * @default aggregate-brokerage-v1
+             * @constant
+             */
+            brokerage_policy?: "aggregate-brokerage-v1";
             /**
              * Buyer Signature Validation
              * @default true
@@ -741,7 +1083,7 @@ export interface components {
             customer_authentication?: boolean;
             /**
              * Live Adapter
-             * @default planned
+             * @default disabled
              * @enum {string}
              */
             live_adapter?: "planned" | "disabled" | "ready" | "unavailable";
@@ -767,6 +1109,12 @@ export interface components {
              * @constant
              */
             payment_policy?: "catalog-payments-v1";
+            /**
+             * Primary Product
+             * @default aggregate_dataset
+             * @constant
+             */
+            primary_product?: "aggregate_dataset";
             /**
              * Status
              * @default ok
@@ -850,7 +1198,7 @@ export interface components {
              * Deliveries
              * @default []
              */
-            deliveries?: components["schemas"]["Delivery"][];
+            deliveries?: (components["schemas"]["Delivery"] | components["schemas"]["DatasetDelivery"])[];
             /**
              * Delivery State
              * @default absent
@@ -859,6 +1207,11 @@ export interface components {
             delivery_state?: "absent" | "verified" | "needs_review" | "operational_failure";
             /** Error */
             error?: string | null;
+            /**
+             * Evidence Answers
+             * @default []
+             */
+            evidence_answers?: components["schemas"]["DatasetEvidenceAnswer"][];
             /**
              * Evidence Requests
              * @default []
@@ -951,6 +1304,181 @@ export interface components {
             /** Snapshot Id */
             snapshot_id: string;
         };
+        /** CategoryEvidence */
+        CategoryEvidence: {
+            /** Category */
+            category: string;
+            /** Id */
+            id: string;
+            /** Item */
+            item: string;
+            /**
+             * Kind
+             * @default vendor_category
+             * @constant
+             */
+            kind?: "vendor_category";
+            /** Label */
+            label: string;
+            /** Note */
+            note: string;
+            /** Source */
+            source: components["schemas"]["MessageSource"] | components["schemas"]["CellSource"] | components["schemas"]["NoSource"];
+            /** Vendor */
+            vendor: string;
+        };
+        /** CellEvidence */
+        CellEvidence: {
+            /** Column */
+            column: string;
+            /** File */
+            file: string;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @default sheet_cell
+             * @constant
+             */
+            kind?: "sheet_cell";
+            /** Label */
+            label: string;
+            /** Note */
+            note: string;
+            /** Row */
+            row: string;
+            /** Source */
+            source: components["schemas"]["MessageSource"] | components["schemas"]["CellSource"] | components["schemas"]["NoSource"];
+            /** Value */
+            value: string | null;
+        };
+        /** CellSource */
+        CellSource: {
+            /** Column */
+            column: string;
+            /**
+             * Kind
+             * @default cell
+             * @constant
+             */
+            kind?: "cell";
+            reference?: components["schemas"]["DatasetReference"] | null;
+            /** Row */
+            row: string;
+            /** Version */
+            version: number;
+        };
+        /** CheckFailed */
+        CheckFailed: {
+            /**
+             * Assessment
+             * @default FAIL
+             * @enum {string}
+             */
+            assessment?: "FAIL" | "UNKNOWN" | "CONFLICT";
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Lineid */
+            lineId: string;
+            /** Reason */
+            reason: string;
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "check_failed";
+        };
+        /** CheckFixed */
+        CheckFixed: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Fix */
+            fix: string;
+            /** Lineid */
+            lineId: string;
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "check_fixed";
+        };
+        /** CheckPassed */
+        CheckPassed: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Detail */
+            detail?: string | null;
+            /** Lineid */
+            lineId: string;
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "check_passed";
+        };
+        /** ChecklistAttachment */
+        ChecklistAttachment: {
+            /**
+             * Kind
+             * @default checklist
+             * @constant
+             */
+            kind?: "checklist";
+        };
         /** Clarification */
         Clarification: {
             /** Field */
@@ -982,11 +1510,13 @@ export interface components {
         Complaint: {
             /** Artifact Id */
             artifact_id: string;
+            /** Column */
+            column?: ("zip" | "area" | "count" | "status") | null;
             /**
              * Field
              * @enum {string}
              */
-            field: "weight" | "unit_price" | "completeness" | "provenance" | "pdf";
+            field: "weight" | "unit_price" | "completeness" | "provenance" | "pdf" | "cohort" | "category" | "geography" | "coverage" | "suppression" | "artifact" | "schema";
             /**
              * Intent
              * @default dispute_fact
@@ -999,6 +1529,366 @@ export interface components {
             requirement_id: string;
             /** Text */
             text: string;
+        };
+        /** ContractApproved */
+        ContractApproved: {
+            /** Allowedby */
+            allowedBy: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            contract: components["schemas"]["DataContract"];
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "contract_approved";
+        };
+        /** ContractLine */
+        ContractLine: {
+            /**
+             * Check
+             * @enum {string}
+             */
+            check: "schema" | "code";
+            /** Id */
+            id: string;
+            /** Text */
+            text: string;
+        };
+        /** ContractLineEvent */
+        ContractLineEvent: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            line: components["schemas"]["ContractLine"];
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "contract_line_approved" | "contract_line_asked" | "contract_line_drafted";
+        };
+        /** ControllerDecided */
+        ControllerDecided: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "approve" | "reject" | "ask" | "escalate";
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            binding: components["schemas"]["CanvasBinding"];
+            /** By */
+            by: string;
+            /** Note */
+            note: string;
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "controller_decided";
+        };
+        /** CoverageUniverse */
+        CoverageUniverse: {
+            /** Authority Record */
+            authority_record: string;
+            /**
+             * Boundary Notice
+             * @default Synthetic ZIP inclusion registry; postal ZIPs are not city boundaries.
+             */
+            boundary_notice?: string;
+            /** Expected Keys */
+            expected_keys: string[];
+            /**
+             * Geography
+             * @enum {string}
+             */
+            geography: "San Francisco" | "Oakland";
+            pin: components["schemas"]["SourcePin"];
+        };
+        /** DataContract */
+        DataContract: {
+            /** Buyer */
+            buyer: string;
+            /** Lines */
+            lines: components["schemas"]["ContractLine"][];
+            /** Price */
+            price: number;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
+        };
+        /** DatasetComplaintTarget */
+        DatasetComplaintTarget: {
+            /** Columns */
+            columns: ("zip" | "area" | "count" | "status")[];
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "cohort" | "category" | "geography" | "schema" | "coverage" | "suppression" | "provenance" | "artifact";
+            /** Requirement Id */
+            requirement_id: string;
+            /** Row Ids */
+            row_ids: string[];
+        };
+        /** DatasetDelivery */
+        DatasetDelivery: {
+            binding: components["schemas"]["Binding"];
+            csv: components["schemas"]["Artifact"];
+            /**
+             * Domain
+             * @default aggregate_dataset
+             * @constant
+             */
+            domain?: "aggregate_dataset";
+            preview: components["schemas"]["Artifact"];
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+            /**
+             * Review Deadline
+             * Format: date-time
+             */
+            review_deadline: string;
+            /** Version */
+            version: number;
+        };
+        /** DatasetEvidenceAnswer */
+        DatasetEvidenceAnswer: {
+            /** Actor */
+            actor: string;
+            /** Answer Id */
+            answer_id: string;
+            /** Case Id */
+            case_id: string | null;
+            original_binding: components["schemas"]["Binding"];
+            /** Original Revision */
+            original_revision: number;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** References */
+            references: components["schemas"]["DatasetReference"][];
+            /** Request Id */
+            request_id: string;
+            /** Text */
+            text: string;
+        };
+        /** DatasetReference */
+        DatasetReference: {
+            /** Artifact Id */
+            artifact_id: string;
+            /** Column */
+            column: string;
+            /** Coverage Sha256 */
+            coverage_sha256?: string | null;
+            /** Expected Key */
+            expected_key?: string | null;
+            /**
+             * Kind
+             * @default dataset
+             * @constant
+             */
+            kind?: "dataset";
+            /** Row */
+            row: string;
+            /** Sha256 */
+            sha256: string;
+            /** Source Id */
+            source_id: string;
+            /** Value */
+            value: string | null;
+            /** Version */
+            version: number;
+        };
+        /** DatasetSpecification */
+        DatasetSpecification: {
+            /**
+             * Age Max
+             * @default 34
+             * @constant
+             */
+            age_max?: 34;
+            /**
+             * Age Min
+             * @default 25
+             * @constant
+             */
+            age_min?: 25;
+            /**
+             * Category
+             * @default gym_or_fitness_app
+             * @enum {string}
+             */
+            category?: "gym_or_fitness_app" | "gym_app_or_yoga";
+            /**
+             * Category Meaning
+             * @default Gym membership or fitness-app use; yoga alone requires accepted taxonomy evidence.
+             */
+            category_meaning?: string;
+            /**
+             * Completeness
+             * @default every_registry_key_once
+             * @constant
+             */
+            completeness?: "every_registry_key_once";
+            /**
+             * Corpus Id
+             * @default sf-aggregate-v1
+             */
+            corpus_id?: string;
+            /**
+             * Count Unit
+             * @default unique_adults_per_zip
+             * @constant
+             */
+            count_unit?: "unique_adults_per_zip";
+            coverage: components["schemas"]["CoverageUniverse"];
+            /**
+             * Domain
+             * @default aggregate_dataset
+             * @constant
+             */
+            domain?: "aggregate_dataset";
+            /**
+             * Geography
+             * @default San Francisco
+             * @enum {string}
+             */
+            geography?: "San Francisco" | "Oakland";
+            /**
+             * Grouping
+             * @default zip
+             * @constant
+             */
+            grouping?: "zip";
+            /**
+             * Groups Disjoint
+             * @default true
+             * @constant
+             */
+            groups_disjoint?: true;
+            /**
+             * Policy Version
+             * @default aggregate-brokerage-v1
+             * @constant
+             */
+            policy_version?: "aggregate-brokerage-v1";
+            /**
+             * Population
+             * @default synthetic_adults
+             * @constant
+             */
+            population?: "synthetic_adults";
+            /**
+             * Provenance
+             * @default []
+             */
+            provenance?: components["schemas"]["TermProvenance"][];
+            /**
+             * Required Columns
+             * @default [
+             *       "zip",
+             *       "area",
+             *       "count",
+             *       "status"
+             *     ]
+             */
+            required_columns?: ("zip" | "area" | "count" | "status")[];
+            /** Sources */
+            sources: components["schemas"]["SourcePin"][];
+            /** Suppressed Count */
+            suppressed_count?: null;
+            /**
+             * Suppression Threshold
+             * @default 50
+             * @constant
+             */
+            suppression_threshold?: 50;
+        };
+        /** DecisionAcknowledgement */
+        DecisionAcknowledgement: {
+            /** Decision Id */
+            decision_id: string;
+            /**
+             * Ok
+             * @default true
+             * @constant
+             */
+            ok?: true;
+        };
+        /** DecisionBinding */
+        DecisionBinding: {
+            /** Deliveryversion */
+            deliveryVersion: number;
+            /** Evidenceversion */
+            evidenceVersion: number;
+            /** Orderid */
+            orderId: string;
+            /** Revision */
+            revision: number;
+            /** Runid */
+            runId: string;
+            /** Snapshotid */
+            snapshotId: string;
         };
         /** Delivery */
         Delivery: {
@@ -1018,6 +1908,44 @@ export interface components {
             /** Version */
             version: number;
         };
+        /** DeliveryReady */
+        DeliveryReady: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            delivery: components["schemas"]["CanvasDelivery"];
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "delivery_ready";
+        };
+        /** Dispute */
+        Dispute: {
+            /** Claim */
+            claim: string;
+            /** Id */
+            id: string;
+            /** Raisedby */
+            raisedBy: string;
+        };
         /** DisputeCommand */
         DisputeCommand: {
             complaint: components["schemas"]["Complaint"];
@@ -1026,6 +1954,35 @@ export interface components {
             expected_revision: number;
             /** Idempotency Key */
             idempotency_key: string;
+        };
+        /** DisputeOpened */
+        DisputeOpened: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            dispute: components["schemas"]["Dispute"];
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "dispute_opened";
         };
         /** ErrorResponse */
         ErrorResponse: {
@@ -1059,6 +2016,47 @@ export interface components {
             token_store?: string | null;
             /** Token Store Balance */
             token_store_balance?: string | null;
+        };
+        /** EvidenceAttachment */
+        EvidenceAttachment: {
+            /** Evidenceid */
+            evidenceId: string;
+            /**
+             * Kind
+             * @default evidence
+             * @constant
+             */
+            kind?: "evidence";
+        };
+        /** EvidenceFound */
+        EvidenceFound: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Evidence */
+            evidence: components["schemas"]["InterviewEvidence"] | components["schemas"]["CellEvidence"] | components["schemas"]["CategoryEvidence"];
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "evidence_found";
         };
         /** EvidenceRequest */
         EvidenceRequest: {
@@ -1123,6 +2121,26 @@ export interface components {
             terms: components["schemas"]["PaymentTerms"];
             typed_data: components["schemas"]["AuthorizationTypedData"];
         };
+        /** InterviewEvidence */
+        InterviewEvidence: {
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "interview_quote" | "claim";
+            /** Label */
+            label: string;
+            /** Note */
+            note: string;
+            /** Quote */
+            quote: string;
+            /** Source */
+            source: components["schemas"]["MessageSource"] | components["schemas"]["CellSource"] | components["schemas"]["NoSource"];
+            /** Speaker */
+            speaker: string;
+        };
         /** Job */
         Job: {
             /**
@@ -1151,6 +2169,85 @@ export interface components {
              */
             status?: "queued" | "running" | "done" | "failed" | "stale";
         };
+        /** JournalEntry */
+        JournalEntry: {
+            /** Amount */
+            amount: number;
+            /** Credit */
+            credit: string;
+            /** Debit */
+            debit: string;
+            /** Id */
+            id: string;
+            /** Memo */
+            memo: string;
+        };
+        /** Margin */
+        Margin: {
+            /** Cost */
+            cost: number | null;
+            /** Revenue */
+            revenue: number;
+        };
+        /** Message */
+        Message: {
+            /** Asks */
+            asks?: string | null;
+            /**
+             * Attach
+             * @default []
+             */
+            attach?: (components["schemas"]["ChecklistAttachment"] | components["schemas"]["EvidenceAttachment"])[];
+            /**
+             * From
+             * @enum {string}
+             */
+            from: "buyer" | "agent" | "controller";
+            /** Id */
+            id: string;
+            /** Text */
+            text: string;
+        };
+        /** MessageEvent */
+        MessageEvent: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            message: components["schemas"]["Message"];
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "message";
+        };
+        /** MessageSource */
+        MessageSource: {
+            /**
+             * Kind
+             * @default message
+             * @constant
+             */
+            kind?: "message";
+            /** Messageid */
+            messageId: string;
+        };
         /**
          * Money
          * @description Integer minor units; asset identity/chain mapping awaits the payment spike.
@@ -1162,6 +2259,17 @@ export interface components {
             currency: string;
             /** Decimals */
             decimals: number;
+        };
+        /** NoSource */
+        NoSource: {
+            /**
+             * Kind
+             * @default none
+             * @constant
+             */
+            kind?: "none";
+            /** Reason */
+            reason: string;
         };
         /** Obligation */
         Obligation: {
@@ -1269,6 +2377,30 @@ export interface components {
              */
             updated_at: string;
         };
+        /** PaymentAuthorized */
+        PaymentAuthorized: {
+            /** Allowedby */
+            allowedBy: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            payment: components["schemas"]["CanvasPayment"];
+            /** Seq */
+            seq: number;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "payment_authorized";
+        };
         /** PaymentBinding */
         PaymentBinding: {
             /** Delivery Version */
@@ -1277,6 +2409,33 @@ export interface components {
             evidence_revision: number;
             /** Snapshot Id */
             snapshot_id: string;
+        };
+        /** PaymentCaptured */
+        PaymentCaptured: {
+            /** Allowedby */
+            allowedBy: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Capturetx */
+            captureTx: string | null;
+            /** Paymentid */
+            paymentId: string;
+            /** Seq */
+            seq: number;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "payment_captured";
         };
         /** PaymentInfo */
         PaymentInfo: {
@@ -1379,6 +2538,35 @@ export interface components {
             status: "mock" | "submitted" | "uncertain" | "confirmed" | "failed";
             /** Transaction Id */
             transaction_id?: string | null;
+        };
+        /** PaymentStateChanged */
+        PaymentStateChanged: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            payment: components["schemas"]["CanvasPayment"];
+            /** Reason */
+            reason?: string | null;
+            /** Seq */
+            seq: number;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "blocked_parent" | "awaiting_signature" | "funding_pending" | "funded" | "capture_pending" | "captured" | "void_pending" | "voided" | "uncertain" | "failed" | "expired_not_returned" | "reorg_hold";
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "payment_state_changed";
         };
         /** PaymentTerms */
         PaymentTerms: {
@@ -1589,6 +2777,7 @@ export interface components {
             parent_order_id?: string | null;
             payment_terms?: components["schemas"]["PaymentTerms"] | null;
             /**
+             * Policy
              * @default {
              *       "authorization_seconds": 3600,
              *       "clarification_rounds": 3,
@@ -1602,7 +2791,7 @@ export interface components {
              *       "version": "catalog-v0.3"
              *     }
              */
-            policy?: components["schemas"]["Policy"];
+            policy?: components["schemas"]["Policy"] | components["schemas"]["BrokeragePolicy"];
             /**
              * Provider Actor
              * @default server:catalog-price-v1
@@ -1701,11 +2890,33 @@ export interface components {
              * Check
              * @enum {string}
              */
-            check: "category" | "weight" | "price" | "fields" | "completeness" | "provenance" | "pdf";
+            check: "category" | "weight" | "price" | "fields" | "completeness" | "provenance" | "pdf" | "cohort" | "geography" | "schema" | "coverage" | "suppression" | "artifact";
             /** Requirement Id */
             requirement_id: string;
             /** Wording */
             wording: string;
+        };
+        /** ResolvedCell */
+        ResolvedCell: {
+            /**
+             * Kind
+             * @default cell
+             * @constant
+             */
+            kind?: "cell";
+            reference: components["schemas"]["DatasetReference"];
+            /** Value */
+            value: string | null;
+        };
+        /** ResolvedMessage */
+        ResolvedMessage: {
+            /**
+             * Kind
+             * @default message
+             * @constant
+             */
+            kind?: "message";
+            message: components["schemas"]["Message"];
         };
         /** ReviewCommand */
         ReviewCommand: {
@@ -1731,7 +2942,7 @@ export interface components {
             /** Amendment Status */
             amendment_status: string;
             /** Delivered Citations */
-            delivered_citations: components["schemas"]["Span"][];
+            delivered_citations: (components["schemas"]["Span"] | components["schemas"]["DatasetReference"])[];
             /** Delivered Value */
             delivered_value: string | null;
             /** Field */
@@ -1756,7 +2967,7 @@ export interface components {
              */
             result: "PASS" | "FAIL" | "UNKNOWN" | "CONFLICT";
             /** Source Citations */
-            source_citations: components["schemas"]["Span"][];
+            source_citations: (components["schemas"]["Span"] | components["schemas"]["DatasetReference"])[];
             /** Source Fact */
             source_fact: string;
         };
@@ -1766,7 +2977,7 @@ export interface components {
              * Action
              * @enum {string}
              */
-            action: "request_evidence" | "release_authorization" | "propose_exception";
+            action: "request_evidence" | "release_authorization" | "propose_exception" | "reject" | "escalate";
             /** Actor */
             actor: string;
             binding: components["schemas"]["Binding"];
@@ -1783,7 +2994,7 @@ export interface components {
              */
             recorded_at: string;
             /** Supporting Evidence */
-            supporting_evidence: components["schemas"]["Span"][];
+            supporting_evidence: (components["schemas"]["Span"] | components["schemas"]["DatasetReference"])[];
         };
         /** RevisionCommand */
         RevisionCommand: {
@@ -1791,6 +3002,186 @@ export interface components {
             expected_revision: number;
             /** Idempotency Key */
             idempotency_key: string;
+        };
+        /** RuleUpdate */
+        RuleUpdate: {
+            /** Activationid */
+            activationId?: string | null;
+            /** Decidedby */
+            decidedBy: string;
+            /** Id */
+            id: string;
+            /**
+             * Illustration
+             * @default false
+             */
+            illustration?: boolean;
+            /** Label */
+            label: string;
+            /** Scope */
+            scope?: string | null;
+            /** Text */
+            text: string;
+            /** Version */
+            version?: string | null;
+        };
+        /** RuleUpdated */
+        RuleUpdated: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            rule: components["schemas"]["RuleUpdate"];
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "rule_updated";
+        };
+        /** RunCreate */
+        RunCreate: {
+            /**
+             * Corpus Id
+             * @default sf-aggregate-v1
+             * @constant
+             */
+            corpus_id?: "sf-aggregate-v1";
+            /**
+             * Prompt
+             * @default SF adults 25–34 interested in fitness, counts by ZIP.
+             */
+            prompt?: string;
+        };
+        /** RunCreated */
+        RunCreated: {
+            /** Id */
+            id: string;
+            /**
+             * Poll After Ms
+             * @default 1000
+             * @constant
+             */
+            poll_after_ms?: 1000;
+        };
+        /** RunDecision */
+        RunDecision: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "approve" | "reject" | "ask" | "escalate";
+            binding: components["schemas"]["DecisionBinding"];
+            /**
+             * Evidence Ids
+             * @default []
+             */
+            evidence_ids?: string[];
+            /**
+             * Reason
+             * @default Review current cited evidence and the proposed remedy.
+             */
+            reason?: string;
+        };
+        /** RunEvidenceAnswer */
+        RunEvidenceAnswer: {
+            binding: components["schemas"]["DecisionBinding"];
+            /**
+             * References
+             * @default []
+             */
+            references?: components["schemas"]["DatasetReference"][];
+            /** Request Id */
+            request_id?: string | null;
+            /** Text */
+            text: string;
+        };
+        /** RunEvidenceRequest */
+        RunEvidenceRequest: {
+            /**
+             * Allowed References
+             * @default []
+             */
+            allowed_references?: components["schemas"]["DatasetReference"][];
+            /** Case Id */
+            case_id: string | null;
+            /**
+             * Deadline
+             * Format: date-time
+             */
+            deadline: string;
+            /** Prompt */
+            prompt: string;
+            /** References Required */
+            references_required: boolean;
+            /** Request Id */
+            request_id: string;
+        };
+        /** RunOffer */
+        RunOffer: {
+            binding: components["schemas"]["DecisionBinding"];
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "oakland" | "yoga" | "replacement";
+        };
+        /** RunPage */
+        RunPage: {
+            /** Available Actions */
+            available_actions: components["schemas"]["ActionAvailability"][];
+            binding: components["schemas"]["DecisionBinding"] | null;
+            /** Captureclosesat */
+            captureClosesAt: string | null;
+            /** Caught Up */
+            caught_up: boolean;
+            /**
+             * Complaint Targets
+             * @default []
+             */
+            complaint_targets?: components["schemas"]["DatasetComplaintTarget"][];
+            /** Disputeclosesat */
+            disputeClosesAt: string | null;
+            /** Events */
+            events: (components["schemas"]["StepsPlanned"] | components["schemas"]["StepStarted"] | components["schemas"]["StepWaiting"] | components["schemas"]["MessageEvent"] | components["schemas"]["ContractLineEvent"] | components["schemas"]["ContractApproved"] | components["schemas"]["DeliveryReady"] | components["schemas"]["CheckPassed"] | components["schemas"]["CheckFailed"] | components["schemas"]["CheckFixed"] | components["schemas"]["EvidenceFound"] | components["schemas"]["DisputeOpened"] | components["schemas"]["VerdictEvent"] | components["schemas"]["ControllerDecided"] | components["schemas"]["AmendmentSigned"] | components["schemas"]["RuleUpdated"] | components["schemas"]["BooksPosted"] | components["schemas"]["PaymentAuthorized"] | components["schemas"]["PaymentCaptured"] | components["schemas"]["PaymentStateChanged"] | components["schemas"]["StateChanged"])[];
+            evidence_request?: components["schemas"]["RunEvidenceRequest"] | null;
+            /** High Watermark */
+            high_watermark: number;
+            /** Latestsafesubmissionat */
+            latestSafeSubmissionAt: string | null;
+            /** Next After */
+            next_after: number;
+            payment: components["schemas"]["PaymentView"] | null;
+            /**
+             * Poll After Ms
+             * @default 1000
+             * @constant
+             */
+            poll_after_ms?: 1000;
+            quote: components["schemas"]["Quote"] | null;
+            request: components["schemas"]["RequestDraft"];
+            /** Reviewclosesat */
+            reviewClosesAt: string | null;
+            /**
+             * Server Time
+             * Format: date-time
+             */
+            server_time: string;
         };
         /** Snapshot */
         Snapshot: {
@@ -1836,6 +3227,15 @@ export interface components {
             source_id: string;
             /** Supplier Id */
             supplier_id: string;
+            /** Version */
+            version: number;
+        };
+        /** SourcePin */
+        SourcePin: {
+            /** Sha256 */
+            sha256: string;
+            /** Source Id */
+            source_id: string;
             /** Version */
             version: number;
         };
@@ -1894,7 +3294,155 @@ export interface components {
             revision: number;
             /** Summary */
             summary: string;
-            terms: components["schemas"]["Terms"];
+            /** Terms */
+            terms: components["schemas"]["Terms"] | components["schemas"]["DatasetSpecification"];
+        };
+        /** StateChanged */
+        StateChanged: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            binding: components["schemas"]["CanvasBinding"];
+            /** Paymentstate */
+            paymentState?: ("blocked_parent" | "awaiting_signature" | "funding_pending" | "funded" | "capture_pending" | "captured" | "void_pending" | "voided" | "uncertain" | "failed" | "expired_not_returned" | "reorg_hold") | null;
+            /** Reason */
+            reason?: string | null;
+            /** Seq */
+            seq: number;
+            /** State */
+            state: string;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "state_changed";
+        };
+        /** Step */
+        Step: {
+            /** Detail */
+            detail: string;
+            /** Id */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "clarify" | "paid" | "produce" | "review" | "captured" | "investigate" | "verdict" | "amend" | "grey" | "decide";
+            /**
+             * Panel
+             * @default false
+             */
+            panel?: boolean;
+            /** Title */
+            title: string;
+        };
+        /** StepStarted */
+        StepStarted: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "step_completed" | "step_started";
+        };
+        /** StepWaiting */
+        StepWaiting: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "step_waiting";
+            /** Waitingon */
+            waitingOn: string;
+        };
+        /** StepsPlanned */
+        StepsPlanned: {
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Seq */
+            seq: number;
+            /** Steps */
+            steps: components["schemas"]["Step"][];
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "steps_planned";
+        };
+        /** TermProvenance */
+        TermProvenance: {
+            /** Actor Id */
+            actor_id: string;
+            /**
+             * Origin
+             * @enum {string}
+             */
+            origin: "original_intent" | "customer_answer" | "provider_confirmation" | "accepted_source" | "approved_template";
+            /** Reference Id */
+            reference_id: string;
         };
         /** Terms */
         Terms: {
@@ -2017,6 +3565,54 @@ export interface components {
             /** Type */
             type: string;
         };
+        /** Verdict */
+        Verdict: {
+            /**
+             * Decidedby
+             * @enum {string}
+             */
+            decidedBy: "rules" | "controller" | "contract";
+            /** Evidenceids */
+            evidenceIds: string[];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "agree" | "disagree" | "grey";
+            /** Reason */
+            reason: string;
+        };
+        /** VerdictEvent */
+        VerdictEvent: {
+            /** Allowedby */
+            allowedBy: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt?: number;
+            /** Seq */
+            seq: number;
+            /** Step */
+            step: string;
+            /**
+             * Track
+             * @default shared
+             * @enum {string}
+             */
+            track?: "shared" | "red" | "green" | "amber";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            type: "verdict";
+            verdict: components["schemas"]["Verdict"];
+        };
         /** Verification */
         Verification: {
             /** Assessments */
@@ -2040,6 +3636,19 @@ export interface components {
              * @enum {string}
              */
             stage: "fulfillment" | "delivery" | "dispute";
+        };
+        /** ZipCount */
+        ZipCount: {
+            /** Area */
+            area: string;
+            /** Count */
+            count: number | null;
+            /** Flag */
+            flag?: ("withheld" | "missing" | "added" | "yoga") | null;
+            /** Status */
+            status?: ("released" | "suppressed" | "unknown") | null;
+            /** Zip */
+            zip: string;
         };
     };
     responses: never;
@@ -3820,6 +5429,436 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrderView"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    create_runs_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunCreated"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    answer_runs__run_id__answers_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunEvidenceAnswer"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionAcknowledgement"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    decide_runs__run_id__decisions_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "x-reviewer-token"?: string | null;
+            };
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunDecision"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DecisionAcknowledgement"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    events_runs__run_id__events_get: {
+        parameters: {
+            query?: {
+                after?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunPage"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    evidence_runs__run_id__evidence__evidence_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                evidence_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResolvedCell"] | components["schemas"]["ResolvedMessage"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    offer_runs__run_id__offers_post: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "x-internal-token"?: string | null;
+            };
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunOffer"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Quote"];
                 };
             };
             /** @description Forbidden */

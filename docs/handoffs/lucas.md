@@ -1,3 +1,62 @@
+# Review remediation — generated contracts and controls
+
+[Workstream 08](../workstreams/08-review-remediation.md) addresses R1/R2/R5/R6
+without changing your canvas layout/styles. The former hardcoded
+`R-CATEGORY/category/dataset/dispute_fact` and `references:[]` submissions have
+minimal functional replacements in `ComplaintForm` and `EvidenceAnswer`.
+You retain visual ownership and the next design task: connect row/cell clicks to
+those same explicit controls, improve source navigation and evidence-choice
+presentation, and keep scope requests visibly distinct from factual disputes.
+Do not restore hardcoded targets or infer intent from the complaint prose.
+
+- Poll `RunPage.complaint_targets` for accepted requirement/field and allowable
+  row IDs/columns. Submit `Complaint.product_id` as the selected ZIP or `dataset`,
+  the matching requirement/field, optional column, current artifact/binding and
+  explicit `dispute_fact`/`change_scope`. Inconsistent combinations return 422;
+  stale bindings return 409. Coverage 94110 must reach coverage with zero unrelated
+  yoga questions; `scripts/review-remediation-smoke.cjs` tests the actual form/API.
+- Poll `RunPage.evidence_request` for request/case/prompt/original deadline and
+  safe frozen reference choices. Send `RunEvidenceAnswer` with request_id, current
+  binding, text and up to eight selected references. Source repair requires at
+  least one. A missing ID is allowed only for historical acknowledgement replay,
+  never a new answer. `EvidenceAnswer` resets selection on request/binding changes.
+  The server records the accepted buyer actor and re-resolves bytes after restart.
+  Text alone remains testimony; citing an expanded source is not purchase consent.
+- Fold typed `payment_state_changed` effects into current money state, even after
+  a prior capture. Keep capture/book events as history. Returned, pending return,
+  expired-but-not-returned, uncertain and reorg hold are distinct. The funding panel
+  uses the same coherent polling snapshot. The fold also supports historical
+  `state_changed.paymentState`. No mock hashes or explorer links are added.
+
+All DTOs are generated together by `npm run generate`; no wire union is handwritten.
+`broker-evidence-targets.test.tsx` verifies actual submitted reference/target/intent.
+`broker-payment-states.test.tsx` exercises complete LiveRun canvas, funding panel,
+reload and preserved capture history using backend-emitted synthetic transition
+fixtures. Fixtures explicitly disclose injected mock states, not real chain events.
+Retain the server-side credential bridge and explicit reapproval after 409.
+R3/R4 compiler semantics remain Jeff release blockers. No teammate messages were sent.
+
+# Aggregate brokerage migration handoff
+
+Current primary product: `aggregate-brokerage-v1`; historical profiles retain their
+accepted policy. Start with [workstream 06](../workstreams/06-data-broker.md): complete
+migration map, route/examples, demo commands, mock signing boundary and validation.
+
+The canvas at `/` now defaults to the live backend. Run the production frontend with
+`BROKER_LOCAL_DEMO=1`, loopback BACKEND_URL, and distinct server-only worker/reviewer
+tokens. `lib/run/live.ts` resumes and polls persisted events; `contract.ts` reexports
+Pydantic-generated types. `live-run.tsx` reuses your Canvas/checklist/styles, with real
+agreement, funding, review and evidence controls. Recorded rehearsal is separate.
+UI prices, deadlines, permissions and bindings come from the server. 409 refreshes
+without retrying consent. Unknown costs stay unavailable. All 88 frontend tests,
+typecheck, generated-client freshness and the production build pass. Actual Chrome
+flows passed on development port 3016 and production port 3017 against mock backend
+8016, including downloaded-byte/hash verification, reload and capture. The user
+started the servers outside the agent sandbox. Use `scripts/brokerage-smoke.cjs`,
+not invoice smoke; evidence locations and exact commands are in workstream 06.
+
+## Historical catalog handoff
+
 # Lucas — frontend handoff
 
 The existing invoice workbench from main is preserved at `/api/jobflow`; it has
@@ -10,14 +69,79 @@ Own the complete React/TypeScript frontend and buyer-wallet UI. No UI framework 
 library is imposed by this handoff. Start with mock/fake fixtures; live testnet observations
 are **none**. Nikita owns payment signing infrastructure, operator execution and reconciliation.
 
-## Works now, simulated, planned
+## Integrated backend recipe
 
-Works now: versioned DTOs/OpenAPI/generated types, exact quote/acceptance/funding routes, EOA
-signature validation, explicit mock simulation, payment polling and all-state fixture API.
-The main mock capture/release completes atomically; terminal pending/reorg states are fixtures
-for the future asynchronous adapter. Live RPC/operator execution and testnet observation are
-planned after this handoff. `/health` reports `contract_version=catalog-api-v1`,
-`payment_policy=catalog-payments-v1`, `live_adapter=planned` and live settlement disabled.
+Automatic by default: compilation after request/answer, eligible fulfillment and evidence
+rechecks after confirmed funding, deadline sweeps, and bounded payment processing. Five
+independent lanes separate catalog/invoice deadlines, catalog work, payments and invoice work.
+No browser call to a work endpoint is needed for ordinary progress. The default compiler is
+offline and payments are mock. Run the README repaired journey to seed a fresh local corpus;
+start the API with ORDER_DB_PATH and ARTIFACT_ROOT pointing to its database/evidence directory.
+The harness uses an injected historical clock: create a new request for an interactive demo.
+Keep PAYMENT_ADAPTER=mock, ENABLE_PAID_MODELS=false and ENABLE_TESTNET_BROADCAST=false.
+
+The Base transport and asynchronous settlement are implemented and exercised with synthetic
+RPC, including fund → restart → repair → capture and independent fund → human review → void.
+**Observed real testnet transactions: none.** Mock capture/release remains synchronous and atomic.
+
+`/health` retains API 0.4.0, `catalog-api-v1` and `catalog-payments-v1`. Existing capability values
+now describe actual startup selection: `disabled` = implemented Base adapter unselected (mock);
+`unavailable` = selected Base missing configuration/signer or failed read-only preflight;
+`ready` = configured, signer present, startup preflight passed. `live_settlement_enabled` is
+true only for ready Base plus explicit broadcast opt-in. Read these as startup capabilities,
+never transaction evidence. Restart after correcting unavailable configuration. Every submission
+still preflights the accepted terms; a later failure remains failed/uncertain, never mock success.
+No DTO field, route or enum was added; the health default changed from planned to disabled.
+
+Trusted server-side callers still handle these existing routes:
+
+| Credential / caller | Operations |
+| --- | --- |
+| INTERNAL_API_TOKEN via X-Internal-Token | Provider offers (`/internal/orders/{id}/offers`), provider amendment approvals (`/internal/orders/{id}/approvals`), explicit failed-job retry (`/internal/orders/{id}/retry`). Manual compile/work/payment-work endpoints remain useful for diagnostics or a `run_worker=False` test app. |
+| REVIEWER_API_TOKEN via X-Reviewer-Token | Cited, bound decisions at `/reviewer/orders/{id}/decisions`; protected historical inspection. Must differ from the internal token. |
+| Buyer wallet | Exact prepared ERC-3009 typed-data signature, submitted through the public funding route; no operator key. Mock flow uses explicit simulate instead. |
+| Backend operator | BASE_OPERATOR_PRIVATE_KEY, RPC and opt-in config; no API caller can supply operator authority. |
+
+Lucas owns the authenticated frontend/server bridge and its role checks. Forward only the
+specific authorized protected request server-side; do not expose a credential-forwarding proxy.
+Catalog customer routes still lack authentication/tenant isolation: localhost demo only. The
+invoice session/token policy remains isolated at `/api/jobflow`.
+
+Minimal customer requests (replace IDs and revisions with the current server response):
+
+```http
+POST /requests
+Content-Type: application/json
+
+{"prompt":"Find storage products under 2 kg and unit price at most USD 40.","corpus_id":"storage-2026","idempotency_key":"request-1"}
+```
+
+Poll `/requests/{id}` until clarification or ready. Answer the returned question ID, poll until
+ready, then `POST /requests/{id}/quotes` with `{expected_revision, idempotency_key, payer}`.
+`payer` is optional only in mock mode. Accept using the route table below. For mock funding:
+
+```json
+{
+  "expected_revision": 1,
+  "expected_binding": {"snapshot_id": "snapshot-from-order", "evidence_revision": 1, "delivery_version": 0},
+  "idempotency_key": "fund-1",
+  "funding_attempt_id": "attempt-from-preparation",
+  "payment_hash": "hash-from-preparation",
+  "simulate": true
+}
+```
+
+Send this to `/orders/{id}/funding-authorizations` after preparation. The initial saved response
+may still be funding_pending; poll until funding is confirmed/simulated, then follow
+available_actions for evidence and review. Protected manual payment work has no request body:
+
+```http
+POST /internal/payments/work
+X-Internal-Token: <server-only internal credential>
+```
+
+Response: `{processed: number, simulated: boolean}`; processed counts attempted/audited
+operations, not confirmed transfers. It is bounded to 20, while automatic turns use limit 1.
 
 ## Contract files and runnable fixtures
 
@@ -124,8 +248,9 @@ response: refetch before presenting it as current.
 | Network timeout | Outcome unknown; retry identical request or refetch/reconcile. Never show paid/returned by inference. |
 
 Domain errors use `{detail: string}`; validation errors never echo submitted signatures or
-request input. `/internal/payments/work` accepts no body and returns `{processed, simulated: true}`;
-the main app also advances bounded mock payment work in its one-second background loop.
+request input. `/internal/payments/work` accepts no body and returns `{processed, simulated}`. The boolean
+reflects the selected service mode; inspect each payment's frozen terms when reading older orders.
+Payment turns run independently every 0.25 seconds after the preceding bounded call finishes.
 
 Keep document scope: prompt/clarification, quote approval, progress, PDF/source highlights,
 targeted complaints, request-bound evidence upload/approval, explicit additional-work acceptance
@@ -136,3 +261,20 @@ for confirmed parent return before their funding/work. Negotiated exceptions do 
 Completion: all state fixtures render distinctly; stale/replayed responses and wallet rejection
 are handled; privileged credentials stay server-side; a buyer can approve work, inspect citations,
 answer a repair request and follow payment status without any live-payment success claim.
+
+## Recovery and limits
+
+Exact response-loss replay keeps the same key and payload; it can return an older immutable
+response, so refetch current order/payment before offering another action. 409 requires refetch
+and renewed explicit action. Restart recovers durable leases and reconciles the saved transaction
+hash/nonce without another signature/send. Submission disabled or missing signer does not block
+inspection of other submitted payments when a transport is available. Startup does not load .env.
+
+Uncertain/reorg-held funds stay held. A submitted capture cannot be cancelled by a late complaint;
+the complaint goes to human review while confirmation may still book once. An orphaned receipt
+or crash after persisting submitted but before sending needs Nikita's manual recovery: there is
+no automatic rebroadcast, replacement, nonce reset or refund route. Replacement child signing/work
+waits for confirmed parent void and its own fixed funding deadline; waiting never extends it.
+Payer reclaim is available only in the separately authorized lab, not a catalog route.
+
+[Integration validation and exact merged SHAs](../workstreams/04-integration.md).

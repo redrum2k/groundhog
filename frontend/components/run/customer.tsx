@@ -54,7 +54,7 @@ function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
           {rows.map((r, i) => (
             <tr key={r.zip} className={r.flag ? `f-${r.flag}` : ""}>
               <td className="rn">{i + 1}</td><td className="mono">{r.zip}</td><td>{r.area}</td>
-              <td className="num">{r.flag === "missing" ? "missing" : r.flag === "withheld" ? "withheld" : r.count.toLocaleString("en-US")}</td>
+              <td className="num">{r.flag === "missing" ? "missing" : r.flag === "withheld" ? "withheld" : r.count?.toLocaleString("en-US") ?? "unknown"}</td>
             </tr>
           ))}
         </tbody>
