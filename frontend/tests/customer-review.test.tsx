@@ -37,3 +37,17 @@ it("keeps the approved card in place, receipt where the button was, before the s
   expect(screen.queryByRole("button", { name: /^Approve and authorize/ })).toBeNull();
   expect((document.querySelector("details.cust-sec") as HTMLDetailsElement | null)?.open).toBe(false); // the interview doesn't spring back open
 });
+
+it("refreshes the wallet cue when another authorization changes the held amount", () => {
+  const { events } = timeline("green", "rules_no");
+  const view = project(events, { lane: "green", ending: "rules_no", learned: false, contract: CONTRACT_V1, live: true });
+  const held = { ...view, captured: {} };
+  const bodyProps = { view: held, lane: "green" as const, ending: "rules_no" as const, learned: false, done: false, live: true, decide: async () => null, onReplayLearned: () => {} };
+  const props = { run: "green" as const, steps: MAIN, view: held, bodyProps, awaiting: null, buyer: async () => null };
+  const { rerender } = render(<Customer {...props} />);
+  const before = document.querySelector(".wallet-t");
+  expect(before?.textContent).toContain("held while disputed");
+  const increased = { ...held, payments: held.payments.map((p, i) => i === 0 ? { ...p, amount: p.amount + 60 } : p) };
+  rerender(<Customer {...props} view={increased} bodyProps={{ ...bodyProps, view: increased }} />);
+  expect(document.querySelector(".wallet-t")).not.toBe(before);
+});

@@ -29,18 +29,20 @@ export function OrbSlot({ name, fallback }: { name: Stop; fallback?: ReactNode }
 /** Moves the orb to `want` once that slot is on the page (home until then) and flies it there from where it stood. */
 export function useOrbFlight(root: RefObject<HTMLElement | null>, want: Stop): Stop {
   const [at, setAt] = useState<Stop>("home");
-  const from = useRef<DOMRect | null>(null);
+  const from = useRef<{ rect: DOMRect | null; stop: Stop } | null>(null);
   const seen = useRef<DOMRect | null>(null); // where it last stood: a slot can vanish with the orb in it (the lens, once checking ends)
   useLayoutEffect(() => {
     const orb = root.current?.querySelector(".cust-orb");
     if (orb) seen.current = orb.getBoundingClientRect();
     const next = root.current?.querySelector(`[data-orb-slot="${want}"]`) ? want : "home";
     if (next === at) return;
-    from.current = seen.current;
+    from.current = { rect: seen.current, stop: next };
     setAt(next);
   });
   useLayoutEffect(() => {
-    const el = root.current?.querySelector<HTMLElement>(".cust-orb"), f = from.current;
+    const pending = from.current;
+    if (!pending || pending.stop !== at) return;
+    const el = root.current?.querySelector<HTMLElement>(".cust-orb"), f = pending.rect;
     from.current = null;
     if (!el || !f?.width || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     // A copy flies above the page and re-aims at the slot every frame: the sticky header, a clipping

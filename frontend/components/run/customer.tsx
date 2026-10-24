@@ -32,7 +32,7 @@ function Wallet({ view }: { view: View }) {
   return (
     <span className={`wallet w-${state}`} role="status">
       <IcWallet size={14} />
-      <span key={state} className="wallet-t"><Label text={state === "paid" && view.payments.some((p) => p.mock) ? `${text} · mock` : text} quiet="tail" /></span>
+      <span key={`${state}-${amount}`} className="wallet-t"><Label text={state === "paid" && view.payments.some((p) => p.mock) ? `${text} · mock` : text} quiet="tail" /></span>
     </span>
   );
 }

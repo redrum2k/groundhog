@@ -79,3 +79,10 @@ describe("scenario integrity", () => {
     expect(learned.nodes.captured.status).toBe("done");
   });
 });
+
+it("the corrected recorded delivery reports coverage for all delivered ZIPs", () => {
+  const view = project(full("red", "human"), ctx("red"));
+  const rows = view.deliveries.at(-1)!.rows;
+  expect(rows).toHaveLength(27);
+  expect(view.nodes.produce.checks.coverage.detail).toBe(`${rows.length} ZIP rows checked`);
+});
