@@ -70,6 +70,7 @@ def audit():
                 plan=plan,
                 results=summary,
                 supervisor=load(folder / "supervisor.json"),
+                model_availability=load(folder / "model-availability.json"),
             )
         )
         assert len(summary["cases"]) == len(plan["intake"]) + len(plan["disputes"])

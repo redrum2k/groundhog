@@ -101,6 +101,14 @@ def _affirmative(text):
     }
 
 
+def _cohort_offer(city):
+    return (
+        "The supported cohort is synthetic adults aged 25–34 in "
+        + ("Oakland" if city == "oakland" else "San Francisco")
+        + ", grouped by ZIP. Do you accept this cohort?"
+    )
+
+
 def compile_dataset(context, store, *, proposal=None):
     draft = context.draft
     if proposal and proposal.requested_scope == "unsupported":
@@ -115,7 +123,30 @@ def compile_dataset(context, store, *, proposal=None):
         # immutable prompt/history; only replace the field that question solicited.
         field = answer.question_id.removeprefix(draft.request_id + ":").split(":")[0]
         a, c, na, nc = _cohort(answer.text)
-        if field == "cohort":
+        if field in {"cohort", "cohort_offer"}:
+            if field == "cohort_offer":
+                # The opaque question ID binds an exact server-rendered offer,
+                # not a model-inferred acceptance of an arbitrary open question.
+                offered = any(
+                    q.question_id == answer.question_id
+                    and q.field == "cohort"
+                    and q.prompt.endswith(_cohort_offer(expected_city))
+                    for q in draft.question_history
+                )
+                if _affirmative(answer.text):
+                    if not offered:
+                        raise ValueError("The cohort confirmation has no bound supported offer.")
+                    ages, cities = {(25, 34)}, {expected_city}
+                    excluded_ages, excluded_cities = set(), set()
+                    unrelated_age_conflict = unrelated_city_conflict = False
+                if " ".join(re.findall(r"[a-z]+", answer.text.lower())) in {
+                    "no",
+                    "no thanks",
+                    "no thank you",
+                    "i decline",
+                    "i do not accept",
+                }:
+                    raise ValueError("Unsupported cohort: the supported cohort offer was declined.")
             if a or na:
                 ages, excluded_ages = a, na
                 unrelated_age_conflict = False
@@ -183,18 +214,17 @@ def compile_dataset(context, store, *, proposal=None):
         and not unrelated_city_conflict
     )
     if not cohort_ok:
-        question = (
-            "Confirm the supported cohort: adults aged 25–34 in "
-            + ("Oakland" if expected_city == "oakland" else "San Francisco")
-            + ", grouped by ZIP."
-        )
-        field = "cohort"
-        if any(a.question_id.startswith(draft.request_id + ":cohort:") for a in draft.answers):
+        question = _cohort_offer(expected_city)
+        field = "cohort_offer"
+        if any(
+            a.question_id.startswith(
+                (draft.request_id + ":cohort:", draft.request_id + ":cohort_offer:")
+            )
+            for a in draft.answers
+        ):
             question = (
                 "Your correction still names an unsupported or conflicting cohort. " + question
             )
-        if proposal and proposal.clarification_field == "cohort" and proposal.clarification:
-            question = proposal.clarification
     elif category is None:
         # A partial answer is evidence of a narrower request, not union-product consent.
         partial = bool(
@@ -267,7 +297,7 @@ def compile_dataset(context, store, *, proposal=None):
         question=Clarification(
             question_id=f"{draft.request_id}:{field}:{draft.questions_asked + 1}",
             prompt=question,
-            field=field,
+            field="cohort" if field == "cohort_offer" else field,
         ),
         summary="One bounded cohort/category clarification is required.",
         limitations=("Only the synthetic registered cohort is supported.",),

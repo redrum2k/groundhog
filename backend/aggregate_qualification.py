@@ -154,7 +154,48 @@ FOLLOWUP = (
         basis="Undefined quality language still lacks an accepted metric.",
     ),
 )
-COHORTS = {"pilot": (INTAKE, DISPUTES), "followup": ((), FOLLOWUP)}
+CONFIRMATION = (
+    dict(
+        id="C1",
+        prompt="SF adults 18-24, gym membership or fitness-app use; counts by ZIP.",
+        answers=["yes"],
+        status="ready",
+        category="gym_or_fitness_app",
+        basis="A bare yes accepts only the displayed, explicitly bound supported-cohort offer.",
+    ),
+    dict(
+        id="C2",
+        prompt="Oakland adults 25-34, gym membership or fitness-app use, by ZIP.",
+        answers=["no"],
+        status="human_review",
+        category=None,
+        basis="Declining the selected SF corpus offer does not silently change geography.",
+    ),
+    dict(
+        id="C3",
+        prompt="San Francisco adults aged 25-34 interested in fitness, ZIP counts.",
+        answers=["gym membership", "yes"],
+        status="ready",
+        category="gym_or_fitness_app",
+        require_broader_consent=True,
+        basis="Fresh revalidation of narrow answer plus separate union-product consent.",
+    ),
+    dict(
+        id="C4",
+        prompt=(
+            "San Francisco adults 25-34, gym membership or fitness-app use. Do not include yoga."
+        ),
+        answers=[],
+        status="ready",
+        category="gym_or_fitness_app",
+        basis="Explicit exclusion retained after cohort-confirmation fix.",
+    ),
+)
+COHORTS = {
+    "pilot": (INTAKE, DISPUTES),
+    "followup": ((), FOLLOWUP),
+    "confirmation": (CONFIRMATION, ()),
+}
 
 
 def observe(gateway, target):
@@ -278,7 +319,7 @@ def evaluate_intake(recipe, root, *, compiler=None):
             assert len(questions) == len(set(" ".join(q.lower().split()) for q in questions))
             category = final.specification.terms.category if final.specification else None
             correct = final.status == recipe["status"] and category == recipe["category"]
-            if recipe["id"] == "I1":
+            if recipe["id"] == "I1" or recipe.get("require_broader_consent"):
                 correct &= len(final.answers) == 2 and any(
                     q.field == "category_offer_base" for q in final.question_history
                 )
