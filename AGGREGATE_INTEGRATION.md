@@ -5,6 +5,10 @@
 Branch: `feature/aggregate-intake-integration-20261024`.
 PR: https://github.com/redrum2k/order-to-cash/pull/12 (targets `main`; do not self-merge).
 Baseline: `31ad60b9a95b73e0c788752030edc0c0f195f441`, freshly fetched October 24.
+During verification main advanced to `04756e131233d47739dfa6c3eb89b917f2b60284`.
+Its frontend-only customer-focus changes and route-ownership guidance are integrated
+by `37a8bf187e2029ddf48df1d38931f82da2952151`; backend bytes remain identical to
+the intake implementation commit `706f41e6aae6e25a2ff34ceafaf505402470cfab`.
 First published checkpoint: `e774495192f903d0c1191590cf13cfc4a9439977`;
 179 focused backend tests, Ruff lint and formatting passed before publication.
 
@@ -126,6 +130,10 @@ Intake continues through `POST /runs`, `GET /runs/{id}/events`, and
 exercise authenticated `POST /internal/requests/{id}/compile`.
 `message.asks` is an opaque field string (including `category_offer_base` and
 `category_offer_yoga`); submit the exact pending question ID, not a guessed one.
+Current frontend ownership explicitly places Nikita's aggregate intake at `/live`.
+Lucas's demo canvas at `/` uses the broker bridge under `/api/broker-run`, with a
+recorded fallback. Preserving both routes is not a claim that `/` now consumes the
+primary aggregate-intake path. No frontend migration was performed in this PR.
 
 The message event remains:
 `{seq, at, track, step, attempt, type:"message", message:{id, from, text, asks, attach}}`.
@@ -150,9 +158,17 @@ UNKNOWN/CONFLICT remain unresolved. A supported finding can legitimately stay gr
 
 ## Verification and integration incidents
 
-Final release counts are recorded below after the stable-tree run completes.
+Final stable-tree backend run: **783 passed / 11 failed / 0 skipped / 0 errors**
+(794 tests, 351.724 seconds), `release-706f41e.xml`. All 34 new intake tests,
+19 unchanged R3/R4 tests, 38 primary semantic tests and 12 existing improvement
+tests pass in that run. There are **no new failures** versus the original 13-failure
+baseline; the remaining 11 are the documented Windows portability failures below.
+This is a tested integration branch, not a claim of a wholly green suite or live
+model qualification. No code changes are made after that frozen backend run.
 Evidence lives under `backend/artifacts/integration-20261024/` (ignored, not private
 runtime state). Earlier results and exported archives were not overwritten.
+The frozen backend/lockfile implementation digest is
+`836fc87ac6089e00d2b9e028cb823682ed0578b730c8fe4c7458ba392efbff17`.
 
 - Baseline published checkpoint: 179 focused tests pass; Ruff check/format pass.
 - Intake release subset: 53 tests pass (34 new intake cases plus 19 unchanged R3/R4 cases).
@@ -165,15 +181,41 @@ runtime state). Earlier results and exported archives were not overwritten.
 - Offline acceptance initially failed saving a Unicode event under Windows cp1252.
   Preserve that failed output; run the existing tool with `python -X utf8` rather
   than alter Nikita's evaluation scaffold or pretend the first attempt passed.
+  The UTF-8 recovery passed all four scenarios (conforming capture exactly once,
+  one injected missing-ZIP correction, separate Oakland funding, unsupported yoga
+  complaint/no fee). Report: `acceptance-utf8/broker-c4o0txe0/report.json` under the
+  integration evidence directory. This is offline mock evidence, not a live payment.
 - Development tests exposed four yoga-conflict regressions, then a model paraphrase
   being overruled by a generic yoga-ambiguity rule. These were corrected before release;
   regression cases preserve conflict versus explicit offered-consent distinctions.
+- A pre-release full run (`full-final.xml`: 779 pass / 12 fail, 791 collected) began
+  before the last edits. Its improvement-cycle test correctly refused approval because
+  the implementation digest changed between probe and approval. This was an execution
+  sequencing error, not a reason to weaken the guard. Preserve that evidence; the
+  release run uses frozen backend `706f41e` and includes the three later consent tests.
 
 Historical comparison: `ef8c99a` had 747 passed / 13 failed (760 total).
 Eleven were Windows portability failures (nine subprocess environment cases,
 one POSIX permission assertion, one `.venv/bin/python` assumption). Two unchanged
 Base transport tests intermittently observe persisted `submitted` before the fake
 broadcast list is populated. No payment tests are skipped, weakened or rewritten.
+
+| Previously reported test(s) | Final integration result | Interpretation |
+| --- | --- | --- |
+| `tests/payments/test_payment_lab.py::test_help_has_examples_and_no_rpc_or_journal[None, preflight, prepare, fund, status, capture, void, reconcile, reclaim]` (nine parameter cases) | All nine FAIL | Stripped subprocess environment omits Windows SystemRoot; WinError 10106 initializing `_overlapped`. |
+| `tests/payments/test_payment_lab.py::test_prepare_persists_once_never_changes_salt_parties_or_deadline` | FAIL | POSIX `0600` assertion is not equivalent to Windows permissions. |
+| `tests/runtime/test_backend_integration.py::test_import_and_schema_export_do_not_initialize_payments` | FAIL | Hard-coded `.venv/bin/python` does not exist on Windows. |
+| `tests/runtime/test_backend_integration.py::test_http_automatic_repair_and_settlement_with_restart[repaired-base_sepolia]` | PASS this run | Prior observation race did not reproduce; not claimed fixed. |
+| Same test `[unresolved-base_sepolia]` | PASS this run | Prior observation race did not reproduce; not claimed fixed. |
+
+The earlier in-flight development guard failure is absent on the frozen release
+tree: all 12 `tests/broker/test_improvement.py` cases pass. Its failed evidence is
+retained rather than rewritten. Latest-main frontend integration was separately
+rechecked: **109 tests pass**, typecheck/build/generated-contract checks pass.
+Ruff check/format pass across 172 files including the unchanged acceptance tool.
+Seven intake events and seven historical semantic example events validate against
+the current `RunEvent` schema. Git comparison confirms latest-main UI/payment-owned
+paths are unchanged, and completed semantic/budget core files match `ef8c99a`.
 
 ## Optional improvement extension — not activated
 
