@@ -223,7 +223,7 @@ class DatasetLifecycle:
             )
         else:
             self._human(
-                order, "Unresolved after bounded investigation; Maya must review the evidence."
+                order, "Unresolved after bounded investigation; Human must review the evidence."
             )
             updated = order.cases[-1]
             reason, kind = order.error, "grey"

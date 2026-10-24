@@ -10,13 +10,13 @@ function CiteChip({ c, onCite }: { c: Cite; onCite: (c: Cite) => void }) {
   return <button className="cite" onClick={() => onCite(c)}>{c.label}<ChevronRight size={11} strokeWidth={1.8} /></button>;
 }
 
-type Bubble = { from: "buyer" | "agent" | "maya"; text: ReactNode; id?: string };
+type Bubble = { from: "buyer" | "agent" | "human"; text: ReactNode; id?: string };
 function Chat({ items, highlight }: { items: Bubble[]; highlight?: string }) {
   return (
     <div className="chat">
       {items.map((b, i) => (
         <div key={b.id ?? i} id={b.id ? `msg-${b.id}` : undefined} className={`bub b-${b.from}${highlight && b.id === highlight ? " flash" : ""}`}>
-          <span className="bub-who">{b.from === "buyer" ? S.buyerAgent : b.from === "maya" ? `${S.controller} · ${S.controllerRole}` : S.agent}</span>
+          <span className="bub-who">{b.from === "buyer" ? S.buyerAgent : b.from === "human" ? `${S.controller} · ${S.controllerRole}` : S.agent}</span>
           <div className="bub-text">{b.text}</div>
         </div>
       ))}
@@ -131,9 +131,9 @@ function Checks({ animate, lane }: { animate: boolean; lane: Lane | "shared" }) 
 
 type BodyProps = {
   node: Node; view: View; lane: Lane | "shared"; ending: Ending; learned: boolean; firstVisit: boolean;
-  onMaya: () => void; onReplayLearned: () => void; customer?: boolean;
+  onHuman: () => void; onReplayLearned: () => void; customer?: boolean;
 };
-export function PanelBody({ node, view, lane, ending, learned, firstVisit, onMaya, onReplayLearned, customer }: BodyProps) {
+export function PanelBody({ node, view, lane, ending, learned, firstVisit, onHuman, onReplayLearned, customer }: BodyProps) {
   const [hl, setHl] = useState<{ msg?: string; row?: string; tab?: "interview" }>({});
   useEffect(() => { setHl({}); }, [node.id]);
   useEffect(() => {
@@ -196,8 +196,8 @@ export function PanelBody({ node, view, lane, ending, learned, firstVisit, onMay
     ]} />
     <Sheet rows={sheetRows("amber", "before", false)} highlight={hl.row} note="fitness = gyms + apps" />
   </>);
-  else if (id === "aX" && ending === "maya" && !learned && customer && view.status.aX !== "done") content = <Chat items={[{ from: "agent", text: "The contract doesn't settle this, so our controller is reviewing the evidence. Payment stays on hold until it's decided." }]} />;
-  else if (id === "aX" && ending === "maya" && !learned && view.status.aX !== "done") content = (
+  else if (id === "aX" && ending === "human" && !learned && customer && view.status.aX !== "done") content = <Chat items={[{ from: "agent", text: "The contract doesn't settle this, so our controller is reviewing the evidence. Payment stays on hold until it's decided." }]} />;
+  else if (id === "aX" && ending === "human" && !learned && view.status.aX !== "done") content = (
     <div className="review">
       <div className="review-tag"><Lock size={11} strokeWidth={2} /> Needs your decision · records don't settle it</div>
       <p className="review-q">Should yoga studio members count as fitness for Acme's order?</p>
@@ -206,16 +206,16 @@ export function PanelBody({ node, view, lane, ending, learned, firstVisit, onMay
         {C({ kind: "msg", id: "m3", label: "Interview · m3" })}{C({ kind: "doc", label: "Vendor: yoga → Wellness" })}{C({ kind: "doc", label: "Acme's claim" })}
       </div>
       <div className="review-actions">
-        <button className="btn solid" onClick={onMaya}>Yoga counts · rerun free</button>
+        <button className="btn solid" onClick={onHuman}>Yoga counts · rerun free</button>
         <button className="btn" disabled title="Not wired in this preview">No · offer ${S.yoga}</button>
         <button className="btn" disabled title="Not wired in this preview">Ask Acme for more</button>
         <button className="btn" disabled title="Not wired in this preview">Send to CFO</button>
       </div>
       <div className="faint" style={{ fontSize: 12, marginTop: 10 }}>Applies to this dispute and evidence set. Your name, time and reason are recorded.</div>
     </div>);
-  else if (id === "aN" || id === "aX" || id === "aC") content = ending === "maya" && !learned ? (<>
+  else if (id === "aN" || id === "aX" || id === "aC") content = ending === "human" && !learned ? (<>
     <div className="learned"><Check size={14} strokeWidth={2.2} /> Learned: yoga counts as fitness. Saved as Data contract v2.</div>
-    <Chat items={[{ from: "maya", text: "Yoga counts. They're right that it's fitness." }, { from: "agent", text: <>Our controller reviewed it: yoga counts {C({ kind: "doc", label: "Contract v2 · line 6" })}. Adding yoga members now at no cost.</> }]} />
+    <Chat items={[{ from: "human", text: "Yoga counts. They're right that it's fitness." }, { from: "agent", text: <>Our controller reviewed it: yoga counts {C({ kind: "doc", label: "Contract v2 · line 6" })}. Adding yoga members now at no cost.</> }]} />
     <Contract version={2} />
     {yogaDone && <button className="btn solid replay-learned" onClick={onReplayLearned}>Replay the yoga dispute with the new rule</button>}
   </>) : ending === "rules_no" && !learned ? (<>

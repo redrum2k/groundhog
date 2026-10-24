@@ -4,7 +4,7 @@ import { S } from "./scenario";
 
 export type NS = "idle" | "running" | "done" | "waiting" | "fail" | "grey";
 export type Lane = "red" | "green" | "amber";
-export type Ending = "rules_no" | "rules_yes" | "maya";
+export type Ending = "rules_no" | "rules_yes" | "human";
 export type OrbMode = "float" | "carry" | "look" | "wait" | "happy";
 
 export type Node = { id: string; row: number; col: number; title: string; desc: string };
@@ -59,7 +59,7 @@ export type View = {
   contract: 1 | 2;
   caption: string;
 };
-type Frame = { patch: (v: View) => View; hold: number; wait?: "maya"; panel?: string | null };
+type Frame = { patch: (v: View) => View; hold: number; wait?: "human"; panel?: string | null };
 
 const base = (): View => ({ status: {}, chip: {}, orb: { node: "s0", mode: "float" }, coin: null, loops: [], cards: [], contract: 1, caption: "" });
 const set = (v: View, s: Record<string, NS>, chip: Record<string, string> = {}): View => ({ ...v, status: { ...v.status, ...s }, chip: { ...v.chip, ...chip } });
@@ -121,8 +121,8 @@ export function laneFrames(lane: Lane, ending: Ending, learned: boolean): Frame[
       caption: learned ? "Same complaint as before. This time the contract already answers it." : "The agent gathers evidence. The interview never mentioned yoga." }) },
     { hold: 2000, panel: null, patch: (v) => ({ ...set(v, { aI: "done", aG: learned ? "done" : "grey" }, { aI: learned ? "1 source" : "3 sources", aG: learned ? "Covered" : "Grey area" }), orb: { node: "aG", mode: "float" }, caption: learned ? "Covered by contract v2. No person needed." : "Grey area: no contract line or rule says yes or no." }) },
   ];
-  if (ending === "maya" && !learned) {
-    f.push({ hold: 0, wait: "maya", panel: "aX", patch: (v) => ({ ...set(v, { aX: "waiting" }, { aX: `Waiting on ${S.controller}` }), orb: { node: "aX", mode: "wait" }, caption: `The rules can't decide, so it goes to ${S.controller}, our controller, with the evidence.` }) });
+  if (ending === "human" && !learned) {
+    f.push({ hold: 0, wait: "human", panel: "aX", patch: (v) => ({ ...set(v, { aX: "waiting" }, { aX: `Waiting on ${S.controller}` }), orb: { node: "aX", mode: "wait" }, caption: `The rules can't decide, so it goes to ${S.controller}, our controller, with the evidence.` }) });
     f.push({ hold: 4200, panel: "aX", patch: (v) => ({ ...set(v, { aX: "done" }, { aX: "Rule learned" }), orb: { node: "aX", mode: "float" }, contract: 2, cards: [...v.cards, { id: "c4", node: "aX", text: "Learned · yoga counts as fitness (contract v2)", tone: "rule" }], caption: `${S.controller}: yoga counts. Saved as contract v2, so next time no person is needed.` }) });
   } else {
     f.push({ hold: 2000, panel: null, patch: (v) => ({ ...set(v, { aX: yes ? "fail" : "done" }, { aX: yes ? "They're right" : "We're right" }), orb: { node: "aX", mode: "float" }, caption: learned ? "Contract v2 decides: yoga counts. Free rerun." : yes ? "Our rule: an unclear spec is on us. So they're right, and the rerun is free." : "Our rule: the vendor's category decides. So we're right, and yoga is extra." }) });
@@ -130,7 +130,7 @@ export function laneFrames(lane: Lane, ending: Ending, learned: boolean): Frame[
   }
   const paid = ending === "rules_no" && !learned ? S.price + S.yoga : S.price;
   f.push(
-    backToProduce("aX", yes || ending === "maya" ? `Rerun · our cost $${S.rerunCost}` : "Adding yoga", "Back to Produce to add yoga studio members."),
+    backToProduce("aX", yes || ending === "human" ? `Rerun · our cost $${S.rerunCost}` : "Adding yoga", "Back to Produce to add yoga studio members."),
     recheck("Checks passed", "Yoga members added and checked. New review window."),
     capture(paid, `Accepted. $${paid} captured.`),
   );
