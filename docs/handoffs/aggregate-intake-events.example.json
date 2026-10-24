@@ -1,0 +1,108 @@
+{
+  "evidence_type": "DETERMINISTIC_BACKEND_SERVICE_EXAMPLE_NOT_LIVE_CLAUDE",
+  "policy": "aggregate-brokerage-v1",
+  "request_id": "request-8dec4b7b8f9c447fb7be07137d07b39d",
+  "events": [
+    {
+      "seq": 3,
+      "at": "2026-10-23T19:00:00Z",
+      "track": "shared",
+      "step": "clarify",
+      "attempt": 1,
+      "type": "message",
+      "message": {
+        "id": "buyer:intake",
+        "from": "buyer",
+        "text": "SF adults 25–34 interested in fitness, counts by ZIP.",
+        "asks": null,
+        "attach": []
+      }
+    },
+    {
+      "seq": 4,
+      "at": "2026-10-23T19:00:00Z",
+      "track": "shared",
+      "step": "clarify",
+      "attempt": 1,
+      "type": "message",
+      "message": {
+        "id": "request-8dec4b7b8f9c447fb7be07137d07b39d:category:1",
+        "from": "agent",
+        "text": "Does fitness mean gym membership or fitness-app use? State 'include yoga' only if you also want standalone yoga-studio membership.",
+        "asks": "category",
+        "attach": []
+      }
+    },
+    {
+      "seq": 5,
+      "at": "2026-10-23T19:00:00Z",
+      "track": "shared",
+      "step": "clarify",
+      "attempt": 1,
+      "type": "step_waiting",
+      "waitingOn": "AcmeFitness's answer"
+    },
+    {
+      "seq": 6,
+      "at": "2026-10-23T19:00:00Z",
+      "track": "shared",
+      "step": "clarify",
+      "attempt": 1,
+      "type": "message",
+      "message": {
+        "id": "answer:request-8dec4b7b8f9c447fb7be07137d07b39d:category:1",
+        "from": "buyer",
+        "text": "gym membership",
+        "asks": null,
+        "attach": []
+      }
+    },
+    {
+      "seq": 7,
+      "at": "2026-10-23T19:00:00Z",
+      "track": "shared",
+      "step": "clarify",
+      "attempt": 1,
+      "type": "message",
+      "message": {
+        "id": "request-8dec4b7b8f9c447fb7be07137d07b39d:category_offer_base:2",
+        "from": "agent",
+        "text": "The available product combines gym membership OR fitness-app use (standalone yoga excluded). Separate gym-only, app-only and intersection-only counts are unavailable. Do you accept this broader combined product? Please answer yes or no.",
+        "asks": "category_offer_base",
+        "attach": []
+      }
+    },
+    {
+      "seq": 8,
+      "at": "2026-10-23T19:00:00Z",
+      "track": "shared",
+      "step": "clarify",
+      "attempt": 1,
+      "type": "step_waiting",
+      "waitingOn": "AcmeFitness's answer"
+    },
+    {
+      "seq": 9,
+      "at": "2026-10-23T19:00:00Z",
+      "track": "shared",
+      "step": "clarify",
+      "attempt": 1,
+      "type": "message",
+      "message": {
+        "id": "answer:request-8dec4b7b8f9c447fb7be07137d07b39d:category_offer_base:2",
+        "from": "buyer",
+        "text": "yes",
+        "asks": null,
+        "attach": []
+      }
+    }
+  ],
+  "final": {
+    "status": "ready",
+    "category": "gym_or_fitness_app",
+    "questions_asked": 2,
+    "deadline": "2026-10-23T19:05:00+00:00",
+    "quote": null,
+    "payment": null
+  }
+}

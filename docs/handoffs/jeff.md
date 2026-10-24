@@ -1,3 +1,21 @@
+# Current P1 remediation — October 24
+
+The three Greptile P1 findings were reproduced and fixed at `43cb18c`, after
+integrating main `947140e`. See [remediation report](../../GREPTILE_P1_REMEDIATION.md)
+for test-first evidence, exact fixes, normal full-suite failures and ownership.
+No new paid calls, frontend/payment changes or shared procedure activation.
+PR #12 remains unmerged pending fresh independent review.
+
+# Earlier paid qualification and integration — October 24
+
+PR #12 now contains the completed R3/R4 and conversational-intake fixes, plus
+actual guarded Claude Opus 5.5 qualification. See
+[AGGREGATE_MODEL_QUALIFICATION](../../AGGREGATE_MODEL_QUALIFICATION.md) for frozen
+versions, retained failures, fresh follow-up cases, usage and test evidence.
+The feature branch incorporates main `b177d53`, preserving Lucas's frontend and
+Nikita's payment work. Model flags remain OFF by default; no main merge or
+deployment is authorized. The historical assignments below do not restart work.
+
 # Aggregate evaluation tooling handoff — Prompt 10
 
 The user/Jeff delegation assigns Nikita the general offline runner, requirement
@@ -11,7 +29,7 @@ expectations flag `R-ARTIFACT=PASS` in source-blocked orders without output byte
 money correctly remains held and evidence is requested. This is an owner review
 dependency, not permission for the evaluator to change your semantics.
 
-# Current integration status — October 24
+# Earlier integration status — October 24
 
 [Reviewed integration](../reviews/frontend-payment-integration.md) includes payment
 `593e02f` and published main `04756e1`, validated at `4a24c9f`. R3/R4 still fail
@@ -33,7 +51,29 @@ The review and job assignments below are preserved as historical checkpoints.
 
 # Review remediation — Jeff's remaining release blockers
 
-## Current job after the payment-lease review — October 24
+## Primary semantic follow-up delivered locally
+
+Feature branch `feature/broker-dispute-assessment-20261024`, based on current main
+`62fe035`. R3/R4 fixes are in `de53450`; primary integration in `d2b6ba1`; final
+equivalent-proof implementation in `5946378`. See [PRIMARY_RESULTS](../../PRIMARY_RESULTS.md)
+for exact tests, real calls, retained negative cases and Windows full-suite failures;
+[PRIMARY_HANDOFF](../../PRIMARY_HANDOFF.md) contains Lucas's mapping instructions.
+The primary feature remains OFF. No main merge, deployment or new push occurred.
+Final tested code: `ef8c99afb9cf5f3b6928f505242f2d622fce2c3e`. All 19 compiler and
+38 primary semantic tests pass; full suite 747 pass / 13 disclosed failures in
+unchanged platform/settlement tests. Frontend 104 tests, typecheck, generated checks
+and build pass. Later reporting commits do not change that tested code.
+Final upstream fetch observed Lucas's frontend-only PR #6 on main `5a68ea1`.
+It was not merged into this tested worktree; preserve that newer UI during Git
+integration. Do not copy the archive's `62fe035`-based frontend over current main.
+
+The original strict R3/R4 tests passed as XPASS before their markers were removed.
+Added negation/paraphrase/correction/geography/contradiction checks preserve original
+history and contractual clocks. Nikita's completed R1/R2/R5/R6/R7 work is retained.
+Actual primary verdict/evidence examples: [JSON](primary-semantic-events.example.json).
+
+## Prior remediation instructions (preserved)
+## Historical job after the payment-lease review — October 24
 
 Continue R3/R4 on your existing compiler branch/worktree; do not recreate or reset
 it. The full 09 backend suite still reports the two strict expected failures. No

@@ -1,4 +1,39 @@
-# V5 pickup and evidence
+# Current aggregate integration pickup
+
+Latest correctness pass: [GREPTILE_P1_REMEDIATION.md](GREPTILE_P1_REMEDIATION.md).
+All three reported P1 findings reproduced and fixed at `43cb18c`; main `947140e`
+is incorporated. 411 relevant tests pass; full backend 925 pass / 16 documented
+Windows failures. No new paid calls; frontend/payment code and historical evidence
+remain intact. Request fresh independent review of PR #12; do not self-merge.
+
+Read [AGGREGATE_MODEL_QUALIFICATION.md](AGGREGATE_MODEL_QUALIFICATION.md) first:
+30 actual Claude Opus 5.5 calls, preserved negative pilot results, fresh post-fix
+dispute/intake qualification, cumulative costs and model features OFF by default.
+[AGGREGATE_INTEGRATION.md](AGGREGATE_INTEGRATION.md) retains the prior integration
+checkpoint and exact event seam. Branch `feature/aggregate-intake-integration-20261024`,
+PR https://github.com/redrum2k/order-to-cash/pull/12 targeting main. Do not self-merge.
+Latest frontend and Human naming are preserved. The user's separate 90-minute
+qualification window runs conservatively from 12:52 to 14:22 Pacific on October 24.
+Old windows/spending were not reset. Real API evidence is distinct from injected
+tests; no production/shared-main enablement or merge into main occurred.
+Integration commit `3a15bd8` brings main `b177d53` into this feature branch only.
+Qualified semantic components are unchanged; newer payment/frontend work is retained.
+
+The original semantic evidence in [PRIMARY_HANDOFF.md](PRIMARY_HANDOFF.md) and
+[PRIMARY_RESULTS.md](PRIMARY_RESULTS.md) is frozen history, not current integration
+instructions. Earlier local branches/worktrees/archives remain intact. The sections
+below preserve historical context; current counts/commands/ownership are in the new
+integration handoff, not the old V5 assertions.
+
+## Completed legacy dispute follow-up
+
+The backend dispute follow-up is delivered **feature OFF / not qualified**.
+Read [DISPUTE_HANDOFF.md](DISPUTE_HANDOFF.md) and [DISPUTE_RESULTS.md](DISPUTE_RESULTS.md)
+for current state, verified calls/tests, remaining blockers and the expired-or-bounded
+authorization window. The V5 handoff below is preserved historical evidence, not the
+current qualification result; no V6 evidence or original clock was reset.
+
+# V5 pickup and evidence (historical)
 
 This change adds source-checked broker review, bounded questions/human handoff, and
 an application-run prospective improvement loop. It integrates current main

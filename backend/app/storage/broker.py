@@ -11,6 +11,12 @@ def migrate(store):
     with store.connect(write=True) as db:
         db.execute("CREATE TABLE IF NOT EXISTS br_drafts(id TEXT PRIMARY KEY, body TEXT NOT NULL)")
         db.execute("CREATE TABLE IF NOT EXISTS br_orders(id TEXT PRIMARY KEY, body TEXT NOT NULL)")
+        db.execute(
+            "CREATE TABLE IF NOT EXISTS br_assessment_attempts (id TEXT PRIMARY KEY, "
+            "order_id TEXT NOT NULL, snapshot_sha256 TEXT NOT NULL UNIQUE, status TEXT NOT NULL, "
+            "request_json TEXT NOT NULL, raw_response_json TEXT, candidate_json TEXT, "
+            "validation_json TEXT, failure TEXT, latency_seconds REAL)"
+        )
 
 
 def get(db, table, identifier, model):
@@ -31,7 +37,7 @@ def save(db, table, record):
     )
 
 
-def event(db, entity_id, actor_id, causal_id, now, kind, **payload):
+def event(db, entity_id, actor_id, causal_id, now, event_type, **payload):
     sequence = db.execute(
         "SELECT COALESCE(MAX(sequence),0)+1 FROM jf_events WHERE order_id=?", (entity_id,)
     ).fetchone()[0]
@@ -43,7 +49,7 @@ def event(db, entity_id, actor_id, causal_id, now, kind, **payload):
         causal_id=causal_id,
         timestamp=now,
         actor_id=actor_id,
-        type=kind,
+        type=event_type,
         payload=payload,
     )
     db.execute("INSERT INTO jf_events VALUES(?,?,?)", (entity_id, sequence, item.model_dump_json()))

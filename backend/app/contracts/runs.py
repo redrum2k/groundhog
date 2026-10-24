@@ -4,7 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, ConfigDict, Field, StrictInt, TypeAdapter
 
-from app.contracts.catalog import Quote, RequestDraft
+from app.contracts.catalog import Assessment, Binding, Quote, RequestDraft
 from app.contracts.data_product import Frozen, Name
 from app.contracts.dataset import DatasetComplaintTarget, DatasetReference
 from app.contracts.payments import (
@@ -166,11 +166,26 @@ class Dispute(Frozen):
     raisedBy: str
 
 
+class DatasetFinding(Frozen):
+    kind: Literal["supported", "contradicted", "unclear"]
+    reason: str
+    evidence_ids: list[str]
+    decided_by: Literal["model", "rules", "unresolved"]
+    binding: DecisionBinding
+    assessed_binding: Binding
+    accepted_specification_sha256: str
+    attempt_id: str
+    candidate: Assessment | None
+    effective: Assessment
+    validation: Literal["DISPATCHED", "VALIDATED", "ADVISORY", "INVALID", "FAILED", "STALE"]
+
+
 class Verdict(Frozen):
     kind: Literal["agree", "disagree", "grey"]
     reason: str
-    decidedBy: Literal["rules", "controller", "contract"]
+    decidedBy: Literal["rules", "controller", "contract", "model", "unresolved"]
     evidenceIds: list[str]
+    finding: DatasetFinding | None = None
 
 
 class CanvasPayment(Frozen):

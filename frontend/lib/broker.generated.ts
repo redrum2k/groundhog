@@ -17,6 +17,7 @@ export type InvoiceCriterion =
 
 export interface BrokerContractExport {
   command: BrokerCommand;
+  dispute_event: DisputeEvent;
   draft: IntakeDraft;
   draft_create: DraftCreate;
   order: BrokerRecord;
@@ -242,6 +243,320 @@ export interface SourcePin {
   source_id: string;
   version: number;
 }
+export interface DisputeEvent {
+  attempt_id: string;
+  binding: DisputeBinding;
+  decided_by: "model" | "rules" | "unresolved";
+  effective_decision: DisputeDecision;
+  evidence_ids: string[];
+  kind: "justified" | "not_justified" | "unclear";
+  raw_candidate: DisputeCandidate | null;
+  reason: string;
+  references: DisputeReference[];
+  validation: DisputeValidation;
+}
+export interface DisputeBinding {
+  accepted_specification_sha256: string;
+  broker_revision: number;
+  effective_specification_sha256: string;
+  evidence_sha256: string;
+  issue_id: string;
+  order_id: string;
+  order_revision: number;
+  proposal: ProposalBinding;
+  snapshot_sha256: string;
+}
+export interface ProposalBinding {
+  delivery_version: number;
+  evidence_version: number;
+  order_id: string;
+  proposal_version: number;
+  snapshot_id: string;
+}
+export interface DisputeDecision {
+  decided_by: "model" | "rules" | "unresolved";
+  effect: "RESERVE_CORRECTION" | "NO_REMEDY" | "HOLD";
+  kind: "justified" | "not_justified" | "unclear";
+  reason: string;
+}
+export interface DisputeCandidate {
+  /**
+   * @maxItems 12
+   */
+  conflicting_facts:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string];
+  kind: "justified" | "not_justified" | "unclear";
+  /**
+   * @maxItems 12
+   */
+  missing_facts:
+    | []
+    | [string]
+    | [string, string]
+    | [string, string, string]
+    | [string, string, string, string]
+    | [string, string, string, string, string]
+    | [string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string]
+    | [string, string, string, string, string, string, string, string, string, string, string, string];
+  obligation_id: string | null;
+  reason: string;
+  /**
+   * @maxItems 20
+   */
+  references:
+    | []
+    | [DisputeReference]
+    | [DisputeReference, DisputeReference]
+    | [DisputeReference, DisputeReference, DisputeReference]
+    | [DisputeReference, DisputeReference, DisputeReference, DisputeReference]
+    | [DisputeReference, DisputeReference, DisputeReference, DisputeReference, DisputeReference]
+    | [DisputeReference, DisputeReference, DisputeReference, DisputeReference, DisputeReference, DisputeReference]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ]
+    | [
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference,
+        DisputeReference
+      ];
+}
+export interface DisputeReference {
+  artifact_id: string;
+  locator: string;
+  sha256: string;
+  value: string;
+  version: number;
+}
+export interface DisputeValidation {
+  reasons: string[];
+  status: "SUPPORTED" | "ADVISORY" | "INVALID" | "FAILED" | "STALE";
+}
 export interface IntakeDraft {
   acceptance_digest?: string | null;
   created_at: string;
@@ -285,13 +600,6 @@ export interface HumanTask {
   reason: string;
   resolved_at?: string | null;
   state?: "OPEN" | "RESOLVED";
-}
-export interface ProposalBinding {
-  delivery_version: number;
-  evidence_version: number;
-  order_id: string;
-  proposal_version: number;
-  snapshot_id: string;
 }
 export interface IntentMessage {
   actor_id: string;

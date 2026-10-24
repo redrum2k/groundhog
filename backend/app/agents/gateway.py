@@ -9,6 +9,8 @@ from typing import Protocol, TypeVar
 import anthropic
 from pydantic import BaseModel, ValidationError
 
+from app.agents.bounded_client import BoundedClient
+from app.agents.budget import BudgetExceeded
 from app.contracts.catalog import (
     Assessment,
     CompilerOutput,
@@ -18,6 +20,7 @@ from app.contracts.catalog import (
     Span,
 )
 from app.contracts.dataset import DatasetReference
+from app.contracts.dataset_intake import DatasetIntakeProposal
 from app.contracts.models import Contract, Text
 
 T = TypeVar("T", bound=BaseModel)
@@ -66,7 +69,7 @@ class ClaudeGateway:
         self.model = model or os.getenv("CLAUDE_MODEL")
         if not self.model:
             raise ModelFailure("CLAUDE_MODEL must name a structured-output capable model.")
-        self.client = client or anthropic.Anthropic(timeout=MODEL_TIMEOUT_SECONDS, max_retries=0)
+        self.client = client or BoundedClient(purpose="catalog")
 
     def parse(self, schema: type[T], instruction: str, payload: dict) -> T:
         started = monotonic()
@@ -110,6 +113,10 @@ class ClaudeGateway:
             )
 
     def compile(self, context: PrecontractContext) -> CompilerOutput:
+        if context.draft.corpus_id.endswith("aggregate-v1"):
+            raise ModelFailure(
+                "Aggregate intake requires interpret_dataset, not storage-catalog prompts."
+            )
         output = self.parse(
             CompilerOutput,
             "Draft bounded storage-catalog requirements or one material clarification. "
@@ -120,6 +127,49 @@ class ClaudeGateway:
         if output.terms and output.terms.corpus_id != context.draft.corpus_id:
             raise ModelFailure("Compiler changed selected corpus")
         return output
+
+    def interpret_dataset(self, context: PrecontractContext) -> DatasetIntakeProposal:
+        """Genuine bounded semantic proposal. Server builds and validates all terms."""
+        try:
+            proposal = self.parse(
+                DatasetIntakeProposal,
+                "Interpret this aggregate-data buyer conversation, especially its latest answer. "
+                "This is NOT a supplier catalog or PDF task. Available products are a UNION "
+                "of gym membership OR fitness-app use, optionally explicitly including standalone "
+                "yoga. Gym-only/app-only/yoga-only/intersection-only products are unavailable. "
+                "Never reinterpret a narrow request as consent to a broader product. "
+                "Supported scope is synthetic adults 25-34, selected registered city, by ZIP, "
+                "CSV/JSON, suppression 50; no individual records or invented source. "
+                "Return requested_scope (the proposed product option, not accepted terms), an "
+                "EXACT quote from buyer text, explanation, and at most ONE context-sensitive "
+                "clarification when ambiguous, with clarification_field cohort or category. "
+                "Interpret paraphrases, corrections and negation in their question context. "
+                "Explain unavailable scope rather than promising it. Do not repeat prior "
+                "questions. No contract acceptance, deadline, pricing or payment authority.",
+                {
+                    "policy": "aggregate-brokerage-v1",
+                    "draft": context.draft.model_dump(mode="json"),
+                    "allowed_products": ["gym_or_fitness_app", "gym_app_or_yoga"],
+                    "source_pins": [
+                        {
+                            "source_id": s.source_id,
+                            "version": s.version,
+                            "sha256": s.artifact.sha256,
+                        }
+                        for s in context.sources
+                    ],
+                },
+            )
+        except BudgetExceeded as error:
+            raise ModelFailure(
+                "Dataset intake unavailable: budget/window authorization denied."
+            ) from error
+        buyer_text = [context.draft.prompt, *(a.text for a in context.draft.answers)]
+        if not any(proposal.evidence_quote in text for text in buyer_text):
+            raise ModelFailure("Dataset intent quote is not grounded in the buyer conversation.")
+        if proposal.clarification and proposal.clarification.count("?") > 1:
+            raise ModelFailure("Dataset intake may ask only one material clarification at a time.")
+        return proposal
 
     def assess_obligation(self, requirement, claim, evidence_bundle):
         result = self.parse(

@@ -1,5 +1,7 @@
 # Coding-agent instructions
 
+Current local semantic follow-up state and limitations: [HANDOFF.md](HANDOFF.md).
+
 ## Aggregate brokerage is the primary product
 
 Follow HACK.md (`aggregate-brokerage-v1`) and docs/workstreams/06-data-broker.md.

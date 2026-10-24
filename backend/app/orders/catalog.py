@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from app.agents.compiler import OfflineCompiler
 from app.agents.dataset import compile_dataset
-from app.agents.gateway import ModelFailure
+from app.agents.gateway import ClaudeGateway, ModelFailure
 from app.catalog.amendments import assess_amendment
 from app.catalog.artifacts import ArtifactStore
 from app.catalog.documents import extract_source, produce
@@ -76,7 +76,9 @@ class CatalogService(DatasetLifecycle):
         self.store = ArtifactStore(artifact_root)
         self.registry = SourceRegistry(repository, self.store)
         self.compiler = compiler or OfflineCompiler()
-        self.dataset_compiler = compiler
+        # Claude has a distinct structured aggregate-intent path. Offline catalog
+        # prompts must never replace the deterministic aggregate consent gates.
+        self.dataset_compiler = None if isinstance(compiler, OfflineCompiler) else compiler
         self.investigator = CatalogInvestigator(assessor)
         self.policy = Policy()
         self.auto_mock_funding = auto_mock_funding
@@ -177,11 +179,19 @@ class CatalogService(DatasetLifecycle):
             dataset = draft.corpus_id.endswith("aggregate-v1")
             if dataset:
                 context = PrecontractContext(draft=draft, sources=sources)
-                result = (
-                    self.dataset_compiler.compile(context)
-                    if self.dataset_compiler
-                    else compile_dataset(context, self.store)
-                )
+                if isinstance(self.dataset_compiler, ClaudeGateway):
+                    proposal = self.dataset_compiler.interpret_dataset(context)
+                    with self.repository.transaction() as db:
+                        self.repository.put(
+                            db, "dataset_intake", f"{request_id}:{reserved_revision}", proposal
+                        )
+                    result = compile_dataset(context, self.store, proposal=proposal)
+                else:
+                    result = (
+                        self.dataset_compiler.compile(context)
+                        if self.dataset_compiler
+                        else compile_dataset(context, self.store)
+                    )
                 if result.terms and not isinstance(result.terms, DatasetSpecification):
                     raise ValueError("aggregate intake requires a versioned dataset specification")
             else:
@@ -239,6 +249,7 @@ class CatalogService(DatasetLifecycle):
                     )
                 else:
                     current.question = result.question
+                    current.question_history = (*current.question_history, result.question)
                     current.questions_asked += 1
                     current.status = "clarification"
             else:
