@@ -22,7 +22,7 @@ Tracks: Hyphenate (order-to-cash finance seat), Coinbase (x402 payments, visible
 
 ## The demo story
 
-- Us: **Datum Co.**, a data broker. Builds custom datasets from rented vendor data, so every rerun
+- Us: **DataPact**, a data broker. Builds custom datasets from rented vendor data, so every rerun
   costs us a license fee plus compute.
 - Customer: **Acme Fitness's buying agent** (an agent, not a person).
 - Controller: **Maya**.

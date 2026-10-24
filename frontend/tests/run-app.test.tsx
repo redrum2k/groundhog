@@ -19,6 +19,8 @@ const exact = (name: string) => new RegExp(`^${name.replace(/[.*+?^${}()|[\]\\]/
 const button = (name: string | RegExp) => screen.getByRole("button", { name: typeof name === "string" ? exact(name) : name });
 const panel = () => document.querySelector(".panel .panel-t")?.textContent;
 const disabled = (name: string) => (button(name) as HTMLButtonElement).disabled;
+/** Done: Play/Pause is gone and Replay is the only way on. */
+const finished = () => !screen.queryByRole("button", { name: /^(Play|Pause)$/ }) && !!screen.queryByRole("button", { name: exact("Replay") });
 
 describe("run screen", () => {
   it("opens on No dispute, paused, with a Play button", () => {
@@ -46,8 +48,7 @@ describe("Our fault", () => {
     await until(() => panel() === "Captured");
     await until(() => !!document.querySelector(".books .margin")); // the books post a beat after the step opens
     expect(document.querySelector(".books .margin")?.textContent).toMatch(/Margin \$108\.00/);
-    await until(() => !!screen.queryByRole("button", { name: "Done" }));
-    expect(disabled("Done")).toBe(true);
+    await until(finished);
     expect(caption()).toMatch(/\$6 rerun is booked as our cost/);
   }, 30_000);
 });
@@ -60,16 +61,16 @@ describe("Grey area", () => {
     expect(disabled("Waiting on Maya")).toBe(true);
     expect(panel()).toBe("Maya decides");
     expect(screen.getByText(/Should yoga studio members count as fitness/)).toBeTruthy();
-    for (const name of ["Yoga counts · rerun free", "No · offer $30", "Ask Acme for more", "Send to CFO"]) expect(disabled(name)).toBe(false);
+    for (const name of ["Yoga counts, rerun free", "No, offer $30", "Ask Acme for more", "Send to CFO"]) expect(disabled(name)).toBe(false);
 
-    await act(async () => { button("Yoga counts · rerun free").click(); });
+    await act(async () => { button("Yoga counts, rerun free").click(); });
     await until(() => !!screen.queryByRole("button", { name: "Replay yoga with the new rule" }));
     expect(caption()).toMatch(/\$120 captured/);
-    expect(document.querySelector(".ev-rule")?.textContent).toMatch(/Learned · yoga counts/);
+    expect(document.querySelector(".ev-rule")?.textContent).toMatch(/Learned yoga counts/);
 
     await act(async () => { button("Replay yoga with the new rule").click(); });
     await until(() => !!screen.queryByText("Covered"));
-    await until(() => !!screen.queryByRole("button", { name: "Done" }));
+    await until(finished);
     expect(screen.queryByRole("button", { name: "Waiting on Maya" })).toBeNull();
     expect(document.querySelector(".cap-step")?.textContent).toBe("10/10"); // 5 steps, 3 detour steps, 2 revisits
   }, 60_000);

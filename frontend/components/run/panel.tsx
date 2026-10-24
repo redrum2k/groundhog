@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { Binding, ContractLine, ControllerAction, Delivery, Evidence, Message, Source, Step, ZipCount } from "../../lib/run/contract";
 import { bindingFor, type NodeState, type View } from "../../lib/run/fold";
 import { CONTRACT, CONTRACT_V2, S, type Case, type Ending } from "../../lib/run/scenario";
 import TodoList, { type ChecklistItem } from "./checklist";
-import { IcCheck, IcChevronRight, IcLock, IcX } from "./icons";
+import { IcCheck, IcChevronRight, IcLens, IcLock, IcX } from "./icons";
+import Label from "./label";
 
 // One right-side panel holds every step's detail. It renders whatever the event stream attached
 // to the step, so there is no per-step layout to keep in sync with the backend.
@@ -13,15 +14,27 @@ export type Decide = (action: ControllerAction, binding: Binding) => Promise<str
 type Hl = { msg?: string; row?: string; tab?: "interview" };
 
 function CiteChip({ e, onCite }: { e: Evidence; onCite: (s: Source) => void }) {
-  return <button className="cite" onClick={() => onCite(e.source)}>{e.label}<IcChevronRight size={11} strokeWidth={1.8} /></button>;
+  return <button className="cite" onClick={() => onCite(e.source)}><Label text={e.label} /><IcChevronRight size={11} strokeWidth={1.8} /></button>;
 }
 
 function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View; highlight?: string; onCite: (s: Source) => void }) {
+  const box = useRef<HTMLDivElement>(null);
+  const seen = useRef(items.length);
+  // A new message glides into view, unless the viewer has scrolled up to reread earlier ones
+  useEffect(() => {
+    const added = items.length > seen.current;
+    seen.current = items.length;
+    const last = box.current?.lastElementChild as HTMLElement | null | undefined;
+    const pane = box.current?.closest(".panel-b, .customer");
+    if (!added || !last || !pane) return;
+    if (pane.scrollHeight - pane.scrollTop - pane.clientHeight - last.offsetHeight > 160) return;
+    last.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+  }, [items.length]);
   return (
-    <div className="chat">
+    <div className="chat" ref={box}>
       {items.map((m) => (
         <div key={m.id} id={`msg-${m.id}`} className={`bub b-${m.from}${highlight === m.id ? " flash" : ""}`}>
-          <span className="bub-who">{m.from === "buyer" ? S.buyerAgent : m.from === "controller" ? `${S.controller} · ${S.controllerRole}` : S.agent}</span>
+          <span className="bub-who">{m.from === "buyer" ? S.buyerAgent : m.from === "controller" ? <Label text={`${S.controller} · ${S.controllerRole}`} quiet="tail" /> : S.agent}</span>
           <div className="bub-text">
             {m.text}
             {m.attach?.map((a, i) => a.kind === "evidence" && view.evidence[a.evidenceId] ? <span key={i}> <CiteChip e={view.evidence[a.evidenceId]} onCite={onCite} /></span> : null)}
@@ -32,9 +45,27 @@ function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View
   );
 }
 
-function Sheet({ rows, highlight, note }: { rows: ZipCount[]; highlight?: string; note?: string }) {
+/** `lens` puts the orb's magnifier on the sheet: it sweeps the delivered rows, then rests on `row` once evidence names one. */
+function Sheet({ rows, highlight, note, lens }: { rows: ZipCount[]; highlight?: string; note?: string; lens?: { row?: string } }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [at, setAt] = useState<{ y0: number; y1: number; y: number; h: number } | null>(null);
+  const lensOn = !!lens, lensRow = lens?.row;
+  useLayoutEffect(() => {
+    const el = box.current;
+    if (!lensOn || !el) { setAt(null); return; }
+    const top = el.getBoundingClientRect().top;
+    const y = (r: Element | null) => (r ? r.getBoundingClientRect().top - top : 0);
+    const delivered = el.querySelectorAll("tbody tr:not(.f-missing)");
+    setAt({ y0: y(delivered[0]), y1: y(delivered[delivered.length - 1]), y: y(lensRow ? el.querySelector(`#row-${lensRow}`) : null), h: delivered[0]?.getBoundingClientRect().height ?? 0 });
+  }, [lensOn, lensRow, rows.length]);
   return (
-    <div className="sheet">
+    <div className="sheet" ref={box}>
+      {lens && at && (
+        <div className={`sheet-lens${lensRow ? "" : " scan"}`} aria-hidden
+          style={{ height: at.h, "--y0": `${at.y0}px`, "--y1": `${at.y1}px`, "--y": `${lensRow ? at.y : at.y0}px` } as CSSProperties}>
+          <IcLens size={15} strokeWidth={1.7} />
+        </div>
+      )}
       <div className="sheet-h"><span>Delivered sheet</span>{note && <span className="faint">{note}</span>}</div>
       <table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
@@ -67,7 +98,7 @@ function Contract({ view, extra }: { view: View; extra?: ContractLine }) {
   const lines = [...c.lines, ...(extra ? [extra] : [])];
   return (
     <div className="contract">
-      <div className="contract-h"><span>Data contract v{c.version}</span><span className="faint">${c.price} · approved by {S.buyerAgent}</span></div>
+      <div className="contract-h"><span>Data contract v{c.version}</span><span className="faint">${c.price}, approved by {S.buyerAgent}</span></div>
       <ol>{lines.map((l, i) => <li key={l.id} className={i >= CONTRACT.length ? "new" : ""}><IcCheck size={13} strokeWidth={2.2} /><span>{l.text}</span><span className="faint mono">line {i + 1}</span></li>)}</ol>
     </div>
   );
@@ -123,9 +154,9 @@ function Checks({ node, view }: { node: NodeState; view: View }) {
   );
 }
 
-const ACTIONS: [ControllerAction, string][] = [["approve", "Yoga counts · rerun free"], ["reject", `No · offer $${S.yoga}`], ["ask", "Ask Acme for more"], ["escalate", "Send to CFO"]];
+const ACTIONS: [ControllerAction, string][] = [["approve", "Yoga counts, rerun free"], ["reject", `No, offer $${S.yoga}`], ["ask", "Ask Acme for more"], ["escalate", "Send to CFO"]];
 // The live backend's controller can resume or hold; the other two are not commands it has
-const LIVE_ACTIONS: [ControllerAction, string][] = [["approve", "Resume · evidence holds up"], ["reject", "Hold · keep the payment held"]];
+const LIVE_ACTIONS: [ControllerAction, string][] = [["approve", "Resume, evidence holds up"], ["reject", "Hold the payment"]];
 function Review({ node, view, decide, onCite, live }: { node: NodeState; view: View; decide: Decide; onCite: (s: Source) => void; live?: boolean }) {
   const [busy, setBusy] = useState<ControllerAction | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -137,7 +168,7 @@ function Review({ node, view, decide, onCite, live }: { node: NodeState; view: V
   };
   return (
     <div className="review">
-      <div className="review-tag"><IcLock size={11} strokeWidth={2} /> Needs your decision · records don't settle it</div>
+      <div className="review-tag"><IcLock size={11} strokeWidth={2} /> <Label text="Needs your decision · records don't settle it" quiet="tail" /></div>
       <p className="review-q">{question?.text}</p>
       <p className="faint" style={{ margin: "0 0 12px" }}>{live ? "Resume re-checks the delivery against the accepted sources; hold keeps the payment held until new evidence or an accepted amendment." : `Counting them adds about 9% more people. If yes, we rerun free and the contract becomes v2 so this is automatic next time. If no, we offer a $${S.yoga} amendment.`}</p>
       <div className="review-ev">
@@ -191,15 +222,17 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
       const d = view.deliveries[view.deliveries.length - 1];
       const held = d?.rows.filter((r) => r.flag === "withheld").length ?? 0;
       content = (<div className="pay"><div>Delivered to {S.buyerAgent}: {d?.rows.length ?? 0} ZIPs, {held} withheld for privacy.</div>
-        {d?.reviewClosesAt && <div className="deadline">Review window closes <b>{new Date(d.reviewClosesAt).toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" })}</b> <span className="faint">· server time</span></div>}</div>);
+        {d?.reviewClosesAt && <div className="deadline">Review window closes <b>{new Date(d.reviewClosesAt).toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" })}</b> <span className="faint">server time</span></div>}</div>);
       break;
     }
     case "captured": content = <Books node={node} />; break;
     case "investigate": case "verdict": case "grey": {
       const msgs = investigate?.messages ?? [];
+      const cited = investigate?.evidence.find((e): e is Extract<Evidence, { kind: "sheet_cell" }> => e.kind === "sheet_cell");
+      const lens = step.kind === "investigate" && investigate && (investigate.status === "running" || cited) ? { row: cited?.row } : undefined;
       content = (<>
         <Chat items={msgs} view={view} highlight={hl.msg} onCite={onCite} />
-        {lane === "amber" && learned ? <Contract view={view} /> : <Sheet rows={sheetRows(view, investigate ?? node)} highlight={hl.row}
+        {lane === "amber" && learned ? <Contract view={view} /> : <Sheet rows={sheetRows(view, investigate ?? node)} highlight={hl.row} lens={lens}
           note={lane === "red" ? (rerunDone ? "94110 added" : "as delivered") : lane === "green" ? "SF only, as agreed" : "fitness = gyms + apps"} />}
       </>);
       break;
@@ -224,9 +257,18 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
   return <>{content}</>;
 }
 
-export default function Panel(p: BodyProps & { onClose: () => void }) {
+export default function Panel(p: BodyProps & { onClose: () => void; closing?: boolean; onClosed?: () => void }) {
+  const el = useRef<HTMLElement>(null);
+  // Gone once its exit transition finishes; with none running (reduced motion, tests) at once
+  useEffect(() => {
+    if (!p.closing) return;
+    let live = true;
+    Promise.all((el.current?.getAnimations?.() ?? []).map((a) => a.finished)).then(() => { if (live) p.onClosed?.(); }, () => {});
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p.closing]);
   return (
-    <aside className="panel" key={p.step.id} aria-label={`${p.step.title} details`}>
+    <aside ref={el} className={`panel${p.closing ? " closing" : ""}`} key={p.step.id} aria-label={`${p.step.title} details`}>
       <div className="panel-h">
         <div><div className="panel-t">{p.step.title}</div><div className="faint" style={{ fontSize: 12.5 }}>{p.step.detail}</div></div>
         <button className="sq" aria-label="Close" onClick={p.onClose}><IcX size={15} strokeWidth={1.5} /></button>

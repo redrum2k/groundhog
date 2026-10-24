@@ -8,7 +8,7 @@ import Canvas, { type CanvasView, type CNode } from "./canvas";
 import { IcLogo, IcPause, IcPlay, IcReplay } from "./icons";
 import Panel, { PanelBody } from "./panel";
 
-// Datum Co.'s run screen. The canvas only ever sees the fold of events so far, so recorded
+// DataPact's run screen. The canvas only ever sees the fold of events so far, so recorded
 // playback and the live poll are interchangeable feeds.
 
 type Mode = "recorded" | "live";
@@ -87,9 +87,11 @@ export default function RunApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.orb.step, status]);
 
+  const [recenter, setRecenter] = useState(0);
+  const follow = () => setRecenter((n) => n + 1);
   const start = (c: Case, opts: { learned?: boolean; ending?: Ending; mode?: Mode; autoplay?: boolean } = {}) => {
     const e = opts.ending ?? ending, l = opts.learned ?? false, m = opts.mode ?? mode;
-    setRun(c); setZoom(true); setPanel(null); setLearned(l); setEnding(e);
+    setRun(c); setZoom(true); setPanel(null); setLearned(l); setEnding(e); follow();
     const ctx = ctxFor(c, e, l);
     if (m === "live" && !l) setFeed({ kind: "live", api: LIVE_API, body: { case: c }, before: [], ctx });
     else setFeed({ kind: "recorded", ...timeline(c, e, l), autoplay: opts.autoplay ?? true, ctx });
@@ -110,31 +112,35 @@ export default function RunApp() {
   const replayLearned = () => start("amber", { learned: true, ending: "maya", mode: "recorded" });
 
   const panelStep = panel ? stepOf(panel.id) : undefined;
+  // The last panel stays mounted while it slides out, then Panel reports it gone
+  const [shown, setShown] = useState(panelStep);
+  if (panelStep && panelStep !== shown) setShown(panelStep);
+  const offerLearned = run === "amber" && ending === "maya" && !learned && done;
   const caption = zoom ? (view.caption || (status === "idle" ? "Press play to run this case." : "")) : S.positioning;
   const bodyProps = { view, lane: run, ending, learned, done, live: playback.live, decide: playback.decide, onReplayLearned: replayLearned };
 
   return (
     <div className="shell">
       <header className="top">
-        <div className="brand">
-          <IcLogo className="logo" />
-          <div>
-            <div className="title">Order {S.orderNo} <span className="faint">· {S.buyer}</span></div>
-            <div className="seatline">{S.seat} · {S.us}</div>
-          </div>
-        </div>
-        <div className="seg tabs" role="tablist">
+        <div className="brand"><IcLogo className="logo" size={22} /><div><div className="wordmark">{S.us}</div><div className="seat">{S.seat}</div></div></div>
+        <div className="tabs" role="tablist">
           <button role="tab" aria-selected={tab === "run"} className={tab === "run" ? "on" : ""} onClick={() => setTab("run")}>Run</button>
           <button role="tab" aria-selected={tab === "customer"} className={tab === "customer" ? "on" : ""} onClick={() => setTab("customer")}>Customer view</button>
         </div>
         <div className="top-r">
           {zoom && !learned && (
-            <div className="seg" aria-label="Feed">
+            <div className="seg quiet" aria-label="Feed">
               <button className={mode === "recorded" ? "on" : ""} onClick={() => { setMode("recorded"); start(run, { mode: "recorded" }); }}>Recorded</button>
               <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start(run, { mode: "live" }); }}>Live</button>
             </div>
           )}
-          <span className="tag">{playback.live ? "Live backend · synthetic data · mock payments" : "Sample run · synthetic data · mock payments"}</span>
+          {/* the disclosure both feeds share; mock payments are labeled where the money shows */}
+          <span className="note">Synthetic data</span>
+          {/* who this order is for; "Customer" keeps it from reading as the signed-in account */}
+          <div className="account">
+            <span className="avatar" aria-hidden>{S.buyer.split(" ").map((w) => w[0]).join("")}</span>
+            <div><div className="account-n">{S.buyer}</div><div className="account-r">Customer</div></div>
+          </div>
         </div>
       </header>
 
@@ -148,7 +154,7 @@ export default function RunApp() {
         {(run === "amber" || !zoom) && (
           <div className="ending">
             <span className="faint">Grey area ending</span>
-            <div className="seg">
+            <div className="seg quiet">
               {ENDINGS.map(([e, label]) => <button key={e} className={ending === e ? "on" : ""} onClick={() => (zoom ? start("amber", { ending: e }) : setEnding(e))}>{label}</button>)}
             </div>
           </div>
@@ -157,12 +163,13 @@ export default function RunApp() {
         {status === "error" && <span className="tools-err" role="alert">{playback.error}</span>}
         {zoom && (
           <>
-            <button className="btn" onClick={() => start(run, { learned, ending })}><IcReplay size={14} strokeWidth={1.6} />Replay</button>
-            {run === "amber" && ending === "maya" && !learned && done ? (
+            {/* once the run is done, Replay is the only next step, so it becomes the primary */}
+            <button className={`btn${done && !offerLearned ? " solid" : ""}`} onClick={() => start(run, { learned, ending })}><IcReplay size={14} strokeWidth={1.6} />Replay</button>
+            {offerLearned ? (
               <button className="btn solid" onClick={replayLearned}><IcReplay size={14} strokeWidth={1.6} />Replay yoga with the new rule</button>
-            ) : (
-              <button className="btn solid" disabled={done || waiting || playback.live} onClick={() => (playing ? playback.pause() : playback.play())}>
-                {playing ? <IcPause size={14} strokeWidth={1.8} /> : <IcPlay size={14} strokeWidth={1.8} />}{playing ? "Pause" : done ? "Done" : waiting ? `Waiting on ${S.controller}` : "Play"}
+            ) : !done && (
+              <button className="btn solid" disabled={waiting || playback.live} onClick={() => { if (playing) playback.pause(); else { follow(); playback.play(); } }}>
+                {playing ? <IcPause size={14} strokeWidth={1.8} /> : <IcPlay size={14} strokeWidth={1.8} />}{playing ? "Pause" : waiting ? `Waiting on ${S.controller}` : "Play"}
               </button>
             )}
           </>
@@ -175,7 +182,7 @@ export default function RunApp() {
           <Canvas
             nodes={zoom ? nodes : overview!.nodes} view={zoom ? cv : overview!.view}
             focus={zoom ? { kind: "follow" } : { kind: "overview" }}
-            panelOpen={!!panelStep} onNode={onNode} quiet={!zoom}
+            panelOpen={!!panelStep} onNode={onNode} quiet={!zoom} recenter={recenter}
             overlay={
               <div className={`caption${panelStep ? " shifted" : ""}`} aria-live="polite">
                 {zoom && <span className="cap-step">{view.started}/{total}</span>}
@@ -183,7 +190,7 @@ export default function RunApp() {
               </div>
             }
           />
-          {panelStep && <Panel key={panelStep.id + (learned ? "L" : "")} step={panelStep} {...bodyProps} onClose={() => setPanel(null)} />}
+          {shown && <Panel key={shown.id + (learned ? "L" : "")} step={shown} {...bodyProps} closing={!panelStep} onClose={() => setPanel(null)} onClosed={() => setShown(undefined)} />}
         </main>
       ) : (
         <Customer run={zoom ? run : "shared"} steps={steps} view={view} bodyProps={bodyProps} />
