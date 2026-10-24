@@ -15,6 +15,7 @@ from app.contracts.jobflow import (
     InvestigationOutcome,
     OrderView,
     Question,
+    SourceLocation,
 )
 from app.investigation.documents import DocumentError, cite, validate_citation
 
@@ -31,7 +32,7 @@ class Interpretation(BaseModel):
     model_config = ConfigDict(extra="forbid")
     summary: str = Field(min_length=1, max_length=1600)
     findings: list[Finding] = Field(min_length=1, max_length=8)
-    recommendation: Literal["INCLUDED_FIELD", "QUOTE", "HUMAN_REVIEW"]
+    recommendation: Literal["INCLUDED_FIELD", "QUOTE", "HUMAN_REVIEW", "NO_REMEDY"]
     question: str | None = Field(default=None, max_length=600)
 
 
@@ -122,6 +123,38 @@ def _question(issue_id: str, text: str, recipient: str = "customer", basis: str 
     return Question(id=f"question-{digest}", issue_id=issue_id, text=text, recipient=recipient)
 
 
+def _delivered_field(order: OrderView, issue, sources: list[Evidence]) -> list[SourceLocation]:
+    references = []
+    if not issue.job_ids:
+        return references
+    for job_id in issue.job_ids:
+        job = next((j for j in order.jobs if j.id == job_id), None)
+        if job is None or job.processing != "VALIDATED":
+            return []
+        source = next((s for s in sources if s.id == job.source_id), None)
+        artifact = next((s for s in sources if s.id == job.artifact_id), None)
+        if source is None or artifact is None or source.authority != "COMPANY_RECORD":
+            return []
+        matches = re.findall(r"^" + re.escape(issue.field) + r": ([^\n]+)$", source.text, re.M)
+        if len(matches) != 1 or artifact.media_type != "application/json":
+            return []
+        try:
+            output = json.loads(artifact.text)
+            correct = (
+                output["source_id"] == source.id
+                and output["source_sha256"] == source.sha256
+                and output["fields"][issue.field] == matches[0]
+            )
+        except (ValueError, KeyError, TypeError):
+            return []
+        if not correct:
+            return []
+        references.extend(
+            [cite(source, f"{issue.field}: {matches[0]}"), cite(artifact, artifact.text)]
+        )
+    return references
+
+
 def assess(order: OrderView, issue_id: str, *, now: datetime | None = None) -> InvestigationOutcome:
     issue = next((x for x in order.issues if x.id == issue_id), None)
     if issue is None:
@@ -175,6 +208,11 @@ def assess(order: OrderView, issue_id: str, *, now: datetime | None = None) -> I
         if supported_inclusion:
             summary = f"{label.capitalize()} is included in the operative accepted scope."
             recommendations = ["INCLUDED_FIELD"]
+            delivery_references = _delivered_field(order, issue, sources)
+            if delivery_references:
+                summary = f"{label.capitalize()} is already delivered correctly against the source."
+                recommendations = ["NO_REMEDY"]
+                references.extend(delivery_references)
             findings.append(
                 Finding(
                     id=f"{issue_id}-scope",

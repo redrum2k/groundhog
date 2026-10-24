@@ -168,7 +168,7 @@ class Issue(Model):
 
 class Action(Model):
     id: Identifier
-    kind: Literal["CORRECT", "QUOTE", "INCLUDED_FIELD", "CONCESSION", "HUMAN_REVIEW"]
+    kind: Literal["CORRECT", "QUOTE", "INCLUDED_FIELD", "CONCESSION", "HUMAN_REVIEW", "NO_REMEDY"]
     issue_id: str | None = None
     job_ids: list[str] = Field(default_factory=list)
     fields: list[str] = Field(default_factory=list)
@@ -396,7 +396,7 @@ class InvestigationOutcome(Model):
     revision: Revision
     findings: list[Finding]
     questions: list[Question]
-    recommendations: list[Literal["INCLUDED_FIELD", "QUOTE", "HUMAN_REVIEW"]]
+    recommendations: list[Literal["INCLUDED_FIELD", "QUOTE", "HUMAN_REVIEW", "NO_REMEDY"]]
     summary: str
     model_mode: Literal["DETERMINISTIC", "ANTHROPIC"]
     input_tokens: int = 0

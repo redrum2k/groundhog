@@ -85,6 +85,10 @@ immutable metadata. Only supplied case sources enter the model; exact cited text
 and version are checked before persistence. Runtime creates Action proposals itself
 from validated findings; a model recommendation cannot establish authority.
 
+`NO_REMEDY` is available when the disputed required field is already correct against
+the exact input and delivery lineage. It closes only that issue after independent
+approval/execution; it never authorizes payment, another generation, or a new charge.
+
 ## UI projection
 
 An active dispute is orange, with a failure badge if processing also failed.

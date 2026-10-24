@@ -1,11 +1,12 @@
 import asyncio
 import hashlib
+import json
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import pytest
 
-from app.contracts.jobflow import Agreement, Amendment, Evidence, Issue, Message, OrderView
+from app.contracts.jobflow import Agreement, Amendment, Evidence, Issue, Job, Message, OrderView
 from app.investigation.documents import (
     DocumentError,
     cite,
@@ -88,6 +89,40 @@ def test_included_field_has_exact_current_source_proof():
     assert outcome.recommendations == ["INCLUDED_FIELD"]
     assert not outcome.questions
     validate_citation(current.evidence, outcome.findings[0].citations[0])
+
+
+def test_already_correct_disputed_field_does_not_trigger_more_work_or_money():
+    current = order(included=True)
+    original = source("input", "due_date: 2026-11-30", "source", "COMPANY_RECORD")
+    output = source(
+        "output",
+        json.dumps(
+            {
+                "source_id": original.id,
+                "source_sha256": original.sha256,
+                "fields": {"due_date": "2026-11-30"},
+            }
+        ),
+        "artifact",
+        "COMPANY_RECORD",
+    )
+    output.media_type = "application/json"
+    current.evidence.extend([original, output])
+    current.jobs.append(
+        Job(
+            id="job-1",
+            label="Invoice 1",
+            processing="VALIDATED",
+            source_id="input",
+            artifact_id="output",
+            fields=["due_date"],
+        )
+    )
+    current.issues[0].job_ids = ["job-1"]
+    assert assess(current, "issue-1").recommendations == ["NO_REMEDY"]
+    assert current.finance.received_minor == 0
+    output.text = output.text.replace("2026-11-30", "2026-12-01")
+    assert assess(current, "issue-1").recommendations == ["INCLUDED_FIELD"]
 
 
 def test_kickoff_request_is_not_accepted_amendment():
