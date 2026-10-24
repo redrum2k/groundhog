@@ -1,6 +1,6 @@
 // Folds one case's event stream into what the canvas and panel show. Pure, so the recorded
 // scenario and the live poll go through the same function.
-import type {
+import type { SourceLine,
   Amendment, Binding, ContractLine, ControllerAction, DataContract, Delivery, Dispute, Evidence, JournalEntry, Margin, Message, Payment,
   RuleUpdate, RunEvent, Step, Verdict,
 } from "./contract";
@@ -31,6 +31,7 @@ export interface NodeState {
   entries?: JournalEntry[];
   margin?: Margin;
   allowedBy: string[];
+  source?: SourceLine[]; // what the agent read at the source while investigating
 }
 export interface Card { id: string; node: string; text: string; tone: "ev" | "rule" | "claim" }
 export interface Coin { text: string; locked?: boolean; done?: boolean }
@@ -54,6 +55,7 @@ export interface View {
   reviewWindow?: string; // from the server's review deadline, when a live stream sets one
   lastSeq: number;
   binding?: Binding;
+  aside?: { step: string; text: string }; // the orb's thought at a step
 }
 export interface FoldContext { lane: Case; ending: Ending; learned: boolean; contract: DataContract; live?: boolean }
 
@@ -99,6 +101,8 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     return v;
   }
   if (e.type === "caption") { v.caption = e.text; return v; }
+  if (e.type === "source_checked") { const n = v.nodes[e.step]; if (n) n.source = e.lines; return v; }
+  if (e.type === "aside") { v.aside = { step: e.step, text: e.text }; return v; }
   if (e.type === "payment_authorized") { v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment]; v.coin = coinFor(v); return v; }
   if (e.type === "payment_captured") { v.captured[e.paymentId] = e.captureTx; v.coin = coinFor(v); return v; }
   if (e.type === "payment_state_changed") {

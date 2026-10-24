@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
-import type { LaneId } from "../../lib/run/contract";
+import type { LaneId, SourceLine } from "../../lib/run/contract";
 import type { Card, Coin, NS, OrbMode } from "../../lib/run/fold";
 import { LANE_NAME } from "../../lib/run/scenario";
-import { IcCheck, IcCoin, IcLock } from "./icons";
+import { IcCheck, IcCoin, IcLock, IcScroll } from "./icons";
 import Label from "./label";
 import Orb from "./orb";
 
@@ -20,12 +20,14 @@ export interface CanvasView {
   coin: Coin | null;
   loops: string[]; // lane node ids whose work was carried back to Produce
   cards: Card[];
+  source?: { node: string; lines: SourceLine[] } | null; // what the agent reads at the source during a dispute
+  aside?: { node: string; text: string } | null; // the orb's thought at a step
 }
 export type Focus = { kind: "overview" } | { kind: "follow" };
 
 export const COL_X = (c: number) => 40 + c * 240;
 export const ROW_Y = [40, 220, 390, 560];
-export const W = 180, H = 54;
+export const W = 200, H = 54;
 const cx = (n: CNode) => COL_X(n.col) + W / 2;
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 // iOS's rubber band: past an edge the world still follows, less the further it is pulled
@@ -80,8 +82,28 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const orbNode = (view.orb && byId[view.orb.node]) ?? nodes[0];
   const rows = [...new Set(nodes.map((n) => n.row))].filter((r) => r > 0);
   const maxRow = Math.max(0, ...rows);
-  const WW = COL_X(4) + W + 40;
-  const WH = ROW_Y[maxRow] + H + 110;
+  const byRow = (r: number) => nodes.filter((n) => n.row === r).sort((a, b) => a.col - b.col);
+  // Progressive reveal: a step appears when the one before it starts, the next one waits ghosted for context, the rest is not there yet
+  const revealed = new Set<string>(), next = new Set<string>();
+  for (const r of [0, ...rows]) {
+    const list = byRow(r);
+    let last = -1;
+    list.forEach((n, i) => { if (st(n.id) !== "idle") last = i; });
+    if (r === 0) last = Math.max(last, list.findIndex((n) => n.id === orbNode.id));
+    list.forEach((n, i) => { if (i <= last) revealed.add(n.id); else if (i === last + 1) next.add(n.id); });
+  }
+  const shown = nodes.filter((n) => revealed.has(n.id) || next.has(n.id));
+  // The source sits at the end of the detour row; the orb walks over while it reads
+  const srcNode = view.source ? byId[view.source.node] : undefined;
+  const source = view.source && srcNode && st(srcNode.id) !== "idle" ? { lines: view.source.lines, node: srcNode, col: byRow(srcNode.row)[byRow(srcNode.row).length - 1].col + 1 } : null;
+  const atSource = !!source && view.orb?.node === source.node.id && st(source.node.id) === "running";
+  const orbX = atSource && source ? COL_X(source.col) + 6 : COL_X(orbNode.col) + 6;
+  const orbY = ROW_Y[orbNode.row] + H + 6;
+  const WWfull = COL_X(4) + W + 40;
+  const WHfull = ROW_Y[maxRow] + H + 110;
+  // the camera frames what is shown, so the run opens close on the first step and widens as the path grows
+  const WW = Math.max(...shown.map((n) => COL_X(n.col) + W), source ? COL_X(source.col) + 330 : 0) + 40;
+  const WH = ROW_Y[Math.max(0, ...shown.map((n) => n.row))] + H + 110;
   const DOTS = 3000; // the grid extends past the world so it fills the stage at any camera position
 
   // camera
@@ -93,7 +115,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   } else {
     // never below 1.15: cards, chips and the orb stay easy to read from the back of a room; the camera pans instead
     s = clamp(Math.min((vw - 48) / WW, (size.h - 110) / WH), 1.15, 1.3);
-    tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp(vw / 2 - cx(orbNode) * s, vw - WW * s - 24, 24);
+    tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp(vw / 2 - (orbX + 14) * s, vw - WW * s - 24, 24);
     ty = WH * s <= size.h - 90 ? (size.h - 70 - WH * s) / 2 : clamp(size.h / 2 - (ROW_Y[orbNode.row] + 40) * s, size.h - WH * s - 70, 20);
   }
   const cam = free ?? { tx, ty, s };
@@ -132,8 +154,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     setFree(to.tx === tx && to.ty === ty && to.s === s ? null : to);
   };
 
-  const byRow = (r: number) => nodes.filter((n) => n.row === r).sort((a, b) => a.col - b.col);
   const pairs = (list: CNode[]) => list.slice(1).map((b, i) => [list[i], b] as const);
+  const shownPair = (a: CNode, b: CNode) => revealed.has(a.id) && (revealed.has(b.id) || next.has(b.id));
   const seq = [byRow(0), ...rows.map(byRow)].flatMap(pairs);
   const straight = (a: CNode, b: CNode) => `M${COL_X(a.col) + W} ${ROW_Y[a.row] + H / 2} H${COL_X(b.col)}`;
   const on = (a: string, b: string) => !["idle", "running", "waiting"].includes(st(a)) && st(b) !== "idle";
@@ -151,13 +173,13 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     <>
       <div className={`cv${pannable ? " pannable" : ""}${dragging ? " dragging" : ""}${free ? " free" : ""}${still ? " still" : ""}`} ref={box}
         onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
-        <div className="cv-world" ref={world} style={{ width: WW, height: WH, transform: T(cam) }}>
+        <div className="cv-world" ref={world} style={{ width: WWfull, height: WHfull, transform: T(cam) }}>
           <div className="cv-dots" style={{ inset: -DOTS }} aria-hidden />
           {rows.map((r) => {
             const lane = byRow(r)[0].lane!;
             return <div key={r} className={`band band-${lane}`} style={{ top: ROW_Y[r] - 44 }}><span className="band-label">{lane ? LANE_NAME[lane] : "Evidence review"}</span></div>;
           })}
-          <svg className="edges" width={WW} height={WH} aria-hidden>
+          <svg className="edges" width={WWfull} height={WHfull} aria-hidden>
             <defs>
               <marker id="arr" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path d="M1 1 L7 4 L1 7" fill="none" stroke="var(--blue)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
@@ -169,7 +191,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             })}
             {seq.map(([a, b]) => {
               const d = straight(a, b);
-              return <g key={a.id + b.id}><path d={d} className="edge" /><path d={d} pathLength={1} className={`edge-on${on(a.id, b.id) ? " on" : ""}`} /></g>;
+              return <g key={a.id + b.id} className={shownPair(a, b) ? undefined : "hid"}><path d={d} className="edge" /><path d={d} pathLength={1} className={`edge-on${on(a.id, b.id) ? " on" : ""}`} /></g>;
             })}
             {last && <path d={back(last)} className="edge ghost" />}
             {last && view.loops.includes(last.id) && <path key={last.id} d={back(last)} pathLength={1} className="loop" markerEnd="url(#arr)" />}
@@ -182,9 +204,10 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             const here = view.orb?.node === n.id;
             const showChip = ns !== "idle" && (!quiet || n.keepChip);
             const chip = view.chip[n.id] ?? CHIP[ns];
+            const vis = revealed.has(n.id) ? "" : next.has(n.id) ? " n-next" : " n-hidden";
             return (
-              <div key={n.id} className={`nd n-${ns}`} style={{ transform: `translate(${COL_X(n.col)}px, ${ROW_Y[n.row]}px)` }}
-                role="button" tabIndex={0} onClick={() => onNode(n.id)} onKeyDown={(e) => { if (e.key === "Enter") onNode(n.id); }} aria-label={`${n.title}, ${ns}`}>
+              <div key={n.id} className={`nd n-${ns}${vis}`} style={{ transform: `translate(${COL_X(n.col)}px, ${ROW_Y[n.row]}px)` }} aria-hidden={vis === " n-hidden" || undefined}
+                role="button" tabIndex={vis ? -1 : 0} onClick={() => onNode(n.id)} onKeyDown={(e) => { if (e.key === "Enter") onNode(n.id); }} aria-label={`${n.title}, ${ns}`}>
                 {showChip && <span key={ns + chip} className={`chip c-${ns}`}>{ns === "done" ? <IcCheck size={11} strokeWidth={2.4} /> : ns === "running" ? <i className="spin2" /> : <i className="sqd" />}<Label text={chip} quiet="tail" /></span>}
                 <span className="nd-t">{n.title}</span>
                 <span className="nd-d"><Label text={n.desc} quiet="tail" /></span>
@@ -195,9 +218,16 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             );
           })}
   
+          {source && (
+            <div className="src" style={{ transform: `translate(${COL_X(source.col)}px, ${ROW_Y[source.node.row]}px)` }}>
+              <span className="src-glyph"><IcScroll size={22} /></span>
+              <div className="src-lines">{source.lines.map((l, i) => <span key={l.id} className={`src-l${l.checked ? " ok" : ""}`} style={{ transitionDelay: `${i * 60}ms` }}>{l.checked ? <IcCheck size={11} strokeWidth={2.4} /> : <i className="spin2" />}<Label text={l.text} quiet="tail" /></span>)}</div>
+            </div>
+          )}
           {!quiet && view.orb && (
-            <div className="orb-wrap" style={{ transform: `translate(${COL_X(orbNode.col) + 6}px, ${ROW_Y[orbNode.row] + H + 6}px)` }}>
-              <Orb mode={view.orb.mode} />
+            <div className="orb-wrap" style={{ transform: `translate(${orbX}px, ${orbY}px)` }}>
+              {view.aside && view.aside.node === view.orb.node && <span className="thought">{view.aside.text}</span>}
+              <Orb mode={view.aside && view.aside.node === view.orb.node ? "happy" : view.orb.mode} />
               {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.done ? " done" : ""}`}>
                 <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : <IcCoin />}<Label text={view.coin.text} quiet="tail" /></span></span>}
             </div>
