@@ -95,9 +95,13 @@ export default function Inspector({ look, found, onFound }: { look: Look | null;
         await pause(200); if (!alive) return;
         setHolding(true); // takes out the glass
         await pause(220); if (!alive) return;
-        const trs = [...(rows?.querySelectorAll("tbody tr") ?? [])], bottom = rows?.getBoundingClientRect().bottom ?? Infinity;
-        const shown = trs.filter((r) => r.getBoundingClientRect().bottom <= bottom);
-        await go(aim(trs[0]?.querySelector(".mono"), 22), 700, true); if (!alive) return;
+        // reads the rows in view, wherever the sheet is scrolled: below its pinned column names, above its bottom edge
+        const trs = [...(rows?.querySelectorAll("tbody tr") ?? [])];
+        // the header cells are what's pinned (the thead itself scrolls away with the table)
+        const top = rows?.querySelector("th")?.getBoundingClientRect().bottom ?? -Infinity, bottom = rows?.getBoundingClientRect().bottom ?? Infinity;
+        const inView = trs.filter((r) => { const b = r.getBoundingClientRect(); return b.top >= top - 1 && b.bottom <= bottom + 1; });
+        const shown = inView.length ? inView : trs;
+        await go(aim(shown[0]?.querySelector(".mono"), 22), 700, true); if (!alive) return;
         await go(aim(shown.at(-1)?.querySelector(".mono"), 22), Math.max(800, shown.length * 150), false); if (!alive) return;
         read.current = true;
       }
