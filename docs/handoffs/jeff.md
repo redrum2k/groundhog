@@ -5,6 +5,9 @@ from affirmative consent. Test-first `2146cde` reproduces it in model and offlin
 restart paths; fix `3f90ad5` retains qualifiers. 332 focused tests pass; full backend
 is 970 pass / the exact same 16 Windows failures. See the current report.
 No paid calls or frontend changes.
+Subsequent integration `e41dd03` imports Lucas's main `34aa770` (PR #21) intact;
+frontend 120 tests, generated contracts, TypeScript and build pass again. The
+backend still exactly matches tested `3f90ad5`.
 
 See [current report](../../BROKER_RECOVERY_REMEDIATION.md): the two follow-up
 findings on `e60aa6f` have test-first reproductions and fixes at `ba79817`.

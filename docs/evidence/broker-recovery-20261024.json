@@ -1,4 +1,16 @@
 {
+  "latest_frontend_integration": {
+    "commit": "e41dd03b300c4d6248fb061a45aeee5fe21c57db",
+    "main": "34aa7701467a090ed985e0f5fae0ae46c6ffb475",
+    "backend_tree_identical_to": "3f90ad527e9915378d4111c51136648fe5d2c127",
+    "imported_frontend_files_unchanged_from_main": true,
+    "tests_passed": 120,
+    "test_files_passed": 19,
+    "generated_contracts": "PASS",
+    "typecheck": "PASS",
+    "build": "PASS",
+    "visual_qualification": false
+  },
   "numeric_consent_followup": {
     "reviewed_head": "9bff90c2eb00b56fa23a18303676588d06d66d7a",
     "review_id": 5640140487,

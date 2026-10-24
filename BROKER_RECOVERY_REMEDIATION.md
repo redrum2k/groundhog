@@ -36,9 +36,15 @@ match the baseline listed below; no new failing IDs. Evidence is
 the `numeric_consent_followup` section of the portable evidence JSON.
 The shared API ledger hash remains unchanged after this run.
 
-The frontend and payment implementations did not change in this follow-up, so
-their checks below remain the applicable integration evidence, not newly rerun
-checks. The report below preserves the separate broker-fix history and counts.
+The numeric-consent fix does not change frontend or payments. After its
+publication, Lucas's PR #21 landed on main at **`34aa7701467a090ed985e0f5fae0ae46c6ffb475`**.
+Integration **`e41dd03b300c4d6248fb061a45aeee5fe21c57db`** imports its four frontend
+files unchanged: customer scrolling, inspector visible-row targeting and in-place
+citation navigation. The backend tree still exactly matches tested `3f90ad5`.
+Fresh frontend validation on `e41dd03`: **120 tests / 19 files pass**, generated
+contracts, TypeScript and production build pass, preserving `/`, `/live` and
+`/jobflow`. No visual qualification is claimed. The upstream UNKNOWN-coloring
+caveat below is unchanged. The rest of this report preserves broker-fix history.
 
 ## Earlier broker-fix scope and provenance
 

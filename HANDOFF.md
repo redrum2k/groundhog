@@ -7,6 +7,9 @@ reproduces 21 failures / 5 controls; fix `3f90ad5` preserves numeric/symbolic
 qualifiers, with 332 focused tests passing. Full backend: 970 pass / the exact
 same 16 Windows failures. The report preserves original broker-fix evidence
 separately. No paid calls; the shared API ledger hash remains unchanged.
+Latest integration `e41dd03` imports main `34aa770` (Lucas PR #21) unchanged;
+fresh frontend 120 tests, generated contracts, TypeScript and build pass.
+The backend tree remains identical to full-suite-tested `3f90ad5`.
 The two subsequent Greptile findings on `e60aa6f` were reproduced before fixing:
 accepted amendments now fulfill through the shared successful-verification helper;
 pending dispute work and command receipts now commit atomically. The existing
