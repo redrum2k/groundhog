@@ -432,7 +432,8 @@ def execute(args, *, env=None, rpc=None):
             4
             if operations and operations[-1].state in ("failed", "invalidated")
             else 3
-            if operations and operations[-1].state in ("submitted", "uncertain", "orphaned")
+            if operations
+            and operations[-1].state in ("reserved", "signed", "submitted", "uncertain", "orphaned")
             else 0
         )
         return report(payment, operations, offline=args.offline), code
@@ -488,7 +489,7 @@ def execute(args, *, env=None, rpc=None):
         4
         if result.state in ("failed", "invalidated")
         else 3
-        if result.state in ("uncertain", "orphaned")
+        if result.state in ("reserved", "signed", "uncertain", "orphaned")
         or (result.state == "submitted" and existing.state != "reserved")
         else 0
     )

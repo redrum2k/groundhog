@@ -67,8 +67,11 @@ grant or perform live execution. Help/status/dry-run never load either signing k
 
 Exit codes: 0 = successful inspection, confirmed reconciliation, or newly accepted
 submission (inspect the state; submission is not confirmation); 2 = usage/configuration/
-precondition error; 3 = pending/uncertain/orphaned reconciliation; 4 = failed/invalidated
-operation. There is no automatic polling or hidden retry.
+precondition error; 3 = unfinished reserved/signed operation or pending/uncertain/orphaned
+reconciliation; 4 = failed/invalidated operation. A lease-expired submission attempt
+that remains reserved is unfinished, even if no transaction hash exists. Inspection
+commands (`status`/`--dry-run`) still return 0 on successful inspection regardless of
+the displayed payment state. There is no automatic polling or hidden retry.
 
 ## Future live setup (not executed)
 
@@ -120,3 +123,7 @@ using `PaymentJournal.reserve_nonce`, persists `SignedTransaction`, then delegat
 the unchanged executor for submission and reconciliation. A preparation interruption
 keeps that reservation; an already saved signature is reused. It never pretends that
 the payer is the operator. See [workstream handoff](../../docs/workstreams/02-base.md).
+
+The [payment-readiness handoff](../../docs/workstreams/07-payment-readiness.md) records
+the tested shared revision, injected lease/crash evidence, missing public configuration,
+and exact commands/evidence gates for a later separately authorized testnet run.
