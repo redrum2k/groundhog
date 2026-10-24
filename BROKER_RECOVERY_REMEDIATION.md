@@ -1,5 +1,47 @@
 # PR #12 — accepted scope and durable dispute dispatch
 
+## Fresh-review follow-up: numeric consent
+
+Greptile review `5640140487` completed on published head `9bff90c` at
+21:43:28 UTC, October 24. Its successful check means the review ran, not that the
+PR is approved: confidence was 4/5 with one new P1,
+[Numeric constraints disappear](https://github.com/redrum2k/order-to-cash/pull/12#discussion_r4368619554).
+The previous two broker findings were absent from the new findings list.
+
+The new finding is reproduced: `_affirmative` extracted only `[a-z]+`, turning
+`yes, 65+` into `yes`. A deliberately overconfident injected model and an offline
+restart both produced ready ages-25–34 terms after that qualified answer. The
+same lossy helper also incorrectly accepted qualified broader-category offers.
+
+Test-first commit **`2146cde`** changes no application code. Its 26 cases yield
+**21 failures / 5 passing controls** on the unchanged `9bff90c` runtime; evidence
+is `backend/artifacts/numeric-consent-20261024/before-9bff90c.xml`.
+Fix **`3f90ad527e9915378d4111c51136648fe5d2c127`** replaces lossy token extraction
+with whitespace and ordinary `. , !` punctuation normalization. Digits, Unicode,
+operators, question marks and other qualifiers remain in the consent comparison.
+This does not attempt to interpret the qualifier or authorize different terms.
+Plain `Yes, please.` and `I accept.` still work; unresolved qualified offers go to
+the existing safe human-review path without terms or quote eligibility.
+
+The new tests cover model continuation/offline restart, exact `yes, 65+`, age/ZIP/
+percentage qualifiers, Unicode numbers, unknown symbols and ordinary affirmative
+punctuation. They assert preserved answer text, prompt, deadline and question
+counts, and refusal to quote unaccepted cohort terms. No paid API calls are used.
+The dataset/catalog/broker-focused run has **332 passing tests**, including all
+26 new cases and existing R3/R4 and dispute recovery regressions. Ruff lint and
+format pass (**211 files**). Final full suite on `3f90ad5`: **970 passed / 16 failed /
+0 skipped / 0 errors**, 986 tests in 407.67 seconds. All 16 failure IDs exactly
+match the baseline listed below; no new failing IDs. Evidence is
+`backend/artifacts/numeric-consent-20261024/full.xml`, with hashes and counts in
+the `numeric_consent_followup` section of the portable evidence JSON.
+The shared API ledger hash remains unchanged after this run.
+
+The frontend and payment implementations did not change in this follow-up, so
+their checks below remain the applicable integration evidence, not newly rerun
+checks. The report below preserves the separate broker-fix history and counts.
+
+## Earlier broker-fix scope and provenance
+
 This focused follow-up addresses Greptile's two findings on `e60aa6f` in the
 retained `broker-review-v0.3` path used by Lucas's animated demo. It does not change
 aggregate intake contracts, prices, payment execution, model budgets or feature

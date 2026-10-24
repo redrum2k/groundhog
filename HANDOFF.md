@@ -1,6 +1,12 @@
 # Current aggregate integration pickup
 
 Latest correctness pass: [BROKER_RECOVERY_REMEDIATION.md](BROKER_RECOVERY_REMEDIATION.md).
+Fresh Greptile review of `9bff90c` found a numeric-consent P1: `yes, 65+` lost its
+qualifier and could create unsupported ready terms. Test-first commit `2146cde`
+reproduces 21 failures / 5 controls; fix `3f90ad5` preserves numeric/symbolic
+qualifiers, with 332 focused tests passing. Full backend: 970 pass / the exact
+same 16 Windows failures. The report preserves original broker-fix evidence
+separately. No paid calls; the shared API ledger hash remains unchanged.
 The two subsequent Greptile findings on `e60aa6f` were reproduced before fixing:
 accepted amendments now fulfill through the shared successful-verification helper;
 pending dispute work and command receipts now commit atomically. The existing

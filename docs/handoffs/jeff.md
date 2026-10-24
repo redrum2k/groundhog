@@ -1,5 +1,11 @@
 # Current scope/dispatch remediation — October 24
 
+Fresh review of `9bff90c` found one further P1: numeric qualifiers were removed
+from affirmative consent. Test-first `2146cde` reproduces it in model and offline
+restart paths; fix `3f90ad5` retains qualifiers. 332 focused tests pass; full backend
+is 970 pass / the exact same 16 Windows failures. See the current report.
+No paid calls or frontend changes.
+
 See [current report](../../BROKER_RECOVERY_REMEDIATION.md): the two follow-up
 findings on `e60aa6f` have test-first reproductions and fixes at `ba79817`.
 44 focused tests pass; `e45ddde` imports Lucas's main `3d69b92` unchanged, with
