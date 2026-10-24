@@ -14,7 +14,7 @@ from app.storage.jobflow import DomainError, canonical, uid
 
 BASE_FIELDS = ["invoice_number", "vendor", "amount", "currency"]
 ADDED_FIELDS = ["purchase_order", "cost_center", "tax_id", "payment_terms"]
-ALL_FIELDS = BASE_FIELDS + ["due_date"] + ADDED_FIELDS
+ALL_FIELDS = BASE_FIELDS + ["invoice_date", "due_date"] + ADDED_FIELDS
 
 
 def validate_fields(fields, *, allow_empty=False):
@@ -24,18 +24,22 @@ def validate_fields(fields, *, allow_empty=False):
         raise DomainError("Unsupported extraction field", 422)
 
 
-def invoice(index):
+def invoice(index, overrides=None):
     values = {
         "invoice_number": f"INV-{index:04d}",
         "vendor": f"Synthetic Vendor {index % 7 + 1}",
         "amount": f"{100 + index}.25",
         "currency": "USD",
+        "invoice_date": "2026-10-01",
         "due_date": "2026-11-30",
         "purchase_order": f"PO-{index:04d}",
         "cost_center": "OPS-100",
         "tax_id": "SIM-TAX-001",
         "payment_terms": "Net 30",
     }
+    if overrides:
+        validate_fields(list(overrides))
+        values.update(overrides)
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter, invariant=1)
     pdf.setTitle(f"Synthetic invoice {index}")
@@ -183,3 +187,23 @@ def store_evidence(
 
 def cite(evidence, quote=None):
     return exact_cite(evidence, quote or evidence.text)
+
+
+def cite_pdf_field(evidence, parsed, field):
+    page = parsed["pages"][0]
+    label = next((word for word in page["words"] if word["text"] == f"{field}:"), None)
+    line = next(
+        (line for line in evidence.text.splitlines() if line.startswith(f"{field}: ")), None
+    )
+    if label is None or line is None:
+        return cite(evidence)
+    words = [word for word in page["words"] if abs(word["top"] - label["top"]) < 1]
+    citation = cite(evidence, line)
+    citation.page = page["page"]
+    citation.rectangle = (
+        min(word["x0"] for word in words) / page["width"],
+        min(word["top"] for word in words) / page["height"],
+        max(word["x1"] for word in words) / page["width"],
+        max(word["bottom"] for word in words) / page["height"],
+    )
+    return citation

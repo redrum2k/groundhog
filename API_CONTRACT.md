@@ -1,7 +1,8 @@
 # Jobflow v1
 
-Canonical models: `backend/app/contracts/jobflow.py`. Existing contracts and `/health`
-remain unchanged. This additive seller-prepayment flow uses `saas-unit-acceptance-v1`.
+Canonical job models: `backend/app/contracts/jobflow.py`; base financial contracts:
+`backend/app/contracts/api.py` and `models.py`. Base policy is `invoice-review-v0.2`.
+Existing `/orders`, `/internal/orders` and `/health` routes remain supported.
 The integrator owns schema changes; backend and frontend consume the same generated schema.
 
 ## HTTP
@@ -35,7 +36,11 @@ the original team ownership remains the handoff boundary. Main owns contracts,
 dependency changes, investigation and integration; runtime worker owns API/runtime/
 storage/provider and tests; UI worker owns frontend. No worker edits shared contracts.
 
-No second authoritative store. SQLite persists orders, immutable evidence/artifacts,
+One SQLite database. `orders` is the existing base-order/payment authority; `jf_orders`
+stores its related unit-work aggregate, not a second base ledger. `base_order` is a
+server projection of the existing order service view. Base and job changes use the
+same transaction through optional `connection` parameters on OrderService.
+SQLite also persists immutable evidence/artifacts,
 attempt intents, sessions, events and balanced postings. Production has no coding CLI.
 Anthropic mode requires explicit configuration and a nonzero authorized call limit.
 
@@ -45,6 +50,11 @@ Anthropic mode requires explicit configuration and a nonzero authorized call lim
 - customer: `accept_delivery`, `open_dispute`, `answer` to customer question,
   `amend_agreement` (customer signature), `accept_change`, `decline_change`,
   `accept_change_delivery`.
+- customer: `accept_base`, `authorize_change`, `accept_processing_quote`.
+- investigator: `verify_base`, using actual PDF/structured/source checks across all
+  eight invoice criteria. The existing deterministic payment policy decides capture.
+- controller: `quote_processing` with an explicit positive `amount_minor`; this
+  proposes a fee, never charges it. The customer must accept the exact quote ID.
 - investigator: investigate, request evidence; no approval or ledger authority.
 - controller: `approve_action`, `decline_action`, `answer` to internal question,
   `handoff`. Cannot execute own approval.
@@ -57,7 +67,7 @@ at authorization and execution even when time changes without a revision change.
 
 ## Scenario and accounting
 
-The demo company receives a simulated $100 prepayment for 100 $1 units. Eighty
+The demo opens a mock $100 base authorization for 100 $1 units, not a prepayment. Eighty
 outputs are validated and separately recorded as accepted; twenty have actual
 machine-verifiable missing-field failures. Original progress counts ORIGINAL jobs
 only. Required scope is derived from accepted terms, not complaint text.
@@ -68,12 +78,24 @@ retry stage are durable. Unknown outcomes must reconcile the same intent. Perman
 failures are handed off. Existing valid outputs are not reprocessed. The automatic
 operational authorization does not authorize additional customer charges.
 
-Prepayment: debit cash, credit contract liability. Accepted original units: debit
-contract liability, credit revenue. Correction: debit correction expense, credit
-compute payable, one cent per executed corrected unit. The $8 four-field/100-document
-quote is separate: acceptance is not payment, payment is not recognition; new artifacts
-and customer acceptance precede recognition. No posting on UNKNOWN. Each business event
-has one unique posting. No escrow semantics or real financial provider.
+Base booking follows HACK.md v0.2: ten-minute delivered/dispute review, early cited
+compliant verdict or undisputed customer acceptance, and undisputed cutoff. Disputes,
+operational failure, effective unfulfilled scope and expired authorization block capture.
+Authorization expiry is independent. Unit acceptance never books the base payment.
+The base ledger is projected into demonstration balances, never reposted in jf_postings.
+The demo recognizes policy-booked base revenue. Correction expense/compute payable is
+one cent per executed unit, within the $1 cap and one free regeneration per order.
+
+The $8 four-field/100-document quote is separate: acceptance, separate authorize_change,
+executor reservation, confirmed simulated receipt, new artifacts and customer acceptance
+precede recognition. The worker rechecks payment authority at execution. UNKNOWN never
+posts; reconciliation retains its original intent. Refuted complaints use the existing
+agreed fee or a separately accepted and authorized processing quote. No live adapter is
+introduced. Legacy initial_receipt input cannot create a base receipt or grant authority.
+
+scope_obligations extends the existing order with signed effective-dated obligations.
+The original deadline sweep and capture gate enforce them. Existing expected-binding
+checks, exact idempotency receipts and authorization expiry checks remain in force.
 
 ## Investigator integration
 
@@ -97,3 +119,8 @@ pending/running/unknown states remain neutral blue. Finance is labeled separatel
 Events drive the courier; replay/zoom/focus are read-only. Manual interaction pauses
 opt-in auto-follow. Every open issue displays owner and next action. Compact finance
 drawer shows actual postings and balances, not a duplicate full reconciliation table.
+
+Authenticated GET `/orders/{id}/artifacts/{source_id}/pages/{page_number}` returns a
+bounded PNG rendition with X-Source-SHA256. Exact source field citations carry normalized
+rectangles. The browser verifies original bytes, renders the page and overlays its
+cited region. Page inspection and courier replay are read-only.

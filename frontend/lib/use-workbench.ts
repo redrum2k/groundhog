@@ -150,7 +150,7 @@ export function useWorkbench() {
       } finally {
         if (ticket === generation.current && !controller.signal.aborted) {
           setLoading(false);
-          timer = setTimeout(poll, 2500);
+          timer = setTimeout(poll, 2000);
         }
       }
     };
@@ -188,7 +188,8 @@ export function useWorkbench() {
     const orderId = currentId.current;
     try {
       const result = await sendMutation(prepared, session.token);
-      if (ticket !== sessionGeneration.current || orderId !== currentId.current)
+      if (ticket !== sessionGeneration.current ||
+          (prepared.path !== "/orders" && orderId !== currentId.current))
         return false;
       if ("revision" in result) {
         setOrder((old) => mergeSnapshot(old, result));

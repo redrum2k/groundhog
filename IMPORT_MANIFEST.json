@@ -1,7 +1,9 @@
 {
   "format_version": 1,
   "implementation": "new_source_with_behavioral_reference",
-  "repository_baseline": "6ac18106fbe1980df509fe635c8adffdddad012c",
+  "repository_baseline": "06112e2",
+  "base_payment_policy": "HACK.md v0.2, explicitly confirmed by user",
+  "base_payment_owner": "existing app.orders.service.OrderService",
   "reference_revision": "5d2a50c2595014d3a6dba899270975d20b631b52",
   "copied_source_files": [],
   "references": [
@@ -31,7 +33,7 @@
     }
   ],
   "new_domains": [
-    "unit-priced seller obligations and acceptance-based recognition",
+    "unit work projected onto the existing authorization/capture order",
     "durable correction attempts with new artifacts",
     "independent paid change-order lifecycle",
     "job/check/evidence/conversation UI",

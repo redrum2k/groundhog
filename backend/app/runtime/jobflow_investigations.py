@@ -15,6 +15,8 @@ from app.storage.jobflow import DomainError, canonical, uid
 
 
 def queue_investigation(service, db, order, issue_id, mode, now, emit, question_id=None):
+    if order.base_order and order.base_order.order.order_state == "human_review":
+        raise DomainError("Review requires a human decision; do not start another model call")
     issue = find(order.issues, issue_id, "Issue")
     if issue.state == "RESOLVED":
         raise DomainError("Issue is already resolved")
@@ -59,6 +61,12 @@ def queue_investigation(service, db, order, issue_id, mode, now, emit, question_
 
 def validate_outcome(order, raw, request, *, store=None, db=None):
     outcome = InvestigationOutcome.model_validate(raw)
+    asked = sum(
+        question.recipient == "customer" for issue in order.issues for question in issue.questions
+    )
+    proposed = sum(question.recipient == "customer" for question in outcome.questions)
+    if asked + proposed > 2:
+        raise DomainError("The shared base case has exhausted its two-question budget")
     if (
         outcome.revision != request["snapshot"]["revision"]
         or outcome.issue_id != request["issue_id"]
@@ -143,7 +151,13 @@ def apply_outcome(order, outcome, now, emit):
             now,
             kind=kind,
             fields=[issue.field] if kind != "HUMAN_REVIEW" else [],
-            job_ids=issue.job_ids,
+            job_ids=[
+                job.id
+                for job in order.jobs
+                if job.kind == "ORIGINAL" and issue.field not in job.fields
+            ]
+            if kind == "INCLUDED_FIELD"
+            else issue.job_ids,
             issue_id=issue.id,
             basis=baseline.summary,
             citations=[c for finding in baseline.findings for c in finding.citations],

@@ -1,7 +1,9 @@
 """The additive /api/jobflow HTTP contract."""
 
+import io
 from typing import Annotated
 
+import pdfplumber
 from fastapi import APIRouter, Depends, Header, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -107,5 +109,30 @@ def artifact(order_id: str, source_id: str, request: Request, actor: Identity):
             "Cache-Control": "private, no-store",
             "Content-Security-Policy": "sandbox; default-src 'none'",
             "ETag": f'"{metadata["sha256"]}"',
+        },
+    )
+
+
+@router.get("/orders/{order_id}/artifacts/{source_id}/pages/{page_number}")
+def artifact_page(
+    order_id: str, source_id: str, page_number: int, request: Request, actor: Identity
+):
+    raw, metadata, _ = runtime(request).artifact(actor, order_id, source_id)
+    if metadata["media_type"] != "application/pdf" or not 1 <= page_number <= 20:
+        raise DomainError("A supported PDF page is required", 422)
+    with pdfplumber.open(io.BytesIO(raw)) as pdf:
+        if page_number > len(pdf.pages):
+            raise DomainError("Page not found", 404)
+        page = pdf.pages[page_number - 1]
+        if page.width * page.height > 2_000_000:
+            raise DomainError("PDF page dimensions exceed the rendering bound", 422)
+        output = io.BytesIO()
+        page.to_image(resolution=96).original.save(output, format="PNG")
+    return Response(
+        output.getvalue(),
+        media_type="image/png",
+        headers={
+            "Cache-Control": "private, no-store",
+            "X-Source-SHA256": metadata["sha256"],
         },
     )

@@ -1,4 +1,4 @@
-"""Integer-cent, unit-acceptance demonstration books, not the legacy mock escrow."""
+"""Added-scope and cost postings; base bookings are projected from OrderService."""
 
 from app.contracts.jobflow import Posting, PostingLine
 from app.runtime.jobflow_policy import effective_fields, utcnow
@@ -48,6 +48,10 @@ def project(db, order, now=None):
     order.finance.received_minor = balances["cash"]
     order.finance.liability_minor = -balances["contract_liability"]
     order.finance.recognized_minor = -balances["revenue"]
+    if order.base_order:
+        booked = sum(entry.amount.amount_minor for entry in order.base_order.order.ledger)
+        order.finance.received_minor += booked
+        order.finance.recognized_minor += booked
     order.finance.correction_cost_minor = balances["correction_expense"]
     order.finance.unknown_minor = sum(
         op.amount_minor for op in order.finance.operations if op.status == "UNKNOWN"
@@ -75,11 +79,11 @@ def project(db, order, now=None):
         change.status not in {"DECLINED", "RECOGNIZED"} for change in order.change_orders
     )
     open_jobs = [job for job in order.jobs if job.obligation != "FULFILLED"]
-    paid_original = any(
-        operation.change_order_id is None and operation.status == "CONFIRMED"
-        for operation in order.finance.operations
-    )
+    paid_original = bool(order.base_order and order.base_order.order.payment_phase == "booked")
     pending_money = any(operation.status != "CONFIRMED" for operation in order.finance.operations)
+    pending_money = pending_money or bool(
+        order.base_order and order.base_order.order.requires_quote
+    )
     if (
         not unresolved
         and not pending_actions

@@ -1,6 +1,6 @@
 """Explicit command owners and application-owned business transitions."""
 
-from datetime import UTC
+from datetime import UTC, timedelta
 
 from app.contracts.jobflow import (
     Amendment,
@@ -36,12 +36,17 @@ ROLES = {
     "decline_action": {"controller"},
     "execute_action": {"executor"},
     "accept_change": {"customer"},
+    "authorize_change": {"customer"},
     "decline_change": {"customer"},
     "receive_payment": {"executor"},
     "fulfill_change": {"provider"},
     "accept_change_delivery": {"customer"},
     "reconcile": {"executor"},
     "handoff": {"controller"},
+    "verify_base": {"investigator"},
+    "accept_base": {"customer"},
+    "quote_processing": {"controller"},
+    "accept_processing_quote": {"customer"},
 }
 
 
@@ -249,8 +254,19 @@ def execute(service, db, order, actor, command, now, emit):
         order.change_orders.append(change)
         emit("change_order.quoted", change_order_id=change.id, amount_minor=change.amount_minor)
     elif action.kind in {"INCLUDED_FIELD", "CONCESSION"}:
+        from app.contracts.models import OrderState
+        from app.runtime.jobflow_base import current
+
         if not action.issue_id:
             raise DomainError("Field fulfillment requires a targeted issue")
+        base = current(service, db, order)
+        if base.free_regenerations_used or base.order_state == OrderState.HUMAN_REVIEW:
+            raise DomainError(
+                "One free regeneration per base order; further work needs human review"
+            )
+        service.base.reserve_free_regeneration(base)
+        base.revision += 1
+        service.base.repository.save(db, base)
         issue = find(order.issues, action.issue_id, "Issue")
         if any(job.kind == "DISPUTED_FIELD" and job.issue_ids == [issue.id] for job in order.jobs):
             raise DomainError("This issue already has reserved fulfillment")
@@ -297,6 +313,8 @@ def execute(service, db, order, actor, command, now, emit):
 
 
 def payment(service, db, order, command, now, emit):
+    if not command.change_order_id:
+        raise DomainError("Base payments use the existing authorization/capture service")
     change = (
         find(order.change_orders, command.change_order_id, "Change order")
         if command.change_order_id
@@ -305,6 +323,15 @@ def payment(service, db, order, command, now, emit):
     if change:
         if change.status != "ACCEPTED" or not change.accepted_by:
             raise DomainError("Payment requires separately accepted new scope")
+        authority = change.payment_authorization
+        if (
+            authority is None
+            or authority.quote_id != change.id
+            or authority.amount.amount_minor != change.amount_minor
+            or authority.authorized_by != change.accepted_by
+            or now >= authority.expires_at
+        ):
+            raise DomainError("Additional work requires separate current payment authorization")
         if set(change.fields).intersection(effective_fields(order, now)):
             raise DomainError(
                 "New scope is now owed; obtain a revised agreement/quote before charging"
@@ -529,6 +556,18 @@ def apply_command(service, db, order, actor, command, now, emit):
             "change_order.accepted" if verb == "accept_change" else "change_order.declined",
             change_order_id=change.id,
         )
+    elif verb == "authorize_change":
+        from app.runtime.jobflow_base import money
+
+        change = find(order.change_orders, command.change_order_id, "Change order")
+        if change.status != "ACCEPTED" or change.accepted_by != actor.id:
+            raise DomainError("Only the accepting customer can authorize the additional payment")
+        if change.payment_authorization is not None:
+            raise DomainError("Payment authority already exists; do not replace its identity")
+        change.payment_authorization = service.base.authorize_quote(
+            change.id, money(change.amount_minor), actor.id, now + timedelta(hours=1), now
+        )
+        emit("change_order.payment_authorized", change_order_id=change.id, simulated=True)
     elif verb == "receive_payment":
         payment(service, db, order, command, now, emit)
     elif verb == "fulfill_change":

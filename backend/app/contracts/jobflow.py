@@ -5,6 +5,9 @@ from typing import Annotated, Any, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StrictInt, model_validator
 
+from app.contracts.api import OrderView as BaseOrderView
+from app.contracts.api import QuoteAuthorization
+
 Identifier = Annotated[str, Field(min_length=1, max_length=160)]
 Cents = Annotated[StrictInt, Field(ge=0)]
 Revision = Annotated[StrictInt, Field(ge=1)]
@@ -68,7 +71,7 @@ class Agreement(Model):
     correction_attempt_limit: Literal[1] = 1
     correction_unit_cost_minor: Cents = 1
     correction_budget_minor: Cents = 100
-    policy_id: Literal["saas-unit-acceptance-v1"] = "saas-unit-acceptance-v1"
+    policy_id: Literal["invoice-review-v0.2"] = "invoice-review-v0.2"
     source_id: str
     amendments: list["Amendment"] = Field(default_factory=list)
 
@@ -212,6 +215,7 @@ class ChangeOrder(Model):
     action_id: str
     accepted_by: str | None = None
     operation_id: str | None = None
+    payment_authorization: QuoteAuthorization | None = None
     artifact_ids: list[str] = Field(default_factory=list)
     accepted_artifact_ids: list[str] = Field(default_factory=list)
 
@@ -314,6 +318,7 @@ class OrderView(Model):
     status: Literal["ACTIVE", "WAITING", "COMPLETE", "HANDED_OFF"] = "ACTIVE"
     mode: Literal["SIMULATED"] = "SIMULATED"
     model_available: bool = False
+    base_order: BaseOrderView | None = None
 
 
 class OrderCreate(Model):
@@ -331,6 +336,8 @@ class OrderCreate(Model):
     )
     unit_price_minor: Annotated[StrictInt, Field(ge=1, le=100000)] = 100
     initial_receipt: Literal["CONFIRMED", "UNKNOWN", "NONE"] = "CONFIRMED"
+    authorization_seconds: Annotated[StrictInt, Field(ge=1, le=86400)] = 3600
+    additional_processing_fee_minor: Cents = 0
 
     @model_validator(mode="after")
     def counts(self):
@@ -357,12 +364,17 @@ class Command(Mutation):
         "decline_action",
         "execute_action",
         "accept_change",
+        "authorize_change",
         "decline_change",
         "receive_payment",
         "fulfill_change",
         "accept_change_delivery",
         "reconcile",
         "handoff",
+        "verify_base",
+        "accept_base",
+        "quote_processing",
+        "accept_processing_quote",
     ]
     job_ids: list[str] = Field(default_factory=list)
     issue_id: str | None = None
@@ -371,6 +383,8 @@ class Command(Mutation):
     approval_id: str | None = None
     change_order_id: str | None = None
     operation_id: str | None = None
+    processing_quote_id: str | None = None
+    amount_minor: Cents | None = None
     text: str | None = None
     fields: list[str] = Field(default_factory=list)
     effective_at: datetime | None = None

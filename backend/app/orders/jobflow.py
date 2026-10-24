@@ -2,11 +2,12 @@
 
 import json
 
-from app.contracts.jobflow import Agreement, Issue, Job, Message, OrderView, PaymentOperation
-from app.payments.jobflow import post, project
+from app.contracts.jobflow import Agreement, Issue, Job, Message, OrderView
+from app.payments.jobflow import project
 from app.provider.jobflow import (
     BASE_FIELDS,
     cite,
+    cite_pdf_field,
     extract,
     invoice,
     parse_pdf,
@@ -114,7 +115,7 @@ def create_order(db, store, actor, request, records, now, model_available):
             derived_from=[source.id],
         )
         for check in checks:
-            check.citations = [cite(source), cite(artifact)]
+            check.citations = [cite_pdf_field(source, parsed, check.label), cite(artifact)]
         job = Job(
             id=uid("job"),
             label=f"Invoice {index:03d}",
@@ -154,46 +155,6 @@ def create_order(db, store, actor, request, records, now, model_available):
         actor_id="synthetic-company",
         now=now,
     )
-    if request.initial_receipt != "NONE":
-        operation = PaymentOperation(
-            id=uid("payment"),
-            amount_minor=request.document_count * request.unit_price_minor,
-            status=request.initial_receipt,
-            provider_reference="local-simulator:initial-prepayment",
-        )
-        order.finance.operations.append(operation)
-        db.execute(
-            "INSERT INTO jf_provider_results VALUES(?,?)",
-            (
-                operation.id,
-                canonical(
-                    {
-                        "status": "CONFIRMED",
-                        "amount_minor": operation.amount_minor,
-                        "order_id": order.id,
-                        "change_order_id": None,
-                    }
-                ),
-            ),
-        )
-        if operation.status == "CONFIRMED":
-            post(
-                db,
-                order,
-                f"receipt:{operation.id}",
-                operation.amount_minor,
-                "cash",
-                "contract_liability",
-                "Simulated original prepayment",
-                now,
-                emit,
-            )
-            recognize_originals(db, order, now, emit)
-        emit(
-            "payment.confirmed" if operation.status == "CONFIRMED" else "payment.unknown",
-            operation_id=operation.id,
-            simulated=True,
-        )
     if request.disputed_field:
         job = next((job for job in order.jobs if job.processing == "VALIDATED"), order.jobs[0])
         issue = Issue(
@@ -251,21 +212,5 @@ def create_order(db, store, actor, request, records, now, model_available):
 
 
 def recognize_originals(db, order, now, emit):
-    if not any(
-        op.change_order_id is None and op.status == "CONFIRMED" for op in order.finance.operations
-    ):
-        return
-    for job in order.jobs:
-        if job.kind == "ORIGINAL" and job.accepted_artifact_id:
-            post(
-                db,
-                order,
-                f"accept:{order.id}:{job.id}",
-                order.agreement.unit_price_minor,
-                "contract_liability",
-                "revenue",
-                "Accepted original unit",
-                now,
-                emit,
-            )
-            job.financial_state = "POSTED"
+    """Unit acceptance does not capture or recognize the base-order payment."""
+    return

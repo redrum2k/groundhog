@@ -27,9 +27,18 @@ def test_full_100_unit_correction_and_acceptance(h):
         order.finance.received_minor,
         order.finance.recognized_minor,
         order.finance.liability_minor,
-    ) == (10000, 8000, 2000)
+    ) == (0, 0, 0)
     good_ids = {job.id: job.artifact_id for job in order.jobs if job.processing == "VALIDATED"}
     bad_ids = {job.id: job.artifact_id for job in order.jobs if job.processing == "FAILED"}
+    signed = h.cmd(order, "customer", "amend_agreement", fields=["due_date"], effective_at=h.now)
+    order = h.cmd(
+        order,
+        "provider",
+        "amend_agreement",
+        fields=["due_date"],
+        effective_at=h.now,
+        amendment_id=signed.agreement.amendments[-1].id,
+    )
     queued = h.cmd(order, "provider", "correct", idempotency_key="correct-once")
     assert sum(len(job.attempts) for job in queued.jobs) == 20
     assert queued.finance.correction_cost_minor == 0
@@ -37,7 +46,7 @@ def test_full_100_unit_correction_and_acceptance(h):
     corrected = h.get(order)
     assert len(corrected.jobs) == 100
     assert all(job.processing == "VALIDATED" for job in corrected.jobs)
-    assert corrected.finance.recognized_minor == 8000
+    assert corrected.finance.recognized_minor == 0
     assert corrected.finance.correction_cost_minor == 20
     for job in corrected.jobs:
         if job.id in good_ids:
@@ -57,7 +66,7 @@ def test_full_100_unit_correction_and_acceptance(h):
                 check.state == "PASSED" for check in verify(raw, output, job.source_id, job.fields)
             )
     accepted = h.cmd(order, "customer", "accept_delivery", job_ids=list(bad_ids))
-    assert (accepted.finance.recognized_minor, accepted.finance.liability_minor) == (10000, 0)
+    assert (accepted.finance.recognized_minor, accepted.finance.liability_minor) == (0, 0)
     repeated = h.cmd(order, "customer", "accept_delivery", job_ids=list(bad_ids))
     assert repeated.finance.postings == accepted.finance.postings
     replay = h.service.command(
@@ -75,21 +84,67 @@ def test_full_100_unit_correction_and_acceptance(h):
         repeated.finance.postings
     )
 
+    h.service.investigator = None
+    current = h.get(order)
+    h.service.investigate(
+        h.actors["investigator"],
+        order.id,
+        InvestigationRequest(
+            idempotency_key="full-scope-review",
+            expected_revision=current.revision,
+            issue_id=current.issues[0].id,
+        ),
+    )
+    h.drain()
+    action = next(a for a in h.get(order).actions if a.kind == "INCLUDED_FIELD")
+    assert len(action.job_ids) == 80
+    approved = h.cmd(order, "controller", "approve_action", action_id=action.id)
+    h.cmd(
+        order,
+        "executor",
+        "execute_action",
+        action_id=action.id,
+        approval_id=approved.approvals[-1].id,
+    )
+    h.drain()
+    repaired = h.get(order)
+    assert repaired.issues[0].state == "RESOLVED"
+    assert repaired.base_order.order.free_regenerations_used == 1
+    children = [job.id for job in repaired.jobs if job.kind == "DISPUTED_FIELD"]
+    h.cmd(order, "customer", "accept_delivery", job_ids=children)
+    captured = h.cmd(order, "investigator", "verify_base")
+    assert captured.finance.received_minor == 10000
+    assert not captured.base_order.order.requires_quote
+    quoted, change = h.quote(captured)
+    h.cmd(order, "customer", "accept_change", change_order_id=change.id)
+    h.cmd(order, "customer", "authorize_change", change_order_id=change.id)
+    h.cmd(order, "executor", "receive_payment", change_order_id=change.id)
+    h.drain()
+    h.cmd(order, "provider", "fulfill_change", change_order_id=change.id)
+    h.drain()
+    done = h.cmd(order, "customer", "accept_change_delivery", change_order_id=change.id)
+    assert done.status == "COMPLETE"
+    assert done.finance.received_minor == done.finance.recognized_minor == 10800
+    assert done.finance.liability_minor == 0
+    assert done.finance.correction_cost_minor == 100
+    assert len([job for job in done.jobs if job.kind == "ORIGINAL"]) == 100
+
 
 def test_change_order_approval_payment_actual_fulfillment_and_acceptance(h):
     order, change = h.quote(h.create())
     assert change.amount_minor == 24
     order = h.cmd(order, "customer", "accept_change", change_order_id=change.id)
-    assert order.finance.received_minor == 300
-    assert order.finance.recognized_minor == 200
+    h.cmd(order, "customer", "authorize_change", change_order_id=change.id)
+    assert order.finance.received_minor == 0
+    assert order.finance.recognized_minor == 0
     with pytest.raises(DomainError):
         h.cmd(order, "provider", "fulfill_change", change_order_id=change.id)
     h.cmd(order, "executor", "receive_payment", change_order_id=change.id)
     h.drain()
     paid = h.get(order)
-    assert paid.finance.received_minor == 324
-    assert paid.finance.recognized_minor == 200
-    assert paid.finance.liability_minor == 124
+    assert paid.finance.received_minor == 24
+    assert paid.finance.recognized_minor == 0
+    assert paid.finance.liability_minor == 24
     h.cmd(order, "provider", "fulfill_change", change_order_id=change.id)
     with pytest.raises(DomainError):
         h.cmd(order, "provider", "fulfill_change", change_order_id=change.id)
@@ -99,14 +154,14 @@ def test_change_order_approval_payment_actual_fulfillment_and_acceptance(h):
     assert len(added) == 3
     assert len([job for job in fulfilled.jobs if job.kind == "ORIGINAL"]) == 3
     assert fulfilled.change_orders[0].status == "FULFILLED"
-    assert fulfilled.finance.recognized_minor == 200
+    assert fulfilled.finance.recognized_minor == 0
     for job in added:
         output, _, _ = h.service.artifact(h.actors["customer"], order.id, job.artifact_id)
         assert set(json.loads(output)["fields"]) == set(change.fields)
         assert all(check.state == "PASSED" for check in job.checks)
     accepted = h.cmd(order, "customer", "accept_change_delivery", change_order_id=change.id)
-    assert accepted.finance.recognized_minor == 224
-    assert accepted.finance.liability_minor == 100
+    assert accepted.finance.recognized_minor == 24
+    assert accepted.finance.liability_minor == 0
     assert accepted.change_orders[0].status == "RECOGNIZED"
     with pytest.raises(DomainError):
         h.cmd(order, "executor", "receive_payment", change_order_id=change.id)
@@ -117,7 +172,7 @@ def test_decline_does_not_cancel_original_obligations(h):
     result = h.cmd(order, "customer", "decline_change", change_order_id=change.id)
     assert result.change_orders[0].status == "DECLINED"
     assert result.jobs[-1].obligation == "OPEN"
-    assert result.finance.liability_minor == 100
+    assert result.finance.liability_minor == 0
     h.cmd(result, "provider", "correct")
     h.drain()
     assert h.get(order).jobs[-1].processing == "VALIDATED"
@@ -178,6 +233,7 @@ def test_approval_and_execution_recheck_clock_without_revision_change(h):
 def test_unknown_payment_reconciles_original_intent_after_amendment(h):
     order, change = h.quote(h.create())
     h.cmd(order, "customer", "accept_change", change_order_id=change.id)
+    h.cmd(order, "customer", "authorize_change", change_order_id=change.id)
     queued = h.cmd(
         order,
         "executor",
@@ -188,14 +244,14 @@ def test_unknown_payment_reconciles_original_intent_after_amendment(h):
     )
     operation = queued.finance.operations[-1]
     h.drain()
-    assert h.get(order).finance.received_minor == 300
+    assert h.get(order).finance.received_minor == 0
     order, activation = sign_future(h, h.get(order), change.fields)
     h.now = activation + timedelta(seconds=1)
     h.service = Jobflow(h.service.store.path, demo=True, clock=lambda: h.now)
     order = h.cmd(order, "executor", "reconcile", operation_id=operation.id)
     assert order.finance.operations[-1].id == operation.id
-    assert order.finance.received_minor == 324
-    assert len(order.finance.operations) == 2
+    assert order.finance.received_minor == 24
+    assert len(order.finance.operations) == 1
     with pytest.raises(DomainError):
         h.cmd(order, "executor", "receive_payment", change_order_id=change.id)
 
@@ -215,7 +271,8 @@ def test_confirmed_command_replay_preserves_exact_snapshot_after_clock_and_revis
     revised, activation = sign_future(h, original, ["purchase_order"])
     h.now = activation + timedelta(days=2)
     assert h.service.command(h.actors["executor"], order.id, command) == original
-    assert h.get(order).revision == revised.revision
+    assert h.get(order).revision == revised.revision + 1
+    assert h.get(order).base_order.order.payment_phase == "expired"
 
 
 def test_signatures_upload_authority_and_stale_approval(h):
@@ -316,11 +373,14 @@ def test_targeted_question_answer_and_included_field_fulfillment(h):
     )
     h.drain()
     delivered = h.get(order)
-    child = next(job for job in delivered.jobs if job.kind == "DISPUTED_FIELD")
-    accepted = h.cmd(delivered, "customer", "accept_delivery", job_ids=[child.id])
+    children = [job for job in delivered.jobs if job.kind == "DISPUTED_FIELD"]
+    assert len(children) == 3
+    accepted = h.cmd(
+        delivered, "customer", "accept_delivery", job_ids=[child.id for child in children]
+    )
     assert accepted.issues[0].state == "RESOLVED"
-    assert accepted.finance.recognized_minor == 200
-    assert accepted.finance.received_minor == 300
+    assert accepted.finance.recognized_minor == 0
+    assert accepted.finance.received_minor == 0
 
 
 def test_idempotency_collision_concurrent_reservation_and_read_only(h):
@@ -379,10 +439,11 @@ def test_atomic_failure_rolls_back_and_append_only_records(h):
         db.execute("UPDATE jf_artifacts SET raw=?", (b"tampered",))
 
 
-def test_unknown_initial_prepayment_recognizes_only_after_persisted_reconciliation(h):
+def test_legacy_receipt_input_cannot_create_a_base_prepayment(h):
     order = h.create(initial_receipt="UNKNOWN")
     assert order.finance.received_minor == 0
     assert order.finance.recognized_minor == 0
-    result = h.cmd(order, "executor", "reconcile", operation_id=order.finance.operations[0].id)
-    assert result.finance.received_minor == 300
-    assert result.finance.recognized_minor == 200
+    assert not order.finance.operations
+    assert order.base_order.order.authorization_receipt.operation == "authorize"
+    with pytest.raises(DomainError):
+        h.cmd(order, "executor", "receive_payment", provider_outcome="UNKNOWN")

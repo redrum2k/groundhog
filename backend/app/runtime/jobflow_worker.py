@@ -145,6 +145,8 @@ def finish_delivery(
         emit("check.passed" if passed else "check.failed", job_id=job.id, attempt_id=attempt.id)
         successful = successful and passed
     if not unknown:
+        from app.runtime.jobflow_base import after_delivery
+
         invalidate(order, now)
         if request.get("change_id"):
             change = find(order.change_orders, request["change_id"], "Change order")
@@ -160,6 +162,17 @@ def finish_delivery(
                 if successful
                 else "Review failed field fulfillment"
             )
+            if successful:
+                issue.state = "RESOLVED"
+                issue.resolution = "Authorized included scope delivered and independently validated"
+                for job in order.jobs:
+                    if issue.id in job.issue_ids:
+                        job.dispute = "RESOLVED"
+                for question in issue.questions:
+                    if question.status == "OPEN":
+                        question.status = "CANCELLED"
+                emit("dispute.remedied", issue_id=issue.id)
+        after_delivery(service, db, order, request, now, emit)
 
 
 def reconcile(service, db, order, operation_id, now, emit):
@@ -248,6 +261,16 @@ def claim(service):
         work["evidence_current"] = request.get(
             "evidence_digest", evidence_digest(order)
         ) == evidence_digest(order)
+        if work["kind"] == "payment":
+            change = find(order.change_orders, request["change_order_id"], "Change order")
+            authority = change.payment_authorization
+            work["payment_authorized"] = bool(
+                authority
+                and now < authority.expires_at
+                and authority.quote_id == change.id
+                and authority.amount.amount_minor == request["amount_minor"]
+                and authority.authorized_by == change.accepted_by
+            )
         return work
 
 
@@ -286,7 +309,9 @@ async def run_once(service):
                 "order_id": work["order_id"],
                 "change_order_id": request["change_order_id"],
                 "amount_minor": request["amount_minor"],
-                "status": "FAILED" if request["outcome"] == "FAILURE" else "CONFIRMED",
+                "status": "FAILED"
+                if request["outcome"] == "FAILURE" or not work["payment_authorized"]
+                else "CONFIRMED",
             }
         else:
             if (
@@ -373,12 +398,15 @@ async def run_once(service):
             interrupt_work(order, work, emit)
         elif work["kind"] == "payment":
             visible = dict(result)
-            if request["outcome"] == "UNKNOWN":
+            if request["outcome"] == "UNKNOWN" and result["status"] != "FAILED":
                 visible["status"] = "UNKNOWN"
             finish_payment(db, order, work["id"], visible, now, emit)
         else:
             finish_delivery(service, db, order, work["id"], request, result, now, emit)
         refresh_quotes(order, now, emit)
+        from app.runtime.jobflow_base import sync_base
+
+        sync_base(service, db, order, now)
         project(db, order, now)
         service.store.save(db, order)
         db.execute(

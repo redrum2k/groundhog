@@ -78,9 +78,12 @@ mutation recipes never enter the investigator's evidence.
 
 Python, uv, FastAPI, Pydantic, SQLite, LangGraph and Anthropic SDK; Next.js/TypeScript/
 shadcn UI; Railway planned. CDP/Base escrow remain subject to PAYMENT_SPIKE.md.
-Current implementation includes a durable local mock workflow and polling API. It does
-not invoke a model/provider, generate actual PDFs, implement the frontend, authenticate
-customers, move money or deploy. See IMPLEMENTATION_STATUS.md and API.md under docs/.
+This feature branch adds the job/check/evidence workbench, actual source/register PDFs,
+source-backed investigation, bounded corrections and separately authorized additions
+to the durable local mock workflow. The base keeps v0.2 and the existing payment
+architecture. Local demo sessions do not replace production customer authentication.
+See root IMPLEMENTATION_STATUS.md and API_CONTRACT.md for the integrated branch;
+docs/API.md remains the original runtime interface. No live money or deployment is run.
 
 ## Remaining decisions
 

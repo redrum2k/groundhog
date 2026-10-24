@@ -883,6 +883,8 @@ progress::-moz-progress-bar {
   border: 1px solid var(--border);
   margin-top: 12px;
 }
+.pdf-region-view { position: relative; width: 100%; margin-top: 12px; }
+.pdf-region-view img { display: block; width: 100%; height: auto; }
 .artifact-preview .button {
   font-size: 10px;
   margin: 3px;

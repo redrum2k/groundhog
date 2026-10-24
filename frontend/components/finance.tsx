@@ -20,7 +20,7 @@ export function FinanceDrawer({
   return (
     <Drawer
       title="Finance receipts"
-      description="Simulated USD cents · saas-unit-acceptance-v1. UNKNOWN is not received cash."
+      description="Mock USD cents · HACK.md v0.2 base review; separate authorized additions. UNKNOWN is not cash."
       trigger={<Button>View receipts ↗</Button>}
     >
       <dl className="receipt-summary">
@@ -66,7 +66,7 @@ export function FinanceDrawer({
             <br />
             Provider reference: {op.provider_reference}
             <br />
-            Change order: {op.change_order_id ?? "Original prepayment"}
+            Change order: {op.change_order_id ?? "Base order"}
           </p>
           {op.status === "UNKNOWN" && can(actor, "reconcile") && (
             <Button

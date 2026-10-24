@@ -123,6 +123,13 @@ def evidence_content(
             else {"complaint": order.complaint, "refund_requested": order.refund_requested}
         )
         data = json.dumps(payload, sort_keys=True).encode()
+    elif evidence.storage_key == f"jobflow/{evidence.evidence_id}":
+        with request.app.state.jobflow.store.connect() as db:
+            data, metadata, _ = request.app.state.jobflow.store.artifact(
+                db, order_id, evidence.evidence_id
+            )
+        if metadata["version"] != evidence.version:
+            raise DomainError(409, "evidence version does not match the frozen reference")
     else:
         root: Path = request.app.state.artifact_root.resolve()
         path = (root / evidence.storage_key).resolve()

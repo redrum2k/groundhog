@@ -167,7 +167,12 @@ export function ChangeOrders({
                 </Button>
               </>
             )}
-            {["ACCEPTED", "PAYMENT_PENDING"].includes(change.status) &&
+            {change.status === "ACCEPTED" && !change.payment_authorization && can(actor, "authorize_change") && (
+              <Button disabled={busy} onClick={() => command(
+                { verb: "authorize_change", change_order_id: change.id }, "Authorize additional payment",
+              )}>Authorize payment · {money(change.amount_minor)}</Button>
+            )}
+            {change.status === "ACCEPTED" && !!change.payment_authorization &&
               can(actor, "receive_payment") && (
                 <Button
                   disabled={busy}

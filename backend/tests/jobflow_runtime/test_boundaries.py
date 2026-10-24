@@ -375,12 +375,16 @@ def test_validation_failure_is_not_sdk_success_and_cost_posted_once(h, monkeypat
     assert result.jobs[-1].processing == "FAILED"
     assert result.jobs[-1].attempts[0].output_artifact_id is not None
     assert result.finance.correction_cost_minor == 1
-    assert result.finance.recognized_minor == 200
+    assert result.finance.recognized_minor == 0
 
 
 def test_reconcile_cannot_take_callers_word_or_use_another_orders_operation(h):
-    order = h.create(initial_receipt="NONE")
-    unknown = h.cmd(order, "executor", "receive_payment", provider_outcome="UNKNOWN")
+    order, change = h.quote(h.create())
+    h.cmd(order, "customer", "accept_change", change_order_id=change.id)
+    h.cmd(order, "customer", "authorize_change", change_order_id=change.id)
+    unknown = h.cmd(
+        order, "executor", "receive_payment", change_order_id=change.id, provider_outcome="UNKNOWN"
+    )
     operation = unknown.finance.operations[-1]
     with pytest.raises(DomainError, match="No authoritative"):
         h.cmd(order, "executor", "reconcile", operation_id=operation.id)
@@ -427,13 +431,17 @@ def test_create_exact_replay_and_key_collision(h):
 
 
 def test_payment_failure_is_not_posted_or_blindly_retried(h):
-    order = h.create(initial_receipt="NONE")
-    h.cmd(order, "executor", "receive_payment", provider_outcome="FAILURE")
+    order, change = h.quote(h.create())
+    h.cmd(order, "customer", "accept_change", change_order_id=change.id)
+    h.cmd(order, "customer", "authorize_change", change_order_id=change.id)
+    h.cmd(
+        order, "executor", "receive_payment", change_order_id=change.id, provider_outcome="FAILURE"
+    )
     h.drain()
     assert h.get(order).finance.operations[0].status == "FAILED"
     assert h.get(order).finance.postings == []
     with pytest.raises(DomainError):
-        h.cmd(order, "executor", "receive_payment")
+        h.cmd(order, "executor", "receive_payment", change_order_id=change.id)
 
 
 def test_recovery_after_provider_result_persisted_uses_same_attempt(h):
@@ -515,7 +523,9 @@ def test_completion_requires_all_operational_and_financial_obligations(h):
     corrected = h.get(order)
     assert corrected.status != "COMPLETE"
     accepted = h.cmd(corrected, "customer", "accept_delivery", job_ids=[corrected.jobs[-1].id])
-    assert accepted.status == "COMPLETE"
+    assert accepted.status != "COMPLETE"
+    captured = h.cmd(accepted, "customer", "accept_base")
+    assert captured.status == "COMPLETE"
 
 
 def test_compute_cap_is_atomic(h):
@@ -552,6 +562,7 @@ def test_future_terms_do_not_retroactively_mark_all_work_complete(h):
             requested_fields=[],
         ),
     )
+    order = h.cmd(order, "customer", "accept_base")
     assert order.status == "COMPLETE"
     activation = h.now + timedelta(minutes=1)
     signed = h.cmd(

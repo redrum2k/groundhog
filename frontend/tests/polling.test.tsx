@@ -60,6 +60,18 @@ async function signedIn(override?: Parameters<typeof router>[0]) {
 }
 
 describe("polling and mutation lifecycle", () => {
+  it("follows a newly created order even if an initial list selected another order", async () => {
+    let finish: (response: Response) => void = () => {};
+    const { result } = await signedIn((path, init) =>
+      path.endsWith("/orders") && init?.method === "POST"
+        ? new Promise<Response>((resolve) => { finish = resolve; }) : undefined,
+    );
+    let pending: Promise<boolean>;
+    act(() => { pending = result.current.mutate(prepareMutation("/orders", { document_count: 1 }, "Create")); });
+    act(() => result.current.selectOrder("order-2"));
+    await act(async () => { finish(json(order({id:"new-order"}))); await pending; });
+    expect(result.current.notice).toContain("Create recorded");
+  });
   it("keeps the selected order live when its sidebar entry is clicked again", async () => {
     const { result } = await signedIn();
     act(() => result.current.selectOrder("order-1"));

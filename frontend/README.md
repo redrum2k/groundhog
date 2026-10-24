@@ -109,14 +109,16 @@ Check/finding citations show exact quoted text, locator, immutable source versio
 and full SHA-256. Stale citation version/hash/text is blocked. **Load verified
 artifact** uses authenticated fetch, verifies the actual bytes, and creates a
 revocable blob URL. PDFs open at the cited page, with an embedded inspection view
-and a separate open/download link. Rectangle coordinates are displayed when
-supplied; graphical PDF rectangle overlays are not implemented in this lane.
+and a separate open/download link. Field citations render an authenticated,
+hash-bound source-page image with a normalized rectangle overlay.
 
 Radix Dialog supplies modal focus trapping, Escape dismissal, title/description
 semantics and return focus. Native buttons/forms, visible focus rings, labeled
 inputs, arrow-key matrix navigation and a skip link cover the rest. Layout has
-1280×720 and 1440×900 breakpoints plus a single-column narrow layout. Parent
-integration must still verify these sizes against the real backend in a browser.
+1280×720 and 1440×900 breakpoints plus a single-column narrow layout. Real-backend
+browser acceptance covers both sizes, three colors, correction, quote authorization,
+source inspection, reload and read-only replay. Run `node scripts/acceptance.cjs`
+against the local app; use ACCEPTANCE_ORIGIN to override the default localhost:3000.
 
 ## Production packaging (not deployed)
 

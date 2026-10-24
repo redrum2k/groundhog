@@ -13,20 +13,25 @@ function ArtifactPreview({
   evidence,
   token,
   page,
+  rectangle,
 }: {
   orderId: string;
   evidence: Evidence;
   token: string;
   page?: number | null;
+  rectangle?: [number, number, number, number] | null;
 }) {
   const [url, setUrl] = useState<string>();
+  const [pageUrl, setPageUrl] = useState<string>();
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);
   const [requestId, setRequestId] = useState(0);
+  const rectangleKey = rectangle?.join(",");
   useEffect(() => {
     if (!requestId) return;
     const controller = new AbortController();
     let blobUrl: string | undefined;
+    let renderedUrl: string | undefined;
     setLoading(true);
     setError(undefined);
     void (async () => {
@@ -56,6 +61,15 @@ function ArtifactPreview({
           new Blob([bytes], { type: evidence.media_type }),
         );
         setUrl(blobUrl);
+        if (evidence.media_type === "application/pdf" && rectangle) {
+          const rendered = await fetch(`${API}/orders/${encodeURIComponent(orderId)}/artifacts/${encodeURIComponent(evidence.id)}/pages/${page ?? 1}`,
+            { headers: { Authorization: `Bearer ${token}` }, signal: controller.signal, cache: "no-store" });
+          if (!rendered.ok || rendered.headers.get("X-Source-SHA256") !== evidence.sha256)
+            throw new Error("Rendered page does not match the cited source.");
+          const blob = await rendered.blob();
+          if (controller.signal.aborted) return;
+          renderedUrl = URL.createObjectURL(blob); setPageUrl(renderedUrl);
+        }
       } catch (e) {
         if (!controller.signal.aborted) setError((e as Error).message);
       } finally {
@@ -65,6 +79,7 @@ function ArtifactPreview({
     return () => {
       controller.abort();
       if (blobUrl) URL.revokeObjectURL(blobUrl);
+      if (renderedUrl) URL.revokeObjectURL(renderedUrl);
     };
   }, [
     requestId,
@@ -73,6 +88,8 @@ function ArtifactPreview({
     evidence.sha256,
     evidence.media_type,
     token,
+    page,
+    rectangleKey,
   ]);
   return (
     <div className="artifact-preview">
@@ -101,7 +118,13 @@ function ArtifactPreview({
             Download
           </a>
           {evidence.media_type === "application/pdf" && (
-            <iframe
+            pageUrl && rectangle ? <div className="pdf-region-view">
+              <img src={pageUrl} alt={`Source page ${page ?? 1}: ${evidence.filename}`} />
+              <span aria-label="Cited PDF region" style={{position:"absolute", pointerEvents:"none",
+                left:`${rectangle[0]*100}%`, top:`${rectangle[1]*100}%`,
+                width:`${(rectangle[2]-rectangle[0])*100}%`, height:`${(rectangle[3]-rectangle[1])*100}%`,
+                background:"rgba(255, 200, 40, .3)", outline:"2px solid #d58500"}} />
+            </div> : <iframe
               title={`PDF inspection: ${evidence.filename}`}
               src={`${url}#page=${page ?? 1}`}
               className="pdf-preview"
@@ -167,6 +190,7 @@ export function SourceCard({
         evidence={evidence}
         token={token}
         page={citation?.page}
+        rectangle={citation?.rectangle}
       />
     </article>
   );

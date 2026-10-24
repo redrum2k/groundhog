@@ -9,7 +9,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.jobflow import router as jobflow_router
-from app.api.orders import router, worker as worker_router
+from app.api.orders import router
+from app.api.orders import worker as worker_router
 from app.orders.service import DomainError, OrderService, utc_now
 from app.payments import configured_payment_mode
 from app.runtime.jobflow import Jobflow
@@ -22,7 +23,11 @@ logger = logging.getLogger(__name__)
 
 
 def health() -> dict[str, str | bool]:
-    return {"status": "ok", "payment_mode": configured_payment_mode(), "live_settlement_enabled": False}
+    return {
+        "status": "ok",
+        "payment_mode": configured_payment_mode(),
+        "live_settlement_enabled": False,
+    }
 
 
 def create_app(
@@ -38,14 +43,19 @@ def create_app(
     configured_payment_mode()
     if isinstance(database_path, Jobflow):
         service, database_path = database_path, None
+    if service is not None:
+        clock = service.clock
     if worker is not None:
         run_worker = worker
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         path = Path(
-            service.store.path if service else database_path
-            or os.getenv("ORDER_DB_PATH") or os.getenv("JOBFLOW_DB_PATH", "artifacts/orders.sqlite3")
+            service.store.path
+            if service
+            else database_path
+            or os.getenv("ORDER_DB_PATH")
+            or os.getenv("JOBFLOW_DB_PATH", "artifacts/orders.sqlite3")
         )
         app.state.orders = OrderService(OrderRepository(path), clock)
         app.state.jobflow = service or Jobflow(

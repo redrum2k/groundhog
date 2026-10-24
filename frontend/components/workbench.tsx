@@ -22,6 +22,7 @@ import { EvidenceDrawer, CitationList, SourceCard } from "./evidence";
 import { FinanceDrawer } from "./finance";
 import { IssuePanel } from "./issue-panel";
 import { ChangeOrders } from "./change-orders";
+import { BaseReview } from "./base-review";
 
 const toneLabels: Record<Tone, string> = {
   green: "Validated",
@@ -347,7 +348,7 @@ export function Workbench() {
         </nav>
         <Button
           className="new-case"
-          disabled={!session || busy}
+          disabled={!session || busy || app.loading}
           onClick={createOrder}
         >
           ＋ New Northwind case
@@ -483,6 +484,7 @@ export function Workbench() {
                 />
               </div>
             </div>
+            <BaseReview order={order} actor={session.actor} token={session.token} busy={busy} command={command} />
             <section
               className="money-cards"
               aria-label="Authoritative financial summary"
@@ -497,7 +499,7 @@ export function Workbench() {
                 {
                   title: "Earned revenue",
                   value: order.finance?.recognized_minor,
-                  note: "Accepted delivery only",
+                  note: "Policy-booked base + accepted additions",
                   icon: "✓",
                 },
                 {
@@ -604,7 +606,7 @@ export function Workbench() {
             <div className="work-area">
               <div className="batch-column">
                 <JobMatrix
-                  key={order.id}
+                  key={`matrix:${order.id}`}
                   order={order}
                   selectedJobId={jobId}
                   onSelect={focusJob}
@@ -655,7 +657,7 @@ export function Workbench() {
                   </div>
                 </div>
                 <Courier
-                  key={order.id}
+                  key={`courier:${order.id}`}
                   events={app.events}
                   jobs={order.jobs}
                   attemptLimit={order.agreement.correction_attempt_limit ?? 1}

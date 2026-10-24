@@ -76,6 +76,21 @@ class ProcessingQuote(Contract):
     binding: ProposalBinding
 
 
+class QuoteAuthorization(Contract):
+    quote_id: Text
+    amount: Money
+    authorized_by: Text
+    expires_at: AwareDatetime
+    receipt: PaymentReceipt
+
+
+class ScopeObligation(Contract):
+    amendment_id: Text
+    effective_at: AwareDatetime
+    fields: tuple[Text, ...]
+    fulfilled: bool = False
+
+
 class LedgerEntry(Contract):
     entry_id: Text
     kind: Literal["base", "additional_processing"]
@@ -115,7 +130,9 @@ class OrderRecord(BaseModel):
     failure: Text | None = None
     requires_quote: bool = False
     quote: ProcessingQuote | None = None
+    quote_authorization: QuoteAuthorization | None = None
     ledger: tuple[LedgerEntry, ...] = ()
+    scope_obligations: tuple[ScopeObligation, ...] = ()
 
 
 class OrderView(Contract):

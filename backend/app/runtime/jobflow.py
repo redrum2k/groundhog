@@ -10,10 +10,12 @@ from datetime import timedelta
 
 from app.contracts.jobflow import Actor, OrderView
 from app.orders.jobflow import create_order, prepare_intake
+from app.orders.service import OrderService
 from app.payments.jobflow import project
 from app.provider.jobflow import store_evidence
 from app.runtime.jobflow_policy import invalidate, refresh_quotes, require, utcnow
 from app.storage.jobflow import DomainError, Store
+from app.storage.orders import OrderRepository
 
 DEMO_ACTORS = [
     Actor(id="customer", name="Northwind buyer", role="customer", customer_id="northwind"),
@@ -48,6 +50,7 @@ class Jobflow:
         authenticator=None,
     ):
         self.store = Store(path)
+        self.base = OrderService(OrderRepository(self.store.path), clock)
         self.demo = demo
         self.clock = clock
         self.investigator = investigator
@@ -111,11 +114,18 @@ class Jobflow:
         return used < int(os.environ["JOBFLOW_ANTHROPIC_MAX_CALLS"])
 
     def view(self, actor, order_id):
-        with self.store.connect() as db:
+        from app.runtime.jobflow_base import sync_base
+
+        with self.store.connect(write=True) as db:
             order = self.store.get(db, order_id)
             require(actor, order)
+            previous = order.base_order.order.revision if order.base_order else None
+            record = sync_base(self, db, order, self.clock())
+            if previous != record.revision:
+                order.revision += 1
             project(db, order, self.clock())
             order.model_available = self.available(db)
+            self.store.save(db, order)
             return order
 
     def orders(self, actor):
@@ -127,10 +137,8 @@ class Jobflow:
             result = []
             for order in orders:
                 if actor.role != "customer" or actor.customer_id == order.customer_id:
-                    project(db, order, self.clock())
-                    order.model_available = self.available(db)
                     result.append(order)
-            return result
+        return [self.view(actor, order.id) for order in result]
 
     def events(self, actor, order_id, after=0):
         with self.store.connect() as db:
@@ -163,6 +171,19 @@ class Jobflow:
             order = create_order(
                 db, self.store, actor, request, records, self.clock(), self.available(db)
             )
+            from app.runtime.jobflow_base import create_base
+
+            create_base(
+                self,
+                db,
+                order,
+                request,
+                self.clock(),
+                lambda kind, **payload: self.store.event(
+                    db, order, actor.id, request.idempotency_key, self.clock(), kind, **payload
+                ),
+            )
+            project(db, order, self.clock())
             self.store.save(db, order)
             self.store.receipt(
                 db, actor.id, request.idempotency_key, envelope, order.model_dump(mode="json")
@@ -170,6 +191,7 @@ class Jobflow:
             return order
 
     def mutate(self, actor, order_id, request, route, roles, transform):
+        self.view(actor, order_id)
         envelope = {"route": route, "order_id": order_id, "body": request.model_dump(mode="json")}
         with self.store.connect(write=True) as db:
             order = self.store.get(db, order_id)
@@ -196,7 +218,13 @@ class Jobflow:
             return response
 
     def command(self, actor, order_id, command):
+        from app.runtime.jobflow_base import after_command, before_command
         from app.runtime.jobflow_commands import ROLES, apply_command
+
+        def apply(db, order, now, emit):
+            before_command(self, db, order, command, now)
+            apply_command(self, db, order, actor, command, now, emit)
+            after_command(self, db, order, command, now, emit)
 
         return OrderView.model_validate(
             self.mutate(
@@ -205,9 +233,7 @@ class Jobflow:
                 command,
                 "command",
                 ROLES[command.verb],
-                lambda db, order, now, emit: apply_command(
-                    self, db, order, actor, command, now, emit
-                ),
+                apply,
             )
         )
 
