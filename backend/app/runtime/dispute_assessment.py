@@ -350,6 +350,12 @@ def queue_assessment(broker, db, record, base, actor_id, causal, *, resume=False
         if receipt is not None and (
             not receipt.base_order
             or not eligible(broker, receipt, receipt.base_order.order, resume=resume)
+            # Before the outbox there was no persisted model-mode marker. An
+            # OPEN complaint with current PASS is unambiguously awaiting this
+            # path: the deterministic PASS branch would have resolved it. Other
+            # old receipts may have completed by asking a question/reserving work;
+            # enabling a feature later cannot reinterpret those command effects.
+            or receipt.base_order.order.data_verification.verdict != "PASS"
             or work_binding(broker, record, base)
             != work_binding(broker, receipt, receipt.base_order.order)
         ):

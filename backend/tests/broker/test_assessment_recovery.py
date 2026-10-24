@@ -12,7 +12,7 @@ from app.main import create_app
 from app.runtime import dispute_assessment
 from app.runtime.broker import Broker
 from app.storage.jobflow import uid
-from tests.broker.conftest import ACTORS, command, source_bytes
+from tests.broker.conftest import ACTORS, accept_order, command, source_bytes
 from tests.broker.test_acceptance_v5 import amend
 from tests.broker.test_dispute_assessment import AGE, Assessor, opened, upload_new_version
 
@@ -312,3 +312,50 @@ def test_old_receipt_cannot_authorize_assessment_of_changed_evidence(broker, mon
     assert not assessor.calls and broker.recover_assessments() == 0
     with broker.store.connect() as db:
         assert db.execute("SELECT count(*) FROM br_assessment_work").fetchone()[0] == 0
+
+
+def test_enabling_feature_does_not_reinterpret_completed_deterministic_receipt(broker):
+    assessor = Assessor()
+    broker.dispute_assessor = assessor
+    order = opened(broker)
+    broker.dispute_assessment_enabled = False
+    order = upload_new_version(broker, order.id)
+    changed = order.original_specification.model_copy(
+        update={"version": 2, "sources": (source_pin(source_bytes(version=2)),)}
+    )
+    order = amend(broker, order, changed, broker.clock())
+    request = BrokerCommand(
+        idempotency_key=uid("rules-receipt"), expected_revision=order.revision, verb="investigate"
+    )
+    receipt = broker.command(ACTORS["investigator"], order.id, request)
+    assert receipt.base_order.order.regeneration_pending
+    assert receipt.base_order.order.data_verification.verdict == "FAIL"
+    broker.dispute_assessment_enabled = True
+    assert broker.command(ACTORS["investigator"], order.id, request) == receipt
+    assert not assessor.calls  # Enabling a feature cannot change a completed command's effects.
+    current = broker.view(ACTORS["customer"], order.id)
+    assert current.base_order.order.regeneration_pending and not current.base_order.order.ledger
+
+
+def test_enabling_feature_does_not_replace_an_acknowledged_evidence_question(broker, monkeypatch):
+    broker.dispute_assessment_enabled = False
+    assessor = Assessor()
+    broker.dispute_assessor = assessor
+    raw = source_bytes(
+        rows=[dict(entity_id="region-001", region_id="R001", value=95000, observed_at=None)]
+    )
+    order = accept_order(broker, raw=raw)
+    with monkeypatch.context() as patch:
+        patch.setattr(broker, "_verify", lambda db, record, base, *a, **kw: base)
+        order = command(broker, order, "provider", "produce")
+    order = command(broker, order, "customer", "dispute", text=AGE)
+    request = BrokerCommand(
+        idempotency_key=uid("rules-question"), expected_revision=order.revision, verb="investigate"
+    )
+    receipt = broker.command(ACTORS["investigator"], order.id, request)
+    assert receipt.base_order.order.data_verification.verdict == "UNKNOWN"
+    assert any(q.status == "OPEN" for q in receipt.questions)
+    broker.dispute_assessment_enabled = True
+    assert broker.command(ACTORS["investigator"], order.id, request) == receipt
+    assert not assessor.calls
+    assert broker.view(ACTORS["customer"], order.id).questions == receipt.questions
