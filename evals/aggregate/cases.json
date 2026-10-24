@@ -1,0 +1,63 @@
+{
+  "schema_version": "aggregate-cases-v1",
+  "cases": [
+    {
+      "id": "D01",
+      "title": "Conforming output and review-expiry capture",
+      "classification": "development",
+      "recipe": "conforming",
+      "checkpoints": [
+        "delivery",
+        "settled"
+      ]
+    },
+    {
+      "id": "D02",
+      "title": "Detected missing ZIP and one correction",
+      "classification": "development",
+      "recipe": "correction",
+      "checkpoints": [
+        "initial",
+        "corrected"
+      ]
+    },
+    {
+      "id": "D03",
+      "title": "Unsupported factual category complaint",
+      "classification": "development",
+      "recipe": "complaint",
+      "checkpoints": [
+        "delivery",
+        "complaint"
+      ]
+    },
+    {
+      "id": "D04",
+      "title": "Separately accepted and funded Oakland scope",
+      "classification": "development",
+      "recipe": "additional_scope",
+      "checkpoints": [
+        "parent",
+        "child"
+      ]
+    },
+    {
+      "id": "D05",
+      "title": "Insufficient source publisher evidence",
+      "classification": "development",
+      "recipe": "insufficient",
+      "checkpoints": [
+        "source"
+      ]
+    },
+    {
+      "id": "D06",
+      "title": "Contradictory registered source edition",
+      "classification": "development",
+      "recipe": "contradictory",
+      "checkpoints": [
+        "source"
+      ]
+    }
+  ]
+}

@@ -1,3 +1,12 @@
+# Aggregate evaluator delegation — Prompt 10
+
+Own isolated case execution, scoring, audit integration and JSON/Markdown reports
+under the user/Jeff delegation. This is separate from payment recovery and runtime
+semantics. [Workstream 10](../workstreams/10-aggregate-evaluation.md) records the
+exact base, extracted audit provenance and fresh validation. Rehan owns independent
+labels and split review; Jeff owns compiler/interpretation/consent/provider wiring
+and enforcement. Keep the small acceptance smoke and historical evaluations intact.
+
 # Current integration — October 24
 
 Reviewed payment commit `593e02fcbc63b45d95d252e7314289eda39d4fb0` is merged in
