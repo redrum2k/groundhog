@@ -1,31 +1,36 @@
-# Implementation status and next tasks
+# Implementation status and next tasks — v0.2
 
-Recorded after scaffold generation and verification on **2026-10-23**. The checkout
-was empty when work began. This is an initial scaffold, not a working end-to-end
-product. No paid model/API calls, transaction broadcasts, or deployments were made.
+Updated 2026-10-23 after the user's invoice/review/payment corrections and clarification:
+unresolved disputed payments stay held at cutoff; extra processing uses the accepted
+fee, or a separately accepted quote if no fee exists. This replaces the initial scaffold status.
 
-Start with [AGENTS.md](../AGENTS.md), the root coding-agent instructions (plural,
-uppercase filename). Product decisions are in [HACK.md](../HACK.md). See
-[CODEX_SKILLS.md](CODEX_SKILLS.md) for suggested skills and how to invoke them.
+Start with [AGENTS.md](../AGENTS.md), [HACK.md](../HACK.md), [API.md](API.md) and
+[INTEGRATION_CHECKPOINT.md](INTEGRATION_CHECKPOINT.md). Optional skills remain in
+[CODEX_SKILLS.md](CODEX_SKILLS.md).
 
-## What exists and was verified
+## Implemented
 
-| Area | Implemented |
+| Area | Current behavior |
 | --- | --- |
-| Repository / ownership | Requested directory boundaries, root agent instructions, product baseline, glossary, architecture and independent teammate workflows. |
-| Backend package | Python 3.12+, uv project and lockfile; FastAPI, Pydantic, SQLite support, LangGraph and Anthropic SDK dependencies. |
-| API | `GET /health` returns status plus explicit mock mode and disabled live settlement. No other product endpoints. |
-| Shared contracts | `OrderSnapshot`, `EvidenceReference`, `DeliveryVersion`, `InvestigationInput`, `InvestigationResult`, `SettlementIntent`, and supporting typed models. |
-| Evidence / PDF contract | Exact version/hash citations; PDF page highlight rectangles; retained structured-data references with exact source provenance. Artifact contracts remain format-independent. |
-| Investigator boundary | Async protocol returning cited findings, unresolved issues, questions and recommendations; result/input validation. No agent implementation. |
-| Deterministic policy | Capture gate for verification, acceptance or 60-second expiry, disputes, current version binding, exact accepted price, and separate authorization expiry. One free regeneration, then human-review decision on failure; ambiguity also escalates. |
-| Payments | Authorization/execution/reconciliation interfaces; default mock only; SQLite idempotency journal that survives restarts and rejects key/payload conflicts. All mock receipts remain mock. |
-| Tests | 80 passing cases covering contracts, money/versions, PDF highlights, structured provenance, citation binding, payment authority boundaries, capture rules, escalation and durable mock deduplication. |
-| Secrets / packaging | Ignore rules created before configuration; names-only `.env.example`; built wheel contains application code and no evaluation keys/environment files. |
+| Invoice specification | All eight explicit criteria are documented and represented by typed criterion assessments. Compliance requires cited passes for all eight; final-delivery assessment must cite the actual output PDF. |
+| Order persistence | Accepted snapshot, separate lifecycle states, delivery/evidence/proposal versions, questions/answers, mock authorization and ledger are persisted in SQLite. |
+| Polling and commands | Customer and trusted-worker routes, two-second polling guidance, server deadlines, available actions, revision/binding checks and 409 stale-action responses. |
+| Concurrency and retries | BEGIN IMMEDIATE serializes state checks and mock bookings; exact idempotent responses persist across restart. Changed payloads under a used key conflict. |
+| Base payment | Mock authorization opens on order acceptance; early complete evidence, customer acceptance or undisputed cutoff books the base once. All receipts remain mock. |
+| Review cutoff | 600 seconds per delivered version/new dispute. Background sweep, startup recovery and request-time advancement. Unresolved disputes hold payment and escalate. Authorization expiry remains independent. |
+| Supported claim | One reserved free regeneration; another defect or engine failure during that regeneration escalates to human review. |
+| Refuted claim | Evidence is exposed in the result; exact agreed processing fee is booked. If absent, a quote must be issued and accepted before any extra booking. |
+| Questions | One evidence-driven question per round, at most two total. Answers become versioned evidence; inconclusive result after the second answer or cutoff escalates. |
+| Failure/version semantics | Engine failure is operational_failure (red), without inventing a PDF version. Replacement publication requires failure or a reserved supported-defect regeneration. Answers change evidence/proposal versions only. |
+| Evidence delivery | Registered current-order evidence is served from approved artifact storage or persisted customer JSON, with SHA-256 checks and path-escape rejection. |
+| Ownership | Jeff owns coordinates/corpus/extraction/agent; Nikita owns provider/persistence/payment execution; Lucas displays highlights and visually classifies generated PDFs; Rehan independently evaluates. |
+| Agent guidance | Updated root AGENTS.md; added investigation, frontend and evaluation AGENTS.md files with the revised boundaries. |
 
-## Verified commands and observations
+These checks validate evidence structure, provenance and current binding. They do not
+implement PDF extraction, arithmetic verification tools or establish that a synthetic
+worker assessment is factually true; those remain Jeff/provider integration work.
 
-Run from the repository root:
+## Verified
 
 ```sh
 uv sync --locked --project backend
@@ -35,126 +40,50 @@ uv run --locked --directory backend ruff format --check .
 uv build --project backend --wheel --out-dir backend/dist
 ```
 
-Results: **80 passed**, lint clean, 24 Python files already formatted, wheel built.
-The generated wheel and virtual environment are ignored local artifacts.
+- **111 tests passed**, including API journeys, live lifespan deadline advancement,
+  concurrent dispute/capture attempts, parallel retries, restart recovery, quotes,
+  question budgets, free regeneration, verdict evidence constraints and artifact isolation.
+- Ruff lint/format checks passed; 31 Python files formatted.
+- OpenAPI exposes 13 paths and the 600-second/strict-revision constraints.
+- A real Uvicorn smoke test with an isolated temporary database returned HTTP 200 for
+  /health and /openapi.json. The test server was stopped afterward.
+- v0.2 wheel built; runtime package excludes evaluator keys and environment files.
+  The environment example contains names only and local/private files remain ignored.
 
-The actual server command was also smoke-tested:
+No paid calls, transaction broadcasts, infrastructure deployment or live settlement occurred.
 
-```sh
-uv run --locked --directory backend uvicorn app.main:app --reload --host 127.0.0.1 --port 8765
-curl --fail --silent --show-error http://127.0.0.1:8765/health
-```
+## Remaining work and next owner tasks
 
-HTTP 200 returned
-`{"status":"ok","payment_mode":"mock","live_settlement_enabled":false}`.
-The smoke-test server was shut down afterward. Ignore-rule probes confirmed that
-nested `.env` files, databases/journals, dependency directories and private artifacts
-are ignored, while `.env.example` remains eligible for version control.
-
-## What still needs implementation
-
-- **Durable application runtime:** order/snapshot storage, migrations, separate state
-  transitions, version allocation, persisted acceptance/verification, 60-second
-  scheduling, dispute/capture race handling, retries and restart recovery. Persist
-  human review and regeneration usage atomically; the current pure policy functions
-  do not themselves dispatch regeneration, create a review queue, or execute payments.
-- **API and access control:** order creation/acceptance, artifact retrieval, reviews,
-  disputes, questions/answers, permissions and input validation at authenticated routes.
-- **PDF and structured-data pipeline:** actual source/delivery PDFs, ingestion,
-  extraction/generation, stable record-to-PDF region mapping, storage and a scoped
-  evidence resolver. Contracts preserve references; no actual PDFs or renderer exist.
-- **Provider:** inference-job adapter, status/retry handling and output verification.
-- **Investigator:** Jeff's tools, strategy, prompts, implementation, question/resume
-  flow and quality evaluation. SDKs are installed but not called.
-- **Frontend:** Lucas's Next.js setup, PDF source/result panes, linked highlights,
-  review timer/controls, dispute/human-review views and explicit mock payment display.
-- **Payments:** isolated CDP/Base spike, live adapter, durable execution reservations,
-  release authority, reconciliation worker and finality proof. Live mode currently
-  fails closed. The mock journal is not a live financial executor.
-- **Evaluation / demo:** seeded corpus tools, independently reviewed cases and answer
-  keys, offline evaluator, acceptance journey, sponsor checklist, pitch and backup.
-  Restrict runtime workspaces to allowlisted evidence before enabling an investigator;
-  package exclusion alone does not isolate a process with repository access.
-- **Hosting:** Railway backend/frontend configuration, persistent SQLite storage and
-  deployment checks. No infrastructure or public application exists yet.
-
-## Remaining interface decisions
-
-1. Nikita + Jeff approve initial schema semantics and how a provider defect becomes
-   verified application evidence. No joint approval is claimed by this scaffold.
-2. Nikita + Jeff + Lucas agree PDF crop/rotation transforms and page-count validation.
-   Proposed highlights use one-based pages and normalized top-left coordinates.
-3. Nikita + Jeff agree structured record/field serialization, PDF-region mappings,
-   version allocation and question/answer resumption. Retained structured data must
-   not contain evaluation answers or mutation labels.
-4. Decide whether new evidence restarts the review clock. Current guard uses each
-   delivery's timestamp and invalidates prior verification/acceptance on version changes.
-5. Resolve payment network/asset/precision, authorization duration, escrow semantics,
-   live release authority, confirmation/finality and human-review settlement policy.
-6. Additional charging for unsupported complaints remains unresolved and unimplemented.
-
-## First task for each teammate
-
-| Teammate | Start here |
+| Owner | Next task |
 | --- | --- |
-| Nikita | Review contracts with Jeff; persist immutable snapshots and separate states in SQLite, including an atomic operation reservation. Use mock payments while the spike remains open. |
-| Jeff | Review contracts with Nikita; create one synthetic PDF/structured-data fixture with linked regions, then implement the investigator protocol against it. |
-| Lucas | Scaffold Next.js/TypeScript/shadcn UI and build PDF source/delivery panes with citation navigation using local fixtures. Document frontend run/test commands. |
-| Rehan | Independently review one defect case and one ambiguous case; separate runtime-safe inputs from private expected answers and draft acceptance criteria. |
+| Nikita | Wire actual provider jobs to the persisted regeneration reservation and trusted publish/failure API. Complete customer authentication/tenant access before deployment. Run the separately authorized payment spike before any live adapter. |
+| Jeff | Produce the small source/delivery PDF fixture and structured region map; implement Investigator.investigate, factual verification tools and evidence-driven questions against current contracts. |
+| Lucas | Scaffold the frontend, display PDFs/highlights, visually classify cases, and connect polling/version-bound controls. Keep worker credentials out of the browser. |
+| Rehan | Independently evaluate the fixture and scenarios; keep expected answers outside runtime; finish acceptance/sponsor/pitch work. |
 
-See [responsibilities.md](responsibilities.md) for runnable independent backend
-checks and [CODEX_SKILLS.md](CODEX_SKILLS.md) for optional workflow assistance.
+Actual source/delivery PDFs and generator/extractor are not supplied yet. Model/provider
+calls, frontend, upload flow, human-decision/refund execution, live transaction dispatch/
+reconciliation and Railway deployment remain unimplemented. Human escalation is durable
+state; a person-facing decision UI/API is still needed. A refund request is not a refund.
 
-## Files created
+Payment-spike questions remain asset/network/precision, extra-fee authorization, expiry/
+renewal, finality, and human release/refund authority. PDF crop/rotation and physical
+page bounds need confirmation against the real fixture. The first checkpoint is
+90 minutes after the team's split begins, with a one-invoice fallback at the 30-minute
+check-in; no event deadline or scheduled automation was invented.
 
-All source files below are new; existing teammate work was not present or overwritten.
-Generated `.venv`, caches and wheel output are intentionally excluded.
+## Principal changed and new files
 
-```text
-.gitignore
-.env.example
-AGENTS.md
-CONTEXT.md
-HACK.md
-README.md
-backend/
-  pyproject.toml
-  uv.lock
-  app/
-    __init__.py
-    main.py
-    api/__init__.py
-    contracts/__init__.py
-    contracts/models.py
-    orders/__init__.py
-    runtime/__init__.py
-    runtime/policy.py
-    storage/__init__.py
-    storage/mock_journal.py
-    payments/__init__.py
-    payments/interfaces.py
-    payments/mock.py
-    provider/__init__.py
-    investigation/__init__.py
-    investigation/interface.py
-    investigation/tools/__init__.py
-    investigation/prompts/README.md
-  tests/
-    conftest.py
-    test_health.py
-    test_contracts.py
-    runtime/test_policy.py
-    payments/test_mock.py
-    investigation/test_interface.py
-docs/
-  architecture.md
-  responsibilities.md
-  PAYMENT_SPIKE.md
-  CODEX_SKILLS.md
-  IMPLEMENTATION_STATUS.md
-frontend/README.md
-tools/corpus/README.md
-evals/cases/README.md
-evals/expected/README.md
-spikes/payments/README.md
-```
+- Root: AGENTS.md, HACK.md, CONTEXT.md, README.md, .env.example.
+- Contracts: backend/app/contracts/models.py and new backend/app/contracts/api.py.
+- API/runtime: backend/app/main.py, new backend/app/api/orders.py,
+  new backend/app/orders/service.py, backend/app/runtime/policy.py.
+- Persistence/payments: new backend/app/storage/orders.py, updated mock receipt helper
+  and adapter interfaces; original standalone mock journal retained.
+- Investigation: protocol/prompts and new backend/app/investigation/AGENTS.md.
+- Tests: new backend/tests/api/test_orders.py and investigation/test_verdicts.py;
+  updated fixtures, policy/interface and health tests.
+- Metadata: backend/pyproject.toml and backend/uv.lock updated to 0.2.0.
+- Documentation: API.md and INTEGRATION_CHECKPOINT.md added; architecture.md,
+  responsibilities.md, PAYMENT_SPIKE.md and this status rewritten to current policy.
+- Frontend/evaluation: frontend/README.md updated; frontend/AGENTS.md and evals/AGENTS.md added.

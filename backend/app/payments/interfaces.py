@@ -16,7 +16,7 @@ class AuthorizationRequest(Contract):
 class PaymentReceipt(Contract):
     idempotency_key: Text
     operation_id: Text
-    operation: Literal["authorize", "capture", "release"]
+    operation: Literal["authorize", "capture", "release", "additional_processing"]
     mode: Literal["mock", "live"]
     status: Literal["mock", "submitted", "uncertain", "confirmed", "failed"]
     transaction_id: Text | None = None

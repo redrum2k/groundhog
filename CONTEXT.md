@@ -26,14 +26,24 @@ snapshot, delivery version, and evidence version.
 **Provider defect**: A verified failure to satisfy the accepted snapshot, eligible
 for one free regeneration before repeated failure requires human review.
 
-**Review window**: The customer's 60-second opportunity to review a delivery and
-raise a dispute.
+**Review window**: A ten-minute review period for a delivery or disputed work.
+An unresolved dispute at the cutoff moves to human review with payment held.
 
 **Authorization expiry**: The independent deadline after which a payment
 authorization cannot be used.
 
-**Settlement intent**: A proposed payment operation to be checked and executed by
-the application under its own authority. An investigation cannot grant that authority.
+**Evidence verdict**: An agent's cited assessment that the invoice job is compliant,
+has a provider defect, or still lacks enough evidence to decide. A complete compliant
+verdict can authorize early settlement under the accepted policy.
+
+**Operational failure**: Failure of execution, such as an engine error that prevents
+a usable delivery. It is distinct from a delivered PDF requiring evidence review.
+
+**Additional processing charge**: The agreed fee for additional processing following
+an evidence-backed refutation of a customer's claim. An absent agreed fee requires a quote.
+
+**Settlement intent**: A version-bound payment operation authorized by the accepted
+policy and an evidence verdict or review cutoff.
 
 **Confirmed settlement**: A payment outcome established by authoritative reconciliation.
 A mock outcome or a submitted transaction is not confirmed settlement.

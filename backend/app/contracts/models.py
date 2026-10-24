@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import StrEnum
 from typing import Annotated, Literal, Self
 
@@ -30,8 +32,11 @@ class Money(Contract):
 
 class AcceptedPolicy(Contract):
     policy_version: Text
-    review_window_seconds: Literal[60] = 60
+    review_window_seconds: Literal[600] = 600
     free_regenerations: Literal[1] = 1
+    max_questions: Literal[2] = 2
+    max_question_rounds: Literal[2] = 2
+    additional_processing_price: Money | None = None
 
 
 class EvidencePointer(Contract):
@@ -78,6 +83,7 @@ def validate_structured_data(
 
 
 class OrderSnapshot(Contract):
+    job_type: Literal["invoice_register"] = "invoice_register"
     order_id: Text
     snapshot_id: Text
     accepted_at: AwareDatetime
@@ -93,6 +99,12 @@ class OrderSnapshot(Contract):
         if any(item.kind != "accepted_input" for item in self.input_versions):
             raise ValueError("snapshot inputs must be accepted_input evidence")
         validate_structured_data(self.structured_data, self.input_versions)
+        extra_price = self.policy.additional_processing_price
+        if extra_price and (extra_price.currency, extra_price.decimals) != (
+            self.price.currency,
+            self.price.decimals,
+        ):
+            raise ValueError("additional processing must use the accepted currency and precision")
         return self
 
 
@@ -126,9 +138,11 @@ class InvestigationInput(Contract):
     snapshot: OrderSnapshot
     delivery: DeliveryVersion
     proposal: ProposalBinding
-    complaint: Text
+    complaint: Text | None = None
     evidence: Annotated[tuple[EvidenceReference, ...], Field(min_length=1)]
     free_regenerations_used: Annotated[StrictInt, Field(ge=0, le=1)] = 0
+    questions_asked: Annotated[StrictInt, Field(ge=0, le=2)] = 0
+    answers: tuple[CustomerAnswer, ...] = ()
 
     @model_validator(mode="after")
     def check_binding(self) -> Self:
@@ -153,6 +167,13 @@ class InvestigationInput(Contract):
             raise ValueError(
                 "evidence must include the exact accepted inputs and delivery artifacts"
             )
+        if len({answer.question_id for answer in self.answers}) != len(self.answers):
+            raise ValueError("customer answers must refer to unique questions")
+        if len(self.answers) > self.questions_asked or any(
+            answer.evidence not in self.evidence or answer.evidence.kind != "customer_evidence"
+            for answer in self.answers
+        ):
+            raise ValueError("customer answers must bind supplied evidence and the question budget")
         return self
 
 
@@ -185,8 +206,49 @@ class Finding(Contract):
     citations: Annotated[tuple[Citation, ...], Field(min_length=1)]
 
 
+class InvoiceCriterion(StrEnum):
+    COMPLETE_COVERAGE = "complete_coverage"
+    NO_DOUBLE_COUNTING = "no_double_counting"
+    ACCURATE_EXTRACTION = "accurate_extraction"
+    CORRECT_ARITHMETIC = "correct_arithmetic"
+    TRACEABLE_EVIDENCE = "traceable_evidence"
+    HONEST_UNCERTAINTY = "honest_uncertainty"
+    CORRECT_FINAL_DELIVERY = "correct_final_delivery"
+    DEFINED_SCOPE = "defined_scope"
+
+
+class CriterionAssessment(Contract):
+    criterion: InvoiceCriterion
+    status: Literal["passed", "failed", "unknown"]
+    explanation: Text
+    citations: tuple[Citation, ...] = ()
+
+    @model_validator(mode="after")
+    def require_evidence(self) -> Self:
+        if self.status != "unknown" and not self.citations:
+            raise ValueError("passed/failed checks require cited evidence")
+        return self
+
+
+class InvestigationQuestion(Contract):
+    question_id: Text
+    prompt: Text
+    missing_evidence: Text
+
+
+class CustomerAnswer(Contract):
+    question_id: Text
+    text: Text
+    evidence: EvidenceReference
+
+
+InvestigationInput.model_rebuild()
+
+
 class Recommendation(Contract):
-    action: Literal["free_regeneration", "human_review", "no_remedy"]
+    action: Literal[
+        "capture", "additional_processing", "free_regeneration", "request_evidence", "human_review"
+    ]
     rationale: Text
 
 
@@ -195,15 +257,53 @@ class InvestigationResult(Contract):
     proposal: ProposalBinding
     findings: tuple[Finding, ...]
     unresolved_issues: tuple[Text, ...]
-    questions: tuple[Text, ...]
+    verdict: Literal["compliant", "provider_defect", "insufficient_evidence"]
+    claim_assessment: Literal["not_applicable", "supported", "refuted", "unresolved"]
+    checks: tuple[CriterionAssessment, ...]
+    questions: Annotated[tuple[InvestigationQuestion, ...], Field(max_length=1)]
     recommendations: Annotated[tuple[Recommendation, ...], Field(min_length=1)]
+
+    @model_validator(mode="after")
+    def check_verdict(self) -> Self:
+        criteria = [check.criterion for check in self.checks]
+        if len(set(criteria)) != len(criteria):
+            raise ValueError("each invoice criterion may be assessed once")
+        if self.verdict == "compliant":
+            if set(criteria) != set(InvoiceCriterion) or any(
+                check.status != "passed" for check in self.checks
+            ):
+                raise ValueError(
+                    "compliant verdict requires evidence for all eight invoice criteria"
+                )
+            if self.questions or self.unresolved_issues:
+                raise ValueError("compliant verdict cannot leave unanswered evidence gaps")
+        if self.verdict == "provider_defect" and not any(
+            check.status == "failed" for check in self.checks
+        ):
+            raise ValueError("provider defect requires a cited failed criterion")
+        if self.verdict != "insufficient_evidence" and self.questions:
+            raise ValueError("only an inconclusive review asks for missing evidence")
+        return self
 
     def validate_for(self, request: InvestigationInput) -> None:
         """Runtime calls this before storing/using an untrusted investigator result."""
         if self.case_id != request.case_id or self.proposal != request.proposal:
             raise ValueError("stale or unrelated investigation result")
         allowed = {(item.evidence_id, item.version, item.sha256): item for item in request.evidence}
-        for finding in self.findings:
+        if request.complaint is None:
+            if self.claim_assessment != "not_applicable" or self.questions:
+                raise ValueError("questions and claim assessments require a customer dispute")
+        else:
+            expected = {
+                "compliant": "refuted",
+                "provider_defect": "supported",
+                "insufficient_evidence": "unresolved",
+            }[self.verdict]
+            if self.claim_assessment != expected:
+                raise ValueError("claim assessment must match the evidence verdict")
+        if request.questions_asked + len(self.questions) > request.snapshot.policy.max_questions:
+            raise ValueError("two-question budget exhausted; escalate to human review")
+        for finding in (*self.findings, *self.checks):
             for citation in finding.citations:
                 reference = allowed.get((citation.evidence_id, citation.version, citation.sha256))
                 if reference is None:
@@ -214,13 +314,25 @@ class InvestigationResult(Contract):
                     raise ValueError("PDF citations require linked evidence highlights")
                 if reference.media_type != "application/pdf" and citation.highlights:
                     raise ValueError("PDF highlights must link to PDF evidence")
+        for check in self.checks:
+            if (
+                check.criterion == InvoiceCriterion.CORRECT_FINAL_DELIVERY
+                and check.status != "unknown"
+            ):
+                output_ids = {
+                    item.evidence_id
+                    for item in request.delivery.artifacts
+                    if item.media_type == "application/pdf"
+                }
+                if not any(citation.evidence_id in output_ids for citation in check.citations):
+                    raise ValueError("final delivery assessment must cite the actual delivered PDF")
 
 
 class SettlementIntent(Contract):
-    """Proposed operation only; schema validity does not confer execution authority."""
+    """Version-bound operation authorized by accepted policy and an evidence verdict/cutoff."""
 
     proposal: ProposalBinding
-    action: Literal["capture", "release"]
+    action: Literal["capture", "release", "additional_processing"]
     amount: Money
     authorization_id: Text
     idempotency_key: Text
@@ -229,6 +341,7 @@ class SettlementIntent(Contract):
 class OrderState(StrEnum):
     ACCEPTED = "accepted"
     PROCESSING = "processing"
+    FAILED = "failed"
     DELIVERED = "delivered"
     HUMAN_REVIEW = "human_review"
     CLOSED = "closed"
@@ -237,7 +350,8 @@ class OrderState(StrEnum):
 class DeliveryState(StrEnum):
     PENDING_VERIFICATION = "pending_verification"
     PASSED = "passed"
-    FAILED = "failed"
+    NEEDS_REVIEW = "needs_review"
+    OPERATIONAL_FAILURE = "operational_failure"
 
 
 class CaseState(StrEnum):

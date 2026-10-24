@@ -5,16 +5,23 @@ import pytest
 from app.contracts.models import (
     AcceptedPolicy,
     CaseState,
+    Citation,
+    CriterionAssessment,
     DeliveryState,
     DeliveryVersion,
     EvidencePointer,
     EvidenceReference,
     InvestigationInput,
+    InvestigationQuestion,
+    InvestigationResult,
+    InvoiceCriterion,
     Money,
     OrderSnapshot,
     OrderState,
     PaymentState,
+    PdfHighlight,
     ProposalBinding,
+    Recommendation,
     SettlementIntent,
 )
 from app.runtime.policy import CaptureContext
@@ -65,7 +72,7 @@ def investigation_input():
         input_versions=(source,),
         structured_data=(structured[0],),
         price=Money(amount_minor=1000, currency="USD", decimals=2),
-        policy=AcceptedPolicy(policy_version="demo-v1"),
+        policy=AcceptedPolicy(policy_version="invoice-v2"),
     )
     delivery = DeliveryVersion(
         order_id=snapshot.order_id,
@@ -114,5 +121,83 @@ def capture_context(investigation_input):
         customer_acceptance=None,
         authorization_id="authorization-1",
         authorized_amount=investigation_input.snapshot.price,
-        authorization_expires_at=investigation_input.delivery.delivered_at + timedelta(minutes=5),
+        authorization_expires_at=investigation_input.delivery.delivered_at + timedelta(minutes=30),
     )
+
+
+@pytest.fixture
+def result_for():
+    def build(request, verdict="compliant", *, ask=False):
+        source = request.snapshot.input_versions[0]
+        output = request.delivery.artifacts[0]
+
+        def cite(reference):
+            return Citation(
+                evidence_id=reference.evidence_id,
+                version=reference.version,
+                sha256=reference.sha256,
+                locator="page 1, invoice rows",
+                highlights=(PdfHighlight(page_number=1, x0=0.1, y0=0.1, x1=0.8, y1=0.8),),
+            )
+
+        checks = tuple(
+            CriterionAssessment(
+                criterion=criterion,
+                status=(
+                    "unknown"
+                    if verdict == "insufficient_evidence"
+                    else "failed"
+                    if verdict == "provider_defect"
+                    and criterion == InvoiceCriterion.COMPLETE_COVERAGE
+                    else "passed"
+                ),
+                explanation="Synthetic assessment for contract/workflow tests.",
+                citations=()
+                if verdict == "insufficient_evidence"
+                else (
+                    cite(
+                        output if criterion == InvoiceCriterion.CORRECT_FINAL_DELIVERY else source
+                    ),
+                ),
+            )
+            for criterion in InvoiceCriterion
+        )
+        claim = (
+            "not_applicable"
+            if request.complaint is None
+            else {
+                "compliant": "refuted",
+                "provider_defect": "supported",
+                "insufficient_evidence": "unresolved",
+            }[verdict]
+        )
+        return InvestigationResult(
+            case_id=request.case_id,
+            proposal=request.proposal,
+            verdict=verdict,
+            claim_assessment=claim,
+            checks=checks,
+            findings=(),
+            unresolved_issues=("Missing evidence",) if verdict == "insufficient_evidence" else (),
+            questions=(
+                InvestigationQuestion(
+                    question_id=f"q{request.questions_asked + 1}",
+                    prompt="Which source supports your claim?",
+                    missing_evidence="Disputed invoice source",
+                ),
+            )
+            if ask
+            else (),
+            recommendations=(
+                Recommendation(
+                    action={
+                        "compliant": "capture",
+                        "provider_defect": "free_regeneration",
+                        "insufficient_evidence": "request_evidence" if ask else "human_review",
+                    }[verdict],
+                    rationale="Based on the cited checks.",
+                ),
+            ),
+        )
+
+    return build

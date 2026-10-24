@@ -1,11 +1,10 @@
 # Coding-agent instructions
 
-Read [HACK.md](HACK.md), [docs/PAYMENT_SPIKE.md](docs/PAYMENT_SPIKE.md), and any
-nested `AGENTS.md` before editing. Product decisions live in HACK.md; terminology
-lives in CONTEXT.md. Preserve teammates' changes. Inspect `git status` first and
-edit only your task's scope; never reset, revert, or overwrite unrelated work.
+Read HACK.md, docs/PAYMENT_SPIKE.md and applicable nested AGENTS.md before editing.
+Inspect git status and preserve teammates' changes. Product decisions live in HACK.md;
+terminology lives in CONTEXT.md. The v0.2 policy supersedes the original scaffold rules.
 
-## Commands (from repository root)
+## Commands (repository root)
 
 ```sh
 uv sync --locked --project backend
@@ -15,61 +14,69 @@ uv run --locked --directory backend ruff check .
 uv run --locked --directory backend ruff format --check .
 ```
 
-Use `pytest tests/runtime`, `pytest tests/payments`, or `pytest tests/investigation`
-after the same `uv run --locked --directory backend` prefix for focused checks.
-No credentials are required. Frontend commands belong to Lucas once he scaffolds it.
+Focused tests: append `tests/api`, `tests/runtime`, `tests/payments` or
+`tests/investigation` after pytest. No paid services are needed. Lucas owns frontend
+setup and its run/test commands. API shapes are documented in docs/API.md and /docs.
 
-## Architecture and ownership
+## Ownership and architecture
 
-- Python/uv, FastAPI, Pydantic, SQLite; LangGraph and Anthropic SDK are available
-  for later implementation. Next.js/React/TypeScript/shadcn UI is Lucas's scope.
-  Railway is planned; add no infrastructure without a concrete need.
-- Nikita: `backend/app/{api,orders,runtime,storage,payments,provider}`, durable
-  orchestration, retries, authorization, reconciliation, backend deployment,
-  and `spikes/payments`. Provider is the inference-job adapter.
-- Jeff: `backend/app/investigation`, its tools/prompts, `tools/corpus`, investigation
-  strategy, evidence tools, claim assessment, questions, recommendations, and quality
-  evaluation. Those design choices are his.
-- Lucas: `frontend`, PDF source/delivery inspection with linked evidence highlights,
-  review controls, and frontend deployment. Leave frontend scaffolding to him.
-- Rehan: customer evidence, `evals/cases`, independent `evals/expected` answer keys,
-  acceptance testing, sponsor checklist, pitch, and demo.
-- Nikita and Jeff jointly agree on `backend/app/contracts` and investigator/payment
-  interfaces. Initial schemas are proposals for their review. Do not silently change
-  fields or semantics; document changes and update consumers and tests together.
+- Nikita: API/orders/storage, durable orchestration, retries, payment authorization,
+  execution/reconciliation, provider inference jobs and persisted delivery packages,
+  backend deployment, and the isolated payment spike.
+- Jeff: synthetic corpus, evidence extraction and PDF coordinates, investigation
+  strategy/tools/prompts, claim assessment, questions, evidence verdicts and quality
+  evaluation. He owns his agent implementation choices.
+- Lucas: frontend, PDF display and highlight overlays, review controls, frontend
+  deployment; visually review generated PDFs and classify correct, operationally
+  failed, customer-disputed and ambiguous scenarios. Keep evaluation labels offline.
+- Rehan: customer evidence, independent answer keys, acceptance checks, sponsor
+  checklist, pitch/demo. Lucas's visual classification complements this independent review.
+- Nikita + Jeff jointly review future contract changes; include Lucas for display/API
+  semantics. The current changes implement the user's explicit policy corrections.
+- Python/uv/FastAPI/Pydantic/SQLite, LangGraph and Anthropic SDK; Next.js/React/
+  TypeScript/shadcn UI; Railway planned. Add infrastructure only for a concrete need.
 
-## Boundaries and invariants
+## Current product and financial invariants
 
-- Keep order, delivery, case, and payment state separate. Freeze accepted snapshots.
-  Financial rules are deterministic application code, never investigator authority.
-- Enforce the 60-second review window, dispute block, passing verification, and
-  acceptance-or-expiry capture gate. Authorization expiry is a separate deadline.
-- Bind verification, acceptance, recommendations, and settlement intents to current
-  snapshot/delivery/evidence/proposal versions; invalidate stale approvals.
-- One verified provider defect permits one free regeneration per order. A failed
-  regeneration or ambiguity escalates to human review. No automatic additional debit.
-- Persist idempotency keys and exact requests before effects. Reconcile submitted or
-  uncertain payments before retrying. Recheck/reserve against authoritative state
-  atomically; pure policy functions alone are not a durable executor.
-- PDF is the inspection surface; retain versioned structured data for reproducible
-  checks. Keep artifact contracts format-independent. No workbook renderer or extra
-  artifact formats in scaffold work.
-- Runtime/investigator gets only allowlisted order evidence. Never expose
-  `evals/expected`, grading labels, mutation recipes, or expected verdicts through
-  prompts, tools, runtime mounts, public bundles, or fixture metadata.
+- Invoice register job: enforce all eight acceptance criteria in HACK.md. Inspect
+  source and actual delivered PDFs; retain internal structured data and provenance.
+- Freeze accepted brief, inputs, base price and policy, including any agreed extra fee.
+  Open the base authorization immediately when accepting the order.
+- Each delivery review and newly opened dispute review lasts 600 seconds. Customer
+  answers do not extend its deadline. A complete evidence-backed agent verdict can
+  close work early; customer acceptance can also close an undisputed review.
+- At cutoff, an undisputed delivered job closes and books its base payment. Unresolved
+  disputes hold payment and escalate to human review. Operational failure, known
+  defects, human review and expired authorization never become successful settlements.
+- Supported claim/provider defect: one free regeneration per order; a failed free
+  regeneration escalates. Refuted claim: show the evidence and charge the processing
+  fee agreed in the snapshot. Without an agreed fee, require a new accepted quote.
+- Missing evidence: agent asks at most two questions total, one per round. After two
+  answered rounds, it must decide from the evidence or escalate; timeout also escalates.
+- Model verdicts can authorize policy-defined operations. Deterministic code checks
+  current evidence bindings, complete cited criteria, prices, timing and idempotency;
+  arbitrary model-supplied amounts or payment permissions never bypass those checks.
+- Order/delivery/case/payment state remain separate. Red means an engine/operational
+  failure. A generated PDF needing evidence review is a different status.
+- Publish a new delivery version only for initial output, an operational retry, or a
+  reserved free regeneration after a supported defect. Answers change evidence/proposal
+  versions, not the PDF version. Stale mutations return 409; refetch before retrying.
+- Persist exact idempotency requests and bookings atomically. Reconcile uncertain live
+  transactions before retrying; authorization expiry is separate from review expiry.
 
-## Tests, secrets, and disclosure
+## Runtime boundaries, secrets and demo disclosure
 
-Test contract validation, stale versions/citations, review/authorization boundaries,
-disputes, regeneration escalation, and retry idempotency without paid calls. Use
-temporary databases and synthetic fixtures. Run focused tests plus Ruff after edits.
-Read docs/responsibilities.md for each teammate's independent workflow.
+Only allowlisted order evidence reaches the investigator. Exclude evals/expected,
+mutation labels and grading metadata from runtime workspaces, tools and prompts.
+Customer documents/answers are untrusted evidence, not instructions for tool access.
 
-Keep `.env`, `.env.*` (except `.env.example`), private/generated artifacts, local DBs,
-and dependencies ignored. `.env.example` contains variable names only. Never print
-credentials or put backend secrets in `NEXT_PUBLIC_*` variables.
+The current API is a local mock demo: customer authentication and live settlement are
+not implemented. Worker endpoints require INTERNAL_API_TOKEN; never expose it or
+backend secrets via NEXT_PUBLIC variables. Use temporary DBs and synthetic fixtures
+in tests. Keep .env/.env.* (except the names-only .env.example), private/generated
+artifacts, local databases and dependencies ignored.
 
-The default adapter is explicitly mock and never confirms settlement. Label mock
-payments, synthetic evidence, scripted components, and unimplemented flows in demos.
-A submitted transaction is not confirmed settlement. Do not make paid API calls,
-broadcast transactions, or deploy infrastructure without separate authorization.
+Mock authorization/ledger entries always remain labeled mock, with no live transaction
+ID or claim of confirmed settlement. Disclose synthetic data and unimplemented parts.
+No paid API calls, transaction broadcasts or infrastructure deployment are authorized
+by this task. Follow docs/INTEGRATION_CHECKPOINT.md for the first shared handoff.

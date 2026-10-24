@@ -1,1 +1,1 @@
-"""Nikita's order lifecycle and accepted-snapshot persistence (not implemented)."""
+"""Nikita's durable local mock invoice-order workflow."""

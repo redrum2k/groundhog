@@ -4,6 +4,7 @@ from pydantic import ValidationError
 from app.contracts.models import (
     Citation,
     Finding,
+    InvestigationQuestion,
     InvestigationResult,
     PdfHighlight,
     Recommendation,
@@ -31,7 +32,16 @@ def result(investigation_input):
             ),
         ),
         unresolved_issues=("Output inspection is still needed.",),
-        questions=("Which record is reported missing?",),
+        verdict="insufficient_evidence",
+        claim_assessment="unresolved",
+        checks=(),
+        questions=(
+            InvestigationQuestion(
+                question_id="q1",
+                prompt="Which record is reported missing?",
+                missing_evidence="Identity of the disputed record",
+            ),
+        ),
         recommendations=(
             Recommendation(action="human_review", rationale="Evidence is incomplete."),
         ),
@@ -68,13 +78,13 @@ def test_findings_require_citations():
         Finding(statement="Uncited assertion", citations=())
 
 
-def test_result_cannot_grant_payment_authority(result):
+def test_result_rejects_unbounded_payment_permissions(result):
     data = result.model_dump()
     data["payment_authorized"] = True
     with pytest.raises(ValidationError):
         InvestigationResult.model_validate(data)
     data = result.model_dump()
-    data["recommendations"][0]["action"] = "capture"
+    data["recommendations"][0]["action"] = "unbounded_debit"
     with pytest.raises(ValidationError):
         InvestigationResult.model_validate(data)
 

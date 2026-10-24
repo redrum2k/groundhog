@@ -7,6 +7,16 @@ from app.payments.interfaces import AuthorizationRequest, PaymentReceipt
 from app.storage.mock_journal import MockPaymentJournal
 
 
+def mock_receipt(key: str, operation: str) -> PaymentReceipt:
+    return PaymentReceipt(
+        idempotency_key=key,
+        operation_id="mock_" + hashlib.sha256(key.encode()).hexdigest(),
+        operation=operation,
+        mode="mock",
+        status="mock",
+    )
+
+
 class MockPaymentAdapter:
     """Local simulation only: no money moves and no receipt confirms settlement."""
 
@@ -19,13 +29,7 @@ class MockPaymentAdapter:
         payload = json.dumps(
             {"operation": operation, "request": request.model_dump(mode="json")}, sort_keys=True
         )
-        receipt = PaymentReceipt(
-            idempotency_key=request.idempotency_key,
-            operation_id="mock_" + hashlib.sha256(request.idempotency_key.encode()).hexdigest(),
-            operation=operation,
-            mode="mock",
-            status="mock",
-        )
+        receipt = mock_receipt(request.idempotency_key, operation)
         stored = self._journal.record(request.idempotency_key, payload, receipt.model_dump_json())
         return PaymentReceipt.model_validate_json(stored)
 

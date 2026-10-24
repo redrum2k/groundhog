@@ -1,1 +1,1 @@
-"""Nikita owns durable orchestration; only pure policy checks are scaffolded."""
+"""Deterministic policy checks for evidence verdicts and timed settlement."""

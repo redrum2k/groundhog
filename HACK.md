@@ -1,58 +1,92 @@
-# Cal Hacks: document-processing order settlement
+# Cal Hacks: invoice register and evidence-based settlement
 
-Initial product baseline recorded from the team's setup request and PDF amendment.
-The checkout was empty: no earlier HACK.md or payment-spike results were available.
-Deadline, sponsor requirements, and final demo script still need Rehan's input.
+Policy v0.2 records the user's annotated corrections and subsequent answers. It
+supersedes the original 60-second / no-additional-charge scaffold. Deadline and
+sponsor requirements still need team input; no live payment spike has run.
 
-## Product and demo scope
+## Product
 
-Manage document-processing orders from accepted requirements through delivery
-verification, customer disputes, and authorized settlement. Inspect PDF sources and
-deliveries with linked evidence highlights; retain structured data internally for
-reproducible checks. A synthetic corpus supplies repeatable examples. Independent
-evaluation answer keys must never reach the investigator.
+Process source invoice PDFs into an invoice register and exceptions section delivered
+as a PDF. Source and delivery inspection uses linked evidence highlights. Retain
+structured records internally for reproducible checks and PDF-region mappings.
 
-## Confirmed rules
+## Explicit acceptance criteria
 
-- Freeze the accepted brief, input versions, price, and policy.
-- Give customers 60 seconds to review each delivered version.
-- Capture requires passing verification and either customer acceptance or review
-  expiry without a dispute. An open dispute blocks automatic capture.
-- One verified provider defect permits one free regeneration per order. If that
-  regeneration fails, escalate to human review. Ambiguity also requires human review.
-- Keep order, delivery, case, and payment states separate. New delivery/evidence
-  versions invalidate prior verification and approvals; proposals are versioned too.
-- Onchain authorization expiry is separate from the review deadline.
-- Additional charging for unsupported complaints remains unresolved. There is no
-  automatic additional debit; `no_remedy` is not payment authorization.
-- Pre-delivery cancellation UI is out of scope.
+| Requirement | Concrete check |
+| --- | --- |
+| Complete coverage | Every unique invoice appears in the register or exceptions section. |
+| No double counting | Each invoice ID contributes to totals at most once. |
+| Accurate extraction | Invoice ID, vendor, date, currency and total match the cited source. |
+| Correct arithmetic | Vendor subtotals and grand total equal the included invoice amounts. |
+| Traceable evidence | Each row points to the correct document and page; displayed highlights match the cited text. |
+| Honest uncertainty | Conflicting versions are flagged, with neither silently treated as authoritative. |
+| Correct final delivery | The actual PDF contains the required rows and figures, not just the intermediate JSON. |
+| Defined scope | No currency conversion, payment-status determination or unsupported category inference. |
 
-## Stack and scaffold boundary
+The first fixture uses one currency. If later fixtures mix currencies, keep separate
+currency totals; never add them into a converted or mixed-currency total.
 
-Python, uv, FastAPI, Pydantic, SQLite, LangGraph, Anthropic Python SDK;
-React/TypeScript, Next.js and shadcn/ui; Railway hosting planned. CDP and the existing
-Base escrow contracts depend on the isolated [payment spike](docs/PAYMENT_SPIKE.md).
-No additional infrastructure is selected.
+## Accepted payment/review policy
 
-This scaffold provides `/health`, shared contracts, an investigator protocol,
-deterministic policy checks, and a durable local mock payment adapter. It does not
-implement the full order lifecycle, investigator, provider, frontend, PDF renderer,
-or deployment. XLSX is not selected; PDF inspection supersedes the earlier output
-format suggestion, while artifact references remain format-independent.
+- Freeze the accepted brief, input versions, base price, policy and optional additional
+  processing fee. Open base authorization as soon as the accepted order is created.
+- Each delivered version and each newly opened dispute gets a ten-minute review.
+  Answers remain within that review deadline; they do not reset the clock.
+- A compliant agent verdict backed by citations for all eight criteria can close the
+  work and book the base payment immediately. Undisputed customer acceptance also closes it.
+- At cutoff an undisputed delivered job closes and books the base payment, even if a
+  complete agent verdict has not arrived. Unknown evidence is not labeled verified.
+- The user explicitly confirmed: unresolved disputes hold payment and escalate to
+  human review at cutoff. Engine failure, known defects and human review do not auto-capture.
+- Supported customer claim/provider defect: reserve one free regeneration. If the
+  free regeneration fails operationally or still has a supported defect, escalate.
+- Refuted customer claim: display the cited evidence and charge additional processing.
+  The user explicitly confirmed: use the fee agreed in the accepted order; if none
+  exists, obtain a quote and customer acceptance before charging it. Do not invent a fee.
+- Agent questions target missing evidence. Use at most two questions total, one per
+  round. After two answered rounds, decide or escalate; missing answers at cutoff also
+  escalate. This follows the user's later two-round clarification over the earlier one-round wording.
+- A refund request opens evidence gathering; it is not an automatic refund. The supported
+  remedy is free regeneration. Human refund/release execution remains to be specified.
+- Authorization expiry is independent. Expired authority requires human intervention.
+- A dispute raised during the remaining review window after an early base booking can
+  still be investigated. Already booked base funds are not automatically reversed or
+  charged twice; any free regeneration remains free.
 
-## Open decisions
+## Version and display semantics
 
-- Nikita + Jeff: approve initial contracts, how verified defects are established,
-  proposal allocation, question/answer resumption, and structured-data provenance.
-- Nikita + Jeff + Lucas: agree PDF rotation/crop handling and highlight mapping;
-  approve the proposed one-based page and normalized top-left coordinate convention.
-- Nikita + Jeff: whether new evidence during a delivery review restarts the clock.
-  Current pure guard measures 60 seconds from that delivery's `delivered_at`; new
-  evidence always invalidates verification and acceptance.
-- Nikita: payment asset/network, decimals mapping, authorization lifetime, escrow
-  semantics, confirmation/finality rule, release policy, and human-review settlement.
-- Rehan + team: any future complaint-fee policy, acceptance criteria, sponsor claims,
-  demo deadline, and disclosure. No complaint fee is authorized by this scaffold.
+Keep order, delivery, case and payment states separate. Red means operational failure
+(e.g. engine failed). A delivered PDF lacking complete evidence is `needs_review`, not
+an operational failure. A complete compliant verdict is `correct`; ambiguity requiring
+human feedback has its own status. Timeout booking does not falsely label an unchecked
+PDF correct.
 
-See [responsibilities](docs/responsibilities.md) for ownership and independent work,
-and [architecture](docs/architecture.md) for contracts and integration boundaries.
+A replacement delivery is published after an operational retry or supported defect /
+rightful dispute. Failures without a file do not fabricate a PDF version. Answers and
+new customer claims increment evidence/proposal versions and invalidate old verdicts;
+they do not increment the PDF delivery version. Clients must use current revisions/bindings.
+
+## Team handoff
+
+Jeff owns corpus generation, extraction and PDF coordinates. Nikita owns provider jobs,
+persistence and settlement execution. Lucas displays PDFs/highlights and visually
+classifies generated cases as correct, operationally failed, disputed or ambiguous.
+Rehan maintains independent answer keys and acceptance evaluation. Review labels and
+mutation recipes never enter the investigator's evidence.
+
+## Stack and current scope
+
+Python, uv, FastAPI, Pydantic, SQLite, LangGraph and Anthropic SDK; Next.js/TypeScript/
+shadcn UI; Railway planned. CDP/Base escrow remain subject to PAYMENT_SPIKE.md.
+Current implementation includes a durable local mock workflow and polling API. It does
+not invoke a model/provider, generate actual PDFs, implement the frontend, authenticate
+customers, move money or deploy. See IMPLEMENTATION_STATUS.md and API.md under docs/.
+
+## Remaining decisions
+
+- Nikita's payment spike: asset/network/precision, escrow authorization/renewal, live
+  extra-fee allowance, reconciliation/finality, and human refund/release operations.
+- Jeff + Lucas: crop/rotation transform and real-page bounds for normalized highlights.
+- Jeff + Nikita: actual PDF/structured verification tools and provider integration;
+  contract validation proves citation binding, not truth of a worker's assessment.
+- Team: first fixture review and integration checkpoint in docs/INTEGRATION_CHECKPOINT.md.

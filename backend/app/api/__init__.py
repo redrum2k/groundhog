@@ -1,1 +1,1 @@
-"""Nikita's API routes; only /health exists in app.main so far."""
+"""Nikita's polling/customer API and token-protected worker routes."""

@@ -1,7 +1,7 @@
 [project]
 name = "order-to-cash-backend"
-version = "0.1.0"
-description = "Cal Hacks document-processing order contracts and backend scaffold"
+version = "0.2.0"
+description = "Cal Hacks invoice orders, evidence review and local mock settlement"
 requires-python = ">=3.12"
 dependencies = [
   "anthropic>=0.40,<1",

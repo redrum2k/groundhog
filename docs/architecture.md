@@ -1,151 +1,109 @@
-# Architecture and shared contracts
+# Architecture and contracts — v0.2
 
-Product decisions live in [HACK.md](../HACK.md). Initial contracts are a reviewable
-proposal for Nikita and Jeff; creating them does not imply their joint approval.
+Product rules: [HACK.md](../HACK.md). HTTP contract: [API.md](API.md).
+The user's annotated corrections supersede the earlier scaffold rules.
 
-## Boundaries
+## Components
 
-```mermaid
-flowchart LR
-    UI[Lucas: PDF inspection and review] --> API[Nikita: API and durable runtime]
-    API --> DB[(SQLite)]
-    API --> Provider[Nikita: inference job adapter]
-    API --> Investigator[Jeff: investigator and evidence tools]
-    Investigator --> Result[Cited findings and recommendations]
-    Result --> API
-    API --> Policy[Deterministic authorization checks]
-    Policy --> Payments[Payment adapter: mock by default]
-    Cases[Rehan: reviewed cases] --> Harness[Offline evaluation harness]
-    Keys[Rehan: private answer keys] --> Harness
-```
+- `contracts/models.py`: immutable accepted snapshots, evidence/citation/provenance,
+  all eight invoice criteria, verdicts, questions/answers and payment intents.
+- `contracts/api.py`: versioned commands, persisted order record and polling view.
+- `orders/service.py`: deterministic application transitions from trusted worker
+  verdicts, customer commands and deadlines. Model verdicts can authorize early closure.
+- `storage/orders.py`: SQLite order snapshots and exact idempotent command responses.
+  Each mutation checks revision/binding, changes state and records simulated bookings
+  under `BEGIN IMMEDIATE`. Competing commands cannot both consume the same revision.
+- `runtime/policy.py`: amount/version/expiry/capture/extra-fee validation and remedy rules.
+- `main.py`: FastAPI lifespan starts deadline recovery and a one-second sweep independent
+  of browser polling. Deadlines also advance on reads/mutations; a stale command cannot
+  undo a cutoff transition.
+- `payments/`: mock authorization and receipts; no live adapter. The standalone mock
+  adapter retains its own durable journal. The workflow stores mock bookings in the
+  same order transaction, avoiding an external payment side effect during a DB lock.
+- Jeff's investigator/provider integration and Lucas's frontend remain to be built.
 
-Only the health API, contracts, investigator protocol, pure policy checks, and mock
-payment journal/adapter exist. The diagram shows the intended integration. No graph,
-provider client, PDF ingestion/rendering, order database, scheduler, or UI is wired.
-LangGraph and the Anthropic SDK are installed but never invoked by the scaffold.
+## Evidence authority
 
-## Contract map
+A trusted investigator returns `compliant`, `provider_defect` or `insufficient_evidence`.
+A compliant verdict requires passed, cited assessments of every `InvoiceCriterion`,
+with no unresolved issues or questions. Final-delivery assessment must cite the actual
+output PDF. A defect requires a cited failed criterion. Disputed results must classify
+the claim as refuted, supported or unresolved consistently with the verdict.
 
-All models live in `backend/app/contracts/models.py` and forbid unknown fields.
-Frozen nested models and tuples keep ordinary model access immutable; persisted
-snapshots still need append-only storage rules. Never bypass validation with
-`model_construct` or unvalidated `model_copy(update=...)` at application boundaries.
+The result is checked against the exact `InvestigationInput`; its citations must match
+supplied IDs/versions/hashes. PDF citations need highlight rectangles. Runtime then
+checks the current binding, fee, authorization expiry and operation history. It acts
+on the evidence verdict, not an arbitrary `payment_authorized` field or agent amount.
+These checks validate the evidence contract; Jeff's tools still have to substantiate
+factual coverage, extraction, arithmetic and actual PDF content.
 
-| Contract | Contents / invariant |
-| --- | --- |
-| `OrderSnapshot` | Frozen accepted brief, timestamp, exact inputs, structured data references, integer price and accepted policy. |
-| `EvidenceReference` | Stable ID, version, SHA-256, opaque storage key, media type, evidence kind and optional provenance. |
-| `DeliveryVersion` | Order/snapshot linkage, delivery version/time, output artifact references and internal structured data references. |
-| `InvestigationInput` | Case/complaint, frozen snapshot, exact delivery, complete versioned evidence set, allocated proposal binding, regeneration count. |
-| `InvestigationResult` | Same case/proposal binding, cited findings, unresolved issues, questions and recommendations. No payment permissions. |
-| `SettlementIntent` | Capture/release proposal, amount, authorization ID and idempotency key. Not permission to execute. |
+`Investigator.investigate(input)` remains Jeff's async implementation boundary. The
+runtime provides complaints and prior customer answers as evidence. Customers cannot
+submit verdicts: `/internal` producer routes require the backend worker token.
 
-`Money.amount_minor` is a positive strict integer: JSON floats, numeric strings and
-booleans are rejected. `currency` and `decimals` specify units. Token address/network
-mapping awaits the spike; USD in tests is synthetic. Timestamps require timezones.
-Pydantic's [strict validation](https://docs.pydantic.dev/latest/concepts/strict_mode/)
-is used for monetary amounts and version numbers.
+## PDF and structured data
 
-`ProposalBinding` contains `order_id`, `snapshot_id`, `delivery_version`,
-`evidence_version`, and `proposal_version`. The runtime allocates monotonically
-increasing versions; model validation alone cannot enforce monotonic history.
-Any evidence addition/removal/change, including structured data, increments the
-evidence-set version. Revised findings/recommendations get a new proposal version.
-All approvals and verification must match the current complete binding. Evidence
-content hashes must be checked by the future resolver against actual bytes.
+Customer inspection uses source/delivery PDFs. Structured sidecars preserve internal
+records and exact source ID/version/hash provenance. The invoice API requires both
+PDF and structured references, while the general artifact models remain format-independent.
+Jeff supplies coordinates; Lucas renders the PDF and overlays rectangles. Coordinates
+are one-based pages and normalized top-left x0/y0/x1/y1 on the displayed page. Real
+crop/rotation mapping and page bounds still need the shared-fixture check.
 
-## PDF inspection and reproducibility
+`GET /orders/{id}/evidence/{evidence_id}/content?version=N` resolves only registered
+current-order evidence under ARTIFACT_ROOT, checks its SHA-256 and returns those bytes.
+It rejects path escape and mismatched content. Customer claim/answer JSON is reconstructed
+from persisted data and checked against its registered hash. No evaluation-key reader
+or arbitrary repository browsing tool is supplied. Runtime workspaces must exclude
+answer keys/mutation recipes; serving root must contain approved evidence only.
 
-PDF sources and deliveries are the customer-facing inspection surface. Artifact
-references remain format-independent; no XLSX renderer or other output format is
-implemented or selected. `structured_data` on snapshots and deliveries preserves
-internal data references. Each structured sidecar must cite exact source IDs,
-versions and hashes via `derived_from`; the investigation envelope includes those
-sidecars. The real ingestion/provider flow must retain them for every PDF it produces
-or parses. Optional schema fields allow components to be developed independently.
+## State and time
 
-A `Citation` links an exact evidence ID/version/hash plus a human-readable locator.
-For PDF evidence, `InvestigationResult.validate_for` also requires `highlights`:
-one or more `PdfHighlight` rectangles. Each has a **one-based page number**, normalized
-`x0,y0,x1,y1` in `[0,1]`, top-left origin on the displayed page, positive width/height.
-Multiple rectangles represent multi-line or multi-page findings. Lucas resolves the
-reference, opens the correct version/page, and highlights those regions. Never link
-to a mutable “latest” artifact. The future resolver must check actual page counts,
-and Lucas/Jeff must agree rotation/crop transforms before real PDF integration.
+Order, delivery, case and payment state are separate. `display_status` distinguishes
+processing, correct, needs_review, operational_failure (red), and human_review.
+`payment_state=mock` never becomes live captured. `payment_phase` records open, held,
+booked or expired simulation state; ledger receipts remain explicitly mock.
 
-Internal structured data should retain stable record/field IDs mapped to PDF regions
-so checks can be reproduced and their evidence can be inspected. The serialization
-and row/field mapping are an open interface decision; no renderer or extractor exists.
-Expected answers, mutation labels, and grading verdicts are not structured runtime data.
+An initial delivery or new dispute starts 600 seconds of review. Questions/answers do
+not extend it. Complete evidence can close early; otherwise an undisputed delivered
+job closes at cutoff. Unknown checks are not mislabeled passed. Unresolved disputes
+at cutoff enter human review with payment held. Authorization expiry has its own clock.
+A base booking that occurred before a later dispute is retained and never duplicated.
 
-## Investigator interface
+One free regeneration is reserved before dispatch. Supported defects authorize it;
+repeated defect or engine failure during that regeneration escalates. A failed initial
+engine attempt has no artifact version until a successful retry publishes output.
+A replacement is allowed only after failure or a supported defect. Delivery/evidence/
+proposal bindings change on replacement. Customer claims/answers change evidence and
+proposal versions only. Old actions return 409; idempotent exact retries return the
+stored command result. Refetch after a replay if a newer current view is needed.
 
-```python
-from app.investigation.interface import Investigator
+The investigator asks one targeted question per round, at most two total. Answers are
+stored as cited evidence; a final evaluation after the second answer must decide or
+escalate. Exhausted budget, unanswered questions at deadline or an inconclusive result
+without a useful question go to human feedback. No human-decision API is implemented yet.
 
-result = await investigator.investigate(request)
-result.validate_for(request)
-```
+## Charges and ledger
 
-`Investigator` is an async protocol, not an implementation. Jeff has full ownership
-of investigation strategy, prompts, tools, questions and recommendation quality.
-There is no mandated LangGraph topology or model selection. Every finding needs at
-least one citation to supplied evidence. Empty findings are valid when evidence is
-insufficient; report unresolved issues/questions and recommend human review.
-Recommendation actions currently are `free_regeneration`, `human_review`, `no_remedy`.
+Order creation records mock base authorization immediately. Evidence closure, acceptance
+or undisputed cutoff produces one mock base booking. A refuted complaint additionally
+books the exact fee frozen in the accepted policy. If missing, `requires_quote=true`;
+a trusted operator quotes a fee and the customer accepts that bound quote before any
+extra booking. New quotes are limited to the original currency/precision and unexpired
+authorization. There is at most one additional-processing booking per disputed review.
+Neither a supported defect nor an unresolved complaint gets an extra charge.
 
-The runtime checks result citations/binding against the input, then compares the
-binding to current persisted versions before using it. It persists the result and
-applies deterministic policy. Recommendations do not establish verified defects,
-customer consent, payment authority, or proof of settlement. Questions need a future
-persist/resume protocol; errors/timeouts go to Nikita's retry/escalation machinery.
+Live authorization, outbox/dispatch, nonces and authoritative reconciliation are pending
+the payment spike. The current workflow cannot move funds. Submitted/uncertain live
+operations must be reconciled before retries and must not be shown as confirmed.
 
-Only allowlisted order evidence may enter tools/prompts. A `storage_key` is opaque:
-never open arbitrary paths/URLs supplied by a model. Implement a scoped resolver;
-do not give the investigator repository browsing, shell access, payment credentials,
-or access to the offline evaluation process. Put only approved evidence in its
-workspace. Packaging builds only `backend/app`; `evals/expected` is outside that tree.
-This is a packaging boundary, not a sandbox for an agent running at repository root.
+## Local demo boundary
 
-## Deterministic policy and persistence boundary
+Customer authentication, production tenancy, uploads, model/provider execution, PDF
+rendering and deployment are absent. Bind the development server to localhost. Only
+local frontend origins are enabled for CORS; the internal token is server-only. The
+backend wheel contains app code, not evals/expected. Isolate the investigator's filesystem
+when wiring it; package exclusion alone is not a sandbox.
 
-`runtime/policy.py` separates `OrderState`, `DeliveryState`, `CaseState` and
-`PaymentState`; there is no single catch-all status. `validate_capture` rejects
-unverified/stale work, open disputes, human review, wrong amounts/authorizations,
-submitted or uncertain payments, expired authorizations, and premature capture.
-Capture is for exactly the accepted price. Acceptance can end the review wait;
-without acceptance the current delivery must have had 60 seconds. An open dispute
-blocks both paths. `decide_remedy` permits one regeneration and returns `human_review`
-for ambiguity or any failed regeneration, even if the latest complaint is unsupported.
-
-These are pure checks, not a durable state machine. Nikita must atomically read
-authoritative state, check versions/authority, persist idempotency key + exact request,
-and reserve the operation before execution. Re-read version/dispute state before
-dispatch and serialize dispute/capture races. Persist regeneration usage once per
-order before dispatch so retries cannot create a second free generation. Human
-review must become a durable state and block automatic settlement.
-
-## Payment boundary
-
-`PaymentAdapter` defines async `authorize`, `execute` (capture/release), and
-`reconcile`. A new idempotency key represents a new operation, never a retry of the
-same operation. All repeats use the same exact payload/key. Release is also subject
-to explicit deterministic authorization; its live policy is not implemented.
-
-`get_payment_adapter()` only supports `mock`. Its local SQLite journal atomically
-deduplicates calls, rejects changed payloads under a used key, and survives restart.
-Every receipt is `mode=mock,status=mock`, with no transaction ID. No funds move and
-the mock cannot satisfy the live capture guard's authorized-payment state.
-
-For a future live adapter, persist pending/submitted/uncertain outcomes, reconcile
-against the authoritative provider/chain, and confirm only under the spike's agreed
-finality rule. A timeout or transaction hash is not confirmation. Never retry an
-uncertain submission blindly. The current mock journal does not implement a live
-outbox, reconciliation worker, or cross-process payment execution lease.
-
-## Deployment boundary (future)
-
-Railway backend root should be `backend/`, with a persistent SQLite volume. Exclude
-`evals/expected`, corpus mutation metadata, private artifacts and credentials from
-runtime/public images. Configure frontend/backend origins only when Lucas and Nikita
-agree on API/auth; do not expose secrets in `NEXT_PUBLIC_*`. No deployment is created.
+FastAPI uses its documented [lifespan mechanism](https://fastapi.tiangolo.com/advanced/events/)
+for the mock deadline worker. No additional queue or infrastructure is introduced.

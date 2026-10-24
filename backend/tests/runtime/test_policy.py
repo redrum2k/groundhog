@@ -6,7 +6,7 @@ from app.contracts.models import SettlementIntent
 from app.runtime.policy import CaptureContext, decide_remedy, validate_capture
 
 
-def check(request, intent, context, seconds=60):
+def check(request, intent, context, seconds=600):
     validate_capture(
         request.snapshot,
         request.delivery,
@@ -21,14 +21,14 @@ def context_with(context, **changes):
 
 
 def test_capture_at_review_expiry(investigation_input, capture_intent, capture_context):
-    check(investigation_input, capture_intent, capture_context, 60)
+    check(investigation_input, capture_intent, capture_context, 600)
 
 
 def test_capture_before_review_expiry_requires_acceptance(
     investigation_input, capture_intent, capture_context
 ):
     with pytest.raises(ValueError, match="acceptance or review expiry"):
-        check(investigation_input, capture_intent, capture_context, 59)
+        check(investigation_input, capture_intent, capture_context, 599)
     accepted = context_with(capture_context, customer_acceptance=investigation_input.proposal)
     check(investigation_input, capture_intent, accepted, 1)
 
@@ -39,9 +39,8 @@ def test_capture_before_review_expiry_requires_acceptance(
         {"case_state": "open"},
         {"case_state": "human_review"},
         {"order_state": "human_review"},
-        {"delivery_state": "failed"},
-        {"delivery_state": "pending_verification"},
-        {"verification_binding": None},
+        {"delivery_state": "operational_failure"},
+        {"evidence_verdict": "provider_defect"},
         {"payment_state": "submitted"},
         {"payment_state": "uncertain"},
         {"payment_state": "mock"},
@@ -104,8 +103,8 @@ def test_capture_cannot_add_a_complaint_charge(
     [
         ("provider_defect", 0, False, "free_regeneration"),
         ("provider_defect", 1, False, "human_review"),
-        ("ambiguous", 0, False, "human_review"),
-        ("unsupported", 0, False, "no_remedy"),
+        ("ambiguous", 0, False, "request_evidence"),
+        ("unsupported", 0, False, "additional_processing"),
         ("unsupported", 1, True, "human_review"),
         ("provider_defect", 1, True, "human_review"),
     ],
