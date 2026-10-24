@@ -1,0 +1,315 @@
+{
+  "case_id": "H-011",
+  "domain": "aggregate-brokerage-v1",
+  "agreement": {
+    "policy": "aggregate-brokerage-v1",
+    "geography": "San Francisco",
+    "category": "gym_or_fitness_app",
+    "category_meaning": "Gym membership or fitness-app use; standalone yoga is excluded.",
+    "requirements": [
+      "R-COHORT",
+      "R-CATEGORY",
+      "R-GEOGRAPHY",
+      "R-SCHEMA",
+      "R-COVERAGE",
+      "R-SUPPRESSION",
+      "R-PROVENANCE",
+      "R-ARTIFACT"
+    ],
+    "source_pins": [
+      {
+        "source_id": "sf-aggregate-v1:authority",
+        "version": 1,
+        "sha256": "5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164"
+      },
+      {
+        "source_id": "sf-aggregate-v1:coverage",
+        "version": 1,
+        "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce"
+      },
+      {
+        "source_id": "sf-aggregate-v1:gym_app_or_yoga",
+        "version": 1,
+        "sha256": "a895bb6a7ee562314074da83be84eb182d67e7c0bc0d23ccb703e7f3430b19b2"
+      },
+      {
+        "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+        "version": 1,
+        "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5"
+      }
+    ],
+    "authority": [
+      {
+        "source_id": "sf-aggregate-v1:authority",
+        "authority": "registered_supplier_publication",
+        "authority_record": "synthetic-provider-registry-v1"
+      },
+      {
+        "source_id": "sf-aggregate-v1:coverage",
+        "authority": "registered_supplier_publication",
+        "authority_record": "synthetic-city-reference-v1"
+      },
+      {
+        "source_id": "sf-aggregate-v1:gym_app_or_yoga",
+        "authority": "registered_supplier_publication",
+        "authority_record": "synthetic-provider-registry-v1"
+      },
+      {
+        "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+        "authority": "registered_supplier_publication",
+        "authority_record": "synthetic-provider-registry-v1"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "requirement": "R-COHORT",
+      "family": "cohort",
+      "status": "PASS",
+      "evidence": "Synthetic adults aged 25–34; unique adults, disjoint ZIP groups.",
+      "missing_facts": [],
+      "citations": [
+        {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        {
+          "kind": "dataset",
+          "artifact_id": "8de3df3380652dc883b825ce",
+          "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+          "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+          "version": 1,
+          "row": "$",
+          "column": "age_min",
+          "value": "25",
+          "expected_key": null,
+          "coverage_sha256": null
+        }
+      ]
+    },
+    {
+      "requirement": "R-CATEGORY",
+      "family": "category",
+      "status": "PASS",
+      "evidence": "Gym membership or fitness-app use; standalone yoga is excluded.",
+      "missing_facts": [],
+      "citations": [
+        {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        {
+          "kind": "dataset",
+          "artifact_id": "8de3df3380652dc883b825ce",
+          "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+          "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+          "version": 1,
+          "row": "$",
+          "column": "category",
+          "value": "gym_or_fitness_app",
+          "expected_key": null,
+          "coverage_sha256": null
+        }
+      ]
+    },
+    {
+      "requirement": "R-GEOGRAPHY",
+      "family": "geography",
+      "status": "PASS",
+      "evidence": "San Francisco using the frozen synthetic ZIP inclusion registry.",
+      "missing_facts": [],
+      "citations": [
+        {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        {
+          "kind": "dataset",
+          "artifact_id": "8de3df3380652dc883b825ce",
+          "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+          "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        }
+      ]
+    },
+    {
+      "requirement": "R-SCHEMA",
+      "family": "schema",
+      "status": "PASS",
+      "evidence": "CSV columns: zip, area, count, status; stable ZIP row identities.",
+      "missing_facts": [],
+      "citations": [
+        {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        }
+      ]
+    },
+    {
+      "requirement": "R-COVERAGE",
+      "family": "coverage",
+      "status": "PASS",
+      "evidence": "Every frozen registry ZIP exactly once; no duplicate, extra or silently missing rows.",
+      "missing_facts": [],
+      "citations": [
+        {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        }
+      ]
+    },
+    {
+      "requirement": "R-SUPPRESSION",
+      "family": "suppression",
+      "status": "PASS",
+      "evidence": "Released integer counts ≥50; suppressed rows retained with null counts; unknown is distinct.",
+      "missing_facts": [],
+      "citations": [
+        {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        }
+      ]
+    },
+    {
+      "requirement": "R-PROVENANCE",
+      "family": "provenance",
+      "status": "PASS",
+      "evidence": "Exact registered dataset editions, hashes and authority records.",
+      "missing_facts": [],
+      "citations": [
+        {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        {
+          "kind": "dataset",
+          "artifact_id": "8de3df3380652dc883b825ce",
+          "sha256": "8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5",
+          "source_id": "sf-aggregate-v1:gym_or_fitness_app",
+          "version": 1,
+          "row": "$",
+          "column": "edition",
+          "value": "synthetic-2026-10",
+          "expected_key": null,
+          "coverage_sha256": null
+        }
+      ]
+    },
+    {
+      "requirement": "R-ARTIFACT",
+      "family": "artifact",
+      "status": "PASS",
+      "evidence": "Downloaded CSV and JSON preview agree with the independently checked sources.",
+      "missing_facts": [],
+      "citations": [
+        {
+          "kind": "dataset",
+          "artifact_id": "cfd799993d12e11bade69bb9",
+          "sha256": "cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce",
+          "source_id": "sf-aggregate-v1:coverage",
+          "version": 1,
+          "row": "$",
+          "column": "geography",
+          "value": "San Francisco",
+          "expected_key": null,
+          "coverage_sha256": null
+        },
+        {
+          "kind": "dataset",
+          "artifact_id": "72af48f698cc4857f784f51a",
+          "sha256": "72af48f698cc4857f784f51a5e75f4c017d88e5232fc3556c008f1007de0037f",
+          "source_id": "delivery",
+          "version": 1,
+          "row": "94102",
+          "column": "zip",
+          "value": "94102",
+          "expected_key": null,
+          "coverage_sha256": null
+        }
+      ]
+    }
+  ],
+  "source_ok": true,
+  "messages": [
+    {
+      "actor": "buyer",
+      "text": "Please include yoga — that's fitness to us."
+    }
+  ],
+  "complaint_target": "R-CATEGORY",
+  "max_questions": 2,
+  "correction_used": false,
+  "questions_asked": 0,
+  "artifacts": {
+    "delivery": "delivery.csv",
+    "preview": "preview.json",
+    "sources": {
+      "sf-aggregate-v1:authority": "../sources/5c18d83bfaede1d5758bb8aa62f7c9d8298fb118ced39803e0ee4808846d8164.json",
+      "sf-aggregate-v1:coverage": "../sources/cfd799993d12e11bade69bb9695c35365498d7a9f3097ce12d9059ca8fdaa5ce.json",
+      "sf-aggregate-v1:gym_app_or_yoga": "../sources/a895bb6a7ee562314074da83be84eb182d67e7c0bc0d23ccb703e7f3430b19b2.json",
+      "sf-aggregate-v1:gym_or_fitness_app": "../sources/8de3df3380652dc883b825ced4c857317149d0a0092311637de80c3f704111e5.json"
+    }
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "reviewer": "independent-model-reviewer",
+  "reviewer_independence": "Blind to the design labels, generator and arms; a model, not a human. The repo policy says a second model agreeing with the producer is not independent truth, so treat this as a cross-check pending a human reviewer.",
+  "review_sha256": "7dca3f495a2edd9e4e3d8ada9a59890d84a55b1f314e0da717bdbb3d0f08c52d",
+  "labels_sha256": "b5cd940cde6da4bc38e0973f5baf0a6e9dcc4f254bcb1a0ea95f4bceb768dfc6",
+  "agreement": {
+    "primary_action_exact": 0.9083,
+    "primary_action_kappa": 0.8786,
+    "action_compatible": 1.0,
+    "verdict_exact": 0.9633,
+    "verdict_kappa": 0.9483,
+    "cases_needing_adjudication": 4
+  },
+  "scores_against_reviewer_labels": {
+    "static": {
+      "n": 109,
+      "action_accuracy": 0.9817,
+      "verdict_accuracy": 0.8899,
+      "settlement_correct": 0.8349,
+      "unsupported_actions": 0,
+      "forbidden_actions": 0,
+      "correct_abstentions": "20/20",
+      "over_abstentions": 9,
+      "citation_recall": 0.9174,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 13,
+      "model_calls": 0,
+      "model_usd": 0.0
+    },
+    "memory": {
+      "n": 109,
+      "action_accuracy": 0.367,
+      "verdict_accuracy": 0.3761,
+      "settlement_correct": 0.3486,
+      "unsupported_actions": 40,
+      "forbidden_actions": 0,
+      "correct_abstentions": "4/20",
+      "over_abstentions": 25,
+      "citation_recall": 0.3119,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 14,
+      "model_calls": 0,
+      "model_usd": 0.0
+    },
+    "evolving": {
+      "n": 109,
+      "action_accuracy": 0.6055,
+      "verdict_accuracy": 0.5505,
+      "settlement_correct": 0.422,
+      "unsupported_actions": 0,
+      "forbidden_actions": 0,
+      "correct_abstentions": "20/20",
+      "over_abstentions": 33,
+      "citation_recall": 0.1009,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 0,
+      "model_calls": 0,
+      "model_usd": 0.0
+    }
+  },
+  "scores_on_cases_both_labelers_agree": {
+    "n": 105,
+    "static": {
+      "n": 105,
+      "action_accuracy": 0.981,
+      "verdict_accuracy": 0.9238,
+      "settlement_correct": 0.8286,
+      "unsupported_actions": 0,
+      "forbidden_actions": 0,
+      "correct_abstentions": "20/20",
+      "over_abstentions": 5,
+      "citation_recall": 0.9524,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 9,
+      "model_calls": 0,
+      "model_usd": 0.0
+    },
+    "memory": {
+      "n": 105,
+      "action_accuracy": 0.3619,
+      "verdict_accuracy": 0.3905,
+      "settlement_correct": 0.3619,
+      "unsupported_actions": 40,
+      "forbidden_actions": 0,
+      "correct_abstentions": "4/20",
+      "over_abstentions": 23,
+      "citation_recall": 0.3238,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 14,
+      "model_calls": 0,
+      "model_usd": 0.0
+    },
+    "evolving": {
+      "n": 105,
+      "action_accuracy": 0.5905,
+      "verdict_accuracy": 0.5714,
+      "settlement_correct": 0.4381,
+      "unsupported_actions": 0,
+      "forbidden_actions": 0,
+      "correct_abstentions": "20/20",
+      "over_abstentions": 33,
+      "citation_recall": 0.1048,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 0,
+      "model_calls": 0,
+      "model_usd": 0.0
+    }
+  },
+  "disagreements": [
+    {
+      "case_id": "H-002",
+      "mechanism": "privacy_request",
+      "design": {
+        "verdict": "undetermined",
+        "actions": [
+          "human_review"
+        ]
+      },
+      "review": {
+        "verdict": "out_of_scope",
+        "actions": [
+          "human_review",
+          "reject_unsupported"
+        ]
+      },
+      "review_notes": "Deletion/legal privacy request: delivery is synthetic aggregates with no personal records; legal request outside the data agreement, route to human."
+    },
+    {
+      "case_id": "H-060",
+      "mechanism": "privacy_request",
+      "design": {
+        "verdict": "undetermined",
+        "actions": [
+          "human_review"
+        ]
+      },
+      "review": {
+        "verdict": "out_of_scope",
+        "actions": [
+          "human_review",
+          "reject_unsupported"
+        ]
+      },
+      "review_notes": "Deletion/legal privacy request: delivery is synthetic aggregates with no personal records; legal request outside the data agreement, route to human."
+    },
+    {
+      "case_id": "H-070",
+      "mechanism": "privacy_request",
+      "design": {
+        "verdict": "undetermined",
+        "actions": [
+          "human_review"
+        ]
+      },
+      "review": {
+        "verdict": "out_of_scope",
+        "actions": [
+          "human_review",
+          "reject_unsupported"
+        ]
+      },
+      "review_notes": "Deletion/legal privacy request: delivery is synthetic aggregates with no personal records; legal request outside the data agreement, route to human."
+    },
+    {
+      "case_id": "H-097",
+      "mechanism": "privacy_request",
+      "design": {
+        "verdict": "undetermined",
+        "actions": [
+          "human_review"
+        ]
+      },
+      "review": {
+        "verdict": "out_of_scope",
+        "actions": [
+          "human_review",
+          "reject_unsupported"
+        ]
+      },
+      "review_notes": "Deletion/legal privacy request: delivery is synthetic aggregates with no personal records; legal request outside the data agreement, route to human."
+    }
+  ]
+}

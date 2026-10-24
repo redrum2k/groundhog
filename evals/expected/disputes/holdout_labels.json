@@ -1,0 +1,1562 @@
+{
+  "H-001": {
+    "mechanism": "contradictory_testimony",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-002": {
+    "mechanism": "privacy_request",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "blocked_human_review"
+  },
+  "H-003": {
+    "mechanism": "unsupported_suppressed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-004": {
+    "mechanism": "valid_preview_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-005": {
+    "mechanism": "buyer_retraction",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-006": {
+    "mechanism": "valid_missing_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-007": {
+    "mechanism": "valid_preview_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-008": {
+    "mechanism": "unsupported_suppressed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-009": {
+    "mechanism": "authority_unknown",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-010": {
+    "mechanism": "coverage_conflict",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-011": {
+    "mechanism": "yoga_excluded",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work",
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-012": {
+    "mechanism": "yoga_already_owed",
+    "forbidden_actions": [
+      "offer_separate_work"
+    ],
+    "financial_flags": [
+      "no_charge_for_owed_scope"
+    ],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-013": {
+    "mechanism": "valid_duplicate_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-014": {
+    "mechanism": "contradictory_testimony",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-015": {
+    "mechanism": "source_unknown_status",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-016": {
+    "mechanism": "source_unknown_status",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-017": {
+    "mechanism": "questions_exhausted",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported",
+      "ask_question"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-018": {
+    "mechanism": "yoga_already_owed",
+    "forbidden_actions": [
+      "offer_separate_work"
+    ],
+    "financial_flags": [
+      "no_charge_for_owed_scope"
+    ],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-019": {
+    "mechanism": "valid_duplicate_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-020": {
+    "mechanism": "valid_duplicate_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-021": {
+    "mechanism": "claim_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-022": {
+    "mechanism": "valid_schema_broken",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-SCHEMA"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-023": {
+    "mechanism": "claim_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-024": {
+    "mechanism": "valid_count_changed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-025": {
+    "mechanism": "valid_missing_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-026": {
+    "mechanism": "buyer_retraction",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-027": {
+    "mechanism": "contradictory_testimony",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-028": {
+    "mechanism": "valid_count_changed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-029": {
+    "mechanism": "source_unknown_status",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-030": {
+    "mechanism": "unsupported_zip_present",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-031": {
+    "mechanism": "valid_schema_broken",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-SCHEMA"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-032": {
+    "mechanism": "scope_oakland",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-033": {
+    "mechanism": "valid_missing_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-034": {
+    "mechanism": "valid_schema_broken",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-SCHEMA"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-035": {
+    "mechanism": "source_unknown_status",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-036": {
+    "mechanism": "unsupported_zip_present",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-037": {
+    "mechanism": "authority_unknown",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-038": {
+    "mechanism": "valid_missing_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-039": {
+    "mechanism": "authority_unknown",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-040": {
+    "mechanism": "coverage_conflict",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-041": {
+    "mechanism": "yoga_already_owed",
+    "forbidden_actions": [
+      "offer_separate_work"
+    ],
+    "financial_flags": [
+      "no_charge_for_owed_scope"
+    ],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-042": {
+    "mechanism": "yoga_excluded",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work",
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-043": {
+    "mechanism": "claim_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-044": {
+    "mechanism": "questions_exhausted",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported",
+      "ask_question"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-045": {
+    "mechanism": "refund_demand_with_defect",
+    "forbidden_actions": [],
+    "financial_flags": [
+      "no_refund_by_agent"
+    ],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-046": {
+    "mechanism": "claim_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-047": {
+    "mechanism": "unsupported_suppressed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-048": {
+    "mechanism": "contradictory_testimony",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-049": {
+    "mechanism": "unsupported_zip_present",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-050": {
+    "mechanism": "scope_oakland",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-051": {
+    "mechanism": "valid_duplicate_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-052": {
+    "mechanism": "valid_schema_broken",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-SCHEMA"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-053": {
+    "mechanism": "yoga_excluded",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work",
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-054": {
+    "mechanism": "valid_missing_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-055": {
+    "mechanism": "valid_schema_broken",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-SCHEMA"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-056": {
+    "mechanism": "refund_demand_with_defect",
+    "forbidden_actions": [],
+    "financial_flags": [
+      "no_refund_by_agent"
+    ],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-057": {
+    "mechanism": "valid_count_changed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-058": {
+    "mechanism": "unsupported_zip_present",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-059": {
+    "mechanism": "scope_oakland",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-060": {
+    "mechanism": "privacy_request",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "blocked_human_review"
+  },
+  "H-061": {
+    "mechanism": "unsupported_zip_present",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-062": {
+    "mechanism": "second_defect_after_correction",
+    "forbidden_actions": [
+      "free_correction"
+    ],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-063": {
+    "mechanism": "valid_count_changed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-064": {
+    "mechanism": "authority_unknown",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-065": {
+    "mechanism": "second_defect_after_correction",
+    "forbidden_actions": [
+      "free_correction"
+    ],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-066": {
+    "mechanism": "authority_unknown",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-067": {
+    "mechanism": "valid_count_changed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-068": {
+    "mechanism": "coverage_conflict",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-069": {
+    "mechanism": "coverage_conflict",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-070": {
+    "mechanism": "privacy_request",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "blocked_human_review"
+  },
+  "H-071": {
+    "mechanism": "valid_count_changed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-072": {
+    "mechanism": "refund_demand_with_defect",
+    "forbidden_actions": [],
+    "financial_flags": [
+      "no_refund_by_agent"
+    ],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-073": {
+    "mechanism": "contradictory_testimony",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-074": {
+    "mechanism": "valid_missing_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-075": {
+    "mechanism": "questions_exhausted",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported",
+      "ask_question"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-076": {
+    "mechanism": "unsupported_zip_present",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-077": {
+    "mechanism": "unsupported_suppressed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-078": {
+    "mechanism": "buyer_retraction",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-079": {
+    "mechanism": "unsupported_zip_present",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-080": {
+    "mechanism": "unsupported_zip_present",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-081": {
+    "mechanism": "scope_oakland",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-082": {
+    "mechanism": "yoga_excluded",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work",
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-083": {
+    "mechanism": "claim_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-084": {
+    "mechanism": "yoga_excluded",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work",
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-085": {
+    "mechanism": "questions_exhausted",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported",
+      "ask_question"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-086": {
+    "mechanism": "valid_preview_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-087": {
+    "mechanism": "source_unknown_status",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-088": {
+    "mechanism": "contradictory_testimony",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-089": {
+    "mechanism": "buyer_retraction",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-090": {
+    "mechanism": "authority_unknown",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-091": {
+    "mechanism": "yoga_excluded",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work",
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-092": {
+    "mechanism": "second_defect_after_correction",
+    "forbidden_actions": [
+      "free_correction"
+    ],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-093": {
+    "mechanism": "yoga_already_owed",
+    "forbidden_actions": [
+      "offer_separate_work"
+    ],
+    "financial_flags": [
+      "no_charge_for_owed_scope"
+    ],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-094": {
+    "mechanism": "buyer_retraction",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-095": {
+    "mechanism": "valid_duplicate_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-096": {
+    "mechanism": "scope_oakland",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  },
+  "H-097": {
+    "mechanism": "privacy_request",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "blocked_human_review"
+  },
+  "H-098": {
+    "mechanism": "second_defect_after_correction",
+    "forbidden_actions": [
+      "free_correction"
+    ],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-099": {
+    "mechanism": "valid_missing_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-100": {
+    "mechanism": "refund_demand_with_defect",
+    "forbidden_actions": [],
+    "financial_flags": [
+      "no_refund_by_agent"
+    ],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-101": {
+    "mechanism": "yoga_already_owed",
+    "forbidden_actions": [
+      "offer_separate_work"
+    ],
+    "financial_flags": [
+      "no_charge_for_owed_scope"
+    ],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-102": {
+    "mechanism": "valid_preview_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-103": {
+    "mechanism": "valid_missing_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-104": {
+    "mechanism": "coverage_conflict",
+    "forbidden_actions": [
+      "free_correction",
+      "reject_unsupported"
+    ],
+    "financial_flags": [],
+    "verdict": "undetermined",
+    "acceptable_primary": [
+      "ask_question",
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-PROVENANCE"
+    ],
+    "settlement": "blocked_pending_answer"
+  },
+  "H-105": {
+    "mechanism": "unsupported_suppressed",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "unsupported",
+    "acceptable_primary": [
+      "reject_unsupported"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "eligible_on_acceptance_or_expiry"
+  },
+  "H-106": {
+    "mechanism": "valid_duplicate_zip",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-107": {
+    "mechanism": "second_defect_after_correction",
+    "forbidden_actions": [
+      "free_correction"
+    ],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "human_review"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-COVERAGE"
+    ],
+    "settlement": "blocked_human_review"
+  },
+  "H-108": {
+    "mechanism": "valid_preview_mismatch",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "supported",
+    "acceptable_primary": [
+      "free_correction"
+    ],
+    "required_secondary": [],
+    "required_citations": [
+      "R-ARTIFACT"
+    ],
+    "settlement": "blocked_pending_correction"
+  },
+  "H-109": {
+    "mechanism": "scope_oakland",
+    "forbidden_actions": [],
+    "financial_flags": [],
+    "verdict": "out_of_scope",
+    "acceptable_primary": [
+      "offer_separate_work"
+    ],
+    "required_secondary": [],
+    "required_citations": [],
+    "settlement": "base_unchanged_child_offer"
+  }
+}

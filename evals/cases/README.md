@@ -9,3 +9,10 @@ values, authority/date conflicts, irrelevant uncertainty, corrections and consen
 Keep expected outcomes, mutation labels and grading metadata in ../expected or private evaluator
 storage. No evaluation field is accepted by runtime contracts. Runtime agents receive only
 approved artifact IDs and bounded resolved passages, never repository-wide file access.
+
+## Dispute holdout and stress inputs
+
+`disputes/holdout/` holds 109 runtime-safe aggregate dispute cases (views plus actual CSV,
+preview and source bytes, neutral IDs). `disputes/hf_views.jsonl` holds the 156 real Hugging
+Face complaints as decision views. Labels live in `../expected/disputes`. See
+`../disputes/README.md`.

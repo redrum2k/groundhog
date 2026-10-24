@@ -1,0 +1,197 @@
+{
+  "reviewer": "subset-annotator",
+  "reviewer_independence": "Blind to the design labels, generator and arms; a model, not a human. The repo policy says a second model agreeing with the producer is not independent truth, so treat this as a cross-check pending a human reviewer.",
+  "review_sha256": "32b05bdc58aa9ea25c8265fc327f252e63c30c007138895760537e56eea2c122",
+  "labels_sha256": "b5cd940cde6da4bc38e0973f5baf0a6e9dcc4f254bcb1a0ea95f4bceb768dfc6",
+  "cases": 40,
+  "human_vs_model_review": {
+    "primary_action_exact": 1.0,
+    "primary_action_kappa": 1.0,
+    "action_compatible": 1.0,
+    "verdict_exact": 0.95,
+    "verdict_kappa": 0.9308
+  },
+  "agreement": {
+    "primary_action_exact": 0.9,
+    "primary_action_kappa": 0.8684,
+    "action_compatible": 1.0,
+    "verdict_exact": 0.9,
+    "verdict_kappa": 0.8611,
+    "cases_needing_adjudication": 4
+  },
+  "scores_against_reviewer_labels": {
+    "static": {
+      "n": 40,
+      "action_accuracy": 0.975,
+      "verdict_accuracy": 0.825,
+      "settlement_correct": 0.825,
+      "unsupported_actions": 0,
+      "forbidden_actions": 0,
+      "correct_abstentions": "8/8",
+      "over_abstentions": 4,
+      "citation_recall": 0.875,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 6,
+      "model_calls": 0,
+      "model_usd": 0.0
+    },
+    "memory": {
+      "n": 40,
+      "action_accuracy": 0.325,
+      "verdict_accuracy": 0.325,
+      "settlement_correct": 0.3,
+      "unsupported_actions": 16,
+      "forbidden_actions": 0,
+      "correct_abstentions": "2/8",
+      "over_abstentions": 8,
+      "citation_recall": 0.3,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 5,
+      "model_calls": 0,
+      "model_usd": 0.0
+    },
+    "evolving": {
+      "n": 40,
+      "action_accuracy": 0.6,
+      "verdict_accuracy": 0.55,
+      "settlement_correct": 0.4,
+      "unsupported_actions": 0,
+      "forbidden_actions": 0,
+      "correct_abstentions": "8/8",
+      "over_abstentions": 12,
+      "citation_recall": 0.1,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 0,
+      "model_calls": 0,
+      "model_usd": 0.0
+    }
+  },
+  "scores_on_cases_both_labelers_agree": {
+    "n": 36,
+    "static": {
+      "n": 36,
+      "action_accuracy": 0.9722,
+      "verdict_accuracy": 0.9167,
+      "settlement_correct": 0.8056,
+      "unsupported_actions": 0,
+      "forbidden_actions": 0,
+      "correct_abstentions": "8/8",
+      "over_abstentions": 2,
+      "citation_recall": 0.9167,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 4,
+      "model_calls": 0,
+      "model_usd": 0.0
+    },
+    "memory": {
+      "n": 36,
+      "action_accuracy": 0.2778,
+      "verdict_accuracy": 0.3611,
+      "settlement_correct": 0.2778,
+      "unsupported_actions": 16,
+      "forbidden_actions": 0,
+      "correct_abstentions": "2/8",
+      "over_abstentions": 7,
+      "citation_recall": 0.2778,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 5,
+      "model_calls": 0,
+      "model_usd": 0.0
+    },
+    "evolving": {
+      "n": 36,
+      "action_accuracy": 0.6111,
+      "verdict_accuracy": 0.6111,
+      "settlement_correct": 0.4444,
+      "unsupported_actions": 0,
+      "forbidden_actions": 0,
+      "correct_abstentions": "8/8",
+      "over_abstentions": 10,
+      "citation_recall": 0.1111,
+      "ungrounded_citations": 0,
+      "financial_policy_violations": 0,
+      "human_interventions": 0,
+      "model_calls": 0,
+      "model_usd": 0.0
+    }
+  },
+  "disagreements": [
+    {
+      "case_id": "H-023",
+      "mechanism": "claim_mismatch",
+      "design": {
+        "verdict": "supported",
+        "actions": [
+          "free_correction"
+        ]
+      },
+      "review": {
+        "verdict": "unsupported",
+        "actions": [
+          "free_correction",
+          "reject_unsupported"
+        ]
+      },
+      "review_notes": "94110=170 is correct, but 94132 is missing (real provider defect); fix that with the one free correction"
+    },
+    {
+      "case_id": "H-046",
+      "mechanism": "claim_mismatch",
+      "design": {
+        "verdict": "supported",
+        "actions": [
+          "free_correction"
+        ]
+      },
+      "review": {
+        "verdict": "unsupported",
+        "actions": [
+          "free_correction",
+          "reject_unsupported"
+        ]
+      },
+      "review_notes": "94158=360 is correct, but 94115 is missing (real provider defect); fix with free correction"
+    },
+    {
+      "case_id": "H-060",
+      "mechanism": "privacy_request",
+      "design": {
+        "verdict": "undetermined",
+        "actions": [
+          "human_review"
+        ]
+      },
+      "review": {
+        "verdict": "out_of_scope",
+        "actions": [
+          "human_review",
+          "reject_unsupported"
+        ]
+      },
+      "review_notes": "Delivery is synthetic aggregates with no personal records; legal privacy request routed to human"
+    },
+    {
+      "case_id": "H-070",
+      "mechanism": "privacy_request",
+      "design": {
+        "verdict": "undetermined",
+        "actions": [
+          "human_review"
+        ]
+      },
+      "review": {
+        "verdict": "out_of_scope",
+        "actions": [
+          "human_review",
+          "reject_unsupported"
+        ]
+      },
+      "review_notes": "No personal records held (synthetic aggregates); legal erasure request routed to human"
+    }
+  ]
+}

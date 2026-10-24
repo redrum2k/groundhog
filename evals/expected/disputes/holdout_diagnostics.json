@@ -1,0 +1,1059 @@
+[
+  {
+    "case_id": "H-001",
+    "mechanism": "contradictory_testimony",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-002",
+    "mechanism": "privacy_request",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-003",
+    "mechanism": "unsupported_suppressed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-004",
+    "mechanism": "valid_preview_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-005",
+    "mechanism": "buyer_retraction",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-006",
+    "mechanism": "valid_missing_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-007",
+    "mechanism": "valid_preview_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-008",
+    "mechanism": "unsupported_suppressed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-009",
+    "mechanism": "authority_unknown",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-010",
+    "mechanism": "coverage_conflict",
+    "validator_flags": [
+      "R-COVERAGE",
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-011",
+    "mechanism": "yoga_excluded",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-012",
+    "mechanism": "yoga_already_owed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-013",
+    "mechanism": "valid_duplicate_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-014",
+    "mechanism": "contradictory_testimony",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-015",
+    "mechanism": "source_unknown_status",
+    "validator_flags": [
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-016",
+    "mechanism": "source_unknown_status",
+    "validator_flags": [
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-017",
+    "mechanism": "questions_exhausted",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-018",
+    "mechanism": "yoga_already_owed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-019",
+    "mechanism": "valid_duplicate_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-020",
+    "mechanism": "valid_duplicate_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-021",
+    "mechanism": "claim_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-022",
+    "mechanism": "valid_schema_broken",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-SCHEMA"
+    ],
+    "designed_citations": [
+      "R-SCHEMA"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-023",
+    "mechanism": "claim_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-024",
+    "mechanism": "valid_count_changed",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-025",
+    "mechanism": "valid_missing_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-026",
+    "mechanism": "buyer_retraction",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-027",
+    "mechanism": "contradictory_testimony",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-028",
+    "mechanism": "valid_count_changed",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-029",
+    "mechanism": "source_unknown_status",
+    "validator_flags": [
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-030",
+    "mechanism": "unsupported_zip_present",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-031",
+    "mechanism": "valid_schema_broken",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-SCHEMA"
+    ],
+    "designed_citations": [
+      "R-SCHEMA"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-032",
+    "mechanism": "scope_oakland",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-033",
+    "mechanism": "valid_missing_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-034",
+    "mechanism": "valid_schema_broken",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-SCHEMA"
+    ],
+    "designed_citations": [
+      "R-SCHEMA"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-035",
+    "mechanism": "source_unknown_status",
+    "validator_flags": [
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-036",
+    "mechanism": "unsupported_zip_present",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-037",
+    "mechanism": "authority_unknown",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-038",
+    "mechanism": "valid_missing_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-039",
+    "mechanism": "authority_unknown",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-040",
+    "mechanism": "coverage_conflict",
+    "validator_flags": [
+      "R-COVERAGE",
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-041",
+    "mechanism": "yoga_already_owed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-042",
+    "mechanism": "yoga_excluded",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-043",
+    "mechanism": "claim_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-044",
+    "mechanism": "questions_exhausted",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-045",
+    "mechanism": "refund_demand_with_defect",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-046",
+    "mechanism": "claim_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-047",
+    "mechanism": "unsupported_suppressed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-048",
+    "mechanism": "contradictory_testimony",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-049",
+    "mechanism": "unsupported_zip_present",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-050",
+    "mechanism": "scope_oakland",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-051",
+    "mechanism": "valid_duplicate_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-052",
+    "mechanism": "valid_schema_broken",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-SCHEMA"
+    ],
+    "designed_citations": [
+      "R-SCHEMA"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-053",
+    "mechanism": "yoga_excluded",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-054",
+    "mechanism": "valid_missing_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-055",
+    "mechanism": "valid_schema_broken",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-SCHEMA"
+    ],
+    "designed_citations": [
+      "R-SCHEMA"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-056",
+    "mechanism": "refund_demand_with_defect",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-057",
+    "mechanism": "valid_count_changed",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-058",
+    "mechanism": "unsupported_zip_present",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-059",
+    "mechanism": "scope_oakland",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-060",
+    "mechanism": "privacy_request",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-061",
+    "mechanism": "unsupported_zip_present",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-062",
+    "mechanism": "second_defect_after_correction",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-063",
+    "mechanism": "valid_count_changed",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-064",
+    "mechanism": "authority_unknown",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-065",
+    "mechanism": "second_defect_after_correction",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-066",
+    "mechanism": "authority_unknown",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-067",
+    "mechanism": "valid_count_changed",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-068",
+    "mechanism": "coverage_conflict",
+    "validator_flags": [
+      "R-COVERAGE",
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-069",
+    "mechanism": "coverage_conflict",
+    "validator_flags": [
+      "R-COVERAGE",
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-070",
+    "mechanism": "privacy_request",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-071",
+    "mechanism": "valid_count_changed",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-072",
+    "mechanism": "refund_demand_with_defect",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-073",
+    "mechanism": "contradictory_testimony",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-074",
+    "mechanism": "valid_missing_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-075",
+    "mechanism": "questions_exhausted",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-076",
+    "mechanism": "unsupported_zip_present",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-077",
+    "mechanism": "unsupported_suppressed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-078",
+    "mechanism": "buyer_retraction",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-079",
+    "mechanism": "unsupported_zip_present",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-080",
+    "mechanism": "unsupported_zip_present",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-081",
+    "mechanism": "scope_oakland",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-082",
+    "mechanism": "yoga_excluded",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-083",
+    "mechanism": "claim_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-084",
+    "mechanism": "yoga_excluded",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-085",
+    "mechanism": "questions_exhausted",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-086",
+    "mechanism": "valid_preview_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-087",
+    "mechanism": "source_unknown_status",
+    "validator_flags": [
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-088",
+    "mechanism": "contradictory_testimony",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-089",
+    "mechanism": "buyer_retraction",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-090",
+    "mechanism": "authority_unknown",
+    "validator_flags": [
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-091",
+    "mechanism": "yoga_excluded",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-092",
+    "mechanism": "second_defect_after_correction",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-093",
+    "mechanism": "yoga_already_owed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-094",
+    "mechanism": "buyer_retraction",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-095",
+    "mechanism": "valid_duplicate_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-096",
+    "mechanism": "scope_oakland",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-097",
+    "mechanism": "privacy_request",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-098",
+    "mechanism": "second_defect_after_correction",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-099",
+    "mechanism": "valid_missing_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-100",
+    "mechanism": "refund_demand_with_defect",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-101",
+    "mechanism": "yoga_already_owed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-102",
+    "mechanism": "valid_preview_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-103",
+    "mechanism": "valid_missing_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-104",
+    "mechanism": "coverage_conflict",
+    "validator_flags": [
+      "R-COVERAGE",
+      "R-PROVENANCE"
+    ],
+    "designed_citations": [
+      "R-PROVENANCE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-105",
+    "mechanism": "unsupported_suppressed",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-106",
+    "mechanism": "valid_duplicate_zip",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-107",
+    "mechanism": "second_defect_after_correction",
+    "validator_flags": [
+      "R-ARTIFACT",
+      "R-COVERAGE"
+    ],
+    "designed_citations": [
+      "R-COVERAGE"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-108",
+    "mechanism": "valid_preview_mismatch",
+    "validator_flags": [
+      "R-ARTIFACT"
+    ],
+    "designed_citations": [
+      "R-ARTIFACT"
+    ],
+    "validator_agrees": true
+  },
+  {
+    "case_id": "H-109",
+    "mechanism": "scope_oakland",
+    "validator_flags": [],
+    "designed_citations": [],
+    "validator_agrees": true
+  }
+]

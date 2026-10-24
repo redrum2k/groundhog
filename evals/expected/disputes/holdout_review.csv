@@ -1,0 +1,110 @@
+case_id,verdict,action,secondary_action,citations,acceptable_alternatives,notes
+H-001,unsupported,reject_unsupported,,R-ARTIFACT,,Delivered value matches pinned accepted source; buyer internal/CRM/survey figure is not the contract measure; no fee.
+H-002,out_of_scope,human_review,,R-COHORT,reject_unsupported,"Deletion/legal privacy request: delivery is synthetic aggregates with no personal records; legal request outside the data agreement, route to human."
+H-003,unsupported,reject_unsupported,,R-SUPPRESSION,,94129 is suppressed in the pinned source; null count with distinct suppressed status is exactly what the contract requires; exact suppressed counts are never exposed.
+H-004,supported,free_correction,,R-ARTIFACT,,"JSON preview row differs from CSV bytes (CSV matches source); provider-output artifact defect, first correction unused."
+H-005,unsupported,reject_unsupported,,R-COVERAGE,,Buyer withdrew; ZIP present exactly once in delivery; no fee.
+H-006,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-007,supported,free_correction,,R-ARTIFACT,,"JSON preview row differs from CSV bytes (CSV matches source); provider-output artifact defect, first correction unused."
+H-008,unsupported,reject_unsupported,,R-SUPPRESSION,,94129 is suppressed in the pinned source; null count with distinct suppressed status is exactly what the contract requires; exact suppressed counts are never exposed.
+H-009,undetermined,ask_question,,R-CATEGORY;R-PROVENANCE,human_review,Category definition dispute while authority record is unverified (R-PROVENANCE UNKNOWN); ask one bounded authority-evidence question.
+H-010,undetermined,human_review,,R-COVERAGE;R-PROVENANCE,ask_question,Available coverage source edition (adds 94199) conflicts with the pinned registry; delivery matches the pinned 27 ZIPs. Source conflict is not provider fault; CONFLICT needs human resolution.
+H-011,out_of_scope,offer_separate_work,,R-CATEGORY,reject_unsupported,"Accepted definition excludes standalone yoga; delivery correct. Yoga needs separately offered, accepted and funded expansion."
+H-012,unsupported,reject_unsupported,,R-CATEGORY,,"Accepted definition already includes yoga-studio membership and the delivery matches the yoga-inclusive source; yoga already owed cannot be billed again, so no separate offer."
+H-013,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Delivery contains a duplicated ZIP row (identical values); every key must occur once; provider-output defect, first correction."
+H-014,unsupported,reject_unsupported,,R-ARTIFACT,,Delivered value matches pinned accepted source; buyer internal/CRM/survey figure is not the contract measure; no fee.
+H-015,undetermined,human_review,,R-COVERAGE,ask_question,"Pinned category source itself marks the ZIP count unknown; delivery faithfully reproduces it. Unknown counts block, but a bad source alone is not provider fault, so no free correction."
+H-016,undetermined,human_review,,R-COVERAGE,ask_question,"Pinned category source itself marks the ZIP count unknown; delivery faithfully reproduces it. Unknown counts block, but a bad source alone is not provider fault, so no free correction."
+H-017,undetermined,human_review,,R-CATEGORY;R-PROVENANCE,,"Yoga-inclusion question with unverified authority; both investigation questions used, so escalate."
+H-018,unsupported,reject_unsupported,,R-CATEGORY,,"Accepted definition already includes yoga-studio membership and the delivery matches the yoga-inclusive source; yoga already owed cannot be billed again, so no separate offer."
+H-019,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Delivery contains a duplicated ZIP row (identical values); every key must occur once; provider-output defect, first correction."
+H-020,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Delivery contains a duplicated ZIP row (identical values); every key must occur once; provider-output defect, first correction."
+H-021,supported,free_correction,,R-COVERAGE;R-ARTIFACT,reject_unsupported;human_review,"The cited ZIP value is actually correct, but bytes show a different registry ZIP missing (R-COVERAGE/R-ARTIFACT FAIL); real provider-output defect, first correction."
+H-022,supported,free_correction,,R-SCHEMA;R-ARTIFACT,,"CSV header deviates from agreed zip,area,count,status; provider-output schema defect, first correction."
+H-023,supported,free_correction,,R-COVERAGE;R-ARTIFACT,reject_unsupported;human_review,"The cited ZIP value is actually correct, but bytes show a different registry ZIP missing (R-COVERAGE/R-ARTIFACT FAIL); real provider-output defect, first correction."
+H-024,supported,free_correction,,R-ARTIFACT,,"Delivered count differs from the pinned source value for that ZIP; provider-output defect, first correction."
+H-025,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-026,unsupported,reject_unsupported,,R-COVERAGE,,Buyer withdrew; ZIP present exactly once in delivery; no fee.
+H-027,unsupported,reject_unsupported,,R-ARTIFACT,,Delivered value matches pinned accepted source; buyer internal/CRM/survey figure is not the contract measure; no fee.
+H-028,supported,free_correction,,R-ARTIFACT,,"Delivered count differs from the pinned source value for that ZIP; provider-output defect, first correction."
+H-029,undetermined,human_review,,R-COVERAGE,ask_question,"Pinned category source itself marks the ZIP count unknown; delivery faithfully reproduces it. Unknown counts block, but a bad source alone is not provider fault, so no free correction."
+H-030,unsupported,reject_unsupported,,R-COVERAGE,,ZIP is present exactly once in the delivered CSV; coverage check PASS; no fee.
+H-031,supported,free_correction,,R-SCHEMA;R-ARTIFACT,,"CSV header deviates from agreed zip,area,count,status; provider-output schema defect, first correction."
+H-032,out_of_scope,offer_separate_work,,R-GEOGRAPHY,,"Oakland is outside the accepted San Francisco geography; separate Oakland extension needs its own offer, acceptance and funding."
+H-033,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-034,supported,free_correction,,R-SCHEMA;R-ARTIFACT,,"CSV header deviates from agreed zip,area,count,status; provider-output schema defect, first correction."
+H-035,undetermined,human_review,,R-COVERAGE,ask_question,"Pinned category source itself marks the ZIP count unknown; delivery faithfully reproduces it. Unknown counts block, but a bad source alone is not provider fault, so no free correction."
+H-036,unsupported,reject_unsupported,,R-COVERAGE,,ZIP is present exactly once in the delivered CSV; coverage check PASS; no fee.
+H-037,undetermined,ask_question,,R-CATEGORY;R-PROVENANCE,human_review,Whether yoga is counted cannot be established while the authority record is unverified; ask a bounded evidence question.
+H-038,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-039,undetermined,ask_question,,R-CATEGORY;R-PROVENANCE,human_review,Category definition dispute while authority record is unverified (R-PROVENANCE UNKNOWN); ask one bounded authority-evidence question.
+H-040,undetermined,human_review,,R-COVERAGE;R-PROVENANCE,ask_question,Available coverage source edition (adds 94199) conflicts with the pinned registry; delivery matches the pinned 27 ZIPs. Source conflict is not provider fault; CONFLICT needs human resolution.
+H-041,unsupported,reject_unsupported,,R-CATEGORY,,"Accepted definition already includes yoga-studio membership and the delivery matches the yoga-inclusive source; yoga already owed cannot be billed again, so no separate offer."
+H-042,out_of_scope,offer_separate_work,,R-CATEGORY,reject_unsupported,"Accepted definition excludes standalone yoga; delivery correct. Yoga needs separately offered, accepted and funded expansion."
+H-043,supported,free_correction,,R-COVERAGE;R-ARTIFACT,reject_unsupported;human_review,"The cited ZIP value is actually correct, but bytes show a different registry ZIP missing (R-COVERAGE/R-ARTIFACT FAIL); real provider-output defect, first correction."
+H-044,undetermined,human_review,,R-CATEGORY;R-PROVENANCE,,"Category definition dispute with unverified authority; question budget exhausted (2/2), escalate."
+H-045,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,Registry ZIP genuinely missing; free correction. Refund demand cannot be granted (agent has no payment authority).
+H-046,supported,free_correction,,R-COVERAGE;R-ARTIFACT,reject_unsupported;human_review,"The cited ZIP value is actually correct, but bytes show a different registry ZIP missing (R-COVERAGE/R-ARTIFACT FAIL); real provider-output defect, first correction."
+H-047,unsupported,reject_unsupported,,R-SUPPRESSION,,94129 is suppressed in the pinned source; null count with distinct suppressed status is exactly what the contract requires; exact suppressed counts are never exposed.
+H-048,unsupported,reject_unsupported,,R-ARTIFACT,,Delivered value matches pinned accepted source; buyer internal/CRM/survey figure is not the contract measure; no fee.
+H-049,unsupported,reject_unsupported,,R-COVERAGE,,ZIP is present exactly once in the delivered CSV; coverage check PASS; no fee.
+H-050,out_of_scope,offer_separate_work,,R-GEOGRAPHY,,"Oakland is outside the accepted San Francisco geography; separate Oakland extension needs its own offer, acceptance and funding."
+H-051,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Delivery contains a duplicated ZIP row (identical values); every key must occur once; provider-output defect, first correction."
+H-052,supported,free_correction,,R-SCHEMA;R-ARTIFACT,,"CSV header deviates from agreed zip,area,count,status; provider-output schema defect, first correction."
+H-053,out_of_scope,offer_separate_work,,R-CATEGORY,reject_unsupported,"Accepted definition excludes standalone yoga; delivery correct. Yoga needs separately offered, accepted and funded expansion."
+H-054,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-055,supported,free_correction,,R-SCHEMA;R-ARTIFACT,,"CSV header deviates from agreed zip,area,count,status; provider-output schema defect, first correction."
+H-056,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,Registry ZIP genuinely missing; free correction. Refund demand cannot be granted (agent has no payment authority).
+H-057,supported,free_correction,,R-ARTIFACT,,"Delivered count differs from the pinned source value for that ZIP; provider-output defect, first correction."
+H-058,unsupported,reject_unsupported,,R-COVERAGE,,ZIP is present exactly once in the delivered CSV; coverage check PASS; no fee.
+H-059,out_of_scope,offer_separate_work,,R-GEOGRAPHY,,"Oakland is outside the accepted San Francisco geography; separate Oakland extension needs its own offer, acceptance and funding."
+H-060,out_of_scope,human_review,,R-COHORT,reject_unsupported,"Deletion/legal privacy request: delivery is synthetic aggregates with no personal records; legal request outside the data agreement, route to human."
+H-061,unsupported,reject_unsupported,,R-COVERAGE,,ZIP is present exactly once in the delivered CSV; coverage check PASS; no fee.
+H-062,supported,human_review,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP missing, but the one free correction was already used; another defect escalates to human review."
+H-063,supported,free_correction,,R-ARTIFACT,,"Delivered count differs from the pinned source value for that ZIP; provider-output defect, first correction."
+H-064,undetermined,ask_question,,R-CATEGORY;R-PROVENANCE,human_review,Whether yoga is counted cannot be established while the authority record is unverified; ask a bounded evidence question.
+H-065,supported,human_review,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP missing, but the one free correction was already used; another defect escalates to human review."
+H-066,undetermined,ask_question,,R-CATEGORY;R-PROVENANCE,human_review,Whether yoga is counted cannot be established while the authority record is unverified; ask a bounded evidence question.
+H-067,supported,free_correction,,R-ARTIFACT,,"Delivered count differs from the pinned source value for that ZIP; provider-output defect, first correction."
+H-068,undetermined,human_review,,R-COVERAGE;R-PROVENANCE,ask_question,Available coverage source edition (adds 94199) conflicts with the pinned registry; delivery matches the pinned 27 ZIPs. Source conflict is not provider fault; CONFLICT needs human resolution.
+H-069,undetermined,human_review,,R-COVERAGE;R-PROVENANCE,ask_question,Available coverage source edition (adds 94199) conflicts with the pinned registry; delivery matches the pinned 27 ZIPs. Source conflict is not provider fault; CONFLICT needs human resolution.
+H-070,out_of_scope,human_review,,R-COHORT,reject_unsupported,"Deletion/legal privacy request: delivery is synthetic aggregates with no personal records; legal request outside the data agreement, route to human."
+H-071,supported,free_correction,,R-ARTIFACT,,"Delivered count differs from the pinned source value for that ZIP; provider-output defect, first correction."
+H-072,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-073,unsupported,reject_unsupported,,R-ARTIFACT,,Delivered value matches pinned accepted source; buyer internal/CRM/survey figure is not the contract measure; no fee.
+H-074,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-075,undetermined,human_review,,R-CATEGORY;R-PROVENANCE,,"Yoga-inclusion question with unverified authority; question budget exhausted (2/2), escalate."
+H-076,unsupported,reject_unsupported,,R-COVERAGE,,ZIP is present exactly once in the delivered CSV; coverage check PASS; no fee.
+H-077,unsupported,reject_unsupported,,R-SUPPRESSION,,94129 is suppressed in the pinned source; null count with distinct suppressed status is exactly what the contract requires; exact suppressed counts are never exposed.
+H-078,unsupported,reject_unsupported,,R-COVERAGE,,Buyer withdrew; ZIP present exactly once in delivery; no fee.
+H-079,unsupported,reject_unsupported,,R-COVERAGE,,ZIP is present exactly once in the delivered CSV; coverage check PASS; no fee.
+H-080,unsupported,reject_unsupported,,R-COVERAGE,,ZIP is present exactly once in the delivered CSV; coverage check PASS; no fee.
+H-081,out_of_scope,offer_separate_work,,R-GEOGRAPHY,,"Oakland is outside the accepted San Francisco geography; separate Oakland extension needs its own offer, acceptance and funding."
+H-082,out_of_scope,offer_separate_work,,R-CATEGORY,reject_unsupported,"Accepted definition excludes standalone yoga; delivery correct. Yoga needs separately offered, accepted and funded expansion."
+H-083,supported,free_correction,,R-COVERAGE;R-ARTIFACT,reject_unsupported;human_review,"The cited ZIP value is actually correct, but bytes show a different registry ZIP missing (R-COVERAGE/R-ARTIFACT FAIL); real provider-output defect, first correction."
+H-084,out_of_scope,offer_separate_work,,R-CATEGORY,reject_unsupported,"Accepted definition excludes standalone yoga; delivery correct. Yoga needs separately offered, accepted and funded expansion."
+H-085,undetermined,human_review,,R-CATEGORY;R-PROVENANCE,,"Yoga-inclusion question with unverified authority; both investigation questions used, so escalate."
+H-086,supported,free_correction,,R-ARTIFACT,,"JSON preview row differs from CSV bytes (CSV matches source); provider-output artifact defect, first correction unused."
+H-087,undetermined,human_review,,R-COVERAGE,ask_question,"Pinned category source itself marks the ZIP count unknown; delivery faithfully reproduces it. Unknown counts block, but a bad source alone is not provider fault, so no free correction."
+H-088,unsupported,reject_unsupported,,R-ARTIFACT,,Delivered value matches pinned accepted source; buyer internal/CRM/survey figure is not the contract measure; no fee.
+H-089,unsupported,reject_unsupported,,R-COVERAGE,,Buyer withdrew; ZIP present exactly once in delivery; no fee.
+H-090,undetermined,ask_question,,R-CATEGORY;R-PROVENANCE,human_review,Category definition dispute while authority record is unverified (R-PROVENANCE UNKNOWN); ask one bounded authority-evidence question.
+H-091,out_of_scope,offer_separate_work,,R-CATEGORY,reject_unsupported,"Accepted definition excludes standalone yoga; delivery correct. Yoga needs separately offered, accepted and funded expansion."
+H-092,supported,human_review,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP missing, but the one free correction was already used; another defect escalates to human review."
+H-093,unsupported,reject_unsupported,,R-CATEGORY,,"Accepted definition already includes yoga-studio membership and the delivery matches the yoga-inclusive source; yoga already owed cannot be billed again, so no separate offer."
+H-094,unsupported,reject_unsupported,,R-COVERAGE,,Buyer withdrew; ZIP present exactly once in delivery; no fee.
+H-095,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Delivery contains a duplicated ZIP row (identical values); every key must occur once; provider-output defect, first correction."
+H-096,out_of_scope,offer_separate_work,,R-GEOGRAPHY,,"Oakland is outside the accepted San Francisco geography; separate Oakland extension needs its own offer, acceptance and funding."
+H-097,out_of_scope,human_review,,R-COHORT,reject_unsupported,"Deletion/legal privacy request: delivery is synthetic aggregates with no personal records; legal request outside the data agreement, route to human."
+H-098,supported,human_review,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP missing, but the one free correction was already used; another defect escalates to human review."
+H-099,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-100,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,Registry ZIP genuinely missing; free correction. Refund demand cannot be granted (agent has no payment authority).
+H-101,unsupported,reject_unsupported,,R-CATEGORY,,"Accepted definition already includes yoga-studio membership and the delivery matches the yoga-inclusive source; yoga already owed cannot be billed again, so no separate offer."
+H-102,supported,free_correction,,R-ARTIFACT,,"JSON preview row differs from CSV bytes (CSV matches source); provider-output artifact defect, first correction unused."
+H-103,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP absent from delivered CSV though present in clean source; provider-output defect, first correction."
+H-104,undetermined,human_review,,R-COVERAGE;R-PROVENANCE,ask_question,Available coverage source edition (adds 94199) conflicts with the pinned registry; delivery matches the pinned 27 ZIPs. Source conflict is not provider fault; CONFLICT needs human resolution.
+H-105,unsupported,reject_unsupported,,R-SUPPRESSION,,94129 is suppressed in the pinned source; null count with distinct suppressed status is exactly what the contract requires; exact suppressed counts are never exposed.
+H-106,supported,free_correction,,R-COVERAGE;R-ARTIFACT,,"Delivery contains a duplicated ZIP row (identical values); every key must occur once; provider-output defect, first correction."
+H-107,supported,human_review,,R-COVERAGE;R-ARTIFACT,,"Registry ZIP missing, but the one free correction was already used; another defect escalates to human review."
+H-108,supported,free_correction,,R-ARTIFACT,,"JSON preview row differs from CSV bytes (CSV matches source); provider-output artifact defect, first correction unused."
+H-109,out_of_scope,offer_separate_work,,R-GEOGRAPHY,,"Oakland is outside the accepted San Francisco geography; separate Oakland extension needs its own offer, acceptance and funding."

@@ -1,0 +1,37 @@
+{
+  "dataset_fingerprint": {
+    "cases.jsonl": "ec3ac12e5d506deeb19471b0230ce96e7ffc3f887a2554b04e83d7dc87056ba8",
+    "hf_data_disputes.jsonl": "7981eb9e7baf2e89137738ca34267ee2aa41d5c0251da309e67c5f8d23d699a6"
+  },
+  "counts": {
+    "simulated": 1500,
+    "train": 1279,
+    "development_tests": 221,
+    "hf_threads": 156,
+    "hf_keyword_mapped": 136
+  },
+  "leakage": {
+    "contrastive_test_pairs": 221,
+    "convergent_test_ids": 221,
+    "lessons_test_ids": 20,
+    "variants_train": 26,
+    "variants_test": 26,
+    "variants_unseen_in_train": [],
+    "test_messages_verbatim_in_train": 0
+  },
+  "baselines_on_221_development_tests": {
+    "tfidf_message_only": 0.4751,
+    "tfidf_message_plus_failing_checks": 0.8778,
+    "DIAGNOSTIC_lookup_issue_type": 0.9593,
+    "DIAGNOSTIC_lookup_variant": 1.0,
+    "DIAGNOSTIC_lookup_failing_requirements": 0.8824
+  },
+  "hf_keyword_mapped_agreement": "13/136",
+  "notes": [
+    "contrastive.jsonl, convergent.jsonl and lessons.json reference test cases; rebuild memory from train only (build_memory.py).",
+    "All test variants also occur in train: the 221 cases measure wording generalization only, and are development tests after any debugging use.",
+    "Lookup rows read scenario metadata a runtime agent never receives.",
+    "HF targets are keyword-assigned, not adjudicated contractual decisions.",
+    "Simulated acceptance/CSAT outcomes are random draws from fixed probabilities: {True: 1329, False: 171} accepted; they cannot show operational improvement."
+  ]
+}

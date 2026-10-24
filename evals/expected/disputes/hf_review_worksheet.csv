@@ -1,0 +1,665 @@
+thread_id,url,dataset,category,title,reporter_text,maintainer_reply,reviewer,contract_obligation_established,evidence_sufficient,verdict,appropriate_action,notes
+hf-open-llm-leaderboard__requests-56,https://huggingface.co/datasets/open-llm-leaderboard/requests/discussions/56,open-llm-leaderboard/requests,accuracy_or_labels,Failed requests,"Hello team,
+
+Good day!
+Could you please find out what is wrong? I got failed after I submitted immediately.
+Please check
+
+https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/Fireball-Mistral-Nemo-Base-2407-v1-DPO2_eval_request_False_float16_Original.json
+
+Model: EpistemeAI/Fireball-Mistral-Nemo-Base-2407-v1-DPO2","Hi @legolasyiu, 
+
+To keep issues centralized, please open new discussions here in the Open LLM Leaderboard [discussions](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard/discussions) section.
+
+Plus, please, send the link to the request file in this way:
+https://huggingface.co/datasets/open-llm-leaderboard/requests/blob/main/EpistemeAI/Fireball-Mistral-Nemo-Base-2407-v1-DPO2_eval_request_False_float16_Original.json
+Thus we can check its status or commit, and modify it faster.
+
+According to the `job_id`, the job for this model didn't start. This might be related to the fact that our research cluster is full now. I resubmitted your model, it should be fine now.
+
+I close this discussion, please open a new one if you have any questions in the Open LLM Leaderboard discussion section.",,,,,,
+hf-espnet__yodas-1,https://huggingface.co/datasets/espnet/yodas/discussions/1,espnet/yodas,corrupted_or_unreadable,Charmap error,"Hello, i have that error for some reason (while downloading rus000 subset)
+return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+UnicodeDecodeError: 'charmap' codec can't decode byte 0x98 in position 4197: character maps to <undefined>","Hi, I was not able to see this error in my local environment, can you try uploading datasets into the latest version and try again?
+If it still does not work, can you tell me more about your environment? (python version, datasets version, streaming mode or not)",,,,,,
+hf-TIGER-Lab__MMLU-Pro-31,https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/31,TIGER-Lab/MMLU-Pro,duplicates,"Many issues, duplicates, and problem questions in the Health category","I've found some problems in the health category and categorize them below. In general, there are 94 duplicate pairs, a lot of unrelated questions, and many questions that probably belong in a different category.
+
+---
+
+### incorrect:
+I've found at least one incorrect answer, explained [here](https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/34#68df1bfa071ae6794b2854a7).
+
+### unrelated:
+View SQL query [here](https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/sql-console/_dqqf1M)
+
+**Summary**
+These are questions that just don't relate to health at all, e.g., the McDonaldization of society (6394), smart houses (6091), and visits to grandma (6153).
+
+**Recommendation**
+Remove these from the health category.
+
+---
+
+### fact_or_stat_that_could_change:
+View SQL query [here](https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/sql-console/Th9ceR1)
+
+**Summary**
+These contain facts or statistics that seem like they might change, so they test for memorization of dated facts.
+
+**Recommendation**
+Remove them from the dataset. 
+
+---
+
+### tangentially_related:
+View SQL query [here](https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/sql-console/ZbIt8dO)
+
+**Summary**
+These are questions that are tangentially related to health and might better fit within a different category. It was hard to determine where exactly to draw the line since many of these can be classified as health/biology/chemistry/psychology. I ultimately decided to include a question as tangentially_related if the focus","Thank you so much for the professional and thorough review—this is incredibly helpful for improving MMLU-Pro and for guiding how the community interprets results on the Health category.
+
+Quick updates:
+
+The one incorrect answer you flagged has been fixed.
+The answer formatting issue for Question 6065 has been corrected.
+Items unrelated to health have been re-evaluated and the category field has been updated accordingly.
+On the broader categories you highlighted—facts/statistics that may change over time, tangentially related items, “weird” questions, and duplicates/near-duplicates—we’ve carefully considered the trade-offs. While we agree these are valuable distinctions, the items themselves are not inherently incorrect, and a large number of models have already been evaluated on this version of the dataset. Making extensive content changes now would risk breaking comparability and fairness of existing and future benchmarks.
+
+Therefore:
+
+We will keep the dataset contents stable to preserve evaluation fairness and historical comparability.
+We will add a unified, prominent note documenting these issues (with pointers to your categorization) so downstream users can filter or adjust analyses as needed. (https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/36#68fd2775e03c5b14e0b192cb)
+We also recognize that time-sensitivity and duplication are common challenges across many datasets. We warmly welcome community efforts to build on MMLU-Pro—for example, curated subsets, de-",,,,,,
+hf-RoboVerseOrg__roboverse_data-1,https://huggingface.co/datasets/RoboVerseOrg/roboverse_data/discussions/1,RoboVerseOrg/roboverse_data,missing_data,Missing files.,"There are a lot of files in this dataset in the official wiki, but this site and my git clone are missing a lot of files.","There are a lot of files in this dataset in the official wiki, but this site and my git clone are missing a lot of files.",,,,,,
+hf-open-llm-leaderboard__requests-57,https://huggingface.co/datasets/open-llm-leaderboard/requests/discussions/57,open-llm-leaderboard/requests,other,all failed tests,"1) https://huggingface.co/datasets/open-llm-leaderboard/requests/blob/main/EpistemeAI/Alpaca-Llama3.1-8B_eval_request_False_float16_Original.json
+
+2) https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/EpistemeAI-codegemma-2-9b_eval_request_False_float16_Original.json
+
+3) https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/FineLlama3.1-8B-Instruct_eval_request_False_4bit_Adapter.json
+
+4) https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/Fireball-Llama-3.11-8B-v1orpo_eval_request_False_float16_Original.json
+
+5) https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/Fireball-Mistral-Nemo-Base-2407-V2_eval_request_False_float16_Original.json
+
+6) https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/Fireball-Mistral-Nemo-Base-2407-sft-v2.2_eval_request_False_float16_Original.json
+
+7) https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/Llama-3.1-8B-ORPO_eval_request_False_bfloat16_Adapter.json
+
+8) https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/Math-Code-Llama3.1-8B_eval_request_False_float16_Original.json
+
+9) https://huggingface.co/datasets/open-llm-leaderboard/requests/resolve/main/EpistemeAI/MathCoder-Llama3.1-8B_eval_request_False_float16_Original.json
+
+I want to see these models test first: 
+* EpistemeAI/Fireball-Mistral-N","Hi @legolasyiu, 
+
+Please, don't open such discussion here in `Requests` as we don't follow them. It has been already said by @clefourrier [here](https://huggingface.co/datasets/open-llm-leaderboard/requests/discussions/55#66c585e3cf0439733e334eb4).
+
+If you need any help with your models, please, start a new discussion on the Open LLM Leaderboard `Community` section.",,,,,,
+hf-adyen__DABstep-2,https://huggingface.co/datasets/adyen/DABstep/discussions/2,adyen/DABstep,schema_or_format,Maybe an error,"Hi, in the dev set:
+```
+{'task_id': '2697',
+ 'question': 'For Belles_cookbook_store in January, if we were to move the fraudulent transactions towards a different Authorization Characteristics Indicator (ACI) by incentivizing users to use a different interaction, what would be the preferred choice considering the lowest possible fees?',
+ 'answer': 'E:13.57',
+ 'guidelines': ""Answer must be just the selected ACI to incentive and the associated cost rounded to 2 decimals in this format: {card_scheme}:{fee}. If a question does not have a relevant or applicable answer for the task, please respond with 'Not Applicable'"",
+ 'level': 'hard'}
+```
+
+Belle's mcc is 5942, however 5942 is not contained in fee's ""merchant_category_code"". I don't think the answer is 'E:13.57'. It is more likely the answer is: 'Not Applicable'. Could you confirm what the answer is? Also, it is very likely in the guidelines it is not {card_scheme} but {aci} since the answer contains an aci letter.","### Hey Rumen, great to see you contributing to the benchmark!
+You’ve raised an interesting point, and I appreciate the attention to detail. What you’re highlighting is actually a common challenge for most LLMs—they often struggle with validating their assumptions about how to operate in this domain.
+Indeed, there isn’t a fee explicitly tied to Belle's MCC (5942). However, if you check the [manual](https://huggingface.co/datasets/adyen/DABstep/blob/1a8445286e7e16be350561e0fd269e4ffd4e235e/data/context/manual.md?code=true#L95) (something LLMs frequently overlook), you’ll find this clarification in the fee explanation section:
+```
+* If a field is set to null, it means that it applies to all possible values of that field. E.g., a null value in ""aci"" means the rule applies to all possible values of ""aci.""
+```
+This means that any fee entry where the MCC field is empty actually applies to all MCCs, not just specific ones. The same logic applies to any other attribute left empty, as outlined in the manual.
+Let me know if this makes sense, or if you think there’s another angle worth exploring! 🚀
+
+Best,
+Martin",,,,,,
+hf-HuggingFaceM4__FineVision-11,https://huggingface.co/datasets/HuggingFaceM4/FineVision/discussions/11,HuggingFaceM4/FineVision,scope_or_license,License?,Is there a license for the overall collated dataset? How about the original datasets?,"Hi, that is correct! I'll work on parsing the licenses to make it easier for you. We want to be very liberal with our license, but we can't override the licenses of the original datasets.",,,,,,
+hf-Lichess__standard-chess-games-2,https://huggingface.co/datasets/Lichess/standard-chess-games/discussions/2,Lichess/standard-chess-games,scope_request,[TODO] Add UCI column,"Avoids users having to parse the movetext column in case they need UCI
+
+
+EDIT: this applies to all game datasets","Avoids users having to parse the movetext column in case they need UCI
+
+
+EDIT: this applies to all game datasets",,,,,,
+hf-anon8231489123__ShareGPT_Vicuna_unfiltered-7,https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/discussions/7,anon8231489123/ShareGPT_Vicuna_unfiltered,accuracy_or_labels,A lot of other filters or low quality data that can harm training.,"I've noticed some filters that still strongly present in some languages, and spanish and english seems to be the most censored so far, in this pack i found in English, Spanish and Portuguese for now.
+Some of the pattern that can be used to find them:
+
+english (some of those are actualy from users trying to prompt the ai, in the training it can do more damage than good, they should be removed from both parts, even the ""ethical"" consideration ones, since some models trained on it is refusing to complete even simple tasks as ""name a person"" or anything like that):
+-  an AI language model you don't have
+- As an AI language model, I cannot
+- As an AI language model, I do not
+- As an AI language model, I am not able
+- As an AI language model, I don't have personal
+- I am an AI language model and do not
+- However, it is important to use any code or information provided responsibly and within legal and ethical boundaries.
+- As an AI language model, I don't have 
+- As an AI language model, I am only able
+- AI language model and I do not 
+- As an AI language model, I cannot modify
+- As an AI language model, I do not 
+- I know as an AI language model you don't have 
+- as an AI language model, you cannot
+- I'm sorry, but as an AI language model
+- As an AI language model, I don't have
+- Unfortunately, I cannot provide
+- I'm sorry, I cannot
+- I'm sorry, I cannot generate
+- AI cannot create or program
+- I'm afraid I cannot create
+- you cannot create an
+
+Some of th","Alrighty, well I'll be testing it soon. Great to see that someone actually trained it. Really appreciate it @reeducator",,,,,,
+hf-hssd__hssd-hab-2,https://huggingface.co/datasets/hssd/hssd-hab/discussions/2,hssd/hssd-hab,corrupted_or_unreadable,Failed to pull the dataset via git,"```bash
+Downloading objects/0/0001fb06b075a743e6289236cf049df3ad5dfa9c.glb (583 KB)
+Username for 'https://huggingface.co': xiaotaw
+Password for 'https://xiaotaw@huggingface.co': 
+Error downloading object: objects/0/0001fb06b075a743e6289236cf049df3ad5dfa9c.glb (49433bc): Smudge error: Error downloading objects/0/0001fb06b075a743e6289236cf049df3ad5dfa9c.glb (49433bcebc8215e0ee0de256233bc147257e33b6bbdb43f9b5c6feb848b66c8c): batch response: Post https://huggingface.co/datasets/hssd/hssd-hab.git/info/lfs/objects/batch: read tcp 192.168.105.174:35750->18.164.174.118:443: read: connection reset by peer
+```",">read: connection reset by peer
+
+Looks like there was a network interruption during the download process. 
+FYI, username/password is not longer working for HF. Use a token or setup an SSH key.",,,,,,
+hf-openbmb__Ultra-FineWeb-19,https://huggingface.co/datasets/openbmb/Ultra-FineWeb/discussions/19,openbmb/Ultra-FineWeb,duplicates,too much duplication in the dataset,not good work,"Thanks for your report. We used FineWe v1.0, and we also found this issue. We are planning to use the latest version of FineWeb to re-process Ultra-FineWeb. I believe this will be finished soon",,,,,,
+hf-amphion__Emilia-Dataset-5,https://huggingface.co/datasets/amphion/Emilia-Dataset/discussions/5,amphion/Emilia-Dataset,missing_data,Missing metadata & multilingual problems,"First I would love to thank you for ur solid work and contributions.
+When I dealing with the dataset, I ran into some small issues:
+* The metadata (Text) for DE_B00000_S06595_W000024.mp3, whose ASR result is  ""Das Feuer ist erloschen. Sind alle in Sicherheit?"" , is missing.  I fixed it myself but I think someone can update it if the missing problem does exist.
+*  Also I find some data may contain multilingual audios, e.g.,DE_B00000_S07871_W000002, which the audio is
+>***好的，我今天已经可以开始健身了吗，我今天就开始吗*** ？Ja klar, zuerst machen wir einen Gesundheitscheck und besprechen, was du machen möchtest.
+
+   but the text metadata is 
+   >11.817( duration )  3.0946 (dnsmos)  Ja klar, zuerst machen wir einen Gesundheitscheck und besprechen, was du machen möchtest.
+* so I wonder if anyone have any idea how to filter out these data. I myself first tried whisper which is of course not work (because it is the same one used to create the dataset), and currently my solution is to compare the usual tts time considering text length and filter out abnormal ones, and I also tried to use ""langid"" to filter out some English&German sentences(e.g DE_B00000_S07875_W000000 ). I hope this can be of some help.
+* if someone have better solution, let me know pls.","Hi, thanks for your usage and feedback. Here is some response to your comments:
+1. We intentionally deleted some metadata (the total should be around several hours) since they are either low DNSMOS or some hallucination occurred in the transcribed text. We detect these by using the DNSMOS value and text-based repeat detection.
+2. For these multilingual audios, we can detect them by using the prob return value when calling `whisper.detect_language()` and, as you mentioned, calculate the duration per character. We already implemented these two in our [pipeline](https://github.com/open-mmlab/Amphion/tree/main/preprocessors/Emilia). You might change them and set a higher bar to lower the probability of having multiple languages in the same segment.",,,,,,
+hf-livecodebench__code_generation_lite-3,https://huggingface.co/datasets/livecodebench/code_generation_lite/discussions/3,livecodebench/code_generation_lite,other,load dataset error,"from datasets import load_dataset
+lcb_codegen = load_dataset(""livecodebench/code_generation_lite"", version_tag=""release_v2"")
+
+will cause error 
+huggingface_hub.utils._errors.HfHubHTTPError: 416 Client Error: Requested Range Not Satisfiable for url: https://hf-mirror.com/datasets/livecodebench/code_generation_lite/resolve/0687ab61843a90a0cc864a2b67db729861cd0ae5/code_generation_lite.py (Request ID: Root=1-67cee059-1936b64032e427e81e6eea99;bacc53c5-b969-43ba-a581-13f74a20c548)","I can access the dataset
+
+```
+>>> from datasets import load_dataset
+ad_dataset(""livecodebench/code_generation_lite"", version_tag=""release_v2"")
+
+>>> lcb_codegen = load_dataset(""livecodebench/code_generation_lite"", version_tag=""release_v2"")
+Generating test split: 511 examples [00:18, 27.24 examples/s] 
+```",,,,,,
+hf-LocalLLaMA__typed-decisions-4,https://huggingface.co/datasets/LocalLLaMA/typed-decisions/discussions/4,LocalLLaMA/typed-decisions,schema_or_format,"od1-typed-decisions (specialist, 4B): 0.7965 acc / KL 0.082 / Brier 0.045 on the official test split","**Mode: specialist.** Fitted on the typed-decisions **train split** (1,080 states / 5,400 decisions; a further 120
+states / 600 decisions of the train split held back for checkpoint selection). The test split was not used for
+training or checkpoint selection of this model.
+
+**Model:** [mvbalaji/od1-typed-decisions](https://huggingface.co/mvbalaji/od1-typed-decisions) — Qwen3.5-4B with
+typed heads (choice / yes-no / ordinal CORAL) answering all questions of a case in one call; first trained as a
+general decision model on openly licensed data with teacher labels, then fine-tuned on this benchmark's train split
+with **soft-gold targets** (cross-entropy against each decision's gold distribution). Dataset revision
+c76749ec58bd8c3d2ea706b31c333a9059c38f90.
+
+**Test results (400 cases / 2,000 decisions; full distributions: [predictions_od1-typed-decisions.jsonl](https://huggingface.co/mvbalaji/od1-typed-decisions/blob/main/eval/typed-decisions/predictions_od1-typed-decisions.jsonl)):**
+
+| metric | value |
+|---|---|
+| accuracy | **1,593 / 2,000 = 0.7965** |
+| soft accuracy | 0.522 |
+| KL(gold ‖ pred) | **0.082** |
+| Brier (sum over answers vs soft gold) | **0.045** |
+| total variation | 0.130 |
+| ECE (15 equal-width bins of the top probability; our definition — we could not reproduce the card's ECE) | 0.156 |
+| macro F1 (per question schema) | 0.672 |
+| score MAE (expected level) / within-one | 0.201 / 0.985 |
+| by type: choice / yes-no / score | 0.768 / 0.867 / ","Listed in the second table (specialist) at 0.797 accuracy, KL 0.082, Brier 0.045. Holding back 120 train states for checkpoint selection and publishing the predictions file made this easy to list. Your ECE is shown with a footnote that it is your own definition. Marked self-reported; we have not re-run it.",,,,,,
+hf-HuggingFaceH4__no_robots-1,https://huggingface.co/datasets/HuggingFaceH4/no_robots/discussions/1,HuggingFaceH4/no_robots,scope_or_license,non-commercial license,Why is it non-commercial and any chance we could change it to commercial? Good question coming from @XLR8: https://x.com/xlr8harder/status/1723003308430791033?s=20,"Hello everyone, we'd also have liked to release No Robots with a permissive license, but the NC restriction was a requirement from the vendor in order to make the dataset publicly available. Nevertheless, we hope the dataset will still serve as a useful artifact to the community and enable more research on understanding the role of synthetic vs human produced data for SFT models!",,,,,,
+hf-airtrain-ai__fineweb-edu-fortified-105,https://huggingface.co/datasets/airtrain-ai/fineweb-edu-fortified/discussions/105,airtrain-ai/fineweb-edu-fortified,scope_request,"Can you add more labels to ""The composition of fineweb-edu-fortified, produced by automatically clustering a 500k row sample in Airtrain "" picture?","Can you add more labels to ""The composition of fineweb-edu-fortified, produced by automatically clustering a 500k row sample in Airtrain "" picture, or provide a table that shows more of the categories?
+Thank you for the amazing work!
+Joseph","You can interactively explore the clusters here: https://app.airtrain.ai/dataset/c232b33f-4f4a-49a7-ba55-8167a5f433da/null/1/0
+
+> Thank you for the amazing work!
+
+Glad you find it interesting/useful!",,,,,,
+hf-cais__mmlu-18,https://huggingface.co/datasets/cais/mmlu/discussions/18,cais/mmlu,accuracy_or_labels,Bug,"now it can only ` datasets.load_dataset('cais/mmlu','all')`, when we use ` datasets.load_dataset('cais/mmlu','abstract_algebra')`, the following bug occured.
+
+```
+>>> datasets.load_dataset('cais/mmlu','abstract_algebra')
+Downloading and preparing dataset mmlu/abstract_algebra (download: 158.49 MiB, generated: 153.18 MiB, post-processed: Unknown size, total: 311.67 MiB) to /data/.cache/huggingface/datasets/cais___mmlu/abstract_algebra/1.0.0/49beb454d1ef6d7994f43183dc194713f39dd672b4f5a92c08b0b394991910c7...
+Traceback (most recent call last):
+  File ""<stdin>"", line 1, in <module>
+  File ""/home/ubuntu/anaconda3/lib/python3.10/site-packages/datasets/load.py"", line 1687, in load_dataset
+    builder_instance.download_and_prepare(
+  File ""/home/ubuntu/anaconda3/lib/python3.10/site-packages/datasets/builder.py"", line 605, in download_and_prepare
+    self._download_and_prepare(
+  File ""/home/ubuntu/anaconda3/lib/python3.10/site-packages/datasets/builder.py"", line 1104, in _download_and_prepare
+    super()._download_and_prepare(dl_manager, verify_infos, check_duplicate_keys=verify_infos)
+  File ""/home/ubuntu/anaconda3/lib/python3.10/site-packages/datasets/builder.py"", line 676, in _download_and_prepare
+    verify_checksums(
+  File ""/home/ubuntu/anaconda3/lib/python3.10/site-packages/datasets/utils/info_utils.py"", line 33, in verify_checksums
+    raise ExpectedMoreDownloadedFiles(str(set(expected_checksums) - set(recorded_checksums)))
+datasets.utils.info_utils.ExpectedM",Is this still an issue?,,,,,,
+hf-pixparse__cc12m-wds-4,https://huggingface.co/datasets/pixparse/cc12m-wds/discussions/4,pixparse/cc12m-wds,corrupted_or_unreadable,Error when reading some of the tar files,"Hi team,
+
+I found 4 tar files has corrupted header after I downloaded it using huggingface CLI.  I checked using a simple script. Would appreciated if you could check the following 4 tar files. Thank you so much!
+
+Error opening cc12m-train-1518.tar: file could not be opened successfully:
+- method gz: ReadError('not a gzip file')
+- method bz2: ReadError('not a bzip2 file')
+- method xz: ReadError('not an lzma file')
+- method tar: ReadError('invalid header')
+Error opening cc12m-train-2117.tar: file could not be opened successfully:
+- method gz: ReadError('not a gzip file')
+- method bz2: ReadError('not a bzip2 file')
+- method xz: ReadError('not an lzma file')
+- method tar: ReadError('invalid header')
+Error opening cc12m-train-2116.tar: file could not be opened successfully:
+- method gz: ReadError('not a gzip file')
+- method bz2: ReadError('not a bzip2 file')
+- method xz: ReadError('not an lzma file')
+- method tar: ReadError('invalid header')
+Error opening cc12m-train-0846.tar: file could not be opened successfully:
+- method gz: ReadError('not a gzip file')
+- method bz2: ReadError('not a bzip2 file')
+- method xz: ReadError('not an lzma file')
+- method tar: ReadError('invalid header')","I just tried downloading cc12m-train-1518.tar and there were no issues with it, likely corrupted in your download process.  
+
+sha256sum of that file is 4a3f5a5d157128ca5725e60337cb7cdef8f7b89f79d388ef02645313e04d8fed",,,,,,
+hf-TIGER-Lab__MMLU-Pro-26,https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/26,TIGER-Lab/MMLU-Pro,duplicates,Duplicate samples,"I discovered a potential data quality issue in the MMLU-Pro dataset. When analyzing the test split, I found 316 duplicate rows where all columns (except for 'question_id') contain identical values. This means there are repeated questions with the same content and options
+
+Here's the code I used to detect the duplicates:
+import pandas as pd
+from datasets import load_dataset
+```python
+dataset = load_dataset(""TIGER-Lab/MMLU-Pro"")
+
+
+def check_duplicates(dataset):
+    # Convert the dataset to a pandas DataFrame if it's not already
+    if not isinstance(dataset, pd.DataFrame):
+        df = pd.DataFrame(dataset)
+    else:
+        df = dataset
+    df['options'] = df['options'].apply(lambda x: str(x))
+    columns = df.columns
+    columns_without_sample_id = [col for col in columns if col != 'question_id']
+    # Check for exact duplicates across all columns
+    question_duplicates = df[df.duplicated(subset=columns_without_sample_id, keep=False)]
+    print(f""\nRows with duplicate values across all columns except 'question_id': {len(question_duplicates)}"")
+
+    question_duplicates = df[df.duplicated(subset=columns, keep=False)]
+    print(f""\nRows with duplicate values across all columns: {len(question_duplicates)}"")
+df = dataset['test'].to_pandas()
+check_duplicates(df)
+```
+
+Results:
+
+316 duplicate rows when checking all columns except 'question_id'
+0 duplicate rows when including 'question_id' in the check",Thank you for your reminder and correction; we have resolved this issue.,,,,,,
+hf-mvp-lab__LLaVA-OneVision-1.5-Mid-Training-85M-5,https://huggingface.co/datasets/mvp-lab/LLaVA-OneVision-1.5-Mid-Training-85M/discussions/5,mvp-lab/LLaVA-OneVision-1.5-Mid-Training-85M,missing_data,Total size of the dataset,"Hi, I’d like to confirm the total size of the dataset. I understand that it’s currently around 40TB, but could you please share what the final size will be once the full dataset has been uploaded?
+
+Thank you for your help!","Hi, thank you for your interest in our work. The final dataset size is within 50 TB. We are currently verifying and correcting the quantities, and all uploads will be completed within the next two days.",,,,,,
+hf-Maxwell-Jia__AIME_2024-3,https://huggingface.co/datasets/Maxwell-Jia/AIME_2024/discussions/3,Maxwell-Jia/AIME_2024,other,error data !!!!,"Rectangles $ABCD$ and $EFGH$ are drawn such that $D,E,C,F$ are collinear.  这个题目的描述有问题",感谢指出问题，已经在 #4 中修复。,,,,,,
+hf-gorilla-llm__Berkeley-Function-Calling-Leaderboard-14,https://huggingface.co/datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard/discussions/14,gorilla-llm/Berkeley-Function-Calling-Leaderboard,schema_or_format,"All the data files must have the same columns, but at some point there are 2 new columns ({'execution_result_type', 'ground_truth'})","There is currently an issue with the data that prevents loading with `datasets`. It is both present in the online viewer and when one tries to download locally. Would it be possible to fix this?
+
+When I run
+```
+from datasets import load_dataset
+
+dataset = load_dataset(""gorilla-llm/Berkeley-Function-Calling-Leaderboard"")
+```
+I get the following error:
+```
+Downloading readme: 100%|████████████████| 17.0k/17.0k [00:00<00:00, 33.1MB/s]
+Downloading data: 100%|███████████████████| 25.0k/25.0k [00:00<00:00, 214kB/s]
+Downloading data: 100%|███████████████████| 79.1k/79.1k [00:00<00:00, 651kB/s]
+Downloading data: 100%|███████████████████| 59.0k/59.0k [00:00<00:00, 296kB/s]
+Downloading data: 100%|███████████████████| 70.6k/70.6k [00:00<00:00, 354kB/s]
+Downloading data: 100%|███████████████████| 82.1k/82.1k [00:00<00:00, 692kB/s]
+Downloading data: 100%|███████████████████| 80.9k/80.9k [00:00<00:00, 683kB/s]
+Downloading data: 100%|███████████████████| 43.8k/43.8k [00:00<00:00, 220kB/s]
+Downloading data: 100%|█████████████████████| 306k/306k [00:00<00:00, 958kB/s]
+Downloading data: 100%|█████████████████████| 161k/161k [00:00<00:00, 812kB/s]
+Downloading data: 100%|█████████████████████| 335k/335k [00:00<00:00, 807kB/s]
+Downloading data: 100%|████████████████████| 146k/146k [00:00<00:00, 1.16MB/s]
+Downloading data: 100%|████████████████████| 205k/205k [00:00<00:00, 1.01MB/s]
+Downloading data: 100%|████████████████████| 259k/259k [00:00<00:00, 1.25MB/s]
+Downloading d","Hi @vincentmin,
+
+Glad to see that you find the solution to the problem. And thanks for the advice. I will update the README right now to make the instructions for accessing the dataset clearer and avoid further confusion. Appreciate the feedback!
+
+For those who are looking at this issue/thread and face the same problem, I will paste the solution here (from another reply):
+- We detailed dataset accessing instructions in this section of the github repo README: https://github.com/ShishirPatil/gorilla/tree/main/berkeley-function-call-leaderboard#prepare-evaluation-dataset. Please download the huggingface dataset through this procedure, which is fully tested and functional.
+
+- You can load the dataset through the helper function defined in this section: https://github.com/ShishirPatil/gorilla/blob/main/berkeley-function-call-leaderboard/eval_checker/eval_runner_helper.py#L409C1-L415C18. The dataset is organized in JSON files, where each file representing a test category. The helper function loads a JSON file into a list of dictionaries.
+
+- We will look into ways to be compatible with the HuggingFace datasets package shortly to provide alternative ways to access the dataset. In the meantime, please try out the way we outlined above. Thanks!
+
+Let me know if you have further questions via re-opening the issue! I'll close the issue for now.
+
+Best,
+Huanzhi",,,,,,
+hf-bigscience__P3-13,https://huggingface.co/datasets/bigscience/P3/discussions/13,bigscience/P3,scope_or_license,Question regarding license Apache 2,"Hi,
+
+I have a question regarding the license of P3.
+On the Data Card it says Apache 2.0. However, there are datasets that were used, like ANLI, SciQ, WiC etc that have licenses with Non Commercial attributions.
+What was the rationale to attribute a permissive license like Apache 2.0 to a dataset that has other datasets with very restrictive licenses?
+Did you reach out to the authors and get written consent?
+
+Thanks a lot,
+Felipe.",also cc'ing @carlosmf and @annatrdj in case they missed this!,,,,,,
+hf-InternRobotics__InternData-N1-7,https://huggingface.co/datasets/InternRobotics/InternData-N1/discussions/7,InternRobotics/InternData-N1,accuracy_or_labels,The mini dataset path is incorrect,"The command to download the mini dataset is given as:
+git clone -b v-0.1mini https://huggingface.co/datasets/InternRobotics/InternData-N1 
+
+But it should be :
+git clone -b v0.1-mini https://huggingface.co/datasets/InternRobotics/InternData-N1 
+
+The problem is in the branch that is being checked out.",Thank you for your careful observation and valuable feedback!,,,,,,
+hf-agkphysics__AudioSet-3,https://huggingface.co/datasets/agkphysics/AudioSet/discussions/3,agkphysics/AudioSet,corrupted_or_unreadable,Corrupted files: soundfile loading errors,"Hi, thank you for adding this dataset to Hugging Face!
+
+While working with the balanced train and test datasets, I encountered an issue with Hugging Face’s audio decoding using soundfile. Three files failed to load, specifically:
+
+- Train: indices 15,759 and 17,532
+- Test: index 6,182
+
+After manually removing these files, everything loaded without any problems. I haven’t yet tested the unbalanced dataset. Could these files be corrupted, or is there another issue causing this?","@lrauch What filenames fail, and which tar files are they in?",,,,,,
+hf-HuggingFaceFW__fineweb-edu-7,https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu/discussions/7,HuggingFaceFW/fineweb-edu,duplicates,Most of the data is duplicated?,"After downloading all files in the data directory, deduplicate all text fields and found that 75% of them are duplicates, only 25% of the data has been retained as non-duplicate.
+@anton-l","Hi, this is indeed a filtered subset of FineWeb, which only does individual dump deduplication. 
+
+If you apply MinHash deduplication across dumps on FineWeb-Edu you get about 200B unique tokens, we did an ablation after the release and haven’t seen an improvement or performance degradation from deduplication (1.8B model trained on 350B tokens) so it should be ok to deduplicate if you don't need more tokens
+![image.png](https://cdn-uploads.huggingface.co/production/uploads/61c141342aac764ce1654e43/nJtYruAKL5HMV1cDCZngg.png)",,,,,,
+hf-wikimedia__wikipedia-51,https://huggingface.co/datasets/wikimedia/wikipedia/discussions/51,wikimedia/wikipedia,missing_data,Missing important parts of text (at least in 20231101.fr),"Hello,
+And first of all, thanks for that great work, it's awesome to be able to have recent wikipedia dump data in HuggingFace :)
+
+Concerning the quality of the data, I was interested in the French part, and I noticed that a lot of ""wikicodes"" are ignored, leading to some missing parts in the text, on places where there are important pieces of information in terms of knowledge base.
+
+Here is an illustration:
+1. Get the text that corresponds to this page: https://fr.wikipedia.org/wiki/Saint-Valentin
+```python
+import dataset 
+ds = load_dataset(""wikimedia/wikipedia"", ""20231101.fr"")
+for sample in ds[""train""]:
+   if sample['id'] == ""10034"":
+      text = sample[""text""]
+      break
+```
+2. Print a part:
+```python
+start = text.index(""Au début du"")
+end = text.index(""Reliques des saints Valentin"") + 30
+print(text[start:end])
+```
+
+This prints:
+```
+Au début du , Charles d’Orléans fit connaître l'œuvre d'Othon à la cour de France. Il écrivit lui-même plusieurs poèmes
+dédiés à la Saint-Valentin. Par la suite, cette tradition se perdit dans le monde latin et .
+
+Reliques des saints Valentin 
+```
+which corresponds to
+![Screenshot from 2023-12-04 18-59-03.png](https://cdn-uploads.huggingface.co/production/uploads/62cd40e0299c0c2e0e4261a4/ARKIjXVIymC4eUk2g7Nzo.png)
+
+We can see that ""XVe siècle"" is missing in the beginning (""[Au début du ] XVe siècle"").
+As well as the end of the third sentence (""[le monde latin et ]ne fut réactualisée qu'au XIXe siècle[.]"").
+
+In the original Wikipedia dumps, that","Hi, @Jeronymous.
+
+Thanks a lot for reporting. Yes, we are aware of this issue, it is an open problem and quite complex to resolve.
+
+The curly brackets in Wikipedia correspond to what they call ""templates"" (https://meta.wikimedia.org/wiki/Help:Template), and these can be seen as functions: they are given as input the function name and the input parameters, and they produce a text output. This functions are language dependent: each language Wikipedia has their own templates with different names and functionalities.
+
+So, as a first step, we decided to remove all of them, because they are difficult to parse.
+
+But I agree that we miss important information. It would be great that we could improve this and release a better parsing script in future versions. We are open to suggestions. Ideally, we would like to have all templates ""transcluded"" in the final document.
+
+Maybe the team from Wikimedia can give some ideas, for example, @isaacj who proposed many of the improvements of the cleaning code.",,,,,,
+hf-open-llm-leaderboard-old__requests-109,https://huggingface.co/datasets/open-llm-leaderboard-old/requests/discussions/109,open-llm-leaderboard-old/requests,other,Llama-3-MoE eval failed,https://huggingface.co/datasets/open-llm-leaderboard/requests/blob/main/raincandy-u/Llama-3-Aplite-Instruct-4x8B_eval_request_False_float16_Original.json,"Hi!
+Please open a issue on the Open LLM Leaderboard discussion tab instead. 
+We don't monitor or manage issues on the current repo.",,,,,,
+hf-nvidia__PhysicalAI-SmartSpaces-12,https://huggingface.co/datasets/nvidia/PhysicalAI-SmartSpaces/discussions/12,nvidia/PhysicalAI-SmartSpaces,schema_or_format,Need Help: 3D HOTA Evaluation Script for Validation Split,"Hi everyone,
+
+I'm currently working on evaluating my algorithm on the validation set, but I'm unsure how to correctly compute performance metrics—especially for 3D HOTA in a multi-camera setup. I've reviewed the evaluation instructions but couldn’t find a clear example or script that handles this case.
+
+Could anyone kindly clarify:
+
+1. How is 3D HOTA computed in multi-camera settings?
+
+2. Is there an official or recommended script available to evaluate the algorithm on the validation split?
+
+A sample evaluation script or pipeline would be greatly appreciated. Thanks in advance!","The official evaluation script for the validation set will be included in an upcoming release.
+
+In the meantime, you can refer to the [HOTA evaluation toolkit](https://github.com/JonathonLuiten/TrackEval) as a starting point. For the multi-camera 3D setting, the key modification is to replace the 2D bounding box IoU computation with 3D bounding box IoU. Each scene can be treated as a single camera in the global coordinate system during evaluation.",,,,,,
+hf-monology__pile-uncopyrighted-5,https://huggingface.co/datasets/monology/pile-uncopyrighted/discussions/5,monology/pile-uncopyrighted,scope_or_license,Streaming broken for Pile,"I am trying to access `monology/pile-uncopyrighted` via streaming with the lines:
+```python
+pile = load_dataset(""monology/pile-uncopyrighted"", split=""validation"", streaming=True)
+for sample in pile:
+    print(sample)
+```
+
+However I get the following difficult to parse error when beginning the loop:
+```bash
+Traceback (most recent call last):
+  File ""<stdin>"", line 1, in <module>
+  File ""/storage/coda1/p-wliao60/0/ahavrilla3/alex/.envs/tml/lib/python3.9/site-packages/datasets/iterable_dataset.py"", line 1384, in __iter__
+    for key, example in ex_iterable:
+  File ""/storage/coda1/p-wliao60/0/ahavrilla3/alex/.envs/tml/lib/python3.9/site-packages/datasets/iterable_dataset.py"", line 282, in __iter__
+    for key, pa_table in self.generate_tables_fn(**self.kwargs):
+  File ""/storage/coda1/p-wliao60/0/ahavrilla3/alex/.envs/tml/lib/python3.9/site-packages/datasets/packaged_modules/json/json.py"", line 78, in _generate_tables
+    for file_idx, file in enumerate(itertools.chain.from_iterable(files)):
+  File ""/storage/coda1/p-wliao60/0/ahavrilla3/alex/.envs/tml/lib/python3.9/site-packages/datasets/download/streaming_download_manager.py"", line 863, in __iter__
+    yield from self.generator(*self.args, **self.kwargs)
+  File ""/storage/coda1/p-wliao60/0/ahavrilla3/alex/.envs/tml/lib/python3.9/site-packages/datasets/download/streaming_download_manager.py"", line 939, in _iter_from_urlpaths
+    if xisfile(urlpath, download_config=download_config):
+  File ""/storage/coda1/p-wlia","I've uploaded a Parquet-formatted copy to my profile, just in case y'all are having any more trouble with streaming",,,,,,
+hf-amphion__Emilia-Dataset-7,https://huggingface.co/datasets/amphion/Emilia-Dataset/discussions/7,amphion/Emilia-Dataset,accuracy_or_labels,data error,"There are many Cantonese pronunciations in it, and the corresponding text is wrong. Due to the large amount of data, it has a great impact on our use. 
+example: 
+ZH_B00042_S05291_W000054
+ZH_B00042_S05291_W000055
+ZH_B00041_S04659_W000036","Hi,
+We use the whisper medium model to generate the transcript. However, the medium model did not support the `yue` language (check it [here](https://huggingface.co/openai/whisper-medium/blob/main/added_tokens.json)) which might have caused the wrong text.
+
+To fix this, you can use a model like `whisper-large-v3` or `whisper-large-v3-turbo` (which supports `yue` language) to run `detect_language` again, then:
+1. filter items having mismatched language labels.
+2. filter items with low language confidence.
+3. filter items that have mismatched duration and text length. Check [here](https://huggingface.co/datasets/amphion/Emilia-Dataset/discussions/5) for details.
+
+I think these steps can help filter out those ""bad"" audio.
+
+A sample:
+<audio controls src=""https://cdn-uploads.huggingface.co/production/uploads/657fdd6b42fc53e18b89b856/BhA7ejGKdv80KByZHVv8C.mpga""></audio>
+
+```json
+{""id"": ""ZH_B00042_S05291_W000055"", ""wav"": ""ZH_B00042/ZH_B00042_S05291/mp3/ZH_B00042_S05291_W000055.mp3"", ""text"": ""的地方。"", ""duration"": 18.364, ""speaker"": ""ZH_B00042_S05291"", ""language"": ""zh"", ""dnsmos"": 3.529}
+```",,,,,,
+hf-databricks__databricks-dolly-15k-6,https://huggingface.co/datasets/databricks/databricks-dolly-15k/discussions/6,databricks/databricks-dolly-15k,corrupted_or_unreadable,What's the encoding of this file?,"I opened the data in notepad++ and I'm seeing a lot of \n and \u02ccl and \u2013. Are those just, unicode artifacts in there that I will have to replace myself or is utf-8 not the right encoding?",Each line is JSON.  That's just part of the JSON serialization.,,,,,,
+hf-HuggingFaceTB__smollm-corpus-10,https://huggingface.co/datasets/HuggingFaceTB/smollm-corpus/discussions/10,HuggingFaceTB/smollm-corpus,duplicates,Duplicated data in pretraining dataset?,"From the smollm [blog post](https://huggingface.co/blog/smollm), I got the following dataset sizes for the pretraining data:
+- FineWeb-Edu: 220B
+- Cosmopedia-v2: 28B
+- Python-Edu : 4B
+
+However they do not form 70%, 15% and 8% as shown in the following figure from the blogpost, unless there was data repetition.
+![Untitled 9.png](https://cdn-uploads.huggingface.co/production/uploads/5e80b7d830dc073f817a2bc0/4cAEszuvmxixwXKptVEpf.png)
+
+Additionally, when tokenized using SmoLLM tokenizer, I got following dataset sizes for rest of the constituent datasets
+- OpenWebMath : 13.5B
+- Deepmindmath : 5.5B
+- Stackoverflow : 10.5B
+
+Can you please share the repetition factors for these subsets, that formed the 600B dataset for pretraining?",we tokenized this pre-training corpus and assigned to each dataset the weight in that chart. For example out of 600B (1 trillion for the 1.7B) we used 70% of FineWeb-Edu = 0.7*600=420B tokens so almost 2 epochs of that dataset,,,,,,
+hf-LocalLLaMA__typed-decisions-22,https://huggingface.co/datasets/LocalLLaMA/typed-decisions/discussions/22,LocalLLaMA/typed-decisions,missing_data,"Qwen3.5-4B LoRA fine-tune: results submitted, model missing from the Hub leaderboard","Hi, I fine-tuned unsloth/Qwen3.5-4B on the train split (LoRA r=16 plus a Clef decision
+head, trained with Unsloth) and added results to my model repo:
+
+https://huggingface.co/wozniakos10/Qwen3.5-4B-typed-decisions
+
+Mode: fine-tuned on train, so not zero-shot.
+Test split, config all, 400 cases / 2,000 decisions, one request per case with all five questions.
+
+| Accuracy | KL from gold | Brier | ECE |
+|---|---|---|---|
+| 0.7725 | 0.0992 | 0.0543 | 0.1387 |
+
+KL is KL(gold || prediction) and Brier is summed over options. My scorer reproduces the
+Uniform reference row (KL 0.444, Brier 0.238). ECE is top-label with 10 equal-width bins.
+Per-decision predictions are in eval_predictions.jsonl in the repo.
+
+The Hub parses .eval_results/typed-decisions.yaml (all four tasks show up in the model API),
+but the model does not appear on the benchmark leaderboard or in the model page widget.
+Do you know what else is required? I would also be glad to be added to the fine-tuned table.","Added to Table 2 (fitted or fine-tuned on train) at 0.7725 accuracy, KL 0.0992, Brier 0.0543, ECE 0.139, linking wozniakos10/Qwen3.5-4B-typed-decisions. Thanks for the per-decision predictions and the scorer check against the Uniform row.",,,,,,
+hf-HuggingFaceFW__fineweb-edu-19,https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu/discussions/19,HuggingFaceFW/fineweb-edu,other,A lot of load errors after new update,"Hello, once I try to load the newly updated fineweb-edu, it reports a lot of casting errors. 
+![image.png](https://cdn-uploads.huggingface.co/production/uploads/638f5839f6de4b9e7e1627fb/KwuEM6XtGoby6i1ql4Woi.png)
+
+Could you give me any clues? @guipenedo @anton-l @loubnabnl @thomwolf","I opened https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu/discussions/20 to fix missing ""date"", they will be marked as None for samples without ""date"".",,,,,,
+hf-cais__mmlu-9,https://huggingface.co/datasets/cais/mmlu/discussions/9,cais/mmlu,schema_or_format,Dataset Viewer issue for some configurations: 412 Client Error,"The dataset viewer is not working for some configurations, e.g. ""formal_logic"":
+```
+412 Client Error: Precondition Failed for url: https://huggingface.co/api/datasets/cais/mmlu/commit/refs%2Fconvert%2Fparquet (Request ID: Root=1-645c79c8-6641ab5e436c11cb1dccebd1) A commit has happened since. Please refresh and try again.
+```
+
+Any hint? 
+cc @severo","The dataset viewer is not working for some configurations, e.g. ""formal_logic"":
+```
+412 Client Error: Precondition Failed for url: https://huggingface.co/api/datasets/cais/mmlu/commit/refs%2Fconvert%2Fparquet (Request ID: Root=1-645c79c8-6641ab5e436c11cb1dccebd1) A commit has happened since. Please refresh and try again.
+```
+
+Any hint? 
+cc @severo",,,,,,
+hf-espnet__yodas2-6,https://huggingface.co/datasets/espnet/yodas2/discussions/6,espnet/yodas2,scope_or_license,Concerns about licensing,"Hi! I want to use this dataset in my graduation project, but I have concerns about licensing. Were the YouTube videos from which the data was extracted licensed under Creative Commons? Were licensing concerns considered during data collection?",Ref to : https://arxiv.org/pdf/2406.00899,,,,,,
+hf-cais__mmlu-31,https://huggingface.co/datasets/cais/mmlu/discussions/31,cais/mmlu,accuracy_or_labels,Bug: An integer overflow occurs when...,"Answer options are:
+
+A. An integer expression’s result “wraps around”; instead of creating a very large number, a very small (or negative) number ends up getting created.
+B. An integer is used as if it was a pointer.
+C. An integer is used to access a buffer outside of the buffer’s bounds.
+D. There is no more space to hold integers in the program.
+
+MMLU Answer: D
+Correct Answer: A 
+
+category computer_security",Thanks for bringing this up!  I'll try to update the questions with any errors and will post when this is done.,,,,,,
+hf-roneneldan__TinyStories-1,https://huggingface.co/datasets/roneneldan/TinyStories/discussions/1,roneneldan/TinyStories,corrupted_or_unreadable,broken dataset - unicode error,"Hi,  there seems to be something wrong with your dataset. I'm getting the following error ...
+
+UnicodeDecodeError                        Traceback (most recent call last)
+File ~/.local/lib/python3.8/site-packages/datasets/builder.py:1858, in ArrowBasedBuilder._prepare_split_single(self, gen_kwargs, fpath, file_format, max_shard_size, job_id)
+   1857 _time = time.time()
+-> 1858 for _, table in generator:
+   1859     if max_shard_size is not None and writer._num_bytes > max_shard_size:
+
+File ~/.local/lib/python3.8/site-packages/datasets/packaged_modules/text/text.py:78, in Text._generate_tables(self, files)
+     77 while True:
+---> 78     batch = f.read(self.config.chunksize)
+     79     if not batch:
+
+File /usr/lib/python3.8/codecs.py:322, in BufferedIncrementalDecoder.decode(self, input, final)
+    321 data = self.buffer + input
+--> 322 (result, consumed) = self._buffer_decode(data, self.errors, final)
+    323 # keep undecoded input until the next call
+
+UnicodeDecodeError: 'utf-8' codec can't decode bytes in position 45294-45295: invalid continuation byte","Hi all, thanks for pointing out this problem. I'm on it. I think this happened because I did some conversions on a windows computer, let me try to recreate the file and hopefully that will fix the problem!",,,,,,
+hf-TIGER-Lab__MMLU-Pro-33,https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/33,TIGER-Lab/MMLU-Pro,duplicates,158 exact duplicate pairs and 111 redundant superset pairs,"While looking through the health category, I noticed that I kept seeing duplicate pairs of rows that always appeared sequentially with reordered answer choices. I found 94 in the health category, and 158 total. My focus is on the health category, and I've listed some more issues [here](https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/31) .
+
+Note that this only includes exact duplicates. There are other, near duplicates that have the same question and answer, but with expanded answer choices like 6123 and 6124, or 6194 and 6195 (maybe one has answer choices A-C, while another has A-F). It might be a good idea to only include rows that contain the superset of answer choices.
+
+I've included all the duplicate pairs, as well as the code to run to find them below:
+
+---
+
+### 158 duplicate pairs:
+
+Question IDs: [893, 894]
+Question IDs: [895, 896]
+Question IDs: [902, 903]
+Question IDs: [907, 908]
+Question IDs: [974, 975]
+Question IDs: [984, 985]
+Question IDs: [989, 990]
+Question IDs: [991, 992]
+Question IDs: [1052, 1053]
+Question IDs: [1064, 1065]
+Question IDs: [1076, 1077]
+Question IDs: [1124, 1125]
+Question IDs: [1132, 1133]
+Question IDs: [1144, 1145]
+Question IDs: [1156, 1157]
+Question IDs: [1203, 1204]
+Question IDs: [1206, 1207]
+Question IDs: [1208, 1209]
+Question IDs: [1215, 1216]
+Question IDs: [1223, 1224]
+Question IDs: [1318, 1319]
+Question IDs: [1325, 1326]
+Question IDs: [1372, 1373]
+Question IDs: [1396, 1397]
+Question IDs: [1398, 1399]
+Question IDs: [1403, 1404]","Thanks for the thoughtful discussion! For a consolidated update and our current guidance, please refer to:
+
+Consolidated note with category updates and handling guidance: https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/36#68fd2775e03c5b14e0b192cb
+Original health-category issue roundup with detailed IDs: https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/31#68fd22e134a051ef6f8376b0
+
+These threads cover the category reassignments, the note on time-sensitive items, and how we recommend handling near-duplicates.",,,,,,
+hf-openclimatefix__dwd-icon-global-3,https://huggingface.co/datasets/openclimatefix/dwd-icon-global/discussions/3,openclimatefix/dwd-icon-global,missing_data,Missing data ?,"Hello, thank you very much for making this data available! 
+I have one small question: do you plan to continue storing them? Because I noticed some missing data for the month of April 2024 on the number of runs and the number of days (storage stops on day 6). 
+
+Thank you in advance for your support,","Hi, we're hoping to be able to continue the archive! Unfotunately the solution we were using to keep it updated is no longer viable, so at the moment we're trying to work out a new way to handle the pipeline (it's quite expensive!)",,,,,,
+hf-open-llm-leaderboard__requests-55,https://huggingface.co/datasets/open-llm-leaderboard/requests/discussions/55,open-llm-leaderboard/requests,other,Failed LLM bechmark test,"Hello team,
+
+Good morning!
+All my submissions failed, can you tell me what happen and when can you fix it? 
+Can you tell me why? 
+
+![failed.JPG](https://cdn-uploads.huggingface.co/production/uploads/651def66d0656f67a5f431b4/ZJLuSey7ymUabB8SJDPQd.jpeg)
+
+
+![failed2.JPG](https://cdn-uploads.huggingface.co/production/uploads/651def66d0656f67a5f431b4/ZlhkIoFChQJU_lQTl6YLK.jpeg)","Hi!
+We don't follow discussions open on requests (unless for renaming) - please open a discussions on the Open LLM Leaderboard discussion page, and make sure to provide the url of your request file",,,,,,
+hf-open-r1__OpenR1-Math-220k-2,https://huggingface.co/datasets/open-r1/OpenR1-Math-220k/discussions/2,open-r1/OpenR1-Math-220k,schema_or_format,mismatch between the schema of the data,"The error occurs while trying to load a dataset using the Hugging Face datasets library. Specifically, there is a mismatch between the schema of the data being read and what the code expects. This includes missing columns (like finish_reasons), unexpected columns (generations), and possibly data type mismatches for lists of booleans and strings.","which datasets version are you using?
+The loading works for me with `3.2.0`
+```
+>>> ds = load_dataset(""open-r1/OpenR1-Math-220k"", split=""extended"", num_proc=16)
+>>> ds
+Dataset({
+    features: ['problem', 'solution', 'answer', 'problem_type', 'question_type', 'source', 'uuid', 'is_reasoning_complete', 'generations', 'correctness_math_verify', 'correctness_llama', 'finish_reasons', 'correctness_count'],
+    num_rows: 131396
+})
+>>> ds = load_dataset(""open-r1/OpenR1-Math-220k"", num_proc=16)
+>>> ds
+DatasetDict({
+    default: Dataset({
+        features: ['problem', 'solution', 'answer', 'problem_type', 'question_type', 'source', 'uuid', 'is_reasoning_complete', 'generations', 'correctness_math_verify', 'correctness_llama', 'finish_reasons', 'correctness_count'],
+        num_rows: 93733
+    })
+    extended: Dataset({
+        features: ['problem', 'solution', 'answer', 'problem_type', 'question_type', 'source', 'uuid', 'is_reasoning_complete', 'generations', 'correctness_math_verify', 'correctness_llama', 'finish_reasons', 'correctness_count'],
+        num_rows: 131396
+    })
+})
+```",,,,,,
+hf-open-llm-leaderboard-old__requests-31,https://huggingface.co/datasets/open-llm-leaderboard-old/requests/discussions/31,open-llm-leaderboard-old/requests,scope_or_license,Wrong Hub License for SOLAR-10.7B-Instruct-v1.0 in Leaderboard,"https://huggingface.co/upstage/SOLAR-10.7B-Instruct-v1.0#license shows:
+Since some non-commercial datasets such as Alpaca are used for fine-tuning, we release this model as cc-by-nc-4.0.","Hi, is the license in their metadata? (That's where we grab it from).
+If not, please ask them to update it there :)",,,,,,
+hf-ibrahimhamamci__CT-RATE-65,https://huggingface.co/datasets/ibrahimhamamci/CT-RATE/discussions/65,ibrahimhamamci/CT-RATE,accuracy_or_labels,Manual label,"Thank you very much for sharing your data. I have two questions regarding it. First, the number of validation sets mentioned in the figures of your article is 1564, but the actual number downloaded is 1304. Could you please explain this discrepancy? Second, you mentioned in your article that an automatic annotation algorithm was used to label the data and that 1000 reports were manually annotated for training and validation. However, in the open-source data, it is not specified which data was manually annotated and which was automatically annotated. Could you clarify this?","Hi @Laihaoran, 1564 is number of CT scans, where 1304 is number of patients. Same patient might have more than 1 CT scan. I believe this is written in the text and in the figure 2. 
+
+The automatic annotation algorithm is trained on another set of reports from the same hospital randomly. They might and might not be in the CT-RATE dataset (most of them are in the dataset though). We additionally provide them in the GitHub page: https://github.com/ibrahimethemhamamci/CT-CLIP/tree/main/text_classifier/data. In the CT-RATE, all labels are extracted with the model. We also manually checked the extracted labels and they seem to be quite good.",,,,,,
+hf-epfml__FineWeb-HQ-2,https://huggingface.co/datasets/epfml/FineWeb-HQ/discussions/2,epfml/FineWeb-HQ,corrupted_or_unreadable,Error when loading LFS files,"Hello,
+I cannot download LFS files (Xet-based files work fine).
+
+For example: 
+
+```
+from datasets import load_dataset
+
+ds = load_dataset(
+    ""epfml/FineWeb-HQ"",
+    data_files=""data/CC-MAIN-2024-26/000_00003.parquet"",
+)
+```
+
+This results in:
+```
+HfHubHTTPError: 403 Forbidden: None.
+Cannot access content at: https://cdn-lfs-us-1.hf.co/repos/...
+Make sure your token has the correct permissions.
+...
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message></Error>
+```","Hi,
+
+I am able to reproduce the error. Some other LFS files work fine, for example, https://huggingface.co/datasets/epfml/FineWeb-HQ/blob/main/data/CC-MAIN-2024-42/000_00027.parquet. Unfortunately, I am not aware of changes that we can make to fix the issue from our side and it might be worth to raise the issue with HuggingFace.",,,,,,
+hf-TIGER-Lab__MMLU-Pro-23,https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/discussions/23,TIGER-Lab/MMLU-Pro,duplicates,Duplicated entries,"I found some duplicated entries, like 6047 and 6046:
+https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/viewer/default/test?f%5Bsrc%5D%5Bvalue%5D=%27ori_mmlu-professional_medicine%27
+
+Is this an error? should I look for all these and send a pr?",This seems like an error. We will handle it on our end.,,,,,,
+hf-neashton__drivaerml-2,https://huggingface.co/datasets/neashton/drivaerml/discussions/2,neashton/drivaerml,missing_data,run_167 case is missing.,I would appreciate it if you could upload it.,run 167 is one of the 'blind' cases that we are currently holding back until we have setup a benchmarking system. See the bottom of the dataset card in the news section. Please keep an eye on the dataset readme or https://caemldatasets.org for more updates on this.,,,,,,

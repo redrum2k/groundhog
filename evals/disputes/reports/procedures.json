@@ -1,0 +1,81 @@
+{
+  "base": {
+    "artifact": [
+      "free_correction"
+    ],
+    "coverage": [
+      "free_correction"
+    ],
+    "none": [
+      "reject_unsupported"
+    ],
+    "other": [
+      "ask_question"
+    ],
+    "schema": [
+      "free_correction"
+    ],
+    "timeliness": [
+      "human_review"
+    ]
+  },
+  "exceptions": [
+    {
+      "signature": "other",
+      "word": "need",
+      "actions": [
+        "offer_separate_work"
+      ]
+    },
+    {
+      "signature": "artifact",
+      "word": "refund",
+      "actions": [
+        "human_review"
+      ]
+    },
+    {
+      "signature": "coverage",
+      "word": "also",
+      "actions": [
+        "free_correction",
+        "offer_separate_work"
+      ]
+    },
+    {
+      "signature": "other",
+      "word": "missing",
+      "actions": [
+        "free_correction"
+      ]
+    },
+    {
+      "signature": "coverage",
+      "word": "add",
+      "actions": [
+        "free_correction",
+        "offer_separate_work"
+      ]
+    }
+  ],
+  "history": [
+    {
+      "cycle": 0,
+      "validation_accuracy": 0.6797,
+      "exceptions": 0,
+      "retained": true
+    },
+    {
+      "cycle": 1,
+      "proposed": 3,
+      "validation_accuracy": 0.7773,
+      "retained": true
+    },
+    {
+      "cycle": 2,
+      "proposed": 2,
+      "validation_accuracy": 0.875,
+      "retained": true
+    }
+  ]
+}
