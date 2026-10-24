@@ -55,8 +55,8 @@ commands and explicitly planned runner commands. Lucas can implement now from ha
   the temporary server was stopped after verification.
 - Publication branch: `nikita/catalog-payment-handoff`, based on `06112e2`. Remote main
   gained Jeff's integrated jobflow commit `39538c0` during this work. This handoff is kept
-  separate to preserve that concurrent implementation; reconciling the two branches is
-  a subsequent integration task. No frontend UI was implemented in this branch.
+  separate initially to preserve that concurrent implementation. PR #2 now reconciles
+  both workflows without replacing either API contract; see integration details below.
 
 ## Catalog baseline validation (before this amendment)
 
@@ -111,3 +111,19 @@ clean, defective, repaired, substantively amended and unresolved cases and prepa
 checklist. Exact module ownership/interfaces/completion criteria: responsibilities.md.
 
 Deadline: **Sunday, October 25, 2026, 9 a.m. America/Los_Angeles**.
+
+## Main-branch integration (PR #2)
+
+Jeff's existing invoice workbench and backend are preserved at `/api/jobflow`, with
+OpenAPI at `/api/jobflow/openapi.json`. Catalog routes, schema component names,
+TypeScript handoff and mock payment contracts retain their existing root paths.
+Invoice policy is retained explicitly in `docs/jobflow/INVOICE_POLICY.md`; its
+executor and policy live in isolated compatibility modules. The invoice sweep
+only advances records owned by `jf_orders`, preserving unrelated historical rows.
+Separate background tasks prevent invoice processing from blocking catalog clocks.
+The existing invoice UI has not been converted into the catalog/wallet frontend.
+
+Integration validation: 296 backend tests; Ruff lint/format; 29 frontend tests;
+frontend contract-generation check, strict typecheck and production build. Catalog
+OpenAPI and generated TypeScript remain unchanged and pass their freshness checks.
+No paid model calls, testnet broadcasts or deployments were performed.

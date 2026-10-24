@@ -122,3 +122,16 @@ Runtime app code does not import corpus generators or evals/expected. Only the o
 creates synthetic inputs. Evaluation answers are not exposed through tools/prompts. Packaging
 exclusion is not an OS sandbox: production filesystem/tenant isolation remains required. No customer
 authentication, frontend, supplier network integration, deployment or live settlement is claimed.
+
+## Integrated invoice compatibility surface
+
+The existing invoice workbench is mounted as a separate FastAPI application at
+`/api/jobflow`, with its own OpenAPI schema. This prevents duplicate model names
+from changing the frozen catalog schema while retaining the workbench's paths.
+Its `Jobflow` uses `orders/invoice_compat.py` and `runtime/invoice_policy.py`;
+catalog execution continues to use `CatalogService` and `catalog_policy.py`.
+Both retain their original tables in the shared SQLite file. Invoice deadline
+sweeps join `jf_orders` and never advance unrelated historical invoice records.
+A single advisory worker lock covers startup recovery; separate background tasks
+keep catalog deadlines/payment processing independent of invoice model/document work.
+The invoice UI remains implemented; catalog UI integration remains planned.

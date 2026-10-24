@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import os
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager, nullcontext, suppress
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -10,12 +10,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.agents.gateway import ClaudeGateway
-from app.api.catalog import reviewer, router, worker
+from app.api.catalog import reviewer, router
+from app.api.catalog import worker as catalog_worker
+from app.api.jobflow import router as jobflow_router
 from app.contracts.http import Capabilities, ErrorResponse
 from app.orders.catalog import CatalogService
 from app.orders.service import DomainError, utc_now
 from app.payments import configured_payment_mode
+from app.runtime.jobflow import Jobflow
+from app.runtime.jobflow_worker import recover, run_once
 from app.storage.catalog import CatalogRepository
+from app.storage.jobflow import DomainError as JobflowError
+from app.storage.jobflow_lock import worker_ownership
 
 logger = logging.getLogger(__name__)
 
@@ -29,18 +35,31 @@ def create_app(
     clock=utc_now,
     run_worker=True,
     compiler=None,
+    service=None,
+    worker=None,
 ):
     mode = configured_payment_mode()
+    if isinstance(database_path, Jobflow):
+        service, database_path = database_path, None
+    if service is not None:
+        clock = service.clock
+    if worker is not None:
+        run_worker = worker
 
     @asynccontextmanager
     async def lifespan(app):
+        path = Path(
+            service.store.path
+            if service
+            else database_path
+            or os.getenv("ORDER_DB_PATH")
+            or os.getenv("JOBFLOW_DB_PATH", "artifacts/orders.sqlite3")
+        )
         selected_compiler = compiler
         if selected_compiler is None and os.getenv("ENABLE_PAID_MODELS") == "true":
             selected_compiler = ClaudeGateway(enabled=True)
         app.state.orders = CatalogService(
-            CatalogRepository(
-                database_path or Path(os.getenv("ORDER_DB_PATH", "artifacts/orders.sqlite3"))
-            ),
+            CatalogRepository(path),
             artifact_root or Path(os.getenv("ARTIFACT_ROOT", "artifacts")),
             clock,
             compiler=selected_compiler,
@@ -50,25 +69,46 @@ def create_app(
         app.state.reviewer_token = reviewer_token or os.getenv("REVIEWER_API_TOKEN")
         if app.state.internal_token and app.state.internal_token == app.state.reviewer_token:
             raise ValueError("worker and reviewer credentials must be different")
+        app.state.jobflow = service or Jobflow(
+            path, demo=os.getenv("JOBFLOW_DEMO") == "1", clock=clock
+        )
+        jobflow_app.state.jobflow = app.state.jobflow
 
         async def sweep():
             while True:
                 try:
                     await asyncio.to_thread(app.state.orders.expire_due)
                     await asyncio.to_thread(app.state.orders.payments.work)
+                    await asyncio.to_thread(app.state.jobflow.base.expire_due)
                 except Exception:
                     logger.exception("Deadline recovery failed; persisted work will be retried")
                 await asyncio.sleep(1)
 
-        app.state.orders.expire_due()
-        task = asyncio.create_task(sweep()) if run_worker else None
-        try:
-            yield
-        finally:
-            if task:
-                task.cancel()
-                with suppress(asyncio.CancelledError):
-                    await task
+        async def consume_jobflow():
+            while True:
+                try:
+                    if await run_once(app.state.jobflow):
+                        continue
+                except Exception:
+                    logger.exception("Jobflow worker interrupted; persisted work needs recovery")
+                    recover(app.state.jobflow)
+                await asyncio.sleep(0.25)
+
+        ownership = worker_ownership(path) if run_worker else nullcontext()
+        with ownership:
+            app.state.orders.expire_due()
+            tasks = []
+            if run_worker:
+                recover(app.state.jobflow)
+                tasks = [asyncio.create_task(sweep()), asyncio.create_task(consume_jobflow())]
+            try:
+                yield
+            finally:
+                for task in tasks:
+                    task.cancel()
+                for task in tasks:
+                    with suppress(asyncio.CancelledError):
+                        await task
 
     app = FastAPI(
         title="Catalog order to cash",
@@ -81,13 +121,16 @@ def create_app(
         CORSMiddleware,
         allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
         allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
+        allow_headers=["Content-Type", "Authorization"],
         expose_headers=["ETag"],
     )
 
     @app.exception_handler(DomainError)
     async def domain_error(request: Request, exc: DomainError):
         return JSONResponse(status_code=exc.status, content={"detail": exc.message})
+
+    async def jobflow_error(request: Request, exc: JobflowError):
+        return JSONResponse(status_code=exc.status, content={"detail": exc.detail})
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError):
@@ -110,8 +153,17 @@ def create_app(
         return Capabilities(payment_mode=mode)
 
     app.include_router(router)
-    app.include_router(worker)
+    app.include_router(catalog_worker)
     app.include_router(reviewer)
+    # Separate schemas retain the frozen catalog component names and the existing
+    # jobflow routes despite their different OrderView and payment policies.
+    jobflow_app = FastAPI(title="Invoice jobflow compatibility API", version="0.2.0")
+    jobflow_app.add_exception_handler(JobflowError, jobflow_error)
+    jobflow_app.add_exception_handler(DomainError, domain_error)
+    jobflow_app.add_exception_handler(RequestValidationError, validation_error)
+    jobflow_app.add_exception_handler(ValueError, invalid_operation)
+    jobflow_app.include_router(jobflow_router)
+    app.mount("/api/jobflow", jobflow_app)
     return app
 
 

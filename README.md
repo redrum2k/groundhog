@@ -5,7 +5,7 @@ accepted, priced specification; fulfill a cited supplier-catalog shortlist; repa
 and settle only after verification and customer review gates pass.
 
 **Local demo; mock payments by default.** Four synthetic supplier PDFs, 48 products, real PDF generation/parsing,
-offline model substitutes and mock money. No frontend, customer authentication, production
+offline model substitutes and mock money. No catalog customer authentication, production
 tenancy, live supplier attestation, observed testnet settlement or deployment is claimed.
 The payment direction is Base Commerce Payments on Base Sepolia with a dedicated platform
 operator controlling capture/void; escrow holds funds and the backend applies accepted rules.
@@ -116,3 +116,19 @@ npx --yes openapi-typescript@7.10.1 docs/openapi.json --output frontend/api.gene
 `frontend/contracts.ts` imports these generated types for focused helpers. See the Lucas
 handoff for the runnable mock API and exact response/error/signature contracts. This does not
 scaffold the frontend or imply that live Base execution is implemented.
+
+## Existing invoice workbench
+
+The merge also preserves Jeff's invoice jobflow and Next.js workbench on
+`/api/jobflow`. Start it with `JOBFLOW_DEMO=1` and follow
+[frontend setup](frontend/README.md) and [invoice API](API_CONTRACT.md).
+Its OpenAPI/interactive docs are `/api/jobflow/openapi.json` and `/api/jobflow/docs`.
+The catalog API and schema remain at `/openapi.json` and `/docs`.
+
+These are separate workflow contracts. The invoice demo retains its
+[versioned invoice policy](docs/jobflow/INVOICE_POLICY.md), isolated in
+`orders/invoice_compat.py` and `runtime/invoice_policy.py`. It does not authorize
+catalog payments, inherit catalog funding states, or migrate historical orders.
+The worker consumes invoice jobflow tasks alongside catalog deadline/payment work;
+catalog PDF jobs still require explicit trusted dispatch. The current UI uses
+invoice jobflow; connecting it to the catalog handoff remains separate frontend work.

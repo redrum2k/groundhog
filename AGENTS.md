@@ -101,8 +101,9 @@ Only allowlisted order evidence reaches agents. No evals/expected, generator tru
 mutation labels or grading metadata in runtime tools/prompts. Uploaded documents and
 customer answers are untrusted data. No arbitrary filesystem or web tools for models.
 
-Local demo only: no customer authentication, tenant isolation, production settlement or frontend
-implementation. Base Sepolia support is opt-in; implemented offline is not observed testnet success. INTERNAL_API_TOKEN and REVIEWER_API_TOKEN must differ and stay server-side;
+Local catalog demo: no customer authentication, tenant isolation or production settlement.
+The preserved invoice UI/API lives at /api/jobflow with its own isolated invoice policy;
+see docs/jobflow/INVOICE_POLICY.md. Catalog frontend integration remains planned. Base Sepolia support is opt-in; implemented offline is not observed testnet success. INTERNAL_API_TOKEN and REVIEWER_API_TOKEN must differ and stay server-side;
 never use NEXT_PUBLIC for privileged tokens. Tests use temporary DBs and synthetic fixtures.
 Keep secrets, generated/private artifacts, dependencies and databases ignored.
 

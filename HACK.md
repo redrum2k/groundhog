@@ -6,6 +6,14 @@ Deadline: **Sunday, October 25, 2026, 9 a.m. America/Los_Angeles**.
 Tracks: **Hyphenate, Coinbase, Microsoft**. Sponsor eligibility and deliverables remain
 unverified; Rehan must obtain the actual rules. No sponsor requirements are inferred.
 
+## Preserved invoice compatibility
+
+The existing invoice workbench remains available at `/api/jobflow` under its
+[isolated invoice policy](docs/jobflow/INVOICE_POLICY.md). It is a separate mock demo,
+not a catalog payment adapter. Its prior UI, tests and accepted policy are preserved
+by the merge; catalog orders continue to follow the rules below. Historical invoice
+rows outside active jobflow cases remain read-only.
+
 ## Product and bounded demo
 
 Request -> agent draft -> clarification -> accepted specification/quote -> buyer signature

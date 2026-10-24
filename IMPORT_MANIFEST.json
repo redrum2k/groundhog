@@ -1,0 +1,42 @@
+{
+  "format_version": 1,
+  "implementation": "new_source_with_behavioral_reference",
+  "repository_baseline": "06112e2",
+  "base_payment_policy": "HACK.md v0.2, explicitly confirmed by user",
+  "base_payment_owner": "existing app.orders.service.OrderService",
+  "reference_revision": "5d2a50c2595014d3a6dba899270975d20b631b52",
+  "copied_source_files": [],
+  "references": [
+    {
+      "source_path": "core/store.py",
+      "behavior": "atomic state, monotonic append-only events, consistent snapshots",
+      "target": "backend/app/storage/jobflow.py",
+      "verification": "backend/tests/jobflow_runtime"
+    },
+    {
+      "source_path": "intake/parser.py",
+      "behavior": "bounded parsing, original-byte digest, exact source/version/quote validation",
+      "target": "backend/app/investigation/documents.py",
+      "verification": "backend/tests/investigation/test_jobflow.py"
+    },
+    {
+      "source_path": "core/document_service.py",
+      "behavior": "current-time entitlement check at approval and execution; uncertain operations retain identity",
+      "target": "backend/app/runtime/jobflow_policy.py",
+      "verification": "backend/tests/jobflow_runtime"
+    },
+    {
+      "source_path": "tests/core/test_temporal_authority.py",
+      "behavior": "future amendment activation, stale approval, confirmed replay and UNKNOWN reconciliation",
+      "target": "backend/tests/jobflow_runtime",
+      "verification": "fresh regression tests"
+    }
+  ],
+  "new_domains": [
+    "unit work projected onto the existing authorization/capture order",
+    "durable correction attempts with new artifacts",
+    "independent paid change-order lifecycle",
+    "job/check/evidence/conversation UI",
+    "configured Anthropic application transport"
+  ]
+}

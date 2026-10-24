@@ -1,5 +1,11 @@
 # Lucas — frontend handoff
 
+The existing invoice workbench from main is preserved at `/api/jobflow`; it has
+its own schema at `/api/jobflow/openapi.json`. This handoff describes the catalog
+API at the root paths below. The merge does not connect the existing UI to catalog
+orders or change invoice payment policy. Generated types for both remain separate.
+
+
 Own the complete React/TypeScript frontend and buyer-wallet UI. No UI framework or wallet
 library is imposed by this handoff. Start with mock/fake fixtures; live testnet observations
 are **none**. Nikita owns payment signing infrastructure, operator execution and reconciliation.
