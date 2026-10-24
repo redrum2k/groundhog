@@ -13,6 +13,7 @@ from app.agents.gateway import ClaudeGateway, ModelFailure
 from app.catalog.amendments import assess_amendment
 from app.catalog.artifacts import ArtifactStore
 from app.catalog.documents import extract_source, produce
+from app.catalog.preparation import preparation_fingerprint, request_sources
 from app.catalog.requirements import specification
 from app.catalog.sources import SourceRegistry
 from app.catalog.verification import verify
@@ -147,8 +148,12 @@ class CatalogService(DatasetLifecycle):
                     self.effects.compiled(db, draft)
             return draft
 
-    def compile_request(self, request_id, command):
-        fingerprint = self.repository.fingerprint("compile", command)
+    def compile_request(self, request_id, command, *, prepared_sources=None):
+        fingerprint = (
+            preparation_fingerprint(prepared_sources.encounter_id)
+            if prepared_sources is not None
+            else self.repository.fingerprint("compile", command)
+        )
         scope = f"request:{request_id}"
         self.get_request(request_id)
         with self.repository.transaction() as db:
@@ -169,6 +174,14 @@ class CatalogService(DatasetLifecycle):
                 self.repository.remember(db, scope, command.idempotency_key, fingerprint, draft)
                 return draft
             sources = self.registry.manifest(draft.corpus_id, db)
+            if prepared_sources is not None:
+                prepared_sources.validate_current(sources, self.clock())
+                self.repository.put(db, "prepared_sources", request_id, prepared_sources)
+                sources = prepared_sources.sources
+            else:
+                # Worker recompilation after clarification keeps draft-local
+                # evidence, but genuine source changes/expiry still fail closed.
+                sources = request_sources(self, draft, db)
             draft.compiler_calls += 1
             draft.revision += 1
             reserved_revision = draft.revision
@@ -336,7 +349,7 @@ class CatalogService(DatasetLifecycle):
                 request_id=request_id,
                 request_revision=draft.revision,
                 specification=draft.specification,
-                sources=self.registry.manifest(draft.corpus_id, db),
+                sources=request_sources(self, draft, db),
                 amount=price,
                 policy=BrokeragePolicy() if dataset else self.policy,
                 payment_terms=self.payments.terms(
@@ -385,7 +398,7 @@ class CatalogService(DatasetLifecycle):
                     or now >= draft.deadline
                 ):
                     raise DomainError(409, "quote specification is stale")
-                if quote.sources != self.registry.manifest(draft.corpus_id, db):
+                if quote.sources != request_sources(self, draft, db):
                     raise DomainError(409, "source registry changed; obtain a new quote")
                 draft.status, draft.order_id = "accepted", order_id
                 draft.revision += 1
@@ -1166,6 +1179,8 @@ class CatalogService(DatasetLifecycle):
                 }
             )
             order.jobs = tuple(job if j.job_id == job.job_id else j for j in order.jobs)
+            if is_dataset(order) and candidate.status == "running":
+                self.reclaim_dataset_assessment(db, order)
             order.revision += 1
             self._save(db, order)
             self.effects.job(db, order, job)

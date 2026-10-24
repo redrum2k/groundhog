@@ -13,6 +13,30 @@ from app.orders.service import DomainError
 
 
 class DatasetLifecycle:
+    def reclaim_dataset_assessment(self, db, order):
+        """Carry completed work across only the claim's own +1 revision, atomically."""
+        if not order.cases or order.cases[-1].status != "open":
+            return
+        # The key includes the exact case/complaint/answers, accepted specification
+        # and evidence binding. An intervening revision is not a pure lease reclaim.
+        attempt = semantic_attempt(db, order)
+        if (
+            attempt
+            and attempt.effective is not None
+            and attempt.status not in {"DISPATCHED", "STALE"}
+            and attempt.binding == order.binding
+            and attempt.application_revision == order.revision
+            and self.clock() < order.cases[-1].deadline
+        ):
+            self.repository.put(
+                db,
+                "dataset_assessment",
+                attempt.attempt_id,
+                attempt.model_copy(
+                    update={"recovery_revisions": (*attempt.recovery_revisions, order.revision + 1)}
+                ),
+            )
+
     def complaint_targets(self, order):
         if not order.deliveries:
             return ()
@@ -140,7 +164,8 @@ class DatasetLifecycle:
         attempt = semantic_attempt(db, order)
         if attempt and (
             attempt.binding != order.binding
-            or attempt.order_revision != order.revision
+            or attempt.application_revision != order.revision
+            or attempt.status == "STALE"
             or self.clock() >= case.deadline
         ):
             semantic = unclear(

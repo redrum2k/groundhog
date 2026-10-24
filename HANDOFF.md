@@ -1,12 +1,38 @@
 # Current aggregate integration pickup
 
-Latest correctness pass: [GREPTILE_P1_REMEDIATION.md](GREPTILE_P1_REMEDIATION.md).
-All three reported P1 findings reproduced and fixed at `43cb18c`; main `947140e`
-is incorporated. 411 relevant tests pass; full backend 925 pass / 16 documented
-Windows failures. No new paid calls; frontend/payment code and historical evidence
-remain intact. Request fresh independent review of PR #12; do not self-merge.
+Latest correctness pass: [BROKER_RECOVERY_REMEDIATION.md](BROKER_RECOVERY_REMEDIATION.md).
+Latest backend fix: `7b97c2b`. Fresh review of `d007157` found that reclaiming an
+expired primary dataset job discarded a completed assessment due only to the
+claim's revision increment. Test-first `c7f82dd` reproduces three failures.
+The existing claim transaction now audits a pure reclaim separately, preserving
+original provenance and rejecting intervening revisions, changed semantic inputs,
+expired cases and stale/uncertain attempts. A superseded worker cannot poison a
+completed result recovered by its successor. 65 focused semantic tests pass;
+full backend: 987 pass / the exact same 16 baseline Windows failures, 1,003 tests.
+The report contains immutable evidence and the precise failure identities.
 
-Read [AGGREGATE_MODEL_QUALIFICATION.md](AGGREGATE_MODEL_QUALIFICATION.md) first:
+Preserved fixes: `ba79817` fulfills accepted broker amendments and atomically
+queues acknowledged investigations; `3f90ad5` prevents numeric/symbolic qualifiers
+from becoming false consent. Earlier three P1 fixes remain at `43cb18c`.
+Frontend integration `e41dd03` imports Lucas's main `34aa770` (PR #21) unchanged:
+120 tests, generated contracts, TypeScript and build pass. Contract generation and
+TypeScript were checked again after `7b97c2b`; no frontend source was changed.
+No new paid calls; the shared ledger and frozen real-call evidence are unchanged.
+
+Next: inspect the fresh Greptile review for PR #12 at its exact head, resolve any
+backend findings, and recheck main before merge. Main merges automatically create
+`calm-serenity / production` deployments; do not merge until that consequence is
+explicitly resolved against the prior no-deployment boundary. Upstream PR #20's
+inspector colors UNKNOWN citations as failures; flag for Lucas, do not silently
+rewrite his frontend. No new paid calls or spending-window extension is authorized.
+The existing $45 ledger and historical qualification evidence remain unchanged.
+For new outbox work recovery is automatic while eligible; old pre-outbox receipts
+are adopted only by exact replay in an unambiguous OPEN/current-PASS state. Old
+UNKNOWN/question or FAIL/correction receipts retain their completed effects.
+
+## Frozen earlier paid qualification
+
+[AGGREGATE_MODEL_QUALIFICATION.md](AGGREGATE_MODEL_QUALIFICATION.md) records:
 30 actual Claude Opus 5.5 calls, preserved negative pilot results, fresh post-fix
 dispute/intake qualification, cumulative costs and model features OFF by default.
 [AGGREGATE_INTEGRATION.md](AGGREGATE_INTEGRATION.md) retains the prior integration

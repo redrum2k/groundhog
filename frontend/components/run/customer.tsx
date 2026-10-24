@@ -107,14 +107,6 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
   const [error, setError] = useState<string | null>(null);
   const col = useRef<HTMLDivElement>(null);
   const landed = useRef(false);
-  // The presenter arrives here at Acme's turn; the open decision should be in view, not below the fold.
-  // With nothing to decide, opening the view mid-run lands once on the newest activity instead of the top.
-  useLayoutEffect(() => {
-    const open = col.current?.querySelector<HTMLElement>(".decision.open"), pane = col.current?.parentElement;
-    if (open) open.scrollIntoView?.({ block: "center", behavior: "smooth" });
-    else if (!landed.current && pane) pane.scrollTop = pane.scrollHeight;
-    landed.current = true;
-  }, [awaiting]);
   // The move just made, held in place while the view hands back to Run: the stream confirms it a poll later,
   // and without this the cards would fold and reopen in between. A new turn for Acme clears it.
   const [moved, setMoved] = useState<{ at: Where; action: BuyerMove["action"] } | null>(null);
@@ -148,6 +140,17 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
   const showing = held && !found.done && (!!look || investigate?.status === "running");
   // The orb inspects an objected delivery, stands beside Acme's open decision, and sits by the interview while it asks
   const want: Stop = held && (!awaiting || showing) ? "inspect" : awaiting || moved ? "decision" : view.orb.mode === "look" ? "transcript" : "home";
+  // Acme's turn brings its decision into view, once any inspection has finished pointing, not mid-way through it.
+  // With nothing to decide, opening the view mid-run lands once on the newest activity instead of the top.
+  const turn = awaiting && !showing ? awaiting : null;
+  useLayoutEffect(() => {
+    // the card with buttons: an objected delivery stays open too, but only to show its receipt
+    const open = [...(col.current?.querySelectorAll<HTMLElement>(".decision.open") ?? [])].find((d) => d.querySelector(":scope > .decision-actions button"));
+    const pane = col.current?.parentElement;
+    if (open) open.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    else if (!landed.current && pane) pane.scrollTop = pane.scrollHeight;
+    landed.current = true;
+  }, [turn]);
   const at = useOrbFlight(col, want);
   const mood = { home: view.orb.mode === "wait" || view.orb.mode === "happy" ? view.orb.mode : "float", decision: moved ? "happy" : "wait" } as const;
 

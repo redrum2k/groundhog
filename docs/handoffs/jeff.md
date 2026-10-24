@@ -1,10 +1,19 @@
-# Current P1 remediation — October 24
+# Current scope/dispatch remediation — October 24
 
-The three Greptile P1 findings were reproduced and fixed at `43cb18c`, after
-integrating main `947140e`. See [remediation report](../../GREPTILE_P1_REMEDIATION.md)
-for test-first evidence, exact fixes, normal full-suite failures and ownership.
-No new paid calls, frontend/payment changes or shared procedure activation.
-PR #12 remains unmerged pending fresh independent review.
+See [current report](../../BROKER_RECOVERY_REMEDIATION.md). Latest fix `7b97c2b`
+preserves completed primary dataset assessments across pure expired-job reclaims,
+without weakening revision/binding/lease/deadline checks or retrying uncertain calls.
+Test-first `c7f82dd`: three failures; expanded semantic suite: 65 pass. Full backend:
+987 pass / the exact same 16 baseline Windows failures, 1,003 tests. The report
+preserves immutable evidence for every earlier phase.
+Preserved fixes: numeric consent `3f90ad5`, broker fulfillment/atomic dispatch
+`ba79817`, and the [earlier three P1 fixes](../../GREPTILE_P1_REMEDIATION.md).
+Lucas main `34aa770` (PR #21) is imported intact at `e41dd03`; its 120 tests,
+types and build pass. Generated contracts and TypeScript pass again on `7b97c2b`.
+PR #12 still needs fresh independent review and an explicit resolution of main's
+automatic production-deployment consequence before merge. No paid calls, payment
+execution changes or shared procedure activation. Lucas owns the imported
+inspector's UNKNOWN-as-failure presentation caveat, documented in the report.
 
 # Earlier paid qualification and integration — October 24
 

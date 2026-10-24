@@ -307,22 +307,97 @@ class DisputeAssessor:
         self.client.close()
 
 
+def work_binding(broker, record, base):
+    return canonical(
+        {
+            "broker_revision": record.revision,
+            "order_revision": base.revision,
+            "issue_id": record.issue_id,
+            "proposal": base.binding.model_dump(mode="json"),
+            "effective_specification_sha256": specification_digest(
+                effective_specification(base, broker.clock())
+            ),
+            "evidence_sha256": evidence_digest(base),
+        }
+    )
+
+
+def eligible(broker, record, base, *, resume):
+    return bool(
+        base.complaint
+        and record.issue_id
+        and base.data_verification
+        and base.deliveries
+        and base.data_verification.proposal == base.binding
+        and base.data_verification.specification_sha256
+        == specification_digest(effective_specification(base, broker.clock()))
+        and base.data_verification.evidence_sha256 == evidence_digest(base)
+        and base.case_state == CaseState.OPEN
+        and (base.order_state != OrderState.HUMAN_REVIEW or resume)
+        and broker.clock() < record.overall_case_deadline
+        and (base.payment_phase == "booked" or broker.clock() < base.authorization_expires_at)
+        and (not base.review_deadline or broker.clock() < base.review_deadline)
+    )
+
+
+def queue_assessment(broker, db, record, base, actor_id, causal, *, resume=False, receipt=None):
+    """Transactional outbox in the existing store, committed with the command receipt.
+
+    Attempts stay separate: only an atomic claim can mark one DISPATCHED. No
+    model request, external queue, new ledger or timer is created by enqueueing.
+    """
+    if eligible(broker, record, base, resume=resume):
+        if receipt is not None and (
+            not receipt.base_order
+            or not eligible(broker, receipt, receipt.base_order.order, resume=resume)
+            # Before the outbox there was no persisted model-mode marker. An
+            # OPEN complaint with current PASS is unambiguously awaiting this
+            # path: the deterministic PASS branch would have resolved it. Other
+            # old receipts may have completed by asking a question/reserving work;
+            # enabling a feature later cannot reinterpret those command effects.
+            or receipt.base_order.order.data_verification.verdict != "PASS"
+            or work_binding(broker, record, base)
+            != work_binding(broker, receipt, receipt.base_order.order)
+        ):
+            return  # Explicit legacy replay may recover only the exact acknowledged binding.
+        db.execute(
+            "INSERT OR IGNORE INTO br_assessment_work "
+            "(id,order_id,actor_id,causal_id,binding_json,resume,status) "
+            "VALUES(?,?,?,?,?,?,'PENDING')",
+            (
+                uid("assessment-work"),
+                record.id,
+                actor_id,
+                causal,
+                work_binding(broker, record, base),
+                int(resume),
+            ),
+        )
+
+
 def run_assessment(broker, actor, order_id, causal, *, resume=False):
+    if not broker.dispute_assessment_enabled:
+        return
     preparation_failure = None
     with broker.store.connect(write=True) as db:
+        work = db.execute(
+            "SELECT * FROM br_assessment_work WHERE actor_id=? AND causal_id=? AND order_id=?",
+            (actor.id if hasattr(actor, "id") else actor, causal, order_id),
+        ).fetchone()
+        if work is None or work["status"] != "PENDING":
+            return  # Never redispatch an attempt whose outcome could be uncertain.
         record = storage.get(db, "br_orders", order_id, BrokerRecord)
         base = broker.base.repository.get(db, order_id)
+        resume = bool(work["resume"])  # Authority was checked by the original command.
         if (
-            not base.complaint
-            or not record.issue_id
-            or not base.data_verification
-            or not base.deliveries
-            or base.case_state != CaseState.OPEN
-            or (base.order_state == OrderState.HUMAN_REVIEW and not resume)
-            or broker.clock() >= record.overall_case_deadline
-            or (base.payment_phase != "booked" and broker.clock() >= base.authorization_expires_at)
-            or (base.review_deadline and broker.clock() >= base.review_deadline)
+            not eligible(broker, record, base, resume=resume)
+            or work_binding(broker, record, base) != work["binding_json"]
         ):
+            db.execute(
+                "UPDATE br_assessment_work SET status='CANCELLED',failure='STALE_OR_EXPIRED' "
+                "WHERE id=?",
+                (work["id"],),
+            )
             return
         try:
             binding, payload, sources, deliveries = snapshot(broker, db, record, base)
@@ -348,16 +423,25 @@ def run_assessment(broker, actor, order_id, causal, *, resume=False):
             )
             payload = {"binding": binding.model_dump(mode="json"), "failure": preparation_failure}
             sources, deliveries = [], []
-        if db.execute(
-            "SELECT 1 FROM br_assessment_attempts WHERE snapshot_sha256=?",
+        previous = db.execute(
+            "SELECT id FROM br_assessment_attempts WHERE snapshot_sha256=?",
             (binding.snapshot_sha256,),
-        ).fetchone():
+        ).fetchone()
+        if previous:
+            db.execute(
+                "UPDATE br_assessment_work SET status='DEDUPLICATED',attempt_id=? WHERE id=?",
+                (previous["id"], work["id"]),
+            )
             return
         attempt = uid("assessment")
         db.execute(
             "INSERT INTO br_assessment_attempts(id,order_id,snapshot_sha256,status,request_json) "
             "VALUES(?,?,?,'DISPATCHED',?)",
             (attempt, order_id, binding.snapshot_sha256, canonical(payload)),
+        )
+        db.execute(
+            "UPDATE br_assessment_work SET status='DISPATCHED',attempt_id=? WHERE id=?",
+            (attempt, work["id"]),
         )
 
     # There is deliberately no application DB transaction held across transport I/O.
@@ -436,6 +520,7 @@ def run_assessment(broker, actor, order_id, causal, *, resume=False):
                 if base.order_state == OrderState.HUMAN_REVIEW:
                     broker._human_task(db, record, base, base.failure, causal)
             elif decision.effect == "NO_REMEDY":
+                broker._fulfill_verified_scope(base)
                 base.case_state = CaseState.RESOLVED
                 base.delivery_state = DeliveryState.PASSED
                 if base.payment_phase != "booked":
@@ -487,4 +572,8 @@ def run_assessment(broker, actor, order_id, causal, *, resume=False):
                 elapsed,
                 attempt,
             ),
+        )
+        db.execute(
+            "UPDATE br_assessment_work SET status='COMPLETE',failure=? WHERE id=?",
+            (failure, work["id"]),
         )

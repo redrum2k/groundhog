@@ -115,7 +115,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .back-label { position: absolute; left: 0; top: 0; font-size: 12px; color: var(--ink-3); white-space: nowrap; pointer-events: none; }
 
 .nd {
-  position: absolute; left: 0; top: 0; width: 180px; height: 54px; padding: 8px 12px;
+  position: absolute; left: 0; top: 0; width: 200px; height: 54px; padding: 8px 12px;
   display: flex; flex-direction: column; justify-content: center; gap: 1px;
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
   transition: border-color 200ms ease, opacity 400ms ease, scale 160ms var(--ease-out);
@@ -156,6 +156,30 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .ev-claim::before { background: var(--amber); }
 :root[data-anim] .ev { transition: opacity 300ms var(--ease-out), transform 300ms var(--ease-out); }
 @starting-style { :root[data-anim] .ev { opacity: 0; transform: translateY(-6px) scale(0.97); } }
+
+/* progressive reveal: a step appears when the one before it starts; the next waits, ghosted; the rest is not there yet */
+.nd.n-next { opacity: 0.5; pointer-events: none; }
+.nd.n-hidden { opacity: 0; pointer-events: none; }
+.edges g.hid { opacity: 0; }
+
+/* the source the agent reads during a dispute: the same sheet the orb carries, with the checks it runs */
+.src { position: absolute; left: 0; top: 0; display: flex; align-items: flex-start; gap: 10px; pointer-events: none; }
+.src-glyph { width: 54px; height: 54px; flex: none; display: grid; place-items: center; background: var(--bg); border: 1px solid var(--line); border-radius: 3px; color: var(--ink-2); }
+.src-lines { display: flex; flex-direction: column; gap: 6px; padding-top: 2px; }
+.src-l { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+.src-l svg { flex: none; }
+.src-l .spin2 { width: 8px; height: 8px; }
+:root[data-anim] .src { transition: opacity 220ms var(--ease-out), scale 220ms var(--ease-out); }
+:root[data-anim] .src-l { transition: opacity 220ms var(--ease-out), translate 220ms var(--ease-out); }
+@starting-style { :root[data-anim] .src { opacity: 0; scale: 0.96; } :root[data-anim] .src-l { opacity: 0; translate: 0 2px; } }
+
+/* the orb's thought at a step: two dots and a pill */
+.thought { position: absolute; left: 10px; bottom: calc(100% + 34px); width: max-content; max-width: 200px; padding: 6px 10px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); font-size: 12px; line-height: 1.35; color: var(--ink-2); white-space: normal; transform-origin: 0 100%; }
+.thought::before, .thought::after { content: ""; position: absolute; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); }
+.thought::before { width: 6px; height: 6px; left: -5px; bottom: -9px; }
+.thought::after { width: 4px; height: 4px; left: -12px; bottom: -15px; }
+:root[data-anim] .thought { transition: opacity 220ms var(--ease-out), scale 220ms var(--ease-out); }
+@starting-style { :root[data-anim] .thought { opacity: 0; scale: 0.96; } }
 
 /* orb + coin */
 .orb-wrap { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 2; }
@@ -293,6 +317,17 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 
 .review { padding: 14px; overflow: visible; }
 .review-tag { display: inline-flex; align-items: center; gap: 5px; height: 21px; padding: 0 9px; border-radius: 999px; font-size: 12px; color: var(--amber); background: var(--amber-t); }
+/* a live grey area as labelled facts, then what each choice does */
+.review-facts { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 8px 14px; margin: 0 0 16px; font-size: 13.5px; line-height: 1.5; }
+.review-facts dt { color: var(--ink-3); }
+.review-facts dd { margin: 0; color: var(--ink); }
+.review-opts { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 4px; font-size: 12.5px; color: var(--ink-2); }
+.review-opts b { font-weight: 500; color: var(--ink); }
+/* after a live call: on record, and honest that no rule changed */
+.on-record { display: grid; gap: 4px; padding: 0 0 12px; border-bottom: 1px solid var(--line); }
+.on-record-h { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--ink); }
+.on-record-h svg { color: var(--green); flex: none; }
+.on-record p { margin: 0; font-size: 12.5px; color: var(--ink-3); }
 .review-q { margin: 10px 0 6px; font-size: 16px; line-height: 1.4; }
 .review-ev { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .review-actions { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -325,7 +360,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 /* switching tabs fades the incoming view in, so the swap reads as one surface changing, not a cut */
 :root[data-anim] .stage, :root[data-anim] .customer { transition: opacity 180ms var(--ease-out); }
 @starting-style { :root[data-anim] .stage, :root[data-anim] .customer { opacity: 0; } }
-.customer { overflow: auto; min-height: 0; }
+.customer { position: relative; overflow: auto; min-height: 0; } /* positioned, so absolutely placed bits inside (screen-reader labels) scroll with it instead of stretching the page */
 .cust-col { max-width: 740px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
 .cust-h .title { font-size: 17px; }
 .cust-sec { display: flex; flex-direction: column; gap: 10px; }
@@ -354,7 +389,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
   .orb, .orb-eyes, .orb-look .orb-face, .orb-inspect .orb-face, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
   :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: none; }
-  :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, .bub, .panel { transition: opacity 150ms ease; transform: none; }
+  :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, :root[data-anim] .src, :root[data-anim] .src-l, :root[data-anim] .thought, .bub, .panel { transition: opacity 150ms ease; transform: none; scale: none; translate: none; }
 }
 
 /* ---------- customer view: Acme's decisions ---------- */
