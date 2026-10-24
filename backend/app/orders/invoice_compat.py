@@ -1,4 +1,4 @@
-"""Invoice v0.2 compatibility for /api/jobflow only; never catalog payment authority."""
+"""Isolated invoice/broker mock profiles; never catalog payment authority."""
 
 import hashlib
 import json

@@ -51,7 +51,9 @@ the extension; docs/API.md is still the original team API reference.
 
 ## V5 ownership handoff
 
-- Nikita: retain the shared OrderService/DB/ledger. Review v0.3 dispatch and immutable
+- Nikita: catalog/payment handoff from main `ac385a1` is preserved. The broker reuses
+  the compatibility OrderService (`orders/invoice_compat.py`) in the same DB; it does
+  not replace CatalogService or the catalog journal. Review scoped v0.3 dispatch and immutable
   source/spec/delivery capture binding. Human tasks explicitly retain expired or
   uncertain authority for the payment owner; no renewal/live payment path was invented.
 - Jeff: typed regional-data predicates, scoped questions/answers, incident diagnosis,
@@ -60,7 +62,8 @@ the extension; docs/API.md is still the original team API reference.
   fixture generation and injected SDK tests are separately labeled.
 - Lucas: use the generated broker/improvement DTOs, typed request helpers, current
   ownership/next-action fields, full probe/diff records and existing Event schema.
-  New routes proxy through the existing Next app. No broker screen redesign is imposed.
+  New routes proxy through the existing Next app with separate OpenAPI schemas.
+  Root catalog OpenAPI remains frozen. No broker screen redesign is imposed.
 - Rehan: review the 12 development inputs and 6 reserved transfer inputs and the
   separately stored offline reference endpoints. Results include declined/unknown
   cases, real command traces and company/customer effort separately. No enterprise

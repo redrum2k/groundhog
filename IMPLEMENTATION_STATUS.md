@@ -9,9 +9,10 @@
 The broker backend, actual data/PDF verification, versioned review policy, persistent
 question/human paths and bounded prospective improvement loop are implemented in
 the same application. Generated APIs/types and compatibility helpers are ready for
-Lucas. Current local checks: 341 backend tests, 32 frontend tests, generated-contract
-check, TypeScript and production build pass. Final transfer/demo evidence is being
-recorded in EVALUATION_RESULTS.md. Real model generation is BLOCKED by missing
+Lucas. Rebased on main `ac385a1`, preserving catalog default/payment architecture.
+Current checks: 415 backend tests, 32 frontend tests, generated-contract check,
+TypeScript, production build and real-backend browser acceptance pass. The results-first
+ZIP and 12+6 evaluation are recorded in EVALUATION_RESULTS.md. Real generation is BLOCKED by missing
 application configuration; deterministic infrastructure tests are not labeled live.
 
 ## V4 integrated baseline

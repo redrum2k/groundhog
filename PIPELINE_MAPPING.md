@@ -1,7 +1,9 @@
 # Flowchart to executable application
 
-The default new profile supplies aggregate regional market intelligence as actual
-JSON or CSV plus a source/methodology PDF. The invoice profile remains operational.
+The separate broker profile supplies aggregate regional market intelligence as actual
+JSON or CSV plus a source/methodology PDF. Catalog remains the default product on
+current main, and the invoice compatibility profile remains operational. This mapping
+describes broker commands, not a replacement for catalog's compiler or payment journal.
 The V5 packet and both reference images were read; this mapping includes the
 NO_REMEDY and human-resume branches that were implicit in the sketch.
 

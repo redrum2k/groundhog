@@ -57,4 +57,27 @@ Capture also rehashes stored bytes against frozen references. No guard was relax
 
 The worker also observed an existing deadline-test instrumentation race: the persisted
 DB contained one correct cutoff capture but its late-installed observer missed it.
-This is separate from a settlement failure and is being checked on the integrated tree.
+This is separate from a settlement failure; the test passed unchanged on the integrated tree.
+
+## Results-first deadline and current-main integration
+
+- ZIP window: 01:03:59-01:33:59 PDT, October 24. Delivered at 01:08:19: 3,198,759 bytes,
+  66 members, CRC and member SHA256 verified. Exact evaluated revision: `150dab9`.
+- The 12-development/6-reserved-transfer run passed with 18/18 expected endpoints
+  and financial effects in every arm. One candidate was rejected; approval, activation,
+  experience reuse and rollback ran. Real-model status remained BLOCKED.
+- Rebased on main `ac385a1`, preserving catalog as default, its payment journal,
+  60-second policy and frozen OpenAPI. Broker guards extend the moved compatibility
+  OrderService/invoice_policy; broker/improvement schemas are mounted separately.
+- First merged suite: 411 passed, two integration failures. The new broker test used
+  an invoice payload for a route now owned by catalog; it now sends valid catalog
+  bindings while retaining strict 404/no mutation/no booking assertions. Windows
+  autocrlf changed seven pinned ABI/source files; restored exact LF bytes and added
+  scoped `.gitattributes`, retaining original hashes and the original hash test.
+- Final merged suite: 415 passed in 155.83s. Ruff check/format: 123 files. Frontend
+  32 tests, generated drift, TypeScript and build pass. Root catalog OpenAPI is identical.
+- Real-backend browser acceptance passed: all 100 original jobs validated, held base
+  and separately paid addition, zero replay mutations or JavaScript errors. Owned
+  test servers stopped in finally; no background app was left running.
+- Original PDF visual review found an orphaned final heading. Applied bounded renderer
+  spacing/keep-with-next/page-footer polish; no data or financial semantics changed.

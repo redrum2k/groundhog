@@ -152,13 +152,17 @@ def test_S05_tenant_and_artifact_ownership_checked_at_all_read_surfaces(broker):
     assert broker.orders(ACTORS["customer_other"]) == []
 
 
-def test_S05_unauthenticated_legacy_routes_cannot_read_or_settle_broker_order(broker):
+def test_S05_root_catalog_routes_cannot_read_or_settle_broker_order(broker):
     order = command(broker, accept_order(broker), "provider", "produce")
     base = order.base_order.order
     mutation = dict(
         idempotency_key="anonymous",
         expected_revision=base.revision,
-        expected_binding=base.binding.model_dump(mode="json"),
+        expected_binding=dict(
+            snapshot_id=base.snapshot.snapshot_id,
+            evidence_revision=base.binding.evidence_version,
+            delivery_version=base.binding.delivery_version,
+        ),
     )
     with TestClient(create_app(broker.jobflow, worker=False)) as client:
         assert client.get(f"/orders/{order.id}").status_code == 404
@@ -171,7 +175,17 @@ def test_S05_unauthenticated_legacy_routes_cannot_read_or_settle_broker_order(br
         assert client.post(f"/orders/{order.id}/acceptance", json=mutation).status_code == 404
         assert (
             client.post(
-                f"/orders/{order.id}/disputes", json={**mutation, "complaint": "Forged complaint"}
+                f"/orders/{order.id}/disputes",
+                json={
+                    **mutation,
+                    "complaint": dict(
+                        text="Forged complaint",
+                        product_id="region-001",
+                        field="pdf",
+                        requirement_id="R-PDF",
+                        artifact_id=order.delivery_artifact_ids[0],
+                    ),
+                },
             ).status_code
             == 404
         )
@@ -196,7 +210,7 @@ def test_S05_unauthenticated_legacy_routes_cannot_read_or_settle_broker_order(br
                     idempotency_key="legacy-create",
                 ),
             ).status_code
-            == 409
+            == 404
         )
     current = broker.view(ACTORS["customer"], order.id)
     assert not current.base_order.order.ledger

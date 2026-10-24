@@ -53,7 +53,35 @@ npm.cmd --prefix frontend run typecheck
 npm.cmd --prefix frontend run build
 ```
 
-## Packaging
+## V5 broker and improvement evidence
+
+Catalog is the default API; the same server mounts invoice compatibility at
+`/api/jobflow`, regional-data broker at `/api/broker`, and reviewer-controlled
+improvement at `/api/improvements`. Each has its own `/docs` and `/openapi.json`.
+Demo broker actors reuse invoice sessions; privileged catalog credentials remain
+separate and server-side. See POLICY_DELTA.md for the distinct accepted profiles.
+
+The finite, fully offline runner creates a new synthetic DB, proposes two candidates,
+executes isolated 12-development/6-transfer comparisons, preserves rejected results,
+activates the retained candidate, exports real artifacts and verifies rollback:
+
+```powershell
+uv run --locked --directory backend python ../evals/run_v5.py --output D:\Downloads\OBJECTION_V5_Fresh_Run
+```
+
+The output directory must not already exist. Reuse verified results unless implementation
+changes require a new run; never overwrite a prior failure or relabel a result as a
+different source revision. `result.json` reports model mode, actual calls, outcomes
+and financial effects; `manifest.json` hashes evidence. Runtime cannot read offline
+reference endpoints. Missing approved model configuration produces BLOCKED and zero
+model calls; this offline command grants no paid access.
+
+The under-512-MB results-first ZIP was delivered at 01:08 PDT on October 24, 2026:
+`D:\Downloads\OBJECTION_V5_Results_20261024.zip` (3,198,759 bytes). It deliberately
+preserves the earlier pre-rebase snapshot and its completion manifest. Consult
+EVALUATION_RESULTS.md and HANDOFF.md for subsequent integration results.
+
+## Deployment packaging
 
 Use backend as its Docker build root. Mount one persistent volume at /data and set
 ORDER_DB_PATH=/data/orders.sqlite3; use one worker. Railway config uses PORT and /health.

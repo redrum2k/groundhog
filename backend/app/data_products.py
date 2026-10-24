@@ -10,7 +10,7 @@ from html import escape
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from reportlab.platypus import Paragraph, SimpleDocTemplate
 
 from app.contracts.data_product import (
     DataCitation,
@@ -398,11 +398,33 @@ def build_package(specification, sources):
     styles["BodyText"].fontSize = 9
     styles["BodyText"].leading = 13
     styles["BodyText"].textColor = colors.HexColor("#24364B")
+    styles["BodyText"].spaceBefore = 0
+    styles["BodyText"].spaceAfter = 6
+    styles["Heading2"].fontSize = 11
+    styles["Heading2"].leading = 14
+    styles["Heading2"].spaceBefore = 10
+    styles["Heading2"].spaceAfter = 6
+    styles["Heading2"].keepWithNext = True
+    headings = {
+        "Accepted definitions",
+        "Source provenance",
+        "Acceptance checks and exceptions",
+        "Delivered records",
+    }
     story = []
     for index, line in enumerate(report_lines(specification, data, checks)):
-        style = styles["Title"] if index == 0 else styles["BodyText"]
-        story.extend([Paragraph(escape(line), style), Spacer(1, 7)])
-    doc.build(story)
+        style = styles["Title" if index == 0 else "Heading2" if line in headings else "BodyText"]
+        story.append(Paragraph(escape(line), style))
+
+    def footer(canvas, document):
+        canvas.saveState()
+        canvas.setFont("Helvetica", 8)
+        canvas.setFillColor(colors.HexColor("#526175"))
+        canvas.drawString(42, 24, "OBJECTION | Regional market intelligence")
+        canvas.drawRightString(letter[0] - 42, 24, f"Page {document.page}")
+        canvas.restoreState()
+
+    doc.build(story, onFirstPage=footer, onLaterPages=footer)
     return [
         (filename, media, data_raw),
         ("source-methodology.pdf", "application/pdf", pdf.getvalue()),

@@ -1,8 +1,19 @@
 # Accepted policy profiles
 
-V5 extends `main` (`39538c0`); it does not migrate an accepted order to new terms.
-`OrderService`, the `orders` table, its command receipts and its base ledger remain
-the financial authority. The broker adapter and original jobflow use the same DB.
+V5 is rebased onto `main` (`ac385a1`); its early results ZIP records the original
+pre-integration `150dab9` revision separately. No accepted order is migrated.
+Catalog remains the default product, with CatalogService, catalog-payments-v1,
+schema-4 funding terms and the existing payment journal unchanged. Its review is
+60 seconds, and verified funding, current checks, the review trigger and all original
+payment gates remain required. Substantive catalog amendments retain confirmed
+parent-void-before-child-funding. Catalog root OpenAPI is unchanged byte-for-structure.
+
+The existing compatibility `OrderService` now lives in `orders/invoice_compat.py`;
+its pure guards live in `runtime/invoice_policy.py`. The broker adapter reuses that
+mock authority, the `orders` table, command receipts and base ledger with invoice
+jobflow. Catalog, invoice and broker share the application's DB but never dispatch
+one profile's policy against another's records. Unrelated historical rows remain
+read-only. `/api/broker` and `/api/improvements` have separately mounted schemas.
 
 | Rule | Accepted invoice v0.2 | New broker v0.3 |
 | --- | --- | --- |
@@ -33,5 +44,6 @@ amount, independent expiry and idempotency. New evidence and effective-dated,
 mutually accepted clarifications invalidate old proposals. Already accepted values
 cannot be loosened by an improvement patch or a party's answer.
 
-All receipts here remain explicitly mock. No payment adapter, live transaction,
-deployment or billing configuration was replaced or enabled.
+All broker/invoice receipts remain explicitly mock. The existing catalog payment
+architecture was preserved, not replaced. No live transaction, deployment or billing
+configuration was enabled.

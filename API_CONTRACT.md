@@ -131,9 +131,10 @@ cited region. Page inspection and courier replay are read-only.
 
 ## V5 broker and improvement interfaces
 
-These are additive routes on the same FastAPI app/DB. They use the existing Bearer
-session/registered actor boundary. The original unauthenticated invoice routes deny
-broker records; they cannot bypass broker consent or tenant checks.
+These are separately mounted routes/schemas on the same FastAPI app/DB. They use the
+existing Bearer session/registered actor boundary. Root routes remain the frozen
+catalog API and reject broker IDs; retired invoice creation is not restored.
+Broker consent and tenant checks cannot be bypassed through catalog or invoice routes.
 
 | Route | Contract / purpose |
 | --- | --- |
@@ -147,7 +148,7 @@ broker records; they cannot bypass broker consent or tenant checks.
 | GET `/api/broker/entities/{id}/events` | Existing `Event` schema, monotonic sequence, optional `after` |
 | GET `/api/broker/entities/{id}/artifacts/{artifact_id}` | Exact bounded bytes and SHA256 ETag |
 | POST `/api/improvements/commands` | `ImprovementCommand`: propose, probe, approve, activate, revoke |
-| GET `/api/improvements?customer_id=...` | Scoped incidents/outcomes, candidates, probes, versions, experience |
+| GET `/api/improvements/?customer_id=...` | Scoped incidents/outcomes, candidates, probes, versions, experience |
 | GET `/api/improvements/records/{id}` | Immutable full evidence, including probe traces |
 | GET `/api/improvements/jobs/{id}` | Durable COMPLETE/BLOCKED/FAILED/UNKNOWN status; no automatic retry |
 | GET `/api/improvements/entities/{id}/events` | Reviewer/job lifecycle events without mutation |
@@ -158,7 +159,8 @@ the displayed `digest` and an explicit `authorization_expires_at`; a provider mu
 already have accepted that exact complete specification/price/policy. Intake
 `value` is a typed field answer, never an authenticated source fact.
 
-The default profile is `aggregate_regional_market_intelligence`; source inputs use
+The broker profile is `aggregate_regional_market_intelligence`; catalog remains the
+application default. Broker source inputs use
 the bounded `SourceSnapshot` JSON schema. Units, geography/revision, period, entity
 unit, coverage denominator, missingness and date basis/age/as-of must be explicit.
 Data citations contain source ID/version/hash, locator/value and actual artifact ID.

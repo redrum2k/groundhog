@@ -23,11 +23,18 @@ general filesystem tool or model payment tool. A one-case concession is not a te
 
 ## Existing implementation reused
 
-The adapter reuses OrderService, jobflow identities and SQLite transactions, immutable
+The broker adapter reuses the compatibility OrderService in `orders/invoice_compat.py`,
+jobflow identities and SQLite transactions, immutable
 artifacts/events/receipts, bounded document extraction, the existing Anthropic SDK and
 its durable global call allocation. New tables contain profile/improvement records,
 not another financial ledger. Lucas's UI is not redesigned; generated types, a typed
 client and event fixtures are the integration seam.
+
+Current main's catalog remains the default product. Its compiler, 60-second review,
+payment journal and frozen root OpenAPI are unchanged. This improvement mechanism is
+scoped to the separate regional-data broker profile; catalog intake is not silently
+subscribed to its templates. All profiles use the same app/DB with separate schemas
+and accepted financial policies.
 
 ## Harness2 source audit
 
