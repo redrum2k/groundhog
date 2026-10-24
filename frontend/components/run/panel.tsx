@@ -67,7 +67,7 @@ function Sheet({ rows, highlight, note, lens }: { rows: ZipCount[]; highlight?: 
           <IcLens size={15} strokeWidth={1.7} />
         </div>
       )}
-      <div className="sheet-h"><span>Delivered sheet</span>{note && <span className="faint">{note}</span>}</div>
+      <div className="sheet-h"><span>Delivered sheet</span><span className="faint">Synthetic data{note && ` · ${note}`}</span></div>
       <table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
         <tbody>

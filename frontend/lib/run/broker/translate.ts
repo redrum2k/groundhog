@@ -77,6 +77,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
 
   const answered: Record<string, unknown> = {};
   const answers: Record<string, { id: string; text: string }> = {}; // Acme's own words per contract line, to cite
+  const pendingQuestions = new Map<string, Message>(); // the backend asks everything up front; each question shows when Acme answers it, as a conversation
   const drafted = new Set<string>();
   const asked = new Set<string>();
   let contractVersion = 0;
@@ -126,13 +127,15 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
       case "spec.question_requested": {
         const q = p.question as { id: string; field: string; prompt: string };
         const dim = dimensionOf(q.field);
-        say("clarify", { id: q.id, from: "agent", text: q.prompt, asks: dim });
+        pendingQuestions.set(q.id, { id: q.id, from: "agent", text: q.prompt, asks: dim });
         if (dim && !asked.has(dim)) { asked.add(dim); emit({ type: "contract_line_asked", step: "clarify", line: askFor(dim) }); }
         break;
       }
       case "spec.answer_received": {
         const m = messagesById.get(String(p.answer_id));
         if (!m) break;
+        const q = pendingQuestions.get(String(p.question_id));
+        if (q) { pendingQuestions.delete(q.id); say("clarify", q); }
         say("clarify", { id: m.id, from: "buyer", text: plain(m.text) });
         if (m.field) answered[m.field] = parse(m.text);
         const dim = m.field ? dimensionOf(m.field) : undefined;

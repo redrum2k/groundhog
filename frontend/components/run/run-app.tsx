@@ -86,7 +86,7 @@ export default function RunApp() {
   const follow = () => setRecenter((n) => n + 1);
   const start = (c: Case, opts: { learned?: boolean; ending?: Ending; mode?: Mode; autoplay?: boolean } = {}) => {
     const e = opts.ending ?? ending, l = opts.learned ?? false, m = opts.mode ?? mode;
-    setRun(c); setZoom(true); setPanel(null); setLearned(l); setEnding(e); follow();
+    setRun(c); setZoom(true); setPanel({ id: MAIN[0].id, auto: true }); setLearned(l); setEnding(e); follow();
     const ctx = ctxFor(c, e, l);
     if (m === "live" && !l) setFeed({ kind: "live", api: LIVE_API, body: { case: c }, before: [], ctx });
     else setFeed({ kind: "recorded", ...timeline(c, e, l), start: 0, autoplay: opts.autoplay ?? true, ctx });
@@ -117,8 +117,6 @@ export default function RunApp() {
               <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start(run, { mode: "live" }); }}>Live</button>
             </div>
           )}
-          {/* the disclosure both feeds share; mock payments are labeled where the money shows */}
-          <span className="note">Synthetic data</span>
           {/* who this order is for; "Customer" keeps it from reading as the signed-in account */}
           <div className="account">
             <span className="avatar" aria-hidden>{S.buyer.split(" ").map((w) => w[0]).join("")}</span>
