@@ -3,6 +3,8 @@
 Separate follow-up to `db7aab832ad34b7d889ce6a07a5e855c2ee01107`, not a V6 or
 legacy dispute rerun. Worktree: `D:\Downloads\order-to-cash-dispute-20261024`.
 Branch: `feature/broker-dispute-assessment-20261024`.
+Exact final code tested: **`ef8c99afb9cf5f3b6928f505242f2d622fce2c3e`**.
+Later delivery commits contain reporting only; the archive receipt names its exact source commit.
 Main `62fe03542f18d9f7514550bcff25968ae2557c08` was integrated INTO this branch.
 No commit was pushed during this follow-up, no merge into main, deployment or real payment.
 
@@ -74,6 +76,8 @@ Do not present the six-case cohort as having run on the later implementation.
 A later no-call compiler hardening clears an earlier unbound field contradiction
 only when a valid question-bound answer corrects that field. The final source differs
 from the P7 fingerprint in that compiler fix; semantic proof code is unchanged.
+Final tested runtime hash:
+`bab24ab2a16f0b4319dba61ea4c29ba1559e60ecfda1a84973b58f55fdc30604`.
 
 ## Resource accounting and preservation
 
@@ -104,11 +108,20 @@ Frontend generated-contract check, TypeScript, **104 tests** and production buil
 No Lucas UI/component/adapter was modified relative to main; only generated wire
 types and hidden-window handling in the generator changed.
 
-First full backend run: **743 passed / 11 failed / 0 skipped** (754 total).
-The 11 are unchanged main Windows portability failures: nine stripped-SystemRoot
-subprocesses, one POSIX mode assertion and one `.venv/bin/python` path. They remain
-unmodified and fully reported, not suppressed. Final proof-fix regression is recorded
-separately in `full-backend-final.xml`; see the final delivery receipt/status.
+Final full backend run at `ef8c99a`: **747 passed / 13 failed / 0 skipped** (760 total),
+`full-delivery-ef8c99a.xml`. All 19 compiler and 38 primary semantic tests pass in
+that full run. Ruff lint/format passes (172 Python files including delivery tools).
+Eleven failures are unchanged main Windows portability checks: nine stripped-SystemRoot
+subprocesses, one POSIX mode assertion and one `.venv/bin/python` path. Two further
+unchanged Base-transport tests intermittently observe durable `submitted` state before
+the synthetic broadcast list is populated. The executor intentionally persists first.
+All four mock/Base settlement scenarios passed in a separate diagnostic run, without
+code/test changes; the two full-run failures remain failures, not reclassified passes.
+
+Earlier full runs are also retained: 743/11 (754 total) before the proof fix and
+748/11 (759 total) after it. No test was skipped, xfailed or weakened to hide these
+failures. No clean full-suite claim; Windows payment-journal ACL equivalence and
+the asynchronous test observation race remain owner follow-up items.
 
 The feature stays **OFF / not generally qualified**. The interpreter is deliberately
 bounded, does not resolve arbitrary compound claims/quality promises, and does not

@@ -8,6 +8,10 @@ equivalent-proof implementation in `5946378`. See [PRIMARY_RESULTS](../../PRIMAR
 for exact tests, real calls, retained negative cases and Windows full-suite failures;
 [PRIMARY_HANDOFF](../../PRIMARY_HANDOFF.md) contains Lucas's mapping instructions.
 The primary feature remains OFF. No main merge, deployment or new push occurred.
+Final tested code: `ef8c99afb9cf5f3b6928f505242f2d622fce2c3e`. All 19 compiler and
+38 primary semantic tests pass; full suite 747 pass / 13 disclosed failures in
+unchanged platform/settlement tests. Frontend 104 tests, typecheck, generated checks
+and build pass. Later reporting commits do not change that tested code.
 
 The original strict R3/R4 tests passed as XPASS before their markers were removed.
 Added negation/paraphrase/correction/geography/contradiction checks preserve original

@@ -3,6 +3,7 @@
 Worktree: `D:\Downloads\order-to-cash-dispute-20261024`.
 Branch: `feature/broker-dispute-assessment-20261024`; integrated main `62fe035`.
 Compiler fix `de53450`; primary integration `d2b6ba1`; equivalent-proof fix `5946378`.
+Final tested code (including second-question recovery): `ef8c99afb9cf5f3b6928f505242f2d622fce2c3e`.
 These follow-up commits are local, not pushed. Main was merged INTO this feature,
 not the reverse. The earlier remote feature still contains `db7aab8`.
 
@@ -100,8 +101,11 @@ runner to inspect it: both reject existing evidence. Both supervised children ex
 2. Run a separately preregistered independent semantic qualification if broader
    reliability is needed. Keep original P3/P6 and legacy N2/U1/J1/J2 in reporting;
    P7 was a development probe, not a held-out accuracy estimate.
-3. Windows full-suite failures in unchanged payment-lab/platform tests are documented
-   in PRIMARY_RESULTS. The owner can add Windows-aware test environment and permission
-   checks; don't weaken financial assertions, permission guarantees or network bans.
+3. Final full suite: 747 pass / 13 fail. Eleven are Windows payment-lab/platform
+   checks and two are intermittent synthetic-broadcast observation races; the four
+   settlement scenarios pass separately, without code changes. See PRIMARY_RESULTS.
+   The owner can add Windows-aware test environment and permission checks and make
+   the test await actual broadcast observation, not only pre-broadcast durable state.
+   Don't weaken financial assertions, permission guarantees or network bans.
 4. Any live activation, deployment, actual payment or merge into main needs separate
    authorization. New paid work after the cutoff also needs a new recorded window.
