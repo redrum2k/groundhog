@@ -32,7 +32,7 @@ Tracks: Hyphenate (order-to-cash finance seat), Coinbase (x402 payments, visible
 - Us: **DataPact**, a data broker. Builds custom datasets from rented vendor data, so every rerun
   costs us a license fee plus compute.
 - Customer: **Acme Fitness's buying agent** (an agent, not a person).
-- Controller: **Maya**.
+- Controller: **Human**.
 - Order: "SF adults 25–34 interested in fitness, counts by ZIP." Aggregated counts only, no personal
   records. Demo data is synthetic.
 - Sample numbers (to confirm with team): $120 order, $6 rerun cost (license + compute), $60 Oakland
@@ -60,7 +60,7 @@ count ≥ 50 (privacy) · all SF ZIPs present.
   picks one of 3 endings:
   1. internal rules sort it as disagree → merges into green (optional $30 yoga amendment)
   2. internal rules sort it as agree → merges into red
-  3. rules can't decide → Maya reviews → **Data contract v2** ("yoga counts") → decision saved to
+  3. rules can't decide → Human reviews → **Data contract v2** ("yoga counts") → decision saved to
      improve the rules
   Grey is minimized by the interview; it should be rare.
 
@@ -79,7 +79,7 @@ Demo order: shared path once, then red, green, amber.
   step and visibly changes the path.
 - **Mascot:** a flat single-blue orb with two eyes (reference: 21st.dev "AI Orb Avatar" by odysseyui,
   but our own drawing). States: float along, carry a sheet back, look around (investigating), slow
-  blink (waiting on Maya). It carries a **coin** labeled "$120 authorized" that locks during a
+  blink (waiting on Human). It carries a **coin** labeled "$120 authorized" that locks during a
   dispute and becomes "$120 captured" at the end, with a Basescan link. No separate escrow step.
 - Ends at a **Books** step you zoom into: journal entries (deferred revenue → revenue, rerun cost),
   Basescan link to the real capture transaction.
@@ -141,7 +141,7 @@ Written before the data-broker switch (it says PDFs); adapted here.
 - **Review clock.** Delivery time and the 48h deadline come from the server; the browser never decides
   capture. Each regenerated delivery gets its own review window. A dispute blocks capture.
 - **Questions and human review.** An investigation can pause waiting for the customer's answer. Escalation
-  needs a real destination: Maya's review view, showing the question, evidence, and her actions (approve,
+  needs a real destination: Human's review view, showing the question, evidence, and their actions (approve,
   reject, ask for more, send up).
 - **Payments wording.** Show mock / submitted / uncertain / confirmed honestly until the real x402 path
   works. Rules: no charge for raising a complaint, disputes block capture, a failed free rerun escalates
@@ -158,9 +158,9 @@ approved by them), as in the green lane.
 ## Hyphenate checklist: learns, runs, escalates, learns from escalation, saves to books
 - Learns: the interview turns the conversation into Data contract v1. Show it.
 - Runs: the pipeline runs on its own: produce, check, deliver, capture.
-- Escalates: amber goes to Maya; a failed free rerun goes to Maya.
-- Learns from escalation: Maya's decision becomes contract v2 and a rule update. **Prove it in the demo:**
-  after her decision, replay the same yoga dispute and show it now resolves automatically.
+- Escalates: amber goes to Human; a failed free rerun goes to Human.
+- Learns from escalation: Human's decision becomes contract v2 and a rule update. **Prove it in the demo:**
+  after their decision, replay the same yoga dispute and show it now resolves automatically.
 - Saves to books: Books step with real double-entry entries in our ledger.
 - Real systems: our real rails are x402 / Coinbase on Base Sepolia and our own ledger. POS and payroll
   are not part of order-to-cash and are out of scope. Optional stretch: also post the journal entries to
@@ -196,16 +196,16 @@ Judging is Sunday morning, about 30 hours from Saturday 1:30 AM.
 Only the amber lane's verdict and the final x402 capture are live; the shared path, red and green replay recorded events.
 The amber verdict comes from the live agent; the 3-ending switch becomes a rehearsal and fallback replay.
 Acme's buying agent is a scripted client that calls the real backend API, labeled as scripted.
-During the amber investigation the agent asks Acme one question; the scripted answer keeps it grey, so it goes to Maya.
-Maya rules inside the zoomed "Maya reviews" step (approve, reject, ask for more, send up); a teammate clicks on stage.
+During the amber investigation the agent asks Acme one question; the scripted answer keeps it grey, so it goes to Human.
+Human rules inside the zoomed "Human reviews" step (approve, reject, ask for more, send up); a teammate clicks on stage.
 If the live run stalls or errors, the canvas shows the failure and the presenter clicks "Play recorded ending".
-After the grey dispute resolves, a visual step shows Maya's rule now decides this case automatically; a live rerun is decided later.
+After the grey dispute resolves, a visual step shows Human's rule now decides this case automatically; a live rerun is decided later.
 
 ### Data and events
 The "data contract" is the buyer-facing name; functionally it is a checklist whose boxes tick as each delivery passes its checks.
 Live events reach the canvas by polling GET /runs/{id}/events?after=<seq> about once a second, not server-sent events.
 Recorded events stay in the browser (sample.ts); live amber events append to the same fold from the dispute onward.
-Versions bind only human or buyer actions (Maya's ruling, acceptance, amendment approval): they send {deliveryVersion, evidenceVersion} and get 409 when stale.
+Versions bind only human or buyer actions (Human's ruling, acceptance, amendment approval): they send {deliveryVersion, evidenceVersion} and get 409 when stale.
 Evidence carries a source reference ({step, messageId} or {dataset, version, row, column}); clicking a citation flies the camera to that source.
 Messages carry attachments by reference (checklist, evidence); contract lines are drafted live during the interview and render as the 21st.dev checklist inside the chat.
 Every event that acts carries allowedBy (a check line or a policy line), shown as one quiet line in the step detail.
@@ -229,21 +229,21 @@ The canvas moves into frontend/; Next.js stays as a thin shell that only proxies
 
 ### Build order (Lucas, Claude building)
 1. Port the canvas into frontend/.
-2. Features that work on recorded data: rich chat with the live-drafted checklist, inline citations with camera fly, lane tags, deliver deadlines, Books margin, privacy self-fix, payment states, the learned step, Maya's actions, allowed-by lines.
+2. Features that work on recorded data: rich chat with the live-drafted checklist, inline citations with camera fly, lane tags, deliver deadlines, Books margin, privacy self-fix, payment states, the learned step, Human's actions, allowed-by lines.
 3. Live seam: poll events into the fold against a stub until Nikita's endpoint lands.
 4. Customer view in parallel once the chat component exists.
 
 ### Asks
-Nikita: events endpoint with a seq cursor; Maya and acceptance mutations with version binding and 409; x402 sign-and-settle on Base Sepolia; Pydantic models for the RunEvent shapes.
+Nikita: events endpoint with a seq cursor; Human and acceptance mutations with version binding and 409; x402 sign-and-settle on Base Sepolia; Pydantic models for the RunEvent shapes.
 Jeff: amber investigator that asks one question and returns agree, disagree or grey with citations to message IDs and dataset cells; saved rules are checked before any model call.
 
 ## Decisions (grill with Lucas, Oct 24 2026, afternoon)
 
 ### Demo
 One order is the demo, not three cases. Redrum's flow: interview, contract, produce, deliver, Acme objects, the agent proves by contract with cited evidence, Acme accepts, captured.
-Escalation is act two: a second order where a check the sources can't settle goes through two questions, Maya, a clarification and the free correction. Shown if time allows or a judge asks.
+Escalation is act two: a second order where a check the sources can't settle goes through two questions, Human, a clarification and the free correction. Shown if time allows or a judge asks.
 The moment the video opens with is the agent defending the decision: the objection answered with the interview line and the contract line, the citation jumping to the message, then capture.
-"Improves" is the recorded "Next time" replay after Maya's clarification; the backend's incident record for its improvement loop is explained in words.
+"Improves" is the recorded "Next time" replay after Human's clarification; the backend's incident record for its improvement loop is explained in words.
 The presenter advances Acme's three moves (approve the contract, object or accept, accept) by clicking on the customer view; everything between runs on its own.
 A judge can type their own objection; the backend investigates it against the accepted spec and the model answers with code-checked evidence.
 The All-cases map and the grey-area ending switch leave the screen; recorded mode stays as the fallback if the backend dies.

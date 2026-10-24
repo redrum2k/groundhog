@@ -3,13 +3,13 @@ import type { DataContract } from "../lib/run/contract";
 import { bindingFor, project, type FoldContext } from "../lib/run/fold";
 import { CONTRACT_V1, controllerContinuation, ENDINGS, LANES, S, stamp, timeline, type Case, type Ending } from "../lib/run/scenario";
 
-const ctx = (lane: Case, ending: Ending = "maya", learned = false): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 as DataContract });
+const ctx = (lane: Case, ending: Ending = "human", learned = false): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 as DataContract });
 const CASES: Case[] = ["shared", ...LANES];
 
-/** The whole recorded run, with Maya's approval appended when the ending waits on her. */
+/** The whole recorded run, with Human's approval appended when the ending waits on them. */
 function full(c: Case, ending: Ending, learned = false) {
   const { events } = timeline(c, ending, learned);
-  if (c !== "amber" || ending !== "maya" || learned) return events;
+  if (c !== "amber" || ending !== "human" || learned) return events;
   const v = project(events, ctx(c, ending, learned));
   return [...events, ...stamp("amber", controllerContinuation("approve", bindingFor(v)), events.length)];
 }
@@ -29,7 +29,7 @@ describe("scenario integrity", () => {
 
   it("every citation points at a message or a sheet row that is on screen", () => {
     for (const c of LANES) {
-      const v = project(full(c, "maya"), ctx(c));
+      const v = project(full(c, "human"), ctx(c));
       const messages = new Set(Object.values(v.nodes).flatMap((n) => n.messages.map((m) => m.id)));
       for (const e of Object.values(v.evidence)) {
         const src = e.source;
@@ -42,7 +42,7 @@ describe("scenario integrity", () => {
   it("every case ends captured with books and a margin", () => {
     const expected: Record<Case, number> = { shared: S.price, red: S.price, green: S.price + S.oakland, amber: S.price };
     for (const c of CASES) {
-      const v = project(full(c, "maya"), ctx(c));
+      const v = project(full(c, "human"), ctx(c));
       expect(v.nodes.captured.status, c).toBe("done");
       expect(v.nodes.captured.margin?.revenue, c).toBe(expected[c]);
       expect(v.coin, c).toMatchObject({ done: true, text: `$${expected[c]} captured · mock` });
@@ -51,7 +51,7 @@ describe("scenario integrity", () => {
   });
 
   it("a dispute re-enters Produce as attempt 2 and draws the return loop", () => {
-    const v = project(full("red", "maya"), ctx("red"));
+    const v = project(full("red", "human"), ctx("red"));
     expect(v.nodes.produce.attempt).toBe(2);
     expect(v.loops).toEqual(["verdict"]);
     expect(v.nodes.verdict.status).toBe("fail");
@@ -60,21 +60,21 @@ describe("scenario integrity", () => {
   });
 
   it("the shared check fixes the privacy line and the delivery withholds the ZIP", () => {
-    const v = project(full("shared", "maya"), ctx("shared"));
+    const v = project(full("shared", "human"), ctx("shared"));
     expect(v.nodes.produce.checks.privacy).toMatchObject({ passed: true, fix: expect.stringContaining("94129") });
     expect(v.deliveries.at(-1)?.rows.find((r) => r.zip === "94129")?.flag).toBe("withheld");
     expect(v.nodes.produce.chip).toBe("5 of 5 passed");
   });
 
   it("the grey area waits on the controller, then learns contract v2", () => {
-    const { events } = timeline("amber", "maya");
+    const { events } = timeline("amber", "human");
     const v = project(events, ctx("amber"));
     expect(v.nodes.decide.status).toBe("waiting");
     expect(v.orb).toEqual({ step: "decide", mode: "wait" });
-    const after = project(full("amber", "maya"), ctx("amber"));
+    const after = project(full("amber", "human"), ctx("amber"));
     expect(after.contract.version).toBe(2);
     expect(after.nodes.decide.chip).toBe("Rule learned");
-    const learned = project(full("amber", "maya", true), ctx("amber", "maya", true));
+    const learned = project(full("amber", "human", true), ctx("amber", "human", true));
     expect(learned.nodes.grey.chip).toBe("Covered");
     expect(learned.nodes.captured.status).toBe("done");
   });
