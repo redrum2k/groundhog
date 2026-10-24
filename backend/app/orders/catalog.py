@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from app.agents.compiler import OfflineCompiler
 from app.agents.dataset import compile_dataset
-from app.agents.gateway import ModelFailure
+from app.agents.gateway import ClaudeGateway, ModelFailure
 from app.catalog.amendments import assess_amendment
 from app.catalog.artifacts import ArtifactStore
 from app.catalog.documents import extract_source, produce
@@ -76,7 +76,12 @@ class CatalogService(DatasetLifecycle):
         self.store = ArtifactStore(artifact_root)
         self.registry = SourceRegistry(repository, self.store)
         self.compiler = compiler or OfflineCompiler()
-        self.dataset_compiler = compiler
+        # Built-in catalog compilers speak storage/PDF terms, not aggregate scope.
+        # Keep the aggregate compiler (including R3/R4) under global paid opt-in.
+        # Explicit custom aggregate compiler injection remains supported.
+        self.dataset_compiler = (
+            None if isinstance(compiler, (OfflineCompiler, ClaudeGateway)) else compiler
+        )
         self.investigator = CatalogInvestigator(assessor)
         self.policy = Policy()
         self.auto_mock_funding = auto_mock_funding

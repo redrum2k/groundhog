@@ -6,6 +6,7 @@ from pydantic import AwareDatetime, Field, StrictInt
 
 from app.contracts.api import OrderView as BaseOrderView
 from app.contracts.data_product import DataSpecification, Frozen, Name, Parameters, SourcePin
+from app.contracts.dispute import DisputeEvent
 from app.contracts.jobflow import Model
 from app.contracts.models import Money, ProposalBinding
 
@@ -171,3 +172,4 @@ class BrokerContractExport(Frozen):
     command: BrokerCommand
     draft_create: DraftCreate
     source_upload: SourceUpload
+    dispute_event: DisputeEvent

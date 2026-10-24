@@ -441,19 +441,6 @@ class Improvement:
                             "reason": "Two-call application concurrency bound reached.",
                         },
                     )
-                calls = db.execute("SELECT count(*) FROM jf_model_calls").fetchone()[0]
-                if calls >= min(120, int(os.environ["JOBFLOW_ANTHROPIC_MAX_CALLS"])):
-                    return self._finish(
-                        db,
-                        actor,
-                        request,
-                        job_id,
-                        {
-                            "job_id": job_id,
-                            "status": "BLOCKED",
-                            "reason": "Existing application call allocation exhausted.",
-                        },
-                    )
                 db.execute(
                     "INSERT INTO jf_model_calls VALUES(?,?,?)",
                     (job_id, canonical(context), self.clock().isoformat()),
@@ -582,14 +569,14 @@ class Improvement:
             raise ValueError("Bounded proposal context is too large")
         own_client = self.model_client is None
         if own_client:
-            from anthropic import AsyncAnthropic
+            from app.agents.bounded_client import BoundedAsyncClient
 
-            client = AsyncAnthropic(max_retries=0, timeout=45.0)
+            client = BoundedAsyncClient(purpose="improvement")
         else:
             client = self.model_client
         try:
             response = await client.messages.create(
-                model=os.environ["ANTHROPIC_MODEL"],
+                model=os.getenv("CLAUDE_MODEL") or os.environ["ANTHROPIC_MODEL"],
                 max_tokens=2400,
                 system=(
                     "Propose at most two small prospective workflow patches from incidents. "

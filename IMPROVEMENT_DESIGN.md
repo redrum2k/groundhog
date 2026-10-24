@@ -72,8 +72,9 @@ cost without solving a missing domain capability. No full framework install occu
 - Approval/activation bind candidate, probe, baseline and the backend/lockfile hash.
 - A completed negative probe cannot be rerun to erase its evidence.
 - Maximum two proposal cycles before checkpoint; no automatic retry after uncertain
-  external work. Existing call allocation is shared with investigations, capped by
-  the lower configured limit and 120 calls, with at most two concurrent app calls.
+  external work. The shared durable dollar ledger includes all earlier V6 spend and
+  uncertain reservations, with no aggregate request-count ceiling and at most two
+  concurrent application calls. Separately authorized windows retain their old cutoffs.
 - The real proposer uses the existing configured Anthropic adapter. Missing approved
   access produces BLOCKED with zero model calls. Injected transports are labeled
   ANTHROPIC_TEST_DOUBLE; fixture proposals are DETERMINISTIC_INFRASTRUCTURE.
