@@ -1,5 +1,11 @@
 # Current aggregate integration pickup
 
+Latest correctness pass: [GREPTILE_P1_REMEDIATION.md](GREPTILE_P1_REMEDIATION.md).
+All three reported P1 findings reproduced and fixed at `43cb18c`; main `947140e`
+is incorporated. 411 relevant tests pass; full backend 925 pass / 16 documented
+Windows failures. No new paid calls; frontend/payment code and historical evidence
+remain intact. Request fresh independent review of PR #12; do not self-merge.
+
 Read [AGGREGATE_MODEL_QUALIFICATION.md](AGGREGATE_MODEL_QUALIFICATION.md) first:
 30 actual Claude Opus 5.5 calls, preserved negative pilot results, fresh post-fix
 dispute/intake qualification, cumulative costs and model features OFF by default.

@@ -1,4 +1,12 @@
-# Current paid qualification and integration — October 24
+# Current P1 remediation — October 24
+
+The three Greptile P1 findings were reproduced and fixed at `43cb18c`, after
+integrating main `947140e`. See [remediation report](../../GREPTILE_P1_REMEDIATION.md)
+for test-first evidence, exact fixes, normal full-suite failures and ownership.
+No new paid calls, frontend/payment changes or shared procedure activation.
+PR #12 remains unmerged pending fresh independent review.
+
+# Earlier paid qualification and integration — October 24
 
 PR #12 now contains the completed R3/R4 and conversational-intake fixes, plus
 actual guarded Claude Opus 5.5 qualification. See

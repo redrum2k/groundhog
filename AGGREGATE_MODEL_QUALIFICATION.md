@@ -1,5 +1,10 @@
 # Real aggregate intake and dispute qualification — October 24, 2026
 
+Subsequent no-network correctness fixes and current integration tests are recorded
+in [GREPTILE_P1_REMEDIATION.md](GREPTILE_P1_REMEDIATION.md). The real-call cohorts,
+source versions, costs and evidence below remain frozen history, not paid tests of
+that later commit.
+
 ## Result
 
 Actual **Claude Opus 5.5 (`claude-opus-5-5`)** calls completed through the existing

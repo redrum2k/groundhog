@@ -1,0 +1,276 @@
+{
+  "tested_commit": "43cb18c94d2987f123ad48b791aa761e68fa7969",
+  "starting_pr_head": "e5ab269822767ac6d935f9caffab39e4b417a6cf",
+  "integrated_main": "947140eb4f040058b81a43438bb5bf138f1febf7",
+  "test_first_commit": "44de0fe",
+  "reports": [
+    {
+      "artifact": "before.xml",
+      "sha256": "9a6e98178ea90306fe0d0111196c395782eb47f227f03c2c596e413aeec406ac",
+      "tests": 24,
+      "passed": 2,
+      "failed": 22,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 2.534,
+      "failures": [
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_material_cohort_ambiguity_blocks_partial_parse[SF and Seattle adults 25-34, gym membership or fitness app use, counts by ZIP.-Would you accept San Francisco only?]",
+          "message": "AssertionError: assert ('ready' == 'clarification'\n  \n  - clarification\n  + ready)"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_material_cohort_ambiguity_blocks_partial_parse[SF and Seattle adults 25-34, gym membership or fitness app use, counts by ZIP.-None]",
+          "message": "AssertionError: assert ('ready' == 'clarification'\n  \n  - clarification\n  + ready)"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_material_cohort_ambiguity_blocks_partial_parse[SF and retirees adults 25-34, gym membership or fitness app use, counts by ZIP.-Would you accept San Francisco only?]",
+          "message": "AssertionError: assert ('ready' == 'clarification'\n  \n  - clarification\n  + ready)"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_material_cohort_ambiguity_blocks_partial_parse[SF and retirees adults 25-34, gym membership or fitness app use, counts by ZIP.-None]",
+          "message": "AssertionError: assert ('ready' == 'clarification'\n  \n  - clarification\n  + ready)"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_only_bound_consent_resolves_model_cohort_offer[yes-True]",
+          "message": "AssertionError: assert None is not None\n +  where None = RequestDraft(request_id='request-8a14b90bffe34588918d1b13e0379295', revision=3, prompt='SF and Seattle adults 25-34, g...n threshold is a demo contract check, not a general privacy guarantee.')), compiler_calls=1, error=None, order_id=None).question"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_only_bound_consent_resolves_model_cohort_offer[no-False]",
+          "message": "AssertionError: assert None is not None\n +  where None = RequestDraft(request_id='request-7f616fa62d83427c80d02f0c3d6445d4', revision=3, prompt='SF and Seattle adults 25-34, g...n threshold is a demo contract check, not a general privacy guarantee.')), compiler_calls=1, error=None, order_id=None).question"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_only_bound_consent_resolves_model_cohort_offer[maybe-False]",
+          "message": "AssertionError: assert None is not None\n +  where None = RequestDraft(request_id='request-1feb5b251cac42b8a8f05b49109962aa', revision=3, prompt='SF and Seattle adults 25-34, g...n threshold is a demo contract check, not a general privacy guarantee.')), compiler_calls=1, error=None, order_id=None).question"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_only_bound_consent_resolves_model_cohort_offer[yes, and Seattle too-False]",
+          "message": "AssertionError: assert None is not None\n +  where None = RequestDraft(request_id='request-43714556718d401591b8f223a78ce403', revision=3, prompt='SF and Seattle adults 25-34, g...n threshold is a demo contract check, not a general privacy guarantee.')), compiler_calls=1, error=None, order_id=None).question"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_only_bound_consent_resolves_model_cohort_offer[SF and Seattle adults 25-34-False]",
+          "message": "AssertionError: assert None is not None\n +  where None = RequestDraft(request_id='request-e06e2b8200644f46b9d2a08882c81b69', revision=3, prompt='SF and Seattle adults 25-34, g...n threshold is a demo contract check, not a general privacy guarantee.')), compiler_calls=1, error=None, order_id=None).question"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_only_bound_consent_resolves_model_cohort_offer[yes, but include retirees-False]",
+          "message": "AssertionError: assert None is not None\n +  where None = RequestDraft(request_id='request-0e8e6bebf320411ab764c78584bf099a', revision=3, prompt='SF and Seattle adults 25-34, g...n threshold is a demo contract check, not a general privacy guarantee.')), compiler_calls=1, error=None, order_id=None).question"
+        },
+        {
+          "test": "tests.dataset.test_cohort_ambiguity::test_model_cohort_offer_replay_wrong_question_and_budget",
+          "message": "AssertionError: assert None is not None\n +  where None = RequestDraft(request_id='request-3c9f4bc4bf574280b4bc65cc6d569be9', revision=3, prompt='SF and Seattle adults 25-34, g...n threshold is a demo contract check, not a general privacy guarantee.')), compiler_calls=1, error=None, order_id=None).question"
+        },
+        {
+          "test": "tests.broker.test_improvement_model_identity::test_proposal_records_exact_dispatched_model[False-None]",
+          "message": "AssertionError: {'job_id': 'im-job-644d33f227a7816c1a406239', 'status': 'FAILED', 'reason': 'KeyError: proposal job did not complete safely', 'mode': 'ANTHROPIC_TEST_DOUBLE', ...}\nassert 'FAILED' == 'COMPLETE'\n  \n  - COMPLETE\n  + FAILED"
+        },
+        {
+          "test": "tests.broker.test_improvement_model_identity::test_proposal_records_exact_dispatched_model[False-conflicting-legacy-model]",
+          "message": "AssertionError: assert 'conflicting-legacy-model' == 'claude-opus-5-5'\n  \n  - claude-opus-5-5\n  + conflicting-legacy-model"
+        },
+        {
+          "test": "tests.broker.test_improvement_model_identity::test_proposal_records_exact_dispatched_model[True-None]",
+          "message": "AssertionError: assert 'changed-lega...fter-dispatch' == 'claude-opus-5-5'\n  \n  - claude-opus-5-5\n  + changed-legacy-after-dispatch"
+        },
+        {
+          "test": "tests.broker.test_improvement_model_identity::test_proposal_records_exact_dispatched_model[True-conflicting-legacy-model]",
+          "message": "AssertionError: assert 'changed-lega...fter-dispatch' == 'claude-opus-5-5'\n  \n  - claude-opus-5-5\n  + changed-legacy-after-dispatch"
+        },
+        {
+          "test": "tests.investigation.test_model_cutoff_races::test_cutoff_rechecked_after_sqlite_write_lock_wait",
+          "message": "AssertionError: assert [{'model': 'c...essages': []}] == []\n  \n  Left contains one more item: {'model': 'claude-opus-5-5', 'max_tokens': 10, 'messages': []}\n  Use -v to get more diff"
+        },
+        {
+          "test": "tests.investigation.test_model_cutoff_races::test_expiry_between_reservation_and_dispatch_is_auditable[parse]",
+          "message": "Failed: DID NOT RAISE BudgetExceeded"
+        },
+        {
+          "test": "tests.investigation.test_model_cutoff_races::test_expiry_between_reservation_and_dispatch_is_auditable[raw]",
+          "message": "Failed: DID NOT RAISE BudgetExceeded"
+        },
+        {
+          "test": "tests.investigation.test_model_cutoff_races::test_expiry_between_reservation_and_dispatch_is_auditable[async]",
+          "message": "Failed: DID NOT RAISE BudgetExceeded"
+        },
+        {
+          "test": "tests.investigation.test_model_cutoff_races::test_expired_timeout_does_not_become_nominal_one_millisecond[0]",
+          "message": "Failed: DID NOT RAISE BudgetExceeded"
+        },
+        {
+          "test": "tests.investigation.test_model_cutoff_races::test_expired_timeout_does_not_become_nominal_one_millisecond[1]",
+          "message": "Failed: DID NOT RAISE BudgetExceeded"
+        },
+        {
+          "test": "tests.investigation.test_model_cutoff_races::test_open_window_dispatches_once_with_bounded_timeout[parse]",
+          "message": "KeyError: 'timeout'"
+        }
+      ]
+    },
+    {
+      "artifact": "focused-first.xml",
+      "sha256": "b95db1e37cfecbab30324c32567f44f7ce49cbd8a621ac4d69756b5482fc309a",
+      "tests": 100,
+      "passed": 100,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 12.625,
+      "failures": []
+    },
+    {
+      "artifact": "attack.xml",
+      "sha256": "b97e544c5b7d2469011fedc5bc5e999ff82e7b1bf7f67593b258e0ff96d41ff5",
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 2.197,
+      "failures": []
+    },
+    {
+      "artifact": "relevant.xml",
+      "sha256": "3f0c91fb1d803736cd3fd6bc391a2567477edee706338eacb1a39c554c79a5b4",
+      "tests": 411,
+      "passed": 411,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 116.94,
+      "failures": []
+    },
+    {
+      "artifact": "full.xml",
+      "sha256": "e7cc3442dc15c1f22420022a64fd1e993406f7ee0c6cf18d7e77329762b1809c",
+      "tests": 941,
+      "passed": 925,
+      "failed": 16,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 352.739,
+      "failures": [
+        {
+          "test": "tests.evals.test_runner::test_leakage_stable_report_additive_runs_and_no_gold_claim",
+          "message": "AssertionError: assert '# Aggregate ...ed outputs.\\n' == '# Aggregate ...ed outputs.\\n'\n  \n  Skipping 535 identical leading characters in diff, use -v to show\n  - quirement × scheduled checkpoint. Repeated checkpoints are correlated observations, not additional independent cases. Missing observations remain in scheduled totals and cannot count as agreement. Zero denominators are N/A.\n  ?           ^^^^^^^^^^^\n  + quirement Ã— scheduled checkpoint. Repeated checkpoints are correlated observations, not additional independent cases. Missing observations remain in scheduled totals and cannot count as agreement. Zero denominators are N/A.\n  ?           ^^^^^^^^^^^^\n    False PASS ...\n  \n  ...Full output truncated (92 lines hidden), use '-vv' to show"
+        },
+        {
+          "test": "tests.evals.test_runner::test_real_child_timeout_then_unrelated_case_continues",
+          "message": "AssertionError: assert 'incomplete' == 'match'\n  \n  - match\n  + incomplete"
+        },
+        {
+          "test": "tests.evals.test_runner::test_step_limit_preserves_partial_state_and_reports",
+          "message": "AssertionError: assert 'OSError' == 'StepLimit'\n  \n  - StepLimit\n  + OSError"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[stream]",
+          "message": "assert False\n +  where False = is_set()\n +    where is_set = <threading.Event at 0x1f3bbf348f0: unset>.is_set\n +      where <threading.Event at 0x1f3bbf348f0: unset> = <test_http_boundary.endpoint.<locals>.Endpoint object at 0x000001F3B127ACF0>.entered"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[headers]",
+          "message": "assert False\n +  where False = is_set()\n +    where is_set = <threading.Event at 0x1f3bf2a2210: unset>.is_set\n +      where <threading.Event at 0x1f3bf2a2210: unset> = <test_http_boundary.endpoint.<locals>.Endpoint object at 0x000001F3C12A2A50>.entered"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[success]",
+          "message": "app.payments.base_rpc.BaseTransportError: HTTP RPC unavailable; no automatic retry"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[rpc_error]",
+          "message": "AssertionError: assert 0 == 1\n +  where 0 = len([])\n +    where [] = <test_http_boundary.endpoint.<locals>.Endpoint object at 0x000001F3C1B58440>.requests\n +  and   1 = len([<Popen: returncode: 1 args: ['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\...>])"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[redirect]",
+          "message": "AssertionError: assert 0 == 1\n +  where 0 = len([])\n +    where [] = <test_http_boundary.endpoint.<locals>.Endpoint object at 0x000001F3C1B58F20>.requests\n +  and   1 = len([<Popen: returncode: 1 args: ['D:\\\\Downloads\\\\order-to-cash-backend-20261024\\...>])"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_cancellation_kills_http_before_return_and_cannot_deliver_late_result",
+          "message": "assert False\n +  where False = wait(1)\n +    where wait = <threading.Event at 0x1f3c1b5bbf0: unset>.wait\n +      where <threading.Event at 0x1f3c1b5bbf0: unset> = <test_http_boundary.endpoint.<locals>.Endpoint object at 0x000001F3C1B59DF0>.entered"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[budget]",
+          "message": "assert False\n +  where False = wait(1)\n +    where wait = <threading.Event at 0x1f3c127d4c0: unset>.wait\n +      where <threading.Event at 0x1f3c127d4c0: unset> = <test_http_boundary.endpoint.<locals>.Endpoint object at 0x000001F3C127C950>.entered"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[financial]",
+          "message": "assert False\n +  where False = wait(1)\n +    where wait = <threading.Event at 0x1f3c127efc0: unset>.wait\n +      where <threading.Event at 0x1f3c127efc0: unset> = <test_http_boundary.endpoint.<locals>.Endpoint object at 0x000001F3C127ED20>.entered"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_process_interruption_also_reaps_request",
+          "message": "app.payments.base_rpc.BaseTransportError: HTTP RPC unavailable; no automatic retry"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_actual_http_allowance_is_reserved_before_launch[inspection]",
+          "message": "app.payments.base_rpc.BaseTransportError: HTTP RPC unavailable; no automatic retry"
+        },
+        {
+          "test": "tests.payments.test_http_boundary::test_ambiguous_http_send_retains_durable_identity_and_only_reconciles",
+          "message": "AssertionError: assert ('uncertain' == 'submitted'\n  \n  - submitted\n  + uncertain)"
+        },
+        {
+          "test": "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline",
+          "message": "AssertionError: assert (33206 & 511) == 384\n +  where 33206 = os.stat_result(st_mode=33206, st_ino=3940649676065654, st_dev=12725089181132977750, st_nlink=1, st_uid=0, st_gid=0, st_size=69632, st_atime=1792874728, st_mtime=1792874728, st_ctime=1792874728).st_mode\n +    where os.stat_result(st_mode=33206, st_ino=3940649676065654, st_dev=12725089181132977750, st_nlink=1, st_uid=0, st_gid=0, st_size=69632, st_atime=1792874728, st_mtime=1792874728, st_ctime=1792874728) = stat()\n +      where stat = (WindowsPath('C:/Users/sajee/AppData/Local/Temp/pytest-of-sajee/pytest-130/test_prepare_persists_once_nev0') / 'lab.sqlite3').stat"
+        },
+        {
+          "test": "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments",
+          "message": "FileNotFoundError: [WinError 2] The system cannot find the file specified"
+        }
+      ]
+    },
+    {
+      "artifact": "diagnostic-platform-control.xml",
+      "sha256": "3a39efa42b58d4bc494ce7b885a8cd2f03ab101b7161e0a9789c089e95b7f7e0",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 6.727,
+      "failures": []
+    }
+  ],
+  "comparison_to_3a15bd8": {
+    "persisting": [
+      "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[stream]",
+      "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[headers]",
+      "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[success]",
+      "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[rpc_error]",
+      "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[redirect]",
+      "tests.payments.test_http_boundary::test_cancellation_kills_http_before_return_and_cannot_deliver_late_result",
+      "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[budget]",
+      "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[financial]",
+      "tests.payments.test_http_boundary::test_process_interruption_also_reaps_request",
+      "tests.payments.test_http_boundary::test_actual_http_allowance_is_reserved_before_launch[inspection]",
+      "tests.payments.test_http_boundary::test_ambiguous_http_send_retains_durable_identity_and_only_reconciles",
+      "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline",
+      "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments"
+    ],
+    "not_seen": [],
+    "new_names": [
+      "tests.evals.test_runner::test_leakage_stable_report_additive_runs_and_no_gold_claim",
+      "tests.evals.test_runner::test_real_child_timeout_then_unrelated_case_continues",
+      "tests.evals.test_runner::test_step_limit_preserves_partial_state_and_reports"
+    ]
+  },
+  "real_anthropic_calls": 0,
+  "live_payment_broadcasts": 0,
+  "shared_model_ledger": {
+    "before_sha256": "000cfe72360895d2ae1c0fec6ed6023499d31bcbcb265ea699930f4a23b7fad5",
+    "after_sha256": "000cfe72360895d2ae1c0fec6ed6023499d31bcbcb265ea699930f4a23b7fad5",
+    "modified": false
+  },
+  "checks": {
+    "ruff_lint": "PASS",
+    "ruff_format_files": 209,
+    "generated_contracts": "PASS",
+    "frontend_tests_passed": 109,
+    "frontend_typecheck": "PASS",
+    "frontend_components_routes": "UNCHANGED",
+    "payment_runtime_lab": "UNCHANGED",
+    "historical_model_evidence": "UNCHANGED"
+  },
+  "diagnostic_control": {
+    "purpose": "Classify three imported-main evaluator Windows failures, not patch source or replace full-suite results.",
+    "changes": "Python -X utf8 in the diagnostic test parent; intercept only evals.aggregate.worker subprocess launches to add nonsecret SystemRoot and CREATE_NO_WINDOW. Paid models/broadcasts remain disabled, payments mock.",
+    "source_and_assertion_changes": false,
+    "result": "All three previously failing evaluator tests pass under these temporary controls. The normal full suite still has 16 failures.",
+    "owner": "Nikita"
+  },
+  "notes": "Before-fix evidence retained. No existing test skipped or weakened. Three reported P1 findings fixed with injected transports; no new paid model qualification. Fresh independent review required; never merge automatically."
+}
