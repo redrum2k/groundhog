@@ -325,7 +325,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 /* switching tabs fades the incoming view in, so the swap reads as one surface changing, not a cut */
 :root[data-anim] .stage, :root[data-anim] .customer { transition: opacity 180ms var(--ease-out); }
 @starting-style { :root[data-anim] .stage, :root[data-anim] .customer { opacity: 0; } }
-.customer { overflow: auto; min-height: 0; }
+.customer { position: relative; overflow: auto; min-height: 0; } /* positioned, so absolutely placed bits inside (screen-reader labels) scroll with it instead of stretching the page */
 .cust-col { max-width: 740px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
 .cust-h .title { font-size: 17px; }
 .cust-sec { display: flex; flex-direction: column; gap: 10px; }
