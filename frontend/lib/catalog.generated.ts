@@ -70,6 +70,7 @@ export interface RequestDraft {
   order_id?: string | null;
   prompt: string;
   question?: Clarification | null;
+  question_history?: Clarification[];
   questions_asked?: number;
   request_id: string;
   revision?: number;

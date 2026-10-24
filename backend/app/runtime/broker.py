@@ -3,6 +3,7 @@
 import base64
 import binascii
 import json
+import os
 from datetime import timedelta
 
 from app.contracts.api import (
@@ -39,6 +40,7 @@ from app.data_products import (
     FIELDS,
     QUESTION_TEXT,
     build_package,
+    current_data_verification,
     delivery_checks,
     effective_specification,
     evidence_digest,
@@ -69,21 +71,34 @@ def reference(metadata, kind, derived_from=()):
 
 
 class Broker:
-    def __init__(self, jobflow, *, producer=build_package):
+    def __init__(
+        self,
+        jobflow,
+        *,
+        producer=build_package,
+        dispute_assessor=None,
+        dispute_assessment_enabled=None,
+    ):
         self.jobflow = jobflow
         self.store, self.base, self.clock = jobflow.store, jobflow.base, jobflow.clock
         self.producer = producer
+        self.dispute_assessor = dispute_assessor
+        self.dispute_assessment_enabled = (
+            os.getenv("ENABLE_BROKER_DISPUTE_ASSESSMENT") == "true"
+            if dispute_assessment_enabled is None
+            else dispute_assessment_enabled
+        )
         storage.migrate(self.store)
         improvements.migrate(self.store)
 
-    def _emit(self, db, record, actor, causal, kind, **payload):
+    def _emit(self, db, record, actor, causal, event_type, **payload):
         return storage.event(
             db,
             record.id,
             actor.id if hasattr(actor, "id") else actor,
             causal,
             self.clock(),
-            kind,
+            event_type,
             revision=record.revision,
             **payload,
         )
@@ -703,6 +718,17 @@ class Broker:
             idempotency_key=f"broker:{request.idempotency_key}",
         )
 
+    def _fulfill_verified_scope(self, base):
+        """Shared successful-verification update; never waive the acceptance gate."""
+        if not current_data_verification(base, self.clock()):
+            raise DomainError("Scope fulfillment requires current complete passing verification")
+        base.scope_obligations = tuple(
+            item.model_copy(update={"fulfilled": True})
+            if item.effective_at <= self.clock()
+            else item
+            for item in base.scope_obligations
+        )
+
     def _verify(self, db, record, base, actor, causal, *, resume=False):
         if not base.deliveries or not base.binding:
             raise DomainError("Verification requires an actual delivered package")
@@ -755,6 +781,7 @@ class Broker:
                     issue_id=question.issue_id,
                     reason="Evidence or effective specification changed",
                 )
+        previous_verification = base.data_verification
         base.data_verification = DataVerification(
             proposal=base.binding,
             specification_sha256=specification_digest(specification),
@@ -772,17 +799,38 @@ class Broker:
             verdict=base.data_verification.verdict,
             specification_sha256=specification_digest(specification),
         )
+        if self.dispute_assessment_enabled and base.complaint and record.issue_id:
+            # Global PASS is not refutation of an arbitrary complaint. Assessment
+            # runs only after this command commits; never inside the DB transaction.
+            if (
+                base.case_state == CaseState.RESOLVED
+                and previous_verification
+                and previous_verification.proposal == base.binding
+                and previous_verification.specification_sha256
+                == specification_digest(specification)
+                and previous_verification.evidence_sha256 == evidence_digest(base)
+            ):
+                # A new idempotency key is not new evidence and cannot reopen a
+                # resolved issue or consume its correction again.
+                if current_data_verification(base, self.clock()):
+                    self._fulfill_verified_scope(base)
+                base.revision += 1
+                self.base.repository.save(db, base)
+                return base
+            base.case_state = CaseState.OPEN
+            record.resolution = None
+            base.delivery_state = DeliveryState.NEEDS_REVIEW
+            if base.payment_phase != "booked":
+                base.payment_phase = "held"
+            base.revision += 1
+            self.base.repository.save(db, base)
+            return base
         if base.data_verification.verdict == "PASS":
             base.delivery_state = DeliveryState.PASSED
             base.failure = None
             if base.payment_phase != "booked":
                 base.payment_phase = "open"
-            base.scope_obligations = tuple(
-                item.model_copy(update={"fulfilled": True})
-                if item.effective_at <= self.clock()
-                else item
-                for item in base.scope_obligations
-            )
+            self._fulfill_verified_scope(base)
             if record.issue_id or base.complaint:
                 base.case_state = CaseState.RESOLVED
                 record.resolution = "NO_REMEDY" if base.complaint else "CORRECTED"
@@ -969,7 +1017,46 @@ class Broker:
                 self._human_task(db, record, base, base.failure, request.idempotency_key)
             return base
 
+    def _queue_assessment(self, db, record, base, actor, request, *, receipt=None):
+        if self.dispute_assessment_enabled and request.verb in {
+            "investigate",
+            "answer",
+            "resolve_human",
+        }:
+            from app.runtime.dispute_assessment import queue_assessment
+
+            queue_assessment(
+                self,
+                db,
+                record,
+                base,
+                actor.id,
+                request.idempotency_key,
+                resume=request.verb == "resolve_human" and request.decision == "RESUME",
+                receipt=receipt,
+            )
+
     def command(self, actor, order_id, request):
+        result = self._command(actor, order_id, request)
+        if self.dispute_assessment_enabled and request.verb in {
+            "investigate",
+            "answer",
+            "resolve_human",
+        }:
+            from app.runtime.dispute_assessment import run_assessment
+
+            run_assessment(
+                self,
+                actor,
+                order_id,
+                request.idempotency_key,
+                resume=request.verb == "resolve_human" and request.decision == "RESUME",
+            )
+        # Immutable command receipt acknowledges acquisition; read current outcome
+        # from the existing event stream/order. Replays return the identical receipt.
+        return result
+
+    def _command(self, actor, order_id, request):
         self.view(actor, order_id)
         envelope = {
             "route": "broker.command",
@@ -981,7 +1068,16 @@ class Broker:
             require(actor, record)
             replay = self.store.replay(db, actor.id, request.idempotency_key, envelope)
             if replay is not None:
-                return BrokerRecord.model_validate(replay)
+                saved = BrokerRecord.model_validate(replay)
+                self._queue_assessment(
+                    db,
+                    record,
+                    self.base.repository.get(db, order_id),
+                    actor,
+                    request,
+                    receipt=saved,
+                )
+                return saved
             if record.revision != request.expected_revision:
                 raise DomainError("Order revision is stale; refetch current evidence")
             base = self.base.repository.get(db, order_id)
@@ -1155,6 +1251,7 @@ class Broker:
                     raise DomainError("Command does not apply to an accepted order", 422)
             self._project(record, base)
             storage.save(db, "br_orders", record)
+            self._queue_assessment(db, record, base, actor, request)
             return self._receipt(db, actor, request, envelope, record)
 
     def _amend(self, db, record, base, actor, request):
@@ -1297,6 +1394,22 @@ class Broker:
             for record in records
             if actor.role != "customer" or record.customer_id == actor.customer_id
         ]
+
+    def recover_assessments(self, *, limit=1):
+        """Drain bounded, acknowledged, never-dispatched work; not a read/poll side effect."""
+        if not self.dispute_assessment_enabled:
+            return 0
+        from app.runtime.dispute_assessment import run_assessment
+
+        with self.store.connect() as db:
+            pending = db.execute(
+                "SELECT actor_id,order_id,causal_id FROM br_assessment_work "
+                "WHERE status='PENDING' ORDER BY rowid LIMIT ?",
+                (min(2, max(0, limit)),),
+            ).fetchall()
+        for work in pending:
+            run_assessment(self, work["actor_id"], work["order_id"], work["causal_id"])
+        return len(pending)
 
     def expire_due(self):
         with self.store.connect(write=True) as db:

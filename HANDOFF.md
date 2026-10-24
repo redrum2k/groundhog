@@ -1,4 +1,65 @@
-# V5 pickup and evidence
+# Current aggregate integration pickup
+
+Latest correctness pass: [BROKER_RECOVERY_REMEDIATION.md](BROKER_RECOVERY_REMEDIATION.md).
+Latest backend fix: `7b97c2b`. Fresh review of `d007157` found that reclaiming an
+expired primary dataset job discarded a completed assessment due only to the
+claim's revision increment. Test-first `c7f82dd` reproduces three failures.
+The existing claim transaction now audits a pure reclaim separately, preserving
+original provenance and rejecting intervening revisions, changed semantic inputs,
+expired cases and stale/uncertain attempts. A superseded worker cannot poison a
+completed result recovered by its successor. 65 focused semantic tests pass;
+full backend: 987 pass / the exact same 16 baseline Windows failures, 1,003 tests.
+The report contains immutable evidence and the precise failure identities.
+
+Preserved fixes: `ba79817` fulfills accepted broker amendments and atomically
+queues acknowledged investigations; `3f90ad5` prevents numeric/symbolic qualifiers
+from becoming false consent. Earlier three P1 fixes remain at `43cb18c`.
+Frontend integration `e41dd03` imports Lucas's main `34aa770` (PR #21) unchanged:
+120 tests, generated contracts, TypeScript and build pass. Contract generation and
+TypeScript were checked again after `7b97c2b`; no frontend source was changed.
+No new paid calls; the shared ledger and frozen real-call evidence are unchanged.
+
+Next: inspect the fresh Greptile review for PR #12 at its exact head, resolve any
+backend findings, and recheck main before merge. Main merges automatically create
+`calm-serenity / production` deployments; do not merge until that consequence is
+explicitly resolved against the prior no-deployment boundary. Upstream PR #20's
+inspector colors UNKNOWN citations as failures; flag for Lucas, do not silently
+rewrite his frontend. No new paid calls or spending-window extension is authorized.
+The existing $45 ledger and historical qualification evidence remain unchanged.
+For new outbox work recovery is automatic while eligible; old pre-outbox receipts
+are adopted only by exact replay in an unambiguous OPEN/current-PASS state. Old
+UNKNOWN/question or FAIL/correction receipts retain their completed effects.
+
+## Frozen earlier paid qualification
+
+[AGGREGATE_MODEL_QUALIFICATION.md](AGGREGATE_MODEL_QUALIFICATION.md) records:
+30 actual Claude Opus 5.5 calls, preserved negative pilot results, fresh post-fix
+dispute/intake qualification, cumulative costs and model features OFF by default.
+[AGGREGATE_INTEGRATION.md](AGGREGATE_INTEGRATION.md) retains the prior integration
+checkpoint and exact event seam. Branch `feature/aggregate-intake-integration-20261024`,
+PR https://github.com/redrum2k/order-to-cash/pull/12 targeting main. Do not self-merge.
+Latest frontend and Human naming are preserved. The user's separate 90-minute
+qualification window runs conservatively from 12:52 to 14:22 Pacific on October 24.
+Old windows/spending were not reset. Real API evidence is distinct from injected
+tests; no production/shared-main enablement or merge into main occurred.
+Integration commit `3a15bd8` brings main `b177d53` into this feature branch only.
+Qualified semantic components are unchanged; newer payment/frontend work is retained.
+
+The original semantic evidence in [PRIMARY_HANDOFF.md](PRIMARY_HANDOFF.md) and
+[PRIMARY_RESULTS.md](PRIMARY_RESULTS.md) is frozen history, not current integration
+instructions. Earlier local branches/worktrees/archives remain intact. The sections
+below preserve historical context; current counts/commands/ownership are in the new
+integration handoff, not the old V5 assertions.
+
+## Completed legacy dispute follow-up
+
+The backend dispute follow-up is delivered **feature OFF / not qualified**.
+Read [DISPUTE_HANDOFF.md](DISPUTE_HANDOFF.md) and [DISPUTE_RESULTS.md](DISPUTE_RESULTS.md)
+for current state, verified calls/tests, remaining blockers and the expired-or-bounded
+authorization window. The V5 handoff below is preserved historical evidence, not the
+current qualification result; no V6 evidence or original clock was reset.
+
+# V5 pickup and evidence (historical)
 
 This change adds source-checked broker review, bounded questions/human handoff, and
 an application-run prospective improvement loop. It integrates current main

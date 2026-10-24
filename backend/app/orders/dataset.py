@@ -3,11 +3,40 @@
 from app.contracts.catalog import FulfillmentContext
 from app.contracts.dataset import DatasetComplaintTarget
 from app.datasets import is_dataset, produce_dataset, verify_dataset
-from app.investigation.dataset import investigate_dataset
+from app.investigation.dataset import (
+    guarded_dataset_assessment,
+    semantic_attempt,
+    stale_semantic_attempt,
+    unclear,
+)
 from app.orders.service import DomainError
 
 
 class DatasetLifecycle:
+    def reclaim_dataset_assessment(self, db, order):
+        """Carry completed work across only the claim's own +1 revision, atomically."""
+        if not order.cases or order.cases[-1].status != "open":
+            return
+        # The key includes the exact case/complaint/answers, accepted specification
+        # and evidence binding. An intervening revision is not a pure lease reclaim.
+        attempt = semantic_attempt(db, order)
+        if (
+            attempt
+            and attempt.effective is not None
+            and attempt.status not in {"DISPATCHED", "STALE"}
+            and attempt.binding == order.binding
+            and attempt.application_revision == order.revision
+            and self.clock() < order.cases[-1].deadline
+        ):
+            self.repository.put(
+                db,
+                "dataset_assessment",
+                attempt.attempt_id,
+                attempt.model_copy(
+                    update={"recovery_revisions": (*attempt.recovery_revisions, order.revision + 1)}
+                ),
+            )
+
     def complaint_targets(self, order):
         if not order.deliveries:
             return ()
@@ -116,11 +145,11 @@ class DatasetLifecycle:
                 and report.passed
                 and order.cases[-1].complaint.intent != "change_scope"
             ):
-                semantic = investigate_dataset(
-                    order, report, self.store, self.investigator.assessor
-                )
+                semantic = guarded_dataset_assessment(self, order, job, report)
             return self.complete_verification(order_id, job, report, artifact, preview, semantic)
         except DomainError:
+            if order.cases:
+                stale_semantic_attempt(self, order)
             raise
         except Exception as exc:
             # Validation errors can contain input rows. Never publish their raw text.
@@ -132,6 +161,18 @@ class DatasetLifecycle:
 
     def resolve_dataset_complaint(self, db, order, semantic):
         case = order.cases[-1]
+        attempt = semantic_attempt(db, order)
+        if attempt and (
+            attempt.binding != order.binding
+            or attempt.application_revision != order.revision
+            or attempt.status == "STALE"
+            or self.clock() >= case.deadline
+        ):
+            semantic = unclear(
+                order, "Assessment binding or case deadline is stale; retained for review."
+            )
+            attempt = attempt.model_copy(update={"status": "STALE", "effective": semantic})
+            self.repository.put(db, "dataset_assessment", attempt.attempt_id, attempt)
         evidence_ids = []
         if semantic:
             for ref in (*semantic.citations, *semantic.conflicting_evidence):
@@ -229,6 +270,33 @@ class DatasetLifecycle:
             reason, kind = order.error, "grey"
         order.cases = (*order.cases[:-1], updated)
         order.error = reason
+        finding = None
+        decided_by = "rules"
+        if attempt and semantic:
+            from app.orders.run_events import binding
+
+            decided_by = (
+                "model"
+                if attempt.status == "VALIDATED" and semantic.provenance.kind == "model"
+                else "rules"
+                if semantic.result in {"PASS", "FAIL"}
+                else "unresolved"
+            )
+            finding = dict(
+                kind={"PASS": "supported", "FAIL": "contradicted"}.get(semantic.result, "unclear"),
+                reason=semantic.explanation,
+                evidence_ids=evidence_ids,
+                decided_by=decided_by,
+                binding=binding(order)
+                .model_copy(update={"revision": order.revision + 1})
+                .model_dump(),
+                assessed_binding=attempt.binding.model_dump(),
+                accepted_specification_sha256=attempt.accepted_specification_sha256,
+                attempt_id=attempt.attempt_id,
+                candidate=attempt.candidate.model_dump() if attempt.candidate else None,
+                effective=semantic.model_dump(),
+                validation=attempt.status,
+            )
         self.effects.emit(
             db,
             order,
@@ -238,8 +306,9 @@ class DatasetLifecycle:
             verdict={
                 "kind": kind,
                 "reason": reason,
-                "decidedBy": "rules",
+                "decidedBy": decided_by,
                 "evidenceIds": evidence_ids,
+                "finding": finding,
             },
             allowedBy=(
                 "Frozen accepted definition and resolving source evidence; this "

@@ -1732,6 +1732,36 @@ export interface components {
             /** Text */
             text: string;
         };
+        /** DatasetFinding */
+        DatasetFinding: {
+            /** Accepted Specification Sha256 */
+            accepted_specification_sha256: string;
+            assessed_binding: components["schemas"]["Binding"];
+            /** Attempt Id */
+            attempt_id: string;
+            binding: components["schemas"]["DecisionBinding"];
+            candidate: components["schemas"]["Assessment"] | null;
+            /**
+             * Decided By
+             * @enum {string}
+             */
+            decided_by: "model" | "rules" | "unresolved";
+            effective: components["schemas"]["Assessment"];
+            /** Evidence Ids */
+            evidence_ids: string[];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "supported" | "contradicted" | "unclear";
+            /** Reason */
+            reason: string;
+            /**
+             * Validation
+             * @enum {string}
+             */
+            validation: "DISPATCHED" | "VALIDATED" | "ADVISORY" | "INVALID" | "FAILED" | "STALE";
+        };
         /** DatasetReference */
         DatasetReference: {
             /** Artifact Id */
@@ -2865,6 +2895,11 @@ export interface components {
             prompt: string;
             question?: components["schemas"]["Clarification"] | null;
             /**
+             * Question History
+             * @default []
+             */
+            question_history?: components["schemas"]["Clarification"][];
+            /**
              * Questions Asked
              * @default 0
              */
@@ -3571,9 +3606,10 @@ export interface components {
              * Decidedby
              * @enum {string}
              */
-            decidedBy: "rules" | "controller" | "contract";
+            decidedBy: "rules" | "controller" | "contract" | "model" | "unresolved";
             /** Evidenceids */
             evidenceIds: string[];
+            finding?: components["schemas"]["DatasetFinding"] | null;
             /**
              * Kind
              * @enum {string}

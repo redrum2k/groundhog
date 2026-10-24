@@ -167,6 +167,7 @@ class RequestDraft(BaseModel):
     questions_asked: Nonnegative = 0
     answers: tuple[ClarificationAnswer, ...] = ()
     question: Clarification | None = None
+    question_history: tuple[Clarification, ...] = ()
     specification: Specification | None = None
     compiler_calls: Nonnegative = 0
     error: Text | None = None

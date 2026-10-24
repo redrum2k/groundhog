@@ -99,6 +99,8 @@ def test_model_adapter_is_bound_budgeted_and_test_double_is_never_claimed_live(
     monkeypatch.setenv("ANTHROPIC_API_KEY", "injected-test-sentinel-not-a-live-key")
     monkeypatch.setenv("ANTHROPIC_MODEL", "injected-test-model")
     monkeypatch.setenv("JOBFLOW_ANTHROPIC_MAX_CALLS", "1")
+    monkeypatch.setenv("ENABLE_PAID_MODELS", "true")
+    monkeypatch.setenv("APPLICATION_MODEL_BUDGET_PATH", "injected-unused-ledger")
     broker.create_draft(
         ACTORS["customer"],
         DraftCreate(idempotency_key=uid("draft"), intent="recent aggregate data"),
@@ -133,7 +135,7 @@ def test_model_adapter_is_bound_budgeted_and_test_double_is_never_claimed_live(
     assert len(client.calls) == 1
     with broker.store.connect() as db:
         assert db.execute("SELECT count(*) FROM jf_model_calls").fetchone()[0] == 1
-        assert not broker.jobflow.available(db)
+        assert broker.jobflow.available(db)  # request count is telemetry, not a ceiling
 
 
 def test_authorization_expires_even_while_human_review_is_held(broker):

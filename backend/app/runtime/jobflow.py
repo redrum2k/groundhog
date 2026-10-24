@@ -8,6 +8,7 @@ import os
 import secrets
 from datetime import timedelta
 
+from app.agents.bounded_client import selected_model
 from app.contracts.jobflow import Actor, OrderView
 from app.orders.invoice_compat import OrderService
 from app.orders.jobflow import create_order, prepare_intake
@@ -31,8 +32,9 @@ def model_configured():
     try:
         return bool(
             os.environ.get("ANTHROPIC_API_KEY")
-            and os.environ.get("ANTHROPIC_MODEL")
-            and int(os.environ.get("JOBFLOW_ANTHROPIC_MAX_CALLS", "0")) > 0
+            and selected_model()
+            and os.environ.get("ENABLE_PAID_MODELS") == "true"
+            and os.environ.get("APPLICATION_MODEL_BUDGET_PATH")
         )
     except ValueError:
         return False
@@ -110,8 +112,8 @@ class Jobflow:
     def available(self, db):
         if not model_configured():
             return False
-        used = db.execute("SELECT count(*) FROM jf_model_calls").fetchone()[0]
-        return used < int(os.environ["JOBFLOW_ANTHROPIC_MAX_CALLS"])
+        # Dispatch-time shared dollar/time/concurrency reservations are authoritative.
+        return True
 
     def view(self, actor, order_id):
         from app.runtime.jobflow_base import sync_base
