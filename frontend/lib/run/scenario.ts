@@ -91,10 +91,15 @@ export const INTERVIEW: Message[] = [
 const SETTLES: Record<string, string> = { m3: "fitness", m5: "city", m7: "ages", m9: "privacy", m11: "coverage" };
 
 const row = (zip: string, area: string, count: number | null, flag?: ZipCount["flag"]): ZipCount => ({ zip, area, count, flag });
+// Every San Francisco ZIP in the backend's registry (datasets.py SF_KEYS); the counts are synthetic
 export const ROWS: ZipCount[] = [
-  row("94102", "Tenderloin", 1820), row("94103", "SoMa", 2140), row("94107", "Potrero Hill", 2960), row("94109", "Nob Hill", 3310),
-  row("94110", "Mission", 4120), row("94114", "Castro", 2450), row("94117", "Haight", 2780), row("94122", "Sunset", 3050),
-  row("94129", "Presidio", null, "withheld"), row("94133", "North Beach", 1990),
+  row("94102", "Tenderloin", 1820), row("94103", "SoMa", 2140), row("94104", "Financial District", 140), row("94105", "Rincon Hill", 2310),
+  row("94107", "Potrero Hill", 2960), row("94108", "Chinatown", 860), row("94109", "Nob Hill", 3310), row("94110", "Mission", 4120),
+  row("94111", "Embarcadero", 610), row("94112", "Excelsior", 2840), row("94114", "Castro", 2450), row("94115", "Western Addition", 3120),
+  row("94116", "Parkside", 1760), row("94117", "Haight", 2780), row("94118", "Inner Richmond", 2530), row("94121", "Outer Richmond", 2080),
+  row("94122", "Sunset", 3050), row("94123", "Marina", 3480), row("94124", "Bayview", 1540), row("94127", "West Portal", 980),
+  row("94129", "Presidio", null, "withheld"), row("94130", "Treasure Island", 160), row("94131", "Glen Park", 2270), row("94132", "Lake Merced", 1690),
+  row("94133", "North Beach", 1990), row("94134", "Visitacion Valley", 1130), row("94158", "Mission Bay", 1870),
 ];
 export const AREA_BY_ZIP: Record<string, string> = Object.fromEntries(ROWS.map((r) => [r.zip, r.area]));
 export const OAKLAND: ZipCount[] = [row("94607", "West Oakland", 1640, "added"), row("94610", "Lakeshore", 2210, "added"), row("94612", "Downtown Oakland", 1880, "added")];

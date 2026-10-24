@@ -72,8 +72,8 @@ function Transcript({ title, count, open, stop, children }: { title: string; cou
 function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
   return (
     <div className="sheet">
-      <div className="sheet-h"><span>Delivered sheet</span><span className="faint">Synthetic data{note && `, ${note}`}</span></div>
-      <table>
+      <div className="sheet-h"><span>Delivered sheet</span><span className="faint">{rows.length} ZIPs, synthetic data{note && `, ${note}`}</span></div>
+      <div className="sheet-rows"><table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
         <tbody>
           {rows.map((r, i) => (
@@ -83,7 +83,7 @@ function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </div>
   );
 }

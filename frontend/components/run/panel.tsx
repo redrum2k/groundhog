@@ -60,10 +60,20 @@ function Sheet({ rows, highlight, note, lens }: { rows: ZipCount[]; highlight?: 
   useLayoutEffect(() => {
     const el = box.current;
     if (!lensOn || !el) { setAt(null); return; }
-    const top = el.getBoundingClientRect().top;
-    const y = (r: Element | null) => (r ? r.getBoundingClientRect().top - top : 0);
-    const delivered = el.querySelectorAll("tbody tr:not(.f-missing)");
-    setAt({ y0: y(delivered[0]), y1: y(delivered[delivered.length - 1]), y: y(lensRow ? el.querySelector(`#row-${lensRow}`) : null), h: delivered[0]?.getBoundingClientRect().height ?? 0 });
+    // A long sheet scrolls inside its pane: sweep only the rows in view, and bring the cited row into view
+    const pane = el.closest<HTMLElement>(".cust-body, .panel-b");
+    const measure = () => {
+      const top = el.getBoundingClientRect().top, view = pane?.getBoundingClientRect();
+      const y = (r: Element | null) => (r ? r.getBoundingClientRect().top - top : 0);
+      const delivered = [...el.querySelectorAll("tbody tr:not(.f-missing)")];
+      const shown = view ? delivered.filter((r) => { const b = r.getBoundingClientRect(); return b.top >= view.top && b.bottom <= view.bottom; }) : [];
+      const sweep = shown.length > 1 ? shown : delivered;
+      setAt({ y0: y(sweep[0]), y1: y(sweep[sweep.length - 1]), y: y(lensRow ? el.querySelector(`#row-${lensRow}`) : null), h: delivered[0]?.getBoundingClientRect().height ?? 0 });
+    };
+    if (lensRow) el.querySelector(`#row-${lensRow}`)?.scrollIntoView?.({ block: "nearest" });
+    measure();
+    pane?.addEventListener("scroll", measure, { passive: true });
+    return () => pane?.removeEventListener("scroll", measure);
   }, [lensOn, lensRow, rows.length]);
   return (
     <div className="sheet" ref={box}>

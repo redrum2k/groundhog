@@ -398,6 +398,9 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 /* the delivered rows and the contract checks side by side, so both are judged at once */
 .review-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .review-grid .todo { margin: 0; }
+/* all of SF is 27 rows: they scroll in place under their column names, beside checks that say whether any is missing */
+.review-grid .sheet-rows { max-height: min(46vh, 400px); overflow: auto; }
+.review-grid .sheet thead th { position: sticky; top: 0; z-index: 1; }
 /* its header matches the sheet's: same size, same hairline, same top */
 .review-grid .todo-head { height: auto; padding: 0 0 8px; border-bottom: 1px solid var(--line); }
 .review-grid .todo-head h3 { font-size: 12.5px; }
