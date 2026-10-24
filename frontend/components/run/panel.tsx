@@ -187,6 +187,20 @@ export type BodyProps = {
   step: Step; view: View; lane: Case; ending: Ending; learned: boolean; done: boolean; live?: boolean;
   decide: Decide; onReplayLearned: () => void; customer?: boolean;
 };
+/** The customer view has no tabs to switch: a citation scrolls to what it cites on the page and rings it once. */
+function showInPlace(s: Source) {
+  const sheet = ".decision > .review-grid"; // the delivery card's own grid, not the copy in the orb's glass
+  const el = s.kind === "message" ? document.getElementById(`msg-${s.messageId}`)
+    : s.kind === "cell" ? document.querySelector<HTMLElement>(s.row ? `${sheet} [data-zip="${s.row}"]` : `${sheet} .sheet`) : null;
+  if (!el) return;
+  const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  el.scrollIntoView?.({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  const fade = { duration: 1800, easing: "ease-out" };
+  // a table row only paints through its cells; anything else gets a ring, which leaves its own background alone
+  if (el.tagName === "TR") [...el.children].forEach((td) => td.animate?.([{ backgroundColor: "rgb(255 204 0 / 0.28)" }, { backgroundColor: "rgb(255 204 0 / 0)" }], fade));
+  else el.animate?.([{ boxShadow: "0 0 0 3px rgb(255 204 0 / 0.6)" }, { boxShadow: "0 0 0 3px rgb(255 204 0 / 0)" }], fade);
+}
+
 export function PanelBody({ step, view, lane, learned, done, live, decide, onReplayLearned, customer }: BodyProps) {
   const [hl, setHl] = useState<Hl>({});
   useEffect(() => { setHl({}); }, [step.id]);
@@ -195,6 +209,7 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
     el?.scrollIntoView?.({ behavior: "smooth", block: "center" });
   }, [hl]);
   const onCite = (s: Source) => {
+    if (customer) return showInPlace(s);
     if (s.kind === "message") setHl(s.messageId.startsWith("m-") ? { msg: s.messageId } : { tab: "interview", msg: s.messageId });
     else if (s.kind === "cell") setHl({ row: s.row });
   };
