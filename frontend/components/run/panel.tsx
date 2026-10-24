@@ -157,7 +157,7 @@ export function PanelBody({ step, view, lane, learned, done, decide, onReplayLea
   useEffect(() => { setHl({}); }, [step.id]);
   useEffect(() => {
     const el = hl.msg ? document.getElementById(`msg-${hl.msg}`) : hl.row ? document.getElementById(`row-${hl.row}`) : null;
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    el?.scrollIntoView?.({ behavior: "smooth", block: "center" });
   }, [hl]);
   const onCite = (s: Source) => {
     if (s.kind === "message") setHl(s.messageId.startsWith("m-") ? { msg: s.messageId } : { tab: "interview", msg: s.messageId });

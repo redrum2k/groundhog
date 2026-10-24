@@ -38,7 +38,9 @@ export function StatusIcon({ status }: { status: ItemStatus }) {
         strokeDasharray={status === "pending" ? "2 3" : undefined} strokeLinecap="round" initial={false}
         animate={{ fillOpacity: status === "completed" ? 0.08 : 0 }} transition={reduce ? { duration: 0 } : { duration: 0.18, ease: EASE_OUT }}
         style={{ opacity: status === "in-progress" ? 0.2 : 1 }} />
-      <motion.circle cx="12" cy="12" r="9" pathLength="1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" initial={false}
+      {/* a real initial state, not initial={false}: an item that mounts already in progress must start spinning */}
+      <motion.circle cx="12" cy="12" r="9" pathLength="1" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0, rotate: -90 }}
         animate={{ pathLength: status === "in-progress" ? 0.68 : 0, opacity: status === "in-progress" ? 1 : 0, rotate: status === "in-progress" && !reduce ? 360 : -90 }}
         transition={status === "in-progress" && !reduce ? { rotate: { duration: 1.1, repeat: Infinity, ease: "linear" } } : reduce ? { duration: 0 } : SPRING_LAYOUT}
         style={{ transformOrigin: "12px 12px" }} />

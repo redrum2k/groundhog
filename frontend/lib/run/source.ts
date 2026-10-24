@@ -85,13 +85,13 @@ export function usePlayback(feed: Feed): Playback {
     return () => clearTimeout(id);
   }, [feed, status, cursor, events]);
 
-  // Live: the stream is done when its last event closes the capture
+  // Live: status follows the events alone. A decision sets "playing" before its continuation
+  // arrives, and re-reading the gate here would flip it straight back to "waiting".
   useEffect(() => {
-    if (feed.kind !== "live" || status !== "playing" || events.length <= feed.before.length) return;
+    if (feed.kind !== "live" || events.length <= feed.before.length) return;
     const last = events[events.length - 1];
-    if (last?.type === "step_completed" && last.step === "captured") setStatus("done");
-    else if (atControllerGate(events)) setStatus("waiting");
-  }, [feed, status, events]);
+    setStatus((s) => (s === "error" ? s : last.type === "step_completed" && last.step === "captured" ? "done" : atControllerGate(events) ? "waiting" : "playing"));
+  }, [feed, events]);
 
   const view = useMemo(() => project(events.slice(0, cursor), feed.ctx), [events, cursor, feed.ctx]);
 

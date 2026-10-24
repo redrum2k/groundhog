@@ -29,6 +29,13 @@ export const IcReplay = icon("M2.75 8a5.25 5.25 0 1 0 1.55-3.72M2.75 2.5v2.75H5.
 export const IcPlay = ({ size, strokeWidth, ...p }: IconProps) => <svg {...base(size, strokeWidth)} {...p}><path d="M4.5 2.75v10.5L13 8Z" /></svg>;
 /** Pause */
 export const IcPause = icon("M5 3v10M11 3v10");
+/** A small gold coin for the money pill */
+export const IcCoin = ({ size = 12 }: { size?: number }) => (
+  <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden>
+    <circle cx="8" cy="8" r="7" fill="#f3c74b" stroke="#b8892a" strokeWidth="1.2" />
+    <rect x="6.4" y="4" width="3.2" height="8" rx="1.6" fill="#b8892a" />
+  </svg>
+);
 /** The workspace mark: four tiles */
 export const IcLogo = ({ size = 14 }: { size?: number }) => (
   <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden>

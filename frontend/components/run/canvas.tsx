@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { LaneId } from "../../lib/run/contract";
 import type { Card, Coin, NS, OrbMode } from "../../lib/run/fold";
 import { LANE_NAME } from "../../lib/run/scenario";
-import { IcCheck, IcLock } from "./icons";
+import { IcCheck, IcCoin, IcLock } from "./icons";
 import Orb from "./orb";
 
 // The run canvas: the 5-step path on row 0, a dispute's detour on the row below, and the orb
@@ -47,6 +47,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const maxRow = Math.max(0, ...rows);
   const WW = COL_X(4) + W + 40;
   const WH = ROW_Y[maxRow] + H + 110;
+  const DOTS = 3000; // the grid extends past the world so it fills the stage at any camera position
 
   // camera
   let s: number, tx: number, ty: number;
@@ -67,7 +68,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const straight = (a: CNode, b: CNode) => `M${COL_X(a.col) + W} ${ROW_Y[a.row] + H / 2} H${COL_X(b.col)}`;
   const on = (a: string, b: string) => !["idle", "running", "waiting"].includes(st(a)) && st(b) !== "idle";
   const review = byId.review, produce = byId.produce;
-  const branch = (row: number) => `M${cx(review)} ${ROW_Y[0] + H} V${ROW_Y[1] - 50} H20 V${ROW_Y[row] + H / 2} H40`;
+  // The branch runs under the detour row and comes up into its first step, so it never crosses the return arrow
+  const branch = (row: number) => `M${cx(review)} ${ROW_Y[0] + H} V${ROW_Y[row] + H + 50} H20 V${ROW_Y[row] + H / 2} H40`;
   const back = (n: CNode) => {
     const x2 = COL_X(produce.col) + W - 24, x1 = n.col === produce.col ? x2 : cx(n), y1 = ROW_Y[n.row];
     return x1 === x2 ? `M${x1} ${y1} V${ROW_Y[0] + H + 4}` : `M${COL_X(n.col) + W} ${y1 + H / 2} H${x2} V${ROW_Y[0] + H + 4}`;
@@ -78,6 +80,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   return (
     <div className="cv" ref={box}>
       <div className="cv-world" style={{ width: WW, height: WH, transform: `translate(${tx}px, ${ty}px) scale(${s})` }}>
+        <div className="cv-dots" style={{ inset: -DOTS }} aria-hidden />
         {rows.map((r) => {
           const lane = byRow(r)[0].lane!;
           return <div key={r} className={`band band-${lane}`} style={{ top: ROW_Y[r] - 44 }}><span className="band-label">{LANE_NAME[lane]}</span></div>;
@@ -124,7 +127,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
           <div className="orb-wrap" style={{ transform: `translate(${COL_X(orbNode.col) + 6}px, ${ROW_Y[orbNode.row] + H + 6}px)` }}>
             <Orb mode={view.orb.mode} />
             {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.done ? " done" : ""}`}>
-              {view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : <i className="coin-dot" />}{view.coin.text}</span>}
+              {view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : <IcCoin />}{view.coin.text}</span>}
           </div>
         )}
       </div>
