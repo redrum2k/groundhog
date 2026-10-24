@@ -1,11 +1,11 @@
 "use client";
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Binding, ContractLine, ControllerAction, Delivery, Evidence, Message, Source, Step, ZipCount } from "../../lib/run/contract";
 import { bindingFor, type NodeState, type View } from "../../lib/run/fold";
 import type { CellEvidence } from "../../lib/runs.generated";
 import { CONTRACT, CONTRACT_V2, S, type Case, type Ending } from "../../lib/run/scenario";
 import TodoList, { type ChecklistItem } from "./checklist";
-import { IcCheck, IcChevronRight, IcLens, IcLock, IcX } from "./icons";
+import { IcCheck, IcChevronRight, IcLock, IcX } from "./icons";
 import { OrbSlot } from "./guide";
 import Label from "./label";
 
@@ -19,7 +19,8 @@ function CiteChip({ e, onCite }: { e: Evidence; onCite: (s: Source) => void }) {
   return <button className="cite" onClick={() => onCite(e.source)}><Label text={e.label} /><IcChevronRight size={11} strokeWidth={1.8} /></button>;
 }
 
-function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View; highlight?: string; onCite: (s: Source) => void }) {
+/** `guide`: the customer view's orb sits beside our agent's newest message (outside that view the slot renders nothing). */
+function Chat({ items, view, highlight, onCite, guide }: { items: Message[]; view: View; highlight?: string; onCite: (s: Source) => void; guide?: boolean }) {
   const box = useRef<HTMLDivElement>(null);
   const seen = useRef(items.length);
   const height = useRef(0); // the pane's scroll height before the latest messages landed
@@ -37,10 +38,12 @@ function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View
     const below = last.getBoundingClientRect().bottom - pane.getBoundingClientRect().bottom;
     if (below > 0) pane.scrollBy?.({ top: below + 12, behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [items.length]);
+  const newest = guide ? items.findLast((m) => m.from === "agent")?.id : undefined;
   return (
     <div className="chat" ref={box}>
       {items.map((m) => (
         <div key={m.id} id={`msg-${m.id}`} className={`bub b-${m.from}${highlight === m.id ? " flash" : ""}`}>
+          {m.id === newest && <OrbSlot name="transcript" />}
           <span className="bub-who">{m.from === "buyer" ? S.buyerAgent : m.from === "controller" ? <Label text={`${S.controller} · ${S.controllerRole}`} quiet="tail" /> : S.agent}</span>
           <div className="bub-text">
             {m.text}
@@ -52,38 +55,9 @@ function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View
   );
 }
 
-/** `lens` puts the orb's magnifier on the sheet: it sweeps the delivered rows, then rests on `row` once evidence names one. */
-function Sheet({ rows, highlight, note, lens }: { rows: ZipCount[]; highlight?: string; note?: string; lens?: { row?: string } }) {
-  const box = useRef<HTMLDivElement>(null);
-  const [at, setAt] = useState<{ y0: number; y1: number; y: number; h: number } | null>(null);
-  const lensOn = !!lens, lensRow = lens?.row;
-  useLayoutEffect(() => {
-    const el = box.current;
-    if (!lensOn || !el) { setAt(null); return; }
-    // A long sheet scrolls inside its pane: sweep only the rows in view, and bring the cited row into view
-    const pane = el.closest<HTMLElement>(".cust-body, .panel-b");
-    const measure = () => {
-      const top = el.getBoundingClientRect().top, view = pane?.getBoundingClientRect();
-      const y = (r: Element | null) => (r ? r.getBoundingClientRect().top - top : 0);
-      const delivered = [...el.querySelectorAll("tbody tr:not(.f-missing)")];
-      const shown = view ? delivered.filter((r) => { const b = r.getBoundingClientRect(); return b.top >= view.top && b.bottom <= view.bottom; }) : [];
-      const sweep = shown.length > 1 ? shown : delivered;
-      setAt({ y0: y(sweep[0]), y1: y(sweep[sweep.length - 1]), y: y(lensRow ? el.querySelector(`#row-${lensRow}`) : null), h: delivered[0]?.getBoundingClientRect().height ?? 0 });
-    };
-    if (lensRow) el.querySelector(`#row-${lensRow}`)?.scrollIntoView?.({ block: "nearest" });
-    measure();
-    pane?.addEventListener("scroll", measure, { passive: true });
-    return () => pane?.removeEventListener("scroll", measure);
-  }, [lensOn, lensRow, rows.length]);
+function Sheet({ rows, highlight, note }: { rows: ZipCount[]; highlight?: string; note?: string }) {
   return (
-    <div className="sheet" ref={box}>
-      {/* mounted with the lens, hidden until measured, so the customer view's orb has its slot in the same render */}
-      {lens && (
-        <div className={`sheet-lens${lensRow ? "" : " scan"}`} aria-hidden
-          style={at ? { height: at.h, "--y0": `${at.y0}px`, "--y1": `${at.y1}px`, "--y": `${lensRow ? at.y : at.y0}px` } as CSSProperties : { visibility: "hidden" }}>
-          <OrbSlot name="sheet" fallback={<IcLens size={15} strokeWidth={1.7} />} />
-        </div>
-      )}
+    <div className="sheet">
       <div className="sheet-h"><span>Delivered sheet</span><span className="faint">Synthetic data{note && `, ${note}`}</span></div>
       <table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
@@ -137,7 +111,8 @@ function Books({ node }: { node: NodeState }) {
 }
 
 /** The interview with the contract checklist ticking above it as answers settle lines. */
-function Interview({ view, highlight, onCite }: { view: View; highlight?: string; onCite: (s: Source) => void }) {
+/** In the customer view the contract card below already lists the terms as they're written, so its interview is the chat alone. */
+function Interview({ view, highlight, onCite, customer }: { view: View; highlight?: string; onCite: (s: Source) => void; customer?: boolean }) {
   const n = view.nodes.clarify;
   const drafted = new Set(n?.drafted.map((l) => l.id));
   const asked = new Set(n?.asked);
@@ -150,10 +125,10 @@ function Interview({ view, highlight, onCite }: { view: View; highlight?: string
   if (view.contract.version >= 2) items.push({ id: CONTRACT_V2.id, title: CONTRACT_V2.text, status: "completed", detail: "v2" });
   return (
     <>
-      <div className="panel-sec sticky">
+      {!customer && <div className="panel-sec sticky">
         <TodoList title={`Data contract v${view.contract.version}`} items={items.length ? items : [{ id: "x", title: "Waiting for the first answer", status: "pending" }]} />
-      </div>
-      <Chat items={n?.messages ?? []} view={view} highlight={highlight} onCite={onCite} />
+      </div>}
+      <Chat items={n?.messages ?? []} view={view} highlight={highlight} onCite={onCite} guide />
     </>
   );
 }
@@ -234,7 +209,7 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
   </>);
   else if (!node) content = <p className="faint">{step.detail}</p>;
   else switch (step.kind) {
-    case "clarify": content = <Interview view={view} onCite={onCite} />; break;
+    case "clarify": content = <Interview view={view} onCite={onCite} customer={customer} />; break;
     case "paid": {
       const pay = view.payments[0];
       content = (<div className="pay"><div className="pay-amt">${(pay?.amount ?? S.price).toFixed(2)}</div>
@@ -253,11 +228,10 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
     case "captured": content = <Books node={node} />; break;
     case "investigate": case "verdict": case "grey": {
       const msgs = investigate?.messages ?? [];
-      const cited = investigate?.evidence.find((e): e is CellEvidence => e.kind === "sheet_cell");
-      const lens = step.kind === "investigate" && investigate && (investigate.status === "running" || cited) ? { row: cited?.row } : undefined;
+      // the customer view inspects the objected delivery in its own card, so its answer is just the conversation
       content = (<>
         <Chat items={msgs} view={view} highlight={hl.msg} onCite={onCite} />
-        {lane === "amber" && learned ? <Contract view={view} /> : <Sheet rows={sheetRows(view, investigate ?? node)} highlight={hl.row} lens={lens}
+        {customer ? null : lane === "amber" && learned ? <Contract view={view} /> : <Sheet rows={sheetRows(view, investigate ?? node)} highlight={hl.row}
           note={lane === "red" ? (rerunDone ? "94110 added" : "as delivered") : lane === "green" ? "SF only, as agreed" : "fitness = gyms + apps"} />}
       </>);
       break;

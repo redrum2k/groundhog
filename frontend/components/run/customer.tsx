@@ -2,11 +2,12 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Step, ZipCount } from "../../lib/run/contract";
 import type { View } from "../../lib/run/fold";
-import { S, type Case } from "../../lib/run/scenario";
+import { AREA_BY_ZIP, OAKLAND, S, type Case } from "../../lib/run/scenario";
 import type { BuyerGate, BuyerMove } from "../../lib/run/source";
 import { IcCheck, IcChevronRight, IcWallet } from "./icons";
 import TodoList from "./checklist";
 import { GuideProvider, OrbSlot, useOrbFlight, type Stop } from "./guide";
+import Inspector, { lookFor, type Found } from "./inspector";
 import Label from "./label";
 import { PanelBody, checkItems, type BodyProps } from "./panel";
 
@@ -39,7 +40,7 @@ function Wallet({ view }: { view: View }) {
 
 /** One of Acme's decisions: the thing to decide on, the buttons while it's open, the choice once made. */
 /** `done` is the move just made here: the card keeps its place and its height, the receipt where the buttons were. */
-function Decision({ title, open, taken, done, children, actions }: { title: string; open: boolean; taken?: ReactNode; done?: string; children: ReactNode; actions?: ReactNode }) {
+function Decision({ title, open, taken, done, slot = "decision", orb, children, actions }: { title: string; open: boolean; taken?: ReactNode; done?: string; slot?: Stop; orb?: ReactNode; children: ReactNode; actions?: ReactNode }) {
   if (!open && !done && taken) return (
     <details className="decision taken">
       <summary className="decision-h"><IcChevronRight size={12} strokeWidth={2} className="chev" /><span className="decision-taken"><IcCheck size={12} strokeWidth={2.2} /> {taken}</span><span className="decision-t">{title}</span></summary>
@@ -48,7 +49,7 @@ function Decision({ title, open, taken, done, children, actions }: { title: stri
   );
   return (
     <section className={`decision${open || done ? " open" : ""}`}>
-      <div className="decision-h"><span className="decision-t">{title}</span>{(open || done) && <OrbSlot name="decision" />}</div>
+      <div className="decision-h"><span className="decision-t">{title}</span>{(open || done) && <OrbSlot name={slot} orb={orb} />}</div>
       {children}
       {done ? <div className="decision-actions"><span className="decision-taken decision-done"><IcCheck size={12} strokeWidth={2.2} /> {done}</span></div>
         : open && actions && <div className="decision-actions">{actions}</div>}
@@ -57,33 +58,44 @@ function Decision({ title, open, taken, done, children, actions }: { title: stri
 }
 
 /** A stretch of the conversation: open and scrolling in its own box while it is the live thing, folded once the decision it fed is taken. */
-function Transcript({ title, count, open, stop, children }: { title: string; count?: number; open: boolean; stop?: Stop; children: ReactNode }) {
+/** `compact`: it stays open but short, pinned to the latest turn, so the decision it fed stays in view. */
+function Transcript({ title, count, open, compact, children }: { title: string; count?: number; open: boolean; compact?: boolean; children: ReactNode }) {
+  const body = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => { if (compact && body.current) body.current.scrollTop = body.current.scrollHeight; }, [compact]);
   const [pinned, setPinned] = useState<boolean | null>(null); // the viewer's own toggle wins until the section changes state
   useEffect(() => { setPinned(null); }, [open]);
   const isOpen = pinned ?? open;
   return (
     <details className="cust-sec" open={isOpen} onToggle={(e) => { const o = e.currentTarget.open; if (o !== isOpen) setPinned(o); }}>
-      <summary className="cust-step"><IcChevronRight size={12} strokeWidth={2} className="chev" />{title}{count ? <span className="faint">{count} {count === 1 ? "turn" : "turns"}</span> : null}{stop && <OrbSlot name={stop} />}</summary>
-      <div className="cust-body">{children}</div>
+      <summary className="cust-step"><IcChevronRight size={12} strokeWidth={2} className="chev" />{title}{count ? <span className="faint">{count} {count === 1 ? "turn" : "turns"}</span> : null}</summary>
+      <div className={`cust-body${compact ? " short" : ""}`} ref={body}>{children}</div>
     </details>
   );
 }
 
-function Sheet({ rows, note }: { rows: ZipCount[]; note?: string }) {
+/** `gap`: a ZIP the inspection found missing, given a row where it belongs and red once the orb points at it. `ghosts`: asked for, never ordered. */
+function Sheet({ rows, note, gap, ghosts }: { rows: ZipCount[]; note?: string; gap?: { zip: string; found: boolean }; ghosts?: ZipCount[] }) {
+  const shown = gap && !rows.some((r) => r.zip === gap.zip) ? [...rows, { zip: gap.zip, area: AREA_BY_ZIP[gap.zip] ?? "", count: null, flag: "missing" as const }].sort((a, b) => a.zip.localeCompare(b.zip)) : rows;
   return (
     <div className="sheet">
       <div className="sheet-h"><span>Delivered sheet</span><span className="faint">{rows.length} ZIPs, synthetic data{note && `, ${note}`}</span></div>
       <div className="sheet-rows"><table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
         <tbody>
-          {rows.map((r, i) => (
-            <tr key={r.zip} className={r.flag ? `f-${r.flag}` : ""}>
+          {shown.map((r, i) => (
+            <tr key={r.zip} data-zip={r.zip} className={r.zip === gap?.zip ? (gap.found ? "f-missing" : "f-gap") : r.flag ? `f-${r.flag}` : ""}>
               <td className="rn">{i + 1}</td><td className="mono">{r.zip}</td><td>{r.area}</td>
               <td className="num">{r.flag === "missing" ? "missing" : r.flag === "withheld" ? "withheld" : r.count?.toLocaleString("en-US") ?? "unknown"}</td>
             </tr>
           ))}
         </tbody>
       </table></div>
+      {ghosts && (
+        <div className="ghosts">
+          <div className="faint">Asked for, not in your contract</div>
+          {ghosts.map((g) => <div key={g.zip} className="ghost"><span className="mono">{g.zip}</span><span>{g.area}</span><span>not ordered</span></div>)}
+        </div>
+      )}
     </div>
   );
 }
@@ -107,7 +119,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
   // and without this the cards would fold and reopen in between. A new turn for Acme clears it.
   const [moved, setMoved] = useState<{ at: Where; action: BuyerMove["action"] } | null>(null);
   useEffect(() => { if (awaiting) setMoved(null); }, [awaiting]);
-  const move = async (m: BuyerMove, at: Where) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) { setObjecting(false); setMoved({ at, action: m.action }); onMoved?.(); } };
+  const move = async (m: BuyerMove, at: Where) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) { setObjecting(false); setMoved({ at, action: m.action }); if (m.action !== "object") onMoved?.(); } }; // an objection stays here: the inspection that answers it is what to watch
   const done = (at: Where) => (moved?.at === at ? RECEIPT[moved.action] : undefined);
   const step = (id: string) => view.nodes[id]?.step ?? steps.find((s) => s.id === id);
   const n = view.nodes;
@@ -124,8 +136,18 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
   const reviewOpen = live && awaiting === "review";
   const accepted = review?.status === "done";
   const changedSince = delivery && view.deliveries.length > 1 ? delivery.rows.filter((r) => r.flag === "added" || r.flag === "yoga").length : 0;
-  // The orb stands beside Acme's open decision, rides the magnifier while the sheet is checked, and sits by the interview while it asks
-  const want: Stop = awaiting || moved ? "decision" : view.orb.mode === "inspect" ? "sheet" : view.orb.mode === "look" ? "transcript" : "home";
+  // The objected delivery stays open, receipt in place, while the orb inspects it and the answer comes back
+  const held = disputed && !accepted && !!delivery;
+  const look = lookFor(investigate?.evidence ?? [], view.contract.lines, delivery?.rows ?? []);
+  // what the inspection has shown so far, for this evidence only: new evidence starts it over without an effect racing the orb's report
+  const lookKey = look ? `${look.row}|${look.term}|${look.failed}` : "";
+  const [inspected, setInspected] = useState<Found & { key?: string }>({});
+  const found: Found = inspected.key === lookKey ? inspected : {};
+  const onFound = (stage: keyof Found) => setInspected((f) => ({ ...(f.key === lookKey ? f : {}), key: lookKey, [stage]: true }));
+  // it finishes the inspection, and points at the evidence, before it goes to Acme's next decision
+  const showing = held && !found.done && (!!look || investigate?.status === "running");
+  // The orb inspects an objected delivery, stands beside Acme's open decision, and sits by the interview while it asks
+  const want: Stop = held && (!awaiting || showing) ? "inspect" : awaiting || moved ? "decision" : view.orb.mode === "look" ? "transcript" : "home";
   const at = useOrbFlight(col, want);
   const mood = { home: view.orb.mode === "wait" || view.orb.mode === "happy" ? view.orb.mode : "float", decision: moved ? "happy" : "wait" } as const;
 
@@ -139,7 +161,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
           </div>
 
           {clarify && (n.clarify?.messages.length ?? 0) > 0 && (
-            <Transcript title={clarify.title} count={n.clarify?.messages.length} open={n.clarify?.status === "running" && awaiting !== "approve" && moved?.at !== "contract"} stop="transcript"><PanelBody step={clarify} {...bodyProps} customer /></Transcript>
+            <Transcript title={clarify.title} count={n.clarify?.messages.length} open compact={n.clarify?.status !== "running" || awaiting === "approve" || moved?.at === "contract"}><PanelBody step={clarify} {...bodyProps} customer /></Transcript>
           )}
 
           {contractLines.length > 0 && (
@@ -151,7 +173,8 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
           )}
 
           {delivery && review && review.status !== "idle" && (
-            <Decision title={`Delivery${delivery.version >= 2 ? ` v${delivery.version}` : ""}`} open={reviewOpen && !disputed} done={done("delivery")} taken={accepted && disputed ? "Objected, answered, then accepted" : accepted ? "Accepted" : disputed ? `Objected: “${view.dispute?.claim}”` : undefined}
+            <Decision title={`Delivery${delivery.version >= 2 ? ` v${delivery.version}` : ""}`} open={reviewOpen && !disputed} done={held ? `Objection sent: “${view.dispute?.claim}”` : done("delivery")} slot={held ? "inspect" : "decision"}
+              orb={held ? <Inspector look={look} found={found} onFound={onFound} /> : undefined} taken={accepted && disputed ? "Objected, answered, then accepted" : accepted ? "Accepted" : disputed ? `Objected: “${view.dispute?.claim}”` : undefined}
               actions={objecting ? <>
                 <textarea className="objection" rows={2} value={objection} onChange={(e) => setObjection(e.target.value)} placeholder="What's wrong with the delivery?" aria-label="Your objection" />
                 <div className="decision-row">
@@ -164,8 +187,10 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
               </>}>
               {/* the data and the contract it was checked against, side by side, so the buyer judges both at once */}
               <div className="review-grid">
-                <Sheet rows={delivery.rows} note={changedSince ? `${changedSince} rows changed since v${delivery.version - 1}` : withheld(delivery.rows) ? `${withheld(delivery.rows)} withheld for privacy` : undefined} />
-                {n.produce && <TodoList title="Contract checks" items={checkItems(view.contract.lines, n.produce)} />}
+                <Sheet rows={delivery.rows} note={changedSince ? `${changedSince} rows changed since v${delivery.version - 1}` : withheld(delivery.rows) ? `${withheld(delivery.rows)} withheld for privacy` : undefined}
+                  gap={held && look?.row ? { zip: look.row, found: !!found.row } : undefined}
+                  ghosts={held && found.term && look && !look.failed && /oakland/i.test(view.dispute?.claim ?? "") ? OAKLAND : undefined} />
+                {n.produce && <TodoList title="Contract checks" items={checkItems(view.contract.lines, n.produce).map((i) => (held && found.term && i.id === look?.term ? { ...i, mark: look.failed ? "fail" : "settles" } : i))} />}
               </div>
             </Decision>
           )}
