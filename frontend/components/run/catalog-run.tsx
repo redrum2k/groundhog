@@ -27,6 +27,9 @@ export default function CatalogRun({ onRecorded }: { onRecorded: () => void }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [serverTime, setServerTime] = useState("");
+  const [reviewAction, setReviewAction] = useState<"request_evidence" | "release_authorization" | "propose_exception">("request_evidence");
+  const [reviewReason, setReviewReason] = useState("");
+  const [reviewEvidence, setReviewEvidence] = useState("0");
   // Keep a command's exact key/payload if the response is lost. Explicit retry
   // reuses it; stale 409s are never silently reauthorized.
   const retry = useRef<null | (() => Promise<void>)>(null);
@@ -34,6 +37,12 @@ export default function CatalogRun({ onRecorded }: { onRecorded: () => void }) {
   const latest = events.at(-1), order = latest?.order;
   const payment = latest?.payment?.payment;
   const delivery = order?.deliveries?.at(-1);
+  const reviewAssessments = [
+    ...(order?.verification?.assessments ?? []),
+    ...(order?.amendments ?? []).slice().reverse().flatMap(a => a.assessment ?? []),
+    ...(order?.verification_history ?? []).slice().reverse().flatMap(v => v.assessments),
+  ];
+  const reviewCitations = [...new Map(reviewAssessments.flatMap(a => a.citations ?? []).map(c => [`${c.artifact_id}:${c.page}:${c.start}:${c.end}`, c])).values()];
   const view = catalogCanvas(latest);
 
   useEffect(() => {
@@ -90,6 +99,12 @@ export default function CatalogRun({ onRecorded }: { onRecorded: () => void }) {
     void act(async () => { await catalogRequest(`orders/${runId}/${suffix}`, payload); await refresh(); });
   };
   const work = () => void act(async () => { await catalogRequest(`worker/orders/${runId}/work`, {}); await refresh(); });
+  const review = () => {
+    const citation = reviewCitations[Number(reviewEvidence)];
+    if (!citation || !reviewReason.trim()) return;
+    const payload = { ...command(), action: reviewAction, reason: reviewReason, supporting_evidence: [citation] };
+    void act(async () => { await catalogRequest(`reviewer/orders/${runId}/decisions`, payload); await refresh(); });
+  };
   const openRun = (id: string) => { setDraft(undefined); setQuote(undefined); setPreparation(undefined); setRunId(id); localStorage.setItem(persistedRun, id); setPanel("produce"); };
   const newDraft = () => {
     const payload = { prompt, corpus_id: corpus, idempotency_key: newKey() };
@@ -183,10 +198,18 @@ export default function CatalogRun({ onRecorded }: { onRecorded: () => void }) {
               {(order.deliveries ?? []).map(d => <section key={d.version}><h3>Delivery {d.version}</h3><a className="cite" href={artifact(d.pdf.artifact_id)} target="_blank" rel="noreferrer">Inspect actual PDF</a> <a href={artifact(d.sidecar.artifact_id)} target="_blank" rel="noreferrer">Source-derived sidecar</a><p>Review closes {d.review_deadline}</p><p className="mono">SHA-256 {d.pdf.sha256}</p></section>)}
               {panel === "review" && delivery && <button className="btn solid" disabled={disabled || order.order_state !== "delivered"} onClick={() => send("acceptance")}>Accept current delivery · customer</button>}
               <h3>Source evidence and checks</h3>
+              {!!order.verification_history?.length && <details><summary>Retained prior verification and failed output evidence</summary>{order.verification_history.map((v, i) => <section key={i}><p>{v.provider_defect ? "Established provider defect" : "Prior verification"} · {v.stage} · evidence revision {v.binding.evidence_revision}</p>{v.assessments.filter(a => a.result !== "PASS").map((a, j) => <p key={j}>{a.result} · {a.reason_code} · {a.explanation}{a.citations?.map((c, k) => <a className="cite" key={k} href={artifact(c.artifact_id, c.page)} target="_blank" rel="noreferrer">Inspect retained artifact, page {c.page}</a>)}</p>)}</section>)}</details>}
               {order.sources.map(s => <p key={`${s.source_id}:${s.version}`}><a href={artifact(s.artifact.artifact_id)} target="_blank" rel="noreferrer">{s.source_id} v{s.version} · {s.edition}</a><br /><span className="faint">{s.authority} · {s.effective_date}</span></p>)}
               {(order.verification?.assessments ?? []).map((a, i) => <section key={`${a.obligation_id}:${i}`}><p><strong>{a.result}</strong> · {a.reason_code}</p><p>{a.explanation}</p>{a.missing_facts?.map(f => <p key={f}>Missing: {f}</p>)}{a.citations?.map((c, j) => <a className="cite" key={j} href={artifact(c.artifact_id, c.page)} target="_blank" rel="noreferrer">Page {c.page}: {c.quote.slice(0, 110)}</a>)}</section>)}
             </>}
-            {panel === "human" && <><h3>Held for responsible reviewer</h3><p>{order.error ?? "Required evidence or consent remains unresolved; no automatic override."}</p><p>Authority: {order.authority_state}. Financial state: {payment?.state}.</p><p>Company review, source acquisition and customer consent remain separate actions.</p></>}
+            {panel === "human" && <><h3>Held for responsible reviewer</h3><p>{order.error ?? "Required evidence or consent remains unresolved; no automatic override."}</p><p>Authority: {order.authority_state}. Financial state: {payment?.state}.</p><p>Company review, source acquisition and customer consent remain separate actions.</p>
+              <p className="catalog-note">Synthetic local reviewer capability. No factual override or capture action is available. Releasing an uncaptured authorization is not a refund; an exception proposal still requires a new agreement.</p>
+              <label>Reviewer action<select aria-label="Reviewer action" value={reviewAction} onChange={e => setReviewAction(e.target.value as typeof reviewAction)}><option value="request_evidence">Request evidence within existing bounds</option><option value="propose_exception">Propose negotiated exception only</option><option value="release_authorization">Release uncaptured authorization</option></select></label>
+              <label>Supporting source citation<select aria-label="Reviewer supporting citation" value={reviewEvidence} onChange={e => setReviewEvidence(e.target.value)}>{reviewCitations.map((c, i) => <option key={i} value={String(i)}>Page {c.page}: {c.quote.slice(0, 90)}</option>)}</select></label>
+              <label>Reviewer reason<textarea aria-label="Reviewer reason" value={reviewReason} onChange={e => setReviewReason(e.target.value)} /></label>
+              <button className="btn" disabled={disabled || order.order_state !== "human_review" || !reviewReason.trim() || !reviewCitations[Number(reviewEvidence)]} onClick={review}>Record bound reviewer decision</button>
+              {(order.decisions ?? []).map((d, i) => <p key={i}>{d.action} · {d.actor} · {d.reason}</p>)}
+            </>}
             {panel === "captured" && <><h3>{payment?.state ?? "Unresolved payment state"}</h3><p>Delivery produced: {delivery ? "yes" : "no"}. Verified compliant: {order.verification?.passed ? "yes" : "no"}. Order closed: {order.order_state === "closed" ? "yes" : "no"}.</p>{(order.ledger ?? []).map(b => <p key={b.operation_id}>{b.kind} · {exactMoney(b.amount)} · {b.receipt.status} · {b.recorded_at}</p>)}{latest?.payment?.operations.map(o => <p key={o.operation_id}>{o.intent.action} · {o.state} · {o.error ?? ""}</p>)}</>}
             <details><summary>Authoritative binding and event</summary><pre>{JSON.stringify({ run_id: runId, event_id: latest?.event_id, revision: latest?.aggregate_revision, binding: latest?.binding, accepted_hash: latest?.accepted_snapshot_sha256, actor: latest?.actor, operation: latest?.operation, occurred_at: latest?.occurred_at, server_time: serverTime }, null, 2)}</pre></details>
           </>}

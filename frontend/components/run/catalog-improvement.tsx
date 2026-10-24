@@ -48,18 +48,21 @@ export default function CatalogImprovement({ corpus, replay }: { corpus: string;
     {error && <p role="alert">{error}{retry.current && <button className="btn" disabled={disabled} onClick={() => retry.current && void execute(retry.current)}>Retry exact improvement command</button>}</p>}
     {result && <p role="status">{result.status}: {result.reason ?? result.version_id ?? result.probe_id}</p>}
     <h3>Observed incidents ({incidents.length})</h3>
+    {records.filter(r => r.kind === "catalog_rejection_control").map(r => <section className="catalog-note" key={r.id}><h3>Injected protected-change rejection control</h3><p>Not model-generated search evidence. No protected operation was executed.</p><pre>{JSON.stringify(r.data, null, 2)}</pre></section>)}
     {incidents.map(r => <details key={r.id}><summary>{r.id}</summary><pre>{JSON.stringify(r.data, null, 2)}</pre></details>)}
     <button className="btn" disabled={disabled || !incidents.length || view?.model_generation !== "CONFIGURED" || generated.length >= 2} onClick={() => send("propose", { incident_ids: selectedIncidents, cycle: generated.length ? 2 : 1 })}>Generate genuine model proposal</button>
     {patches.map(patch => {
       const probe = records.filter(r => r.kind === "catalog_probe" && r.data.patch_id === patch.id).at(-1);
       const report = probe?.data.report as { promotion_eligible?: boolean; violations?: unknown[]; comparison_claim?: string; changed_cases?: string[] } | undefined;
       const status = view?.statuses[patch.id];
+      const isActive = records.some(r => r.kind === "catalog_version" && r.id === view?.active_version && r.data.patch_id === patch.id);
+      const displayStatus = isActive ? "ACTIVE" : status === "ACTIVE" ? "Previously active; not current" : status;
       const approved = records.some(r => r.kind === "catalog_approval" && r.data.patch_id === patch.id && r.data.probe_id === probe?.id);
-      return <section key={patch.id} className="catalog-note"><h3>Candidate · {status ?? "recorded"}</h3><p className="mono">{patch.id}</p><p>Generation mode: {String(patch.data.mode)} · {String(patch.data.model)}</p><pre>{JSON.stringify(patch.data.proposal, null, 2)}</pre>
+      return <section key={patch.id} className="catalog-note"><h3>Candidate · {displayStatus ?? "recorded"}</h3><p className="mono">{patch.id}</p><p>Generation mode: {String(patch.data.mode)} · {String(patch.data.model)}</p><pre>{JSON.stringify(patch.data.proposal, null, 2)}</pre>
         <button className="btn" disabled={disabled} onClick={() => send("probe", { patch_id: patch.id })}>Validate candidate in isolated workflows</button>
         {probe && <><h4>Isolated probe</h4><p>{report?.comparison_claim}</p><p>Promotion eligible: {String(report?.promotion_eligible)}. Changed development cases: {report?.changed_cases?.join(", ") || "none"}. Violations: {report?.violations?.length ?? "unknown"}.</p><p className="mono">Source {String(probe.data.implementation_sha256)}</p>
           <button className="btn" disabled={disabled || !report?.promotion_eligible || approved} onClick={() => send("approve", { patch_id: patch.id, probe_id: probe.id })}>Approve exact tested candidate · reviewer</button>
-          <button className="btn solid" disabled={disabled || !report?.promotion_eligible || !approved || status === "ACTIVE"} onClick={() => send("activate", { patch_id: patch.id, probe_id: probe.id })}>Activate for future drafts · reviewer</button>
+          <button className="btn solid" disabled={disabled || !report?.promotion_eligible || !approved || isActive} onClick={() => send("activate", { patch_id: patch.id, probe_id: probe.id })}>Activate for future drafts · reviewer</button>
           <details><summary>Full retained probe evidence</summary><pre>{JSON.stringify(probe.data, null, 2)}</pre></details></>}
       </section>;
     })}

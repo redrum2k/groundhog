@@ -189,3 +189,57 @@ replay/refreshmutations. Evidence: frontend/artifacts/v6-model-browser-c. One-pa
 rendered/visuallyinspected: S01 net1.000kg/USD30, sourcev2;S02/S03 excludedbyweight, legible.
 Known API$0.168036, conservativecommitted$0.540372,8reservations inclfailedattempts,no countcap,
 $20finalreserve,noactivecall. Finalcomparisons/freeze/handoff/sanitization/push/export pending.
+
+## 04:20 — frozen comparison, complete browser coverage and owned shutdown
+
+Committed scientific checkpoint f388fe32e56de671d6fb3fc957061c4031647806. Frozen backend/lockfile
+digest6b8e4101af7b1da9a3c13baf5078f835c48c7c54bf26d294e42dd3714f7e97ef; run capsule
+3871f5dd4b0fc4ef814d6fe5e2c77dcefd4a8d87a21336ec94630a7c27b089ec. Adjusted final reserve to$10
+using measured pilot and conservative<7USD full-plan reservation forecast, no request ceiling.
+Independent bounded supervisor completed48 first-attempt workflows03:40-03:47 Pacific; offline
+frozen grader:48/48 correct, each arm8closed/4held. Manual uploads4/0/0/2 for current/competent/
+memory/evolving. Strong fixed and functional memory reachzero; no operating-benefit qualification.
+Actual final8 memory decisions cost$0.207772,30393input/4310output(including1624thinking),61.505s.
+No final retry, exclusion or outcome-informed backend change. Optionalcycle2 notrun/notqualified.
+
+Fullbackend444 passed187.32s plus new offline-grader regressionpassed; oldV5 known12+6 regression
+worlds passed withrollback, deliberatelyoffline. Latestfullfrontend71 passed; final added terminal
+projection test and6neighbors passed; types/generated drift/build/lint pass. Backend digest remains
+unchanged afterfreeze. Subsequent UI work completed citedreviewer controls, archivedFAIL history,
+explicit injectedrejection labeling and correctidle projection for closedvoided work.
+
+Reviewer browser firstfoundmissing currentreport citations afterinvalidation. Preserved heldorder,
+fixed UI to use retainedamendment/history spans, and resumed SAME order: one citedtrustedreviewer
+command, mockrelease/void, originalfacts unchanged and oldcapturedorder unaffected. Prospective
+revocation proven: newacceptedorder usedbase and didnotautoacquire. Backend-onlyrestart also
+preserved frontendPID,eventcursor,acceptedhash,pin andexactcapture. An actualwrong-output fixture
+was injected through the canonical worker (not an HTTPdesired-verdict input), producing18.56
+instead of18.65; browser showedFAIL, executedonecorrection, verifiedchangedPDF, thenaccepted and
+capturedonce. Initialcontrolsetup hit a globalidempotency-keycollision beforeacceptance; recovered
+same draft/quote underdedicatedkey withnoexistingorder check, no paidcall. Rawfailure retained.
+
+Browser reports v6-model-browser-c, v6-reviewer-resume, v6-failure-browser and final GET-only
+v6-final-readonly-browser passwith0JS/HTTPerrors and0replay/navigationmutations. Eightuniquefinal
+PDFs, liveproposal-chainPDF andfailed/correctedPDFs rendered/visuallyinspected. Alllegible; actual
+wrong/correctprice visible. Frozen outcome decisions unchanged by supplementarycost reporting.
+
+Allownedappsupervisors STOPPED; localhost3106/8106/3107/8107 noLISTEN. Finalsupervisor finished,
+noactive modelreservation. Earlyabandonedbrowserorder fbf1e655... remains human_review/expired
+with an ineligible queuedfulfill job; no runningwork, preserved ratherthaninventedcompletion.
+Ledger17reservations,15reported-usagesuccesses,1APItimeout,1pretransporterror. Estimatedknown
+$0.399756/conservative$0.772092; original45USD/10:10cutoff unchanged. Handoff/results/limits/API
+docs prepared; priorV5handoff archived withoutdiscarding originalevidence. Finalsanitizedpush,
+remoteSHA andarchiveverification are the onlyremainingdelivery steps.
+
+## 04:33 — final delivery gates
+
+Final frontend full suite:72/72 passed, JSON evidence retained. Final production build and
+TypeScript pass. GET-only final-browser inspection of the adapted captured order, reviewer-voided
+order and corrected captured order: zero mutations/errors, exact accepted hashes/pins retained.
+Closed voided work no longer animates as production in progress. All 8 app supervisors report
+STOPPED and ports3106/8106/3107/8107 have no listener. No active model reservations.
+Secret-pattern scan of changed source is clear; original C:/Users/sajee/order-to-cash remains
+clean on main and backend/.env remains ignored. Prior V5 handoff content verified unchanged in
+HANDOFF_V5_PRESERVED.md. Scientific backend diff from f388fe3 is empty and its digest still6b8e...97ef.
+Current-state handoff reread with archive-specific reproduction paths; frozen oracle remains
+outside runtime source. Delivery receipt will record final feature/remote SHA and ZIP member hashes.

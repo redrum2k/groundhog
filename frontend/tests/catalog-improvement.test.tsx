@@ -3,6 +3,20 @@ import { afterEach, expect, it, vi } from "vitest";
 import CatalogImprovement from "../components/run/catalog-improvement";
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+it("uses the active pointer, not a historical patch status, after revocation", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({
+    corpus_id: "demo", active_version: "catalog-static-v1", model_generation: "CONFIGURED", statuses: { patch: "ACTIVE" },
+    records: [
+      { id: "patch", kind: "catalog_patch", corpus_id: "demo", data: { proposal: {}, mode: "ANTHROPIC", model: "claude-opus-5-5" } },
+      { id: "probe", kind: "catalog_probe", corpus_id: "demo", data: { patch_id: "patch", report: { promotion_eligible: true } } },
+      { id: "approval", kind: "catalog_approval", corpus_id: "demo", data: { patch_id: "patch", probe_id: "probe" } },
+      { id: "old-version", kind: "catalog_version", corpus_id: "demo", data: { patch_id: "patch" } },
+    ],
+  }))));
+  render(<CatalogImprovement corpus="demo" replay={false} />);
+  await waitFor(() => expect(screen.getByText("Candidate · Previously active; not current")).toBeTruthy());
+  expect((screen.getByRole("button", { name: "Activate for future drafts · reviewer" }) as HTMLButtonElement).disabled).toBe(false);
+});
 it("navigation and replay never generate, approve or activate; exact controls are explicit", async () => {
   const calls: { method: string; body?: string; url: string }[] = [];
   vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {

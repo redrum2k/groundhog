@@ -1,75 +1,158 @@
-# V5 pickup and evidence
+# V6 current handoff
 
-This change adds source-checked broker review, bounded questions/human handoff, and
-an application-run prospective improvement loop. It integrates current main
-`46f6c07` without replacing its catalog/payment architecture or frontend.
+## Verified state
 
-## What is verified
+V6 demonstrates bounded application-generated adaptation, **not an operating-cost advantage**.
+The unedited Claude Opus 5.5 candidate schedules existing registered same-edition evidence
+retrieval. Actual isolated probes, separate synthetic reviewer approval, prospective activation,
+new accepted order, real model clarification/answer, verified PDF, mock capture, restart and
+prospective revocation are evidenced. The previous V5 handoff is preserved verbatim in
+HANDOFF_V5_PRESERVED.md; original V5 results/branches were not reset or relabeled.
 
-- 415 backend tests; Ruff check/format (123 files).
-- 59 frontend tests in 10 files, generated drift, TypeScript and production build.
-- Catalog root OpenAPI exactly matches the frozen main schema.
-- Both existing screens remain main's code: Lucas's canvas at `/`, invoice workbench
-  at `/jobflow`. No replacement component, screen, style or UI dependency is added.
-- Real-backend invoice browser acceptance: 100 original jobs validated, held base,
-  separate 800-minor-unit addition paid, no replay mutations or JavaScript errors.
-- Live same-origin checks: both screens and all three mounted OpenAPI routes return
-  200; an authenticated improvement-view request works through Next.
-- Actual final broker PDF is one page, visually inspected without clipping/overlap.
-- Two candidates, one rejected; 12 development and 6 reserved transfer worlds;
-  all three arms have 18/18 endpoint and 18/18 financial matches. Approval,
-  activation, experience reuse, revoke/restart and immutable accepted versions work.
+Read V6_RESULTS.md, V6_LIMITATIONS.md, V6_API_CONTRACT.md and POLICY_DELTA.md.
+The source branch is feature/objection-v6-integrated-adaptation-20261024, based on main 5c8dc72.
+Frozen experiment commit: f388fe32e56de671d6fb3fc957061c4031647806.
+Backend/lockfile digest: 6b8e4101af7b1da9a3c13baf5078f835c48c7c54bf26d294e42dd3714f7e97ef.
+Subsequent changes are frontend presentation/reviewer controls, test/demo/report tools and
+documentation only. The final delivery manifest records exact delivery/remote SHA and archive
+hash. Do not transfer these results to a changed backend digest.
 
-These are deterministic synthetic application-command results, not live-model
-quality or real settlement. Missing approved model/key/allocation leaves real model
-generation BLOCKED with zero calls. Details and negative findings:
-EVALUATION_RESULTS.md, WORK_LOG.md and IMPROVEMENT_DESIGN.md.
+Twelve fresh worlds x four arms, one run each, all 48 independently correct. Each arm closed 8
+and correctly held 4. Manual evidence uploads: current static 4, competent static 0, functional
+memory 0, evolving 2. Evolving's two uploads are the out-of-scope/historically pinned cases.
+No recurring-action benefit or payroll savings is established. Optional second cycle was not
+run: no demonstrated headroom beyond the functioning expert checklist, and the one-operation
+surface cannot support a broad improve-the-improver claim.
 
-## Evidence locations
+## Resource and credential boundaries
 
-The results-first ZIP was delivered within the user's 30-minute limit:
-`D:\Downloads\OBJECTION_V5_Results_20261024.zip`, 3,198,759 bytes. Its immutable
-completion manifest records pre-rebase revision `150dab9`; it must not be relabeled.
+Original mission: 2026-10-24 02:10 through 10:10 America/Los_Angeles; no reset or successor.
+All mission-wide request ceilings were REMOVED. The original $45 aggregate expenditure ceiling,
+concurrency <= 2, per-request output/timeout/retry limits, anti-loop rules and final reserve remain.
+The ledger includes all earlier calls and failures. Do not replace it with an empty file.
 
-The later integrated run is `D:\Downloads\OBJECTION_V5_Integrated_20261024`,
-executed at `c85d9cc`. The frontend-only rebase and proxy fix leave its backend/lockfile
-fingerprint unchanged:
-`fa1b5bb680a3dc83bbf92ed299ebb05c7a662d4e08cfe979708643a9205a39ab`.
-Reuse these results unless the implementation changes. The runner rejects an
-existing output directory. A new run must preserve earlier failures.
+Private configuration remains only at C:/Users/sajee/order-to-cash/backend/.env, ignored by Git.
+It is explicitly loaded with uv --env-file; repository startup does not implicitly load it.
+Never print/copy the key. Use CLAUDE_MODEL=claude-opus-5-5, not OBJECTION_MODEL.
+ENABLE_PAID_MODELS is the existing explicit enablement flag. Native codex-raw was used, no RAP
+or Goal Autopilot. No billing changes, automatic recharge, purchases, deployment or chain
+broadcast were performed. Every payment in these results is mock.
 
-## Contracts and integration decisions
+At the final paid-call checkpoint: 17 reservations (15 successful reported-usage calls, one
+pretransport SDK failure, one API timeout), $0.399756 estimated known usage and $0.772092
+conservative committed cost. Unknown failures retain their maximum reservation. Exact final
+values are in the delivery ledger/report. Thinking is billed within output tokens, not twice.
+The final 8 memory calls cost $0.207772 (30,393 input / 4,310 output, including 1,624 thinking).
+No further paid work is needed to inspect/reproduce the existing evidence.
 
-Catalog stays default with its existing funding/journal/60-second policy.
-Invoice v0.2 remains isolated. Broker-review-v0.3 is a separate 600-second accepted
-profile: PASS opens review; acceptance or undisputed expiry plus current complete
-verification and exact unexpired authority permit capture. UNKNOWN/disputes hold;
-one free correction, two questions, 1,800-second case bound. Added work needs its
-own accepted offer and authorization. No automatic fee, renewal or live payment.
+## Where the evidence is
 
-The broker reuses `orders/invoice_compat.py` and `runtime/invoice_policy.py`;
-the catalog financial authority is untouched. All share the app/DB, with mounted
-`/api/jobflow`, `/api/broker` and `/api/improvements` schemas. Historical unrelated
-rows stay read-only. New proxy routes are additive; the exact improvement-root
-rewrite avoids an auth-losing slash redirect. Scoped LF attributes preserve pinned
-payment hashes and generated-schema comparisons on Windows.
+All paths below are relative to this repository and retained in the results archive:
 
-Read API_CONTRACT.md for broker/improvement DTOs and RUN_INSTRUCTIONS.md for commands.
-Existing run-canvas events are still recorded/stub data owned by Lucas, not silently
-connected to the broker or relabeled as live learning. HACK.md/POLICY_DELTA.md govern
-accepted policies; old UI design notes do not replace them with 48-hour review/x402.
+- backend/artifacts/v6-model-smoke.json: organization model access and real schema smoke.
+- backend/artifacts/v6-real-cycle-1: original development incident, raw generation, unedited
+  patch and database. Later browser lifecycle records are in its development/orders.sqlite3.
+- backend/artifacts/v6-independent-evaluator: separate native read-only model review and
+  independent blueprints. Model-authored and independently arithmetic-checked, not human audited.
+- backend/artifacts/v6-final-worlds: pre-reveal visible cases, separate oracle, source-byte audit.
+- backend/artifacts/v6-final-capsule: frozen source/model/prompt/candidate/baseline/protocol.
+- backend/artifacts/v6-final-runs: 48 immutable first-attempt workflow results and actual PDFs.
+- backend/artifacts/v6-final-score: frozen offline grader outcomes.
+- backend/artifacts/v6-final-reporting: ledger-enriched metrics and 8 unique rendered deliveries.
+- frontend/artifacts/v6-model-browser-c: genuine model adaptation/new-order/clarification chain.
+- frontend/artifacts/v6-reviewer-resume: same held order, cited reviewer release, no new model call.
+- frontend/artifacts/v6-failure-browser: actual wrong PDF, single corrected PDF, validation/review.
+- backend/artifacts/v6-model-restart.json: backend-only restart; frontend, accepted hash, pin,
+  event cursor and exact capture unchanged.
+- backend/artifacts/v6-v5-regression: 12+6 known historical regression worlds, all passing.
+  Its real_model_status=BLOCKED reflects deliberate offline mode, NOT current model access.
 
-## Remaining owner work
+Raw failures remain beside successes. Do not rerun final worlds and call them untouched transfer.
+A new scientific candidate needs new frozen evaluation worlds and appropriate existing authority.
+Generated evidence is not in Git. In the delivery ZIP, source/ is the repository, while
+evidence/backend/ maps to the original backend/artifacts/ and evidence/frontend/ maps to
+frontend/artifacts/. Keep the offline oracle outside the runtime image; do not copy it into app/.
 
-1. Lucas + Nikita: connect the existing run-canvas event/action seam to the chosen
-   real backend profile using its exact identities, revisions and deadlines. Keep
-   recorded/stub versus actual application evidence distinct.
-2. Jeff: if existing approved application access becomes available, run the bounded
-   real-model evaluation and report it separately. No new spending is authorized.
-3. Rehan: independently review finite fixture labels and sponsor requirements.
-4. Nikita: production identity and any separately authorized live-payment milestone.
+## Decisions and gotchas
 
-The user subsequently requested a main merge with the short subject
-"Add broker review and improvement workflow", explicitly preserving existing UI.
-No deployment, live transfer, new budget or destructive cleanup is included.
-Do not repair RAP/Goal Autopilot or reopen the resolved financial-policy decision.
+- Reused canonical CatalogService/payment journal, V5 im_records/approval/version primitives
+  and Lucas canvas. No replacement frontend, financial engine or general orchestration framework.
+- Compiler case limit 4 and contractual question/repair limits remain: those are accepted safety
+  policy, not a mission-wide application request ceiling.
+- Installed Anthropic SDK raw namespace exposes create, not parse. The bounded adapter saves raw
+  proposal/memory responses before schema validation; compiler question/term responses are also
+  retained at browser/domain level. Do not claim full provider raw bodies for every compiler call.
+- A 20s compiler timeout failed; bounded timeout is now 60s, clipped by original cutoff, retries 0.
+  Next bridge timeout is 75s; browser waits for readiness and model completion. Lost responses must
+  reuse exact keys, never create a fresh financial operation.
+- selectable=false means not selected for initial contracts; it does not ban same-edition repair.
+  Memory pilot 1 misread that flag. Its result is retained; clarified-contract pilot 2 succeeded.
+- PDF verification must bind product identity, numbers and citation together; line bags are unsafe.
+  Exact source Decimal precision is preserved. Contradictory registered repairs hold, even via upload.
+- Archived verification and amendment citations remain necessary for human review after invalidation.
+  UI supports them; no capture override is offered. Uncaptured release is not a refund.
+- Source changes invalidate approved execution. Accepted pins stay immutable; stale versions hold
+  and new drafts use base. Re-probe on new source, then separate approval/activation. Byte-level
+  implementation hashes can change with line endings; use packaged source bytes or revalidate.
+- Active procedure was intentionally revoked by the rollback demonstration. Accepted orders keep
+  their prior version. Current future drafts use catalog-static-v1; this is not lost state.
+- Four final arms use explicit fixed-term synthetic inputs/deterministic compilation. Only memory
+  needs per-order model decisions. Genuine proposal and browser clarification are separate real calls.
+  Structured reply tests do not establish unrestricted language understanding.
+
+## Verification and safe commands
+
+From repository root:
+
+```powershell
+uv run --locked --directory backend pytest
+uv run --locked --directory backend ruff check .
+uv run --locked --directory backend ruff format --check .
+```
+
+From frontend (run npm ci first in a fresh unpacked source tree):
+
+```powershell
+npm run generate:check
+npm run typecheck
+npm test
+npm run build
+```
+
+Latest full backend 444 passed plus the separately added offline-grader regression passed.
+The final full frontend suite passed 72 tests; its JSON report is included in the archive.
+Exact evidence and final validation totals are in V6_RESULTS.md/delivery manifest.
+
+Read-only existing-score reproduction (choose a NEW output path; no model call):
+
+```powershell
+uv run --locked --directory backend python ../tools/v6_final_grade.py --capsule artifacts/v6-final-capsule/run-capsule.json --runs artifacts/v6-final-runs --oracle artifacts/v6-final-worlds/oracle.json --output artifacts/v6-score-readonly-recheck
+```
+
+From the unpacked delivery's source/ folder instead:
+
+```powershell
+uv run --locked --directory backend python ../tools/v6_final_grade.py --capsule ../../evidence/backend/v6-final-capsule/run-capsule.json --runs ../../evidence/backend/v6-final-runs --oracle ../../evidence/backend/v6-final-worlds/oracle.json --output ../../inspection-score
+```
+
+Do not automatically rerun paid experiments. The recorded mission cutoff is deliberately permanent.
+For an explicitly requested continuation within the original authorized envelope, use
+tools/v6_demo.py with --existing, the exact saved DB/artifact paths, fresh supervisor output
+directory, localhost ports and the ORIGINAL cutoff. It never extends that cutoff.
+Use --enable-application-model only with the explicitly loaded private environment and shared
+ledger. Omit that flag for an offline demonstration. After cutoff, inspection/tests remain useful;
+a later paid mission needs its own explicit scope that accounts for prior expenditure.
+
+Each owned supervisor writes supervisor.json. Its STOP marker stops only its own child tree.
+RESTART_BACKEND reloads only backend code while preserving frontend PID, role tokens, database
+and absolute cutoff. Never inspect process memory for tokens or kill broad process names.
+Final completion stops owned workers; observed shutdown/port verification is in the delivery
+manifest. There is no unattended successor or recurring paid task.
+
+## Remaining non-blocking work
+
+Production customer identity/tenant isolation, real labor timing, live settlement, broader PDF
+formats, statistical generalization and a genuinely new improvement operation are NOT qualified.
+They require separately scoped work, not continuation of this completed bounded experiment.
+No known required V6 engineering/evaluation task remains after delivery verification; use the
+completion manifest rather than stale chronological notes to determine terminal state.

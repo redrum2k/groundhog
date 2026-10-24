@@ -38,8 +38,12 @@ export function catalogCanvas(event?: CatalogEvent): CanvasView {
   const funded = !!o.authorization.receipt;
   status.paid = funded ? "done" : "waiting";
   chip.paid = payment?.state ?? o.authorization.status;
-  status.produce = o.delivery_state === "operational_failure" ? "fail" : delivery ? "done" : funded ? "running" : "idle";
+  const runnableWork = o.jobs?.some(j => j.status === "queued" || j.status === "running");
+  status.produce = o.delivery_state === "operational_failure" ? "fail" : delivery ? "done" : o.order_state === "processing" && runnableWork ? "running" : ["waiting_evidence", "human_review", "pending_approval"].includes(o.order_state ?? "") ? "waiting" : "idle";
   chip.produce = o.verification ? o.verification.passed ? "PASS" : o.verification.assessments.some(a => a.result === "FAIL") ? "FAIL" : "UNKNOWN / CONFLICT" : "Not verified";
+  if (!o.verification && o.jobs?.some(j => j.kind === "correct" && (j.status === "queued" || j.status === "running")) && o.verification_history?.some(v => v.provider_defect)) {
+    status.produce = "fail"; chip.produce = "Prior output FAIL · correction pending";
+  }
   status.review = delivery ? o.customer_acceptance || payment?.state === "captured" ? "done" : "waiting" : "idle";
   chip.review = delivery ? `Delivery ${delivery.version}` : "No delivery";
   const terminal = payment?.state === "captured" || payment?.state === "voided";

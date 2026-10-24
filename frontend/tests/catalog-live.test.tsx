@@ -17,6 +17,19 @@ const event = (state = "funded", seq = 1) => ({
 } as unknown as CatalogEvent);
 
 describe("catalog projection", () => {
+  it("does not animate production for a closed voided order without a delivery", () => {
+    const current = event("voided"); current.order.order_state = "closed";
+    expect(catalogCanvas(current).status.produce).toBe("idle");
+    expect(catalogCanvas(current).chip.captured).toBe("voided");
+  });
+  it("shows retained provider FAIL while correction is queued, not a fabricated current PASS", () => {
+    const current = event();
+    current.order.verification = null;
+    current.order.jobs = [{ kind: "correct", status: "queued" }] as unknown as CatalogEvent["order"]["jobs"];
+    current.order.verification_history = [{ provider_defect: true }] as unknown as CatalogEvent["order"]["verification_history"];
+    expect(catalogCanvas(current).status.produce).toBe("fail");
+    expect(catalogCanvas(current).chip.produce).toContain("Prior output FAIL");
+  });
   it("does not collapse uncertain, expired, pending or failed money into returned/captured", () => {
     for (const state of ["uncertain", "expired_not_returned", "capture_pending", "void_pending", "failed"]) {
       const view = catalogCanvas(event(state));
@@ -37,6 +50,39 @@ describe("catalog projection", () => {
 });
 
 describe("catalog UI mutation boundary", () => {
+  it.each(["current", "amendment"])("reviewer uses %s evidence with an explicit current-bound command, disabled in replay", async evidenceKind => {
+    vi.stubGlobal("ResizeObserver", RO);
+    const current = event();
+    current.order.snapshot.quote.specification = { terms: { corpus_id: "storage-demo" }, requirements: [] } as unknown as CatalogEvent["order"]["snapshot"]["quote"]["specification"];
+    const citation = { artifact_id: "source-a", sha256: "a".repeat(64), page: 1, start: 0, end: 12, quote: "Source facts" };
+    current.order.verification = { passed: false, assessments: [{ obligation_id: "source:authority", result: "UNKNOWN", reason_code: "SOURCE_AUTHORITY_UNVERIFIED", explanation: "Needs authority", citations: [citation] }] } as unknown as NonNullable<CatalogEvent["order"]["verification"]>;
+    if (evidenceKind === "amendment") {
+      current.order.amendments = [{ assessment: current.order.verification.assessments }] as unknown as CatalogEvent["order"]["amendments"];
+      current.order.verification = null;
+    }
+    const calls: { method: string; body?: string; url: string }[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push({ url, method: init?.method ?? "GET", body: init?.body as string });
+      return new Response(JSON.stringify(url.includes("/events") ? { events: [current], next_cursor: 1, server_time: "2026-10-24T09:00:00Z", poll_after_ms: 2000 } : url.endsWith("corpora") ? { "storage-demo": [] } : []));
+    }));
+    localStorage.setItem("objection.catalog.run", "order-1");
+    render(<CatalogRun onRecorded={() => {}} />);
+    await waitFor(() => expect(screen.getByRole("button", { name: /Owned human review/ })).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: /Owned human review/ }));
+    await waitFor(() => expect(screen.getByLabelText("Reviewer reason")).toBeTruthy());
+    fireEvent.change(screen.getByLabelText("Reviewer reason"), { target: { value: "Required authority unavailable; release uncaptured mock funds." } });
+    fireEvent.change(screen.getByLabelText("Reviewer action"), { target: { value: "release_authorization" } });
+    fireEvent.click(screen.getByRole("button", { name: "Read-only replay" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Record bound reviewer decision" }));
+    expect(calls.filter(c => c.method === "POST")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "Return to live" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Record bound reviewer decision" }));
+    await waitFor(() => expect(calls.filter(c => c.method === "POST")).toHaveLength(1));
+    const sent = calls.find(c => c.method === "POST")!;
+    expect(sent.url).toContain("/reviewer/orders/order-1/decisions");
+    expect(JSON.parse(sent.body!)).toMatchObject({ expected_revision: 9, expected_binding: current.binding, action: "release_authorization", supporting_evidence: [citation] });
+    expect(JSON.parse(sent.body!)).not.toHaveProperty("actor");
+  });
   it("mount, overview, reopen and replay only read; explicit create uses actual input", async () => {
     vi.stubGlobal("ResizeObserver", RO);
     const calls: { url: string; method: string; body?: string }[] = [];

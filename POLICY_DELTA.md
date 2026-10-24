@@ -47,3 +47,24 @@ cannot be loosened by an improvement patch or a party's answer.
 All broker/invoice receipts remain explicitly mock. The existing catalog payment
 architecture was preserved, not replaced. No live transaction, deployment or billing
 configuration was enabled.
+
+## V6 catalog integration and resource amendment
+
+V6 starts from actual main5c8dc72 and retains every accepted profile above. Catalog remains
+canonical: catalog-v0.3/catalog-payments-v1, 60-second review/dispute, exact$15/15000000 atomic
+mock USDC, current PASS plus review/acceptance and independent authority before capture.
+Invoice/broker records are not migrated and keep their separately accepted semantics.
+
+The one new typed procedural edit only schedules an existing registered same-edition evidence
+acquisition capability. It cannot change accepted facts, terms, price, scope, roles, mandatory
+checks, consent or finance. New drafts pin the current tested procedure; accepted pins remain
+immutable. Source changes prevent stale approved execution, and revocation affects future work
+only. Shared PDF-association, precision and conflicting-repair fixes apply equally to all arms.
+
+The user explicitly enabled bounded Anthropic application calls for V6. CLAUDE_MODEL selects
+claude-opus-5-5. The later user amendment removed ALL aggregate request-count ceilings, replacing
+120/500 limits with the previously authorized$45 cumulative expenditure ceiling, concurrency<=2,
+durable pre-dispatch reservations/usage reconciliation, original10:10Pacific cutoff, bounded
+outputs/timeouts/retries, rate-limit cooldowns, loop guards and a measured final-evaluation reserve.
+Contractual per-case safety limits are unchanged. No billing/autorecharge setting, deployment,
+purchase, real payment or chain broadcast was enabled or performed.

@@ -1,0 +1,72 @@
+const { chromium, expect } = require('@playwright/test');
+const fs = require('node:fs'), path = require('node:path');
+const origin = 'http://127.0.0.1:3107';
+const output = path.resolve('artifacts/v6-reviewer-browser');
+const input = path.resolve('../backend/artifacts/v6-unverified-probe-copy.pdf');
+const prior = JSON.parse(fs.readFileSync('artifacts/v6-model-browser-c/report.json', 'utf8'));
+fs.mkdirSync(output, { recursive: true });
+(async () => {
+  const browser = await chromium.launch({channel:'msedge',headless:true});
+  const errors=[], failures=[], posts=[]; let latest, initial, final;
+  try {
+    await expect.poll(async()=>{try{return (await fetch(`${origin}/api/catalog/corpora`)).status;}catch{return 0;}},{timeout:30000}).toBe(200);
+    const page=await browser.newPage({viewport:{width:1600,height:1100}}); page.setDefaultTimeout(75000);
+    page.on('pageerror',e=>errors.push(e.message));
+    page.on('request',r=>{if(r.method()==='POST')posts.push({url:r.url(),body:r.postDataJSON()});});
+    page.on('response',async r=>{if(r.status()>=400)failures.push({url:r.url(),status:r.status()}); if(r.url().includes('/events?')){const b=await r.json().catch(()=>null);if(b?.events?.length)latest=b.events.at(-1);}});
+    initial=await (await page.request.get(`${origin}/api/catalog/runs/${prior.new_order}/events?after=0`)).json();
+    await page.goto(origin,{waitUntil:'networkidle'});
+    await page.getByRole('button',{name:'Catalog live',exact:true}).click();
+    await expect(page.getByLabel('Provider corpus')).toHaveValue('storage-2026');
+    await page.getByRole('button',{name:'Improve future work',exact:true}).click();
+    await page.getByLabel('Improvement reason').fill('Prospective rollback control: preserve accepted order and its captured mock receipt; only new drafts return to base.');
+    await page.getByRole('button',{name:'Revoke active procedure for future drafts · reviewer',exact:true}).click();
+    await expect(page.getByRole('status')).toContainText('REVOKED');
+    await page.screenshot({path:path.join(output,'01-prospective-revocation.png'),fullPage:true});
+    await page.getByRole('button',{name:'New order',exact:true}).click();
+    await page.getByLabel('Requested work').fill('Select storage products with net unit weight below 1.25 kg and unit price at most USD 35.');
+    await page.getByRole('button',{name:'Create new draft',exact:true}).click();
+    await page.getByRole('button',{name:'Compile draft · synthetic staff',exact:true}).click();
+    await page.getByRole('button',{name:'Request server quote',exact:true}).click();
+    await page.getByRole('button',{name:'Accept this quote · customer',exact:true}).click();
+    await page.getByRole('button',{name:'Prepare funding',exact:true}).click();
+    await page.getByRole('button',{name:'Authorize mock funding · customer',exact:true}).click();
+    await expect.poll(()=>latest?.payment?.payment.state,{timeout:15000}).toBe('funded');
+    if(latest.procedure_version!=='catalog-static-v1')throw new Error('Revocation did not affect future draft');
+    const acceptedHash=latest.accepted_snapshot_sha256;
+    await page.getByRole('button',{name:/Produce & verify/}).click();
+    await page.getByRole('button',{name:'Execute queued work · synthetic staff',exact:true}).click();
+    await expect.poll(()=>latest?.order.order_state).toBe('waiting_evidence');
+    if(latest.order.amendments.length)throw new Error('Revoked procedure still auto-acquired');
+    for(let n=1;n<=2;n++){
+      await page.getByLabel('Evidence PDF').setInputFiles(input);
+      await expect.poll(()=>latest?.order.amendments?.length).toBe(n);
+      await page.getByRole('button',{name:'Execute queued work · synthetic staff',exact:true}).click();
+      await expect.poll(()=>latest?.order.amendments?.at(-1)?.classification).toBe('unresolved');
+    }
+    await expect.poll(()=>latest?.order.order_state).toBe('human_review');
+    if(latest.order.ledger.length)throw new Error('Unknown source caused a financial effect');
+    const held=latest;
+    await page.getByRole('button',{name:/Owned human review/}).click();
+    await page.getByLabel('Reviewer action').selectOption('release_authorization');
+    await page.getByLabel('Reviewer reason').fill('Two supplied copies remain unregistered. Required authority is unresolved; release uncaptured mock funds without changing factual findings.');
+    await page.screenshot({path:path.join(output,'02-owned-unknown-review.png'),fullPage:true});
+    await page.getByRole('button',{name:'Record bound reviewer decision',exact:true}).click();
+    await expect.poll(()=>latest?.payment?.payment.state).toBe('voided');
+    if(latest.order.ledger.length!==1||latest.order.ledger[0].kind!=='release'||latest.accepted_snapshot_sha256!==acceptedHash)throw new Error('Incorrect release or contract rewrite');
+    if(latest.order.decisions.at(-1).actor!=='reviewer:local-trusted')throw new Error('Reviewer role not server bound');
+    final=await (await page.request.get(`${origin}/api/catalog/runs/${prior.new_order}/events?after=0`)).json();
+    if(JSON.stringify(initial.events)!==JSON.stringify(final.events))throw new Error('Revocation or review changed old accepted order');
+    const count=posts.length;
+    await page.getByRole('button',{name:'Read-only replay',exact:true}).click();
+    await page.getByRole('button',{name:'Overview',exact:true}).click();
+    await page.reload({waitUntil:'networkidle'});
+    if(posts.length!==count)throw new Error('Replay mutated');
+    await page.screenshot({path:path.join(output,'03-released-not-refunded.png'),fullPage:true});
+    if(errors.length||failures.length)throw new Error('Browser errors or failed requests');
+    const report={mode:'live_backend / actual_Claude_compile / synthetic_source_customer_reviewer / mock_finance',old_order:prior.new_order,old_order_unchanged:true,new_order:latest.run_id,procedure:latest.procedure_version,held,final:latest,posts,errors,failures,replay_mutations:0};
+    fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
+    console.log(JSON.stringify({old_order_unchanged:true,new_order:latest.run_id,procedure:latest.procedure_version,state:latest.order.order_state,payment:latest.payment.payment.state,financial_effect:latest.order.ledger[0].kind,errors,failures}));
+  }catch(error){fs.writeFileSync(path.join(output,'failure.json'),JSON.stringify({error:String(error),latest,posts,errors,failures},null,2));throw error;}
+  finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1);});
