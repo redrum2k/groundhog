@@ -375,7 +375,9 @@ async def run_once(service):
                 run.error = error
             else:
                 try:
-                    outcome = validate_outcome(order, result, request, store=service.store, db=db)
+                    outcome = validate_outcome(
+                        order, result, request, store=service.store, db=db, now=now
+                    )
                 except (DomainError, ValueError) as exc:
                     run.status = "FAILED"
                     run.error = (

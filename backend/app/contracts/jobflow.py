@@ -141,10 +141,14 @@ class Message(Model):
 class Question(Model):
     id: Identifier
     issue_id: Identifier
-    text: str
+    text: str = Field(min_length=1, max_length=600)
     recipient: Literal["customer", "controller"]
     status: Literal["OPEN", "ANSWERED", "CANCELLED"] = "OPEN"
     answer_id: str | None = None
+    predicate: str | None = Field(default=None, max_length=160)
+    agreement_version: Revision | None = None
+    evidence_digest: str | None = None
+    origin: Literal["DETERMINISTIC", "ANTHROPIC", "FALLBACK"] = "DETERMINISTIC"
 
 
 class Finding(Model):

@@ -207,6 +207,8 @@ export interface OrderRecord {
   case_id?: string | null;
   case_state?: CaseState;
   complaint?: string | null;
+  data_amendments?: AcceptedDataAmendment[];
+  data_verification?: DataVerification | null;
   deliveries?: DeliveryVersion[];
   delivery_state?: DeliveryState;
   evidence: EvidenceReference[];
@@ -225,6 +227,7 @@ export interface OrderRecord {
   requires_quote?: boolean;
   result?: InvestigationResult | null;
   review_deadline?: string | null;
+  review_requires_customer_acceptance?: boolean;
   revision?: number;
   scope_obligations?: ScopeObligation[];
   snapshot: OrderSnapshot;
@@ -262,6 +265,228 @@ export interface ProposalBinding {
   order_id: string;
   proposal_version: number;
   snapshot_id: string;
+}
+export interface AcceptedDataAmendment {
+  accepted_by_customer: string;
+  accepted_by_provider: string;
+  amendment_id: string;
+  effective_at: string;
+  specification: DataSpecification;
+}
+export interface DataSpecification {
+  original_intent: string;
+  product_id?: string;
+  /**
+   * @minItems 1
+   * @maxItems 32
+   */
+  requirements: [Requirement, ...Requirement[]];
+  /**
+   * @minItems 1
+   * @maxItems 16
+   */
+  sources:
+    | [SourcePin]
+    | [SourcePin, SourcePin]
+    | [SourcePin, SourcePin, SourcePin]
+    | [SourcePin, SourcePin, SourcePin, SourcePin]
+    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
+    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
+    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
+    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
+    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
+    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
+    | [
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin
+      ]
+    | [
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin
+      ]
+    | [
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin
+      ]
+    | [
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin
+      ]
+    | [
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin
+      ]
+    | [
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin,
+        SourcePin
+      ];
+  template_version?: string;
+  version?: number;
+}
+export interface Requirement {
+  conflict_policy?: "UNKNOWN";
+  dimension:
+    | "freshness"
+    | "geography"
+    | "reference_period"
+    | "metric"
+    | "entity_unit"
+    | "coverage"
+    | "source_lineage"
+    | "output_schema"
+    | "unsupported";
+  id: string;
+  meaning: string;
+  missing_policy?: "UNKNOWN";
+  parameters: Parameters;
+  provenance?: TermProvenance[];
+  recipe:
+    | "age_within_days"
+    | "region_version"
+    | "period_equals"
+    | "metric_equals"
+    | "unique_entity"
+    | "coverage_ids"
+    | "exact_sources"
+    | "market_schema_v1"
+    | "unsupported";
+}
+export interface Parameters {
+  as_of?: string | null;
+  boundary_version?: string | null;
+  conflict_policy?: "UNKNOWN" | null;
+  /**
+   * @maxItems 1000
+   */
+  coverage_ids?: string[];
+  entity_unit?: ("establishment" | "legal_entity" | "household" | "person" | "region") | null;
+  freshness_basis?: ("observed_at" | "published_at" | "exported_at") | null;
+  geography?: string | null;
+  max_age_days?: number | null;
+  max_missing_records?: number | null;
+  metric_name?: string | null;
+  metric_unit?: string | null;
+  output_format?: ("json" | "csv") | null;
+  output_schema?: "market-v1" | null;
+  reference_period?: string | null;
+  /**
+   * @maxItems 250
+   */
+  region_ids?: string[];
+  revision_policy?: "exact_accepted_versions" | null;
+}
+export interface TermProvenance {
+  actor_id: string;
+  origin: "original_intent" | "customer_answer" | "provider_confirmation" | "accepted_source" | "approved_template";
+  reference_id: string;
+}
+export interface SourcePin {
+  sha256: string;
+  source_id: string;
+  version: number;
+}
+export interface DataVerification {
+  /**
+   * @minItems 1
+   */
+  checks: [RequirementAssessment, ...RequirementAssessment[]];
+  evidence_sha256: string;
+  proposal: ProposalBinding;
+  specification_sha256: string;
+  verdict?: ("PASS" | "FAIL" | "UNKNOWN") | null;
+  verified_at: string;
+}
+export interface RequirementAssessment {
+  cause:
+    | "NONE"
+    | "MISSING_SPECIFICATION"
+    | "MISSING_EVIDENCE"
+    | "CONFLICTING_AUTHORITY"
+    | "VALIDATOR_FAILURE"
+    | "PROVIDER_DEFECT"
+    | "SCOPE_CHANGE"
+    | "UNSUPPORTED_SUBJECTIVE";
+  citations?: DataCitation[];
+  explanation: string;
+  requirement_id: string;
+  verdict: "PASS" | "FAIL" | "UNKNOWN";
+}
+export interface DataCitation {
+  artifact_id?: string | null;
+  locator: string;
+  sha256: string;
+  source_id: string;
+  value: string;
+  version: number;
 }
 export interface DeliveryVersion {
   /**
@@ -368,11 +593,12 @@ export interface ScopeObligation {
 export interface OrderSnapshot {
   accepted_at: string;
   accepted_brief: string;
+  data_specification?: DataSpecification | null;
   /**
    * @minItems 1
    */
   input_versions: [EvidenceReference, ...EvidenceReference[]];
-  job_type?: "invoice_register";
+  job_type?: "invoice_register" | "regional_market_intelligence";
   order_id: string;
   policy: AcceptedPolicy;
   price: Money;
@@ -384,6 +610,7 @@ export interface AcceptedPolicy {
   free_regenerations?: 1;
   max_question_rounds?: 2;
   max_questions?: 2;
+  overall_case_seconds?: 1800 | null;
   policy_version: string;
   review_window_seconds?: 600;
 }
@@ -488,9 +715,13 @@ export interface Message {
   timestamp: string;
 }
 export interface Question {
+  agreement_version?: number | null;
   answer_id?: string | null;
+  evidence_digest?: string | null;
   id: string;
   issue_id: string;
+  origin?: "DETERMINISTIC" | "ANTHROPIC" | "FALLBACK";
+  predicate?: string | null;
   recipient: "customer" | "controller";
   status?: "OPEN" | "ANSWERED" | "CANCELLED";
   text: string;

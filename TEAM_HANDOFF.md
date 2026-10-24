@@ -48,3 +48,41 @@ V4 change orders for genuinely new work. One free regeneration is shared at orde
 level. Older prepayment databases are preserved, not silently converted. The active
 demo uses a fresh v0.2 database. Root API_CONTRACT.md and RUN_INSTRUCTIONS.md describe
 the extension; docs/API.md is still the original team API reference.
+
+## V5 ownership handoff
+
+- Nikita: catalog/payment handoff from main `ac385a1` is preserved. The broker reuses
+  the compatibility OrderService (`orders/invoice_compat.py`) in the same DB; it does
+  not replace CatalogService or the catalog journal. Review scoped v0.3 dispatch and immutable
+  source/spec/delivery capture binding. Human tasks explicitly retain expired or
+  uncertain authority for the payment owner; no renewal/live payment path was invented.
+- Jeff: typed regional-data predicates, scoped questions/answers, incident diagnosis,
+  protected proposal surface and actual isolated improvement loop are implemented.
+  Real model generation still needs the existing approved application configuration;
+  fixture generation and injected SDK tests are separately labeled.
+- Lucas: use the generated broker/improvement DTOs, typed request helpers, current
+  ownership/next-action fields, full probe/diff records and existing Event schema.
+  New routes proxy through the existing Next app with separate OpenAPI schemas.
+  Root catalog OpenAPI remains frozen. No broker screen redesign is imposed.
+- Rehan: review the 12 development inputs and 6 reserved transfer inputs and the
+  separately stored offline reference endpoints. Results include declined/unknown
+  cases, real command traces and company/customer effort separately. No enterprise
+  performance or payroll savings is inferred from synthetic fixtures.
+
+Template rollback: POST `revoke` with the active `version_id` as controller, using a
+new stable idempotency key. New drafts revert; existing accepted orders stay pinned.
+Keep the V5 application/schema when rolling back a template. Do not replace a V5 DB
+with an older parser or restore an old DB over new orders as a template rollback.
+
+The original V4 PR is already merged at main `39538c0`. V5 is a separate feature
+change on current main `46f6c07`. The user subsequently requested merging this work
+with the simple subject "Add broker review and improvement workflow", preserving
+the existing frontend. No deployment or live-money action was added to that scope.
+See EVALUATION_RESULTS.md and updated run instructions for evidence and follow-up.
+
+The current `/` run canvas and `/jobflow` workbench are unchanged from main. Added
+frontend files are typed broker/improvement clients and generated DTOs; proxy routes
+are additive. The run canvas's recorded/stub event seam remains Lucas's integration
+surface, not an invented backend or payment authority. HACK.md and POLICY_DELTA.md
+govern real accepted policies; older design notes mentioning 48-hour review or x402
+do not replace the current catalog/broker contracts or Nikita's payment architecture.

@@ -130,5 +130,24 @@ These are separate workflow contracts. The invoice demo retains its
 `orders/invoice_compat.py` and `runtime/invoice_policy.py`. It does not authorize
 catalog payments, inherit catalog funding states, or migrate historical orders.
 The worker consumes invoice jobflow tasks alongside catalog deadline/payment work;
-catalog PDF jobs still require explicit trusted dispatch. The current UI uses
-invoice jobflow; connecting it to the catalog handoff remains separate frontend work.
+catalog PDF jobs still require explicit trusted dispatch. The invoice workbench is
+at `/jobflow`; Lucas's run canvas stays at `/`. Its recorded/stub feed remains distinct
+from real backend execution.
+
+## Broker review and improvement workflow
+
+The additive broker profile accepts typed regional-data requirements, produces and
+checks actual data/PDF artifacts, handles bounded evidence questions and human holds,
+and gates mock capture on the accepted review policy. Its improvement loop proposes,
+tests, approves and activates prospective intake changes, preserving rejected results
+and supporting rollback without rewriting accepted orders.
+
+Start the existing backend with `JOBFLOW_DEMO=1` for local demo identities. The new
+interactive APIs are `/api/broker/docs` and `/api/improvements/docs`; existing catalog
+and invoice APIs remain unchanged. Next proxies those routes with the existing local
+session boundary. No existing screen, component or stylesheet is replaced.
+
+- [Policy profiles](POLICY_DELTA.md) and [API contracts](API_CONTRACT.md#v5-broker-and-improvement-interfaces)
+- [Measured results and negative findings](EVALUATION_RESULTS.md)
+- [Offline runner and setup](RUN_INSTRUCTIONS.md#v5-broker-and-improvement-evidence)
+- [Current handoff](HANDOFF.md)
