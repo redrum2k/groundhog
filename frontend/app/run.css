@@ -294,3 +294,10 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
   :root[data-anim] .loop { animation: none; }
   :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, .bub, .panel { transition: opacity 150ms ease; transform: none; }
 }
+/* Live inputs share the canvas typography and panel spacing. */
+.panel-b label { display: block; margin: 16px 0 6px; font-size: 13px; }
+.panel-b textarea, .panel-b input { width: 100%; box-sizing: border-box; border: 1px solid var(--line, #deded8); border-radius: 8px; padding: 10px; background: transparent; color: inherit; font: inherit; }
+.panel-b textarea { min-height: 80px; resize: vertical; }
+.panel-b .btn { margin: 6px 6px 6px 0; }
+.live-data { max-height: 220px; overflow: auto; font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.panel-b p { overflow-wrap: anywhere; }

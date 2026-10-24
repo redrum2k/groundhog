@@ -1,3 +1,20 @@
+# Aggregate brokerage migration handoff
+
+Current primary product: `aggregate-brokerage-v1`; historical profiles retain their
+accepted policy. Start with [workstream 06](../workstreams/06-data-broker.md): complete
+migration map, route/examples, demo commands, mock signing boundary and validation.
+
+The shared worker, Base setup, transport, journal, signing flow and terminal executor
+remain the only financial path for new runs. Narrow owner hooks append run events
+inside existing transactions and revalidate dataset bytes at capture. The new
+scheduling policy adds a 120-second submission margin and reserves full potential
+review/dispute/correction windows; already submitted actions still reconcile.
+Broker deadline sweeps and improvement recovery coexist with independent catalog,
+payment and invoice lanes. Prompt 7 owns its isolated lab files; do not retrofit
+its synthetic terms as a customer application agreement.
+
+## Historical catalog handoff
+
 # Nikita — integrated runtime and payments
 
 The three completed workstreams are integrated on `codex/backend-integration`; see

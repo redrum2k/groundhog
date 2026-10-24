@@ -1,3 +1,21 @@
+# Aggregate brokerage migration handoff
+
+Current primary product: `aggregate-brokerage-v1`; historical profiles retain their
+accepted policy. Start with [workstream 06](../workstreams/06-data-broker.md): complete
+migration map, route/examples, demo commands, mock signing boundary and validation.
+
+`contracts/dataset.py` reuses your Frozen/SourcePin/TermProvenance semantics and adds
+strict integer/null rows. `datasets.py` independently checks actual source/CSV/JSON,
+including a separate frozen ZIP registry. `investigation/dataset.py` adapts your
+bounded injectable SemanticAssessor; `EvidencePassage.citation` also accepts a
+DatasetReference. New findings are still Assessment/Verification with current
+bindings. Source deficiency is distinct from established provider-output fault.
+Catalog PDF code and your broker/improvement profile remain intact for compatibility;
+no improvement activation changes a new run. Dataset answer/offer routes are explicit
+versions, not silent reinterpretations of PDF upload or legacy arbitrary-price offers.
+
+## Historical catalog handoff
+
 # Jeff — evidence semantics, unchanged ownership
 
 Own requirement compiler/clarification, corpus generation/extraction/normalization/provenance,

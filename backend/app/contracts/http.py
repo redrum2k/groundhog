@@ -19,6 +19,8 @@ class ErrorResponse(Contract):
 
 class Capabilities(Contract):
     status: Literal["ok"] = "ok"
+    primary_product: Literal["aggregate_dataset"] = "aggregate_dataset"
+    brokerage_policy: Literal["aggregate-brokerage-v1"] = "aggregate-brokerage-v1"
     contract_version: Literal["catalog-api-v1"] = "catalog-api-v1"
     payment_policy: Literal["catalog-payments-v1"] = "catalog-payments-v1"
     payment_mode: PaymentMode = "mock"

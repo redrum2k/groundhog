@@ -1,9 +1,12 @@
 """Actionable human-review rows; historical findings remain available in order history."""
 
 from app.contracts.catalog import ReviewRow
+from app.datasets import delivery_artifact, is_dataset
 
 
 def delivery_citations(order, product_id, store):
+    if is_dataset(order):
+        return ()
     if not order.deliveries:
         return ()
     artifact = order.deliveries[-1].pdf
@@ -31,7 +34,7 @@ def review_table(order, store):
         delivered = tuple(
             c
             for c in assessment.citations
-            if any(c.artifact_id == d.pdf.artifact_id for d in order.deliveries)
+            if any(c.artifact_id == delivery_artifact(d).artifact_id for d in order.deliveries)
         )
         sources = tuple(c for c in assessment.citations if c not in delivered)
         delivered = delivered or delivery_citations(order, product, store)
@@ -41,9 +44,17 @@ def review_table(order, store):
             product=product,
             field=field,
             issue=issue or assessment.explanation,
-            source_fact="; ".join(c.quote for c in sources) or "Missing source fact",
+            source_fact="; ".join(
+                getattr(c, "quote", None) or getattr(c, "value", None) or "Absent/null"
+                for c in sources
+            )
+            or "Missing source fact",
             source_citations=sources,
-            delivered_value="; ".join(c.quote for c in delivered) or None,
+            delivered_value="; ".join(
+                getattr(c, "quote", None) or getattr(c, "value", None) or "Absent/null"
+                for c in delivered
+            )
+            or None,
             delivered_citations=delivered,
             result=assessment.result,
             amendment_status=status,

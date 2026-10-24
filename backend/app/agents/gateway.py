@@ -17,6 +17,7 @@ from app.contracts.catalog import (
     Provenance,
     Span,
 )
+from app.contracts.dataset import DatasetReference
 from app.contracts.models import Contract, Text
 
 T = TypeVar("T", bound=BaseModel)
@@ -31,7 +32,7 @@ class ModelFailure(RuntimeError):
 
 
 class EvidencePassage(Contract):
-    citation: Span
+    citation: Span | DatasetReference
     text: Text
 
 

@@ -1,5 +1,12 @@
 # Local catalog API — catalog v0.3 / payments v1
 
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
+
+
 Run as in README.md. `/docs` and `/openapi.json` are the exact Pydantic/OpenAPI contracts.
 Local demo only: customer authentication and tenancy are unimplemented. Automatic dispatch and
 asynchronous Base settlement are integrated and tested offline; no successful live Base transaction is claimed.

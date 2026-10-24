@@ -1,5 +1,12 @@
 # Implementation status — integrated catalog v0.3 / payments v1
 
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
+
+
 Updated October 24, 2026. Runtime, Base transport and catalog settlement are integrated on
 `codex/backend-integration`. [Exact commits, tests and limitations](workstreams/04-integration.md).
 The catalog API remains 0.4.0 / `catalog-api-v1`; payment policy remains `catalog-payments-v1`.

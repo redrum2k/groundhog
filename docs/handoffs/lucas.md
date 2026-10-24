@@ -1,3 +1,21 @@
+# Aggregate brokerage migration handoff
+
+Current primary product: `aggregate-brokerage-v1`; historical profiles retain their
+accepted policy. Start with [workstream 06](../workstreams/06-data-broker.md): complete
+migration map, route/examples, demo commands, mock signing boundary and validation.
+
+The canvas at `/` now defaults to the live backend. Run the production frontend with
+`BROKER_LOCAL_DEMO=1`, loopback BACKEND_URL, and distinct server-only worker/reviewer
+tokens. `lib/run/live.ts` resumes and polls persisted events; `contract.ts` reexports
+Pydantic-generated types. `live-run.tsx` reuses your Canvas/checklist/styles, with real
+agreement, funding, review and evidence controls. Recorded rehearsal is separate.
+UI prices, deadlines, permissions and bindings come from the server. 409 refreshes
+without retrying consent. Unknown costs stay unavailable. The production build and
+unit tests pass; actual browser validation is blocked by sandbox port binding and
+must not be advertised as passed. Use `scripts/brokerage-smoke.cjs`, not invoice smoke.
+
+## Historical catalog handoff
+
 # Lucas — frontend handoff
 
 The existing invoice workbench from main is preserved at `/api/jobflow`; it has

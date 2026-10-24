@@ -4,6 +4,7 @@ import type { LaneId, Step } from "../../lib/run/contract";
 import { project, type FoldContext, type View } from "../../lib/run/fold";
 import { CASE_NAME, CONTRACT_V1, ENDINGS, LANES, MAIN, S, controllerContinuation, stamp, timeline, type Case, type Ending } from "../../lib/run/scenario";
 import { STUB_API, usePlayback, type Feed } from "../../lib/run/source";
+import LiveRun from "./live-run";
 import Canvas, { type CanvasView, type CNode } from "./canvas";
 import { IcLogo, IcPause, IcPlay, IcReplay } from "./icons";
 import Panel, { PanelBody } from "./panel";
@@ -35,6 +36,11 @@ const canvasView = (v: View, prefix = ""): CanvasView => ({
 });
 
 export default function RunApp() {
+  const [recorded, setRecorded] = useState(false);
+  return recorded ? <><button className="btn" onClick={()=>setRecorded(false)}>Live backend</button><RecordedRunApp/></> : <LiveRun recorded={()=>setRecorded(true)}/>;
+}
+
+export function RecordedRunApp() {
   const [tab, setTab] = useState<"run" | "customer">("run");
   const [run, setRun] = useState<Case>("shared");
   const [zoom, setZoom] = useState(true);
@@ -85,7 +91,7 @@ export default function RunApp() {
     const e = opts.ending ?? ending, l = opts.learned ?? false, m = opts.mode ?? mode;
     setRun(c); setZoom(true); setPanel(null); setLearned(l); setEnding(e);
     const ctx = ctxFor(c, e, l);
-    if (c === "amber" && m === "live" && !l) setFeed({ kind: "live", api: STUB_API, ending: e, before: timeline("amber", e).events.slice(0, timeline("amber", e).start), ctx });
+    if (c === "amber" && m === "live" && !l) setFeed({ kind: "fixture", api: STUB_API, ending: e, before: timeline("amber", e).events.slice(0, timeline("amber", e).start), ctx });
     else setFeed({ kind: "recorded", ...timeline(c, e, l), autoplay: opts.autoplay ?? true, ctx });
   };
   const toOverview = () => { setZoom(false); playback.pause(); setPanel(null); };
@@ -125,10 +131,10 @@ export default function RunApp() {
           {zoom && run === "amber" && !learned && (
             <div className="seg" aria-label="Feed">
               <button className={mode === "recorded" ? "on" : ""} onClick={() => { setMode("recorded"); start("amber", { mode: "recorded" }); }}>Recorded</button>
-              <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start("amber", { mode: "live" }); }}>Live</button>
+              <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start("amber", { mode: "live" }); }}>Recorded API fixture</button>
             </div>
           )}
-          <span className="tag">Sample run · synthetic data · mock payments</span>
+          <span className="tag">Recorded illustration · synthetic data · simulated decisions</span>
         </div>
       </header>
 

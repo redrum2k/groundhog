@@ -1,6 +1,6 @@
 # Requirements, verification and investigation — Jeff
 
-Follow root AGENTS.md/HACK.md (catalog v0.3). Jeff owns substantive compiler semantics,
+Follow root AGENTS.md/HACK.md (aggregate-brokerage-v1 for new runs; catalog v0.3 for compatibility). Jeff owns substantive compiler semantics,
 clarification, extraction/provenance/PDF coordinates, fulfillment content, verification tools,
 investigation planning/evidence/questions/findings, amendment assessment and quality evaluation.
 Nikita owns gateway transport, durable execution, budgets, permissions and financial effects.
@@ -8,7 +8,8 @@ Nikita owns gateway transport, durable execution, budgets, permissions and finan
 Use contracts/catalog.py's distinct PrecontractContext, FulfillmentContext,
 EvidenceRepairContext and DisputeContext. Never require a fake delivery before investigating.
 SemanticAssessor and CatalogInvestigator are injectable boundaries, not a mandated graph.
-Use actual source/output PDFs; schema-valid responses are not factual proof. Authority comes
+Use actual dataset CSV/JSON and frozen coverage/authority bytes for new runs;
+use source/output PDFs only for catalog compatibility. schema-valid responses are not factual proof. Authority comes
 from approved registry records, not model scores or imagined supplier confirmations.
 
 Cite resolving artifact hashes/spans. PASS/FAIL/UNKNOWN/CONFLICT express facts. Unestablished

@@ -28,13 +28,13 @@ function fakeServer(released: RunEvent[]) {
 
 const liveFeed = (): Feed => {
   const { events, start } = timeline("amber", "maya");
-  return { kind: "live", api: "/api/run-stub", ending: "maya", before: events.slice(0, start), ctx };
+  return { kind: "fixture", api: "/api/run-stub", ending: "maya", before: events.slice(0, start), ctx };
 };
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
-describe("live feed", () => {
+describe("recorded API fixture", () => {
   it("starts a run, then folds the events it polls after the last seq it saw", async () => {
     const amber = stamp("amber", [...amberOpen("maya", false), ...amberEnding("maya", false)]);
     const server = fakeServer(amber.slice(0, 6)); // up to the dispute and the start of Investigate
@@ -56,7 +56,7 @@ describe("live feed", () => {
   });
 });
 
-describe("live feed at the controller gate", () => {
+describe("recorded API fixture at the controller gate", () => {
   it("waits on the controller, surfaces a 409 on a stale decision, then resumes to done", async () => {
     const open = stamp("amber", amberOpen("maya", false));
     const gate = stamp("amber", amberEnding("maya", false), open.length); // ends with step_waiting on Maya
@@ -96,7 +96,7 @@ describe("live feed at the controller gate", () => {
   });
 });
 
-describe("live feed failure", () => {
+describe("recorded API fixture failure", () => {
   it("reports an error instead of guessing when the server stops answering", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => json({ detail: "boom" }, 503)));
     const feed = liveFeed();

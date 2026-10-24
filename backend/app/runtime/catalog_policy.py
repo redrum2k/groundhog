@@ -1,6 +1,9 @@
 """Commercial authority is deterministic and independent of semantic scores."""
 
 from app.catalog.verification import material_blockers
+from app.contracts.dataset import DATASET_CHECKS, BrokeragePolicy
+from app.datasets import is_dataset
+from app.runtime.dataset_policy import cutoff
 
 
 def authorization_ready(authorization):
@@ -47,11 +50,24 @@ def capture_allowed(order, now):
     ):
         return False
     mandatory = {o.obligation_id for o in report.obligations if o.mandatory}
-    required = {"global:pdf", "global:fields", "global:completeness", "global:provenance"}
-    required.update(f"{s.source_id}:index" for s in order.sources)
+    if is_dataset(order):
+        if not isinstance(order.snapshot.quote.policy, BrokeragePolicy):
+            return False
+        required = {f"dataset:{key}" for key in DATASET_CHECKS}
+        if any(
+            a.provenance.kind != "deterministic"
+            or a.provenance.assessor != "aggregate-byte-validator"
+            for a in report.assessments
+        ):
+            return False
+    else:
+        if isinstance(order.snapshot.quote.policy, BrokeragePolicy):
+            return False
+        required = {"global:pdf", "global:fields", "global:completeness", "global:provenance"}
+        required.update(f"{s.source_id}:index" for s in order.sources)
     if not required.issubset(mandatory):
         return False
-    if not authorization_ready(order.authorization) or now >= order.authorization.expires_at:
+    if not authorization_ready(order.authorization) or now >= cutoff(order):
         return False
     if order.authorization.amount != order.snapshot.quote.amount or any(
         b.kind in ("capture", "release") for b in order.ledger

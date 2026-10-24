@@ -1,5 +1,12 @@
 # Shared integration checkpoint — catalog v0.3 / payments v1
 
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
+
+
 Deadline: Sunday, October 25, 2026, 9 a.m. America/Los_Angeles. Hold the first integration
 checkpoint 90 minutes after the team starts its split; check the shared fixture at 30 minutes.
 If necessary, reduce to one supplier PDF while preserving the end-to-end evidence repair path.

@@ -1,3 +1,10 @@
+# Current integration pickup
+
+The live aggregate brokerage canvas is implemented at `/`; recorded rehearsal is
+separate. Use [workstream 06](../docs/workstreams/06-data-broker.md) for production
+local-demo commands, generated contracts, signing/events/actions and smoke tests.
+The historical design brief below is preserved as reference, not implementation status.
+
 # UI handoff: order-to-cash agent for a data broker (Cal Hacks 13.0)
 
 > Ported into this Next.js app on Oct 24, 2026: the run canvas lives in `components/run/` and `lib/run/`,

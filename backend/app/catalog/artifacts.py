@@ -51,7 +51,9 @@ class ArtifactStore:
             except (PSException, PdfminerException) as exc:
                 raise ValueError("PDF is malformed, encrypted or unreadable") from exc
         digest = hashlib.sha256(data).hexdigest()
-        extension = "pdf" if media_type == "application/pdf" else "json"
+        extension = {"application/pdf": "pdf", "application/json": "json", "text/csv": "csv"}[
+            media_type
+        ]
         key = f"objects/{digest}.{extension}"
         path = self.root / key
         path.parent.mkdir(exist_ok=True)
@@ -102,6 +104,11 @@ class ArtifactStore:
         )
 
     def resolve(self, span: Span, artifacts: tuple[Artifact, ...]):
+        from app.contracts.dataset import DatasetReference
+        from app.datasets import resolve_reference
+
+        if isinstance(span, DatasetReference):
+            return resolve_reference(span, artifacts, self)
         artifact = next(
             (a for a in artifacts if a.artifact_id == span.artifact_id and a.sha256 == span.sha256),
             None,

@@ -8,6 +8,7 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StrictInt, model_validator
 
+from app.contracts.dataset import BrokeragePolicy, DatasetReference, DatasetSpecification
 from app.contracts.models import Contract, Digest, Money, PdfHighlight, Text, Version
 from app.contracts.payments import Address, PaymentTerms, PaymentView
 from app.payments.interfaces import PaymentReceipt
@@ -25,7 +26,7 @@ class Artifact(Contract):
     version: Version = 1
     sha256: Digest
     storage_key: Text
-    media_type: Literal["application/pdf", "application/json"]
+    media_type: Literal["application/pdf", "application/json", "text/csv"]
 
 
 class Span(Contract):
@@ -105,12 +106,26 @@ class Terms(Contract):
 class Requirement(Contract):
     requirement_id: Text
     wording: Text
-    check: Literal["category", "weight", "price", "fields", "completeness", "provenance", "pdf"]
+    check: Literal[
+        "category",
+        "weight",
+        "price",
+        "fields",
+        "completeness",
+        "provenance",
+        "pdf",
+        "cohort",
+        "geography",
+        "schema",
+        "coverage",
+        "suppression",
+        "artifact",
+    ]
 
 
 class Specification(Contract):
     revision: Version
-    terms: Terms
+    terms: Terms | DatasetSpecification
     requirements: tuple[Requirement, ...]
     summary: Text
     limitations: tuple[Text, ...]
@@ -123,7 +138,7 @@ class Clarification(Contract):
 
 
 class CompilerOutput(Contract):
-    terms: Terms | None
+    terms: Terms | DatasetSpecification | None
     question: Clarification | None
     summary: Text
     limitations: tuple[Text, ...]
@@ -179,7 +194,7 @@ class Quote(Contract):
     sources: tuple[Source, ...]
     amount: Money
     payment_terms: PaymentTerms | None = None
-    policy: Policy = Policy()
+    policy: Policy | BrokeragePolicy = Policy()
     expires_at: AwareDatetime
     purpose: Literal["initial", "additional_work", "substantive_amendment"] = "initial"
     work_description: Text
@@ -194,6 +209,14 @@ class Quote(Contract):
             raise ValueError("quote requires a nonempty, unique source manifest")
         if any(s.corpus_id != self.specification.terms.corpus_id for s in self.sources):
             raise ValueError("quoted sources must belong to the selected corpus")
+        dataset = isinstance(self.specification.terms, DatasetSpecification)
+        if dataset != isinstance(self.policy, BrokeragePolicy):
+            raise ValueError("accepted domain and policy must match")
+        if dataset:
+            terms = self.specification.terms
+            pins = tuple((s.source_id, s.version, s.artifact.sha256) for s in self.sources)
+            if pins != tuple((s.source_id, s.version, s.sha256) for s in terms.sources):
+                raise ValueError("specification source pins must match the quoted manifest")
         return self
 
 
@@ -236,9 +259,9 @@ class Obligation(Contract):
 class Assessment(Contract):
     obligation_id: Text
     result: Result
-    citations: tuple[Span, ...] = ()
+    citations: tuple[Span | DatasetReference, ...] = ()
     missing_facts: tuple[Text, ...] = ()
-    conflicting_evidence: tuple[Span, ...] = ()
+    conflicting_evidence: tuple[Span | DatasetReference, ...] = ()
     reason_code: Text
     explanation: Text
     requested_evidence: Text | None = None
@@ -317,6 +340,16 @@ class Delivery(Contract):
     binding: Binding
 
 
+class DatasetDelivery(Contract):
+    domain: Literal["aggregate_dataset"] = "aggregate_dataset"
+    version: Version
+    csv: Artifact
+    preview: Artifact
+    published_at: AwareDatetime
+    review_deadline: AwareDatetime
+    binding: Binding
+
+
 class EvidenceRequest(Contract):
     request_id: Text
     obligation_ids: tuple[Text, ...]
@@ -356,7 +389,19 @@ class Approval(Contract):
 class Complaint(Contract):
     text: Text
     product_id: Text
-    field: Literal["weight", "unit_price", "completeness", "provenance", "pdf"]
+    field: Literal[
+        "weight",
+        "unit_price",
+        "completeness",
+        "provenance",
+        "pdf",
+        "cohort",
+        "category",
+        "geography",
+        "coverage",
+        "suppression",
+        "artifact",
+    ]
     requirement_id: Text
     artifact_id: Text
     intent: Literal["dispute_fact", "change_scope"] = "dispute_fact"
@@ -408,9 +453,9 @@ class ReviewRow(Contract):
     field: Text
     issue: Text
     source_fact: Text
-    source_citations: tuple[Span, ...]
+    source_citations: tuple[Span | DatasetReference, ...]
     delivered_value: Text | None
-    delivered_citations: tuple[Span, ...]
+    delivered_citations: tuple[Span | DatasetReference, ...]
     result: Result
     amendment_status: Text
     missing_fact_or_contradiction: Text
@@ -421,9 +466,11 @@ class ReviewRow(Contract):
 
 class ReviewerDecision(Contract):
     actor: Text
-    action: Literal["request_evidence", "release_authorization", "propose_exception"]
+    action: Literal[
+        "request_evidence", "release_authorization", "propose_exception", "reject", "escalate"
+    ]
     reason: Text
-    supporting_evidence: tuple[Span, ...]
+    supporting_evidence: tuple[Span | DatasetReference, ...]
     binding: Binding
     recorded_at: AwareDatetime
     negotiated_exception: bool = False
@@ -453,7 +500,7 @@ class CatalogOrder(BaseModel):
     authorization: Authorization
     sources: tuple[Source, ...]
     artifacts: tuple[Artifact, ...]
-    deliveries: tuple[Delivery, ...] = ()
+    deliveries: tuple[Delivery | DatasetDelivery, ...] = ()
     verification: Verification | None = None
     verification_history: tuple[Verification, ...] = ()
     evidence_requests: tuple[EvidenceRequest, ...] = ()
@@ -587,3 +634,16 @@ class RegressionRuleProposal(Contract):
     description: Text
     evidence_ids: tuple[Text, ...]
     proposed_by: Text
+
+
+class CatalogContractExport(Contract):
+    request: RequestCommand
+    draft: RequestDraft
+    revision: RevisionCommand
+    clarify: ClarifyCommand
+    quote_request: QuoteRequest
+    quote: Quote
+    acceptance: AcceptQuoteCommand
+    order: OrderView
+    command: OrderCommand
+    dispute: DisputeCommand

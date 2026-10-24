@@ -1,5 +1,12 @@
 # Nikita payment runbook
 
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
+
+
 Runtime, Base transport and asynchronous catalog settlement are integrated and validated offline.
 **No real testnet RPC result or receipt is claimed; no broadcast or deployment is authorized.**
 Do not inspect existing secrets to fill setup. Use fresh disposable configuration only for a

@@ -14,6 +14,7 @@ from app.api.catalog import reviewer, router
 from app.api.catalog import worker as catalog_worker
 from app.api.improvement import router as improvement_router
 from app.api.jobflow import router as jobflow_router
+from app.api.runs import router as runs_router
 from app.contracts.http import Capabilities, ErrorResponse
 from app.improvement.service import Improvement
 from app.orders.catalog import CatalogService
@@ -125,7 +126,7 @@ def create_app(
                 yield
 
     app = FastAPI(
-        title="Catalog order to cash",
+        title="Aggregate dataset brokerage",
         version="0.4.0",
         lifespan=lifespan,
         responses={status: {"model": ErrorResponse} for status in (403, 404, 409, 422, 503)},
@@ -167,6 +168,7 @@ def create_app(
         return app.state.payment_capabilities
 
     app.include_router(router)
+    app.include_router(runs_router)
     app.include_router(catalog_worker)
     app.include_router(reviewer)
     # Separate schemas retain the frozen catalog component names and the existing

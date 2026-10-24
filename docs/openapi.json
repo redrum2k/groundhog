@@ -28,6 +28,30 @@
         "title": "AcceptQuoteCommand",
         "type": "object"
       },
+      "ActionAvailability": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "enabled",
+          "reason"
+        ],
+        "title": "ActionAvailability",
+        "type": "object"
+      },
       "Amendment": {
         "additionalProperties": false,
         "properties": {
@@ -130,6 +154,64 @@
           "submitted_at"
         ],
         "title": "Amendment",
+        "type": "object"
+      },
+      "AmendmentSigned": {
+        "additionalProperties": false,
+        "properties": {
+          "allowedBy": {
+            "title": "Allowedby",
+            "type": "string"
+          },
+          "amendment": {
+            "$ref": "#/components/schemas/CanvasAmendment"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "amendment_signed",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "amendment",
+          "allowedBy"
+        ],
+        "title": "AmendmentSigned",
         "type": "object"
       },
       "AnswerCommand": {
@@ -283,7 +365,8 @@
           "media_type": {
             "enum": [
               "application/pdf",
-              "application/json"
+              "application/json",
+              "text/csv"
             ],
             "title": "Media Type",
             "type": "string"
@@ -320,7 +403,14 @@
           "citations": {
             "default": [],
             "items": {
-              "$ref": "#/components/schemas/Span"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Span"
+                },
+                {
+                  "$ref": "#/components/schemas/DatasetReference"
+                }
+              ]
             },
             "title": "Citations",
             "type": "array"
@@ -328,7 +418,14 @@
           "conflicting_evidence": {
             "default": [],
             "items": {
-              "$ref": "#/components/schemas/Span"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Span"
+                },
+                {
+                  "$ref": "#/components/schemas/DatasetReference"
+                }
+              ]
             },
             "title": "Conflicting Evidence",
             "type": "array"
@@ -707,9 +804,396 @@
         "title": "Booking",
         "type": "object"
       },
+      "BooksPosted": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/JournalEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "margin": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Margin"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "operationIds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Operationids",
+            "type": "array"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "books_posted",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "entries"
+        ],
+        "title": "BooksPosted",
+        "type": "object"
+      },
+      "BrokeragePolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "authorization_seconds": {
+            "const": 3600,
+            "default": 3600,
+            "title": "Authorization Seconds",
+            "type": "integer"
+          },
+          "clarification_rounds": {
+            "const": 2,
+            "default": 2,
+            "title": "Clarification Rounds",
+            "type": "integer"
+          },
+          "clarification_seconds": {
+            "const": 300,
+            "default": 300,
+            "title": "Clarification Seconds",
+            "type": "integer"
+          },
+          "correction_seconds": {
+            "const": 135,
+            "default": 135,
+            "title": "Correction Seconds",
+            "type": "integer"
+          },
+          "dispute_seconds": {
+            "const": 60,
+            "default": 60,
+            "title": "Dispute Seconds",
+            "type": "integer"
+          },
+          "evidence_attempts": {
+            "const": 2,
+            "default": 2,
+            "title": "Evidence Attempts",
+            "type": "integer"
+          },
+          "evidence_repair_seconds": {
+            "const": 120,
+            "default": 120,
+            "title": "Evidence Repair Seconds",
+            "type": "integer"
+          },
+          "free_corrections": {
+            "const": 1,
+            "default": 1,
+            "title": "Free Corrections",
+            "type": "integer"
+          },
+          "fulfillment_seconds": {
+            "const": 135,
+            "default": 135,
+            "title": "Fulfillment Seconds",
+            "type": "integer"
+          },
+          "max_questions": {
+            "const": 2,
+            "default": 2,
+            "title": "Max Questions",
+            "type": "integer"
+          },
+          "pricing_version": {
+            "const": "datumco-demo-pricing-v1",
+            "default": "datumco-demo-pricing-v1",
+            "title": "Pricing Version",
+            "type": "string"
+          },
+          "review_seconds": {
+            "const": 60,
+            "default": 60,
+            "title": "Review Seconds",
+            "type": "integer"
+          },
+          "scheduling_version": {
+            "const": "broker-budget-v1",
+            "default": "broker-budget-v1",
+            "title": "Scheduling Version",
+            "type": "string"
+          },
+          "transaction_margin_seconds": {
+            "const": 120,
+            "default": 120,
+            "title": "Transaction Margin Seconds",
+            "type": "integer"
+          },
+          "version": {
+            "const": "aggregate-brokerage-v1",
+            "default": "aggregate-brokerage-v1",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "title": "BrokeragePolicy",
+        "type": "object"
+      },
+      "CanvasAmendment": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "line": {
+            "$ref": "#/components/schemas/ContractLine"
+          },
+          "price": {
+            "title": "Price",
+            "type": "integer"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "summary",
+          "price",
+          "line"
+        ],
+        "title": "CanvasAmendment",
+        "type": "object"
+      },
+      "CanvasBinding": {
+        "additionalProperties": false,
+        "properties": {
+          "deliveryVersion": {
+            "title": "Deliveryversion",
+            "type": "integer"
+          },
+          "evidenceVersion": {
+            "title": "Evidenceversion",
+            "type": "integer"
+          },
+          "orderId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orderid"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revision"
+          },
+          "runId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runid"
+          },
+          "snapshotId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshotid"
+          }
+        },
+        "required": [
+          "deliveryVersion",
+          "evidenceVersion"
+        ],
+        "title": "CanvasBinding",
+        "type": "object"
+      },
+      "CanvasDelivery": {
+        "additionalProperties": false,
+        "properties": {
+          "artifactId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifactid"
+          },
+          "file": {
+            "title": "File",
+            "type": "string"
+          },
+          "previewArtifactId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previewartifactid"
+          },
+          "reviewClosesAt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewclosesat"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/ZipCount"
+            },
+            "title": "Rows",
+            "type": "array"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "file",
+          "rows"
+        ],
+        "title": "CanvasDelivery",
+        "type": "object"
+      },
+      "CanvasPayment": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "mock": {
+            "title": "Mock",
+            "type": "boolean"
+          },
+          "network": {
+            "const": "base-sepolia",
+            "default": "base-sepolia",
+            "title": "Network",
+            "type": "string"
+          },
+          "rail": {
+            "const": "commerce-payments",
+            "default": "commerce-payments",
+            "title": "Rail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "amount",
+          "mock"
+        ],
+        "title": "CanvasPayment",
+        "type": "object"
+      },
       "Capabilities": {
         "additionalProperties": false,
         "properties": {
+          "brokerage_policy": {
+            "const": "aggregate-brokerage-v1",
+            "default": "aggregate-brokerage-v1",
+            "title": "Brokerage Policy",
+            "type": "string"
+          },
           "buyer_signature_validation": {
             "default": true,
             "title": "Buyer Signature Validation",
@@ -760,6 +1244,12 @@
             "const": "catalog-payments-v1",
             "default": "catalog-payments-v1",
             "title": "Payment Policy",
+            "type": "string"
+          },
+          "primary_product": {
+            "const": "aggregate_dataset",
+            "default": "aggregate_dataset",
+            "title": "Primary Product",
             "type": "string"
           },
           "status": {
@@ -924,7 +1414,14 @@
           "deliveries": {
             "default": [],
             "items": {
-              "$ref": "#/components/schemas/Delivery"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Delivery"
+                },
+                {
+                  "$ref": "#/components/schemas/DatasetDelivery"
+                }
+              ]
             },
             "title": "Deliveries",
             "type": "array"
@@ -1171,6 +1668,384 @@
         "title": "CatalogPaymentIntent",
         "type": "object"
       },
+      "CategoryEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "item": {
+            "title": "Item",
+            "type": "string"
+          },
+          "kind": {
+            "const": "vendor_category",
+            "default": "vendor_category",
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MessageSource"
+              },
+              {
+                "$ref": "#/components/schemas/CellSource"
+              },
+              {
+                "$ref": "#/components/schemas/NoSource"
+              }
+            ],
+            "title": "Source"
+          },
+          "vendor": {
+            "title": "Vendor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "note",
+          "source",
+          "vendor",
+          "item",
+          "category"
+        ],
+        "title": "CategoryEvidence",
+        "type": "object"
+      },
+      "CellEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "column": {
+            "title": "Column",
+            "type": "string"
+          },
+          "file": {
+            "title": "File",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "sheet_cell",
+            "default": "sheet_cell",
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "row": {
+            "title": "Row",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MessageSource"
+              },
+              {
+                "$ref": "#/components/schemas/CellSource"
+              },
+              {
+                "$ref": "#/components/schemas/NoSource"
+              }
+            ],
+            "title": "Source"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "note",
+          "source",
+          "file",
+          "row",
+          "column",
+          "value"
+        ],
+        "title": "CellEvidence",
+        "type": "object"
+      },
+      "CellSource": {
+        "additionalProperties": false,
+        "properties": {
+          "column": {
+            "title": "Column",
+            "type": "string"
+          },
+          "kind": {
+            "const": "cell",
+            "default": "cell",
+            "title": "Kind",
+            "type": "string"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DatasetReference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "row": {
+            "title": "Row",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "row",
+          "column"
+        ],
+        "title": "CellSource",
+        "type": "object"
+      },
+      "CheckFailed": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment": {
+            "default": "FAIL",
+            "enum": [
+              "FAIL",
+              "UNKNOWN",
+              "CONFLICT"
+            ],
+            "title": "Assessment",
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "lineId": {
+            "title": "Lineid",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "check_failed",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "lineId",
+          "reason"
+        ],
+        "title": "CheckFailed",
+        "type": "object"
+      },
+      "CheckFixed": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "fix": {
+            "title": "Fix",
+            "type": "string"
+          },
+          "lineId": {
+            "title": "Lineid",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "check_fixed",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "lineId",
+          "fix"
+        ],
+        "title": "CheckFixed",
+        "type": "object"
+      },
+      "CheckPassed": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "lineId": {
+            "title": "Lineid",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "check_passed",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "lineId"
+        ],
+        "title": "CheckPassed",
+        "type": "object"
+      },
+      "ChecklistAttachment": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "checklist",
+            "default": "checklist",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "title": "ChecklistAttachment",
+        "type": "object"
+      },
       "Clarification": {
         "additionalProperties": false,
         "properties": {
@@ -1267,7 +2142,13 @@
               "unit_price",
               "completeness",
               "provenance",
-              "pdf"
+              "pdf",
+              "cohort",
+              "category",
+              "geography",
+              "coverage",
+              "suppression",
+              "artifact"
             ],
             "title": "Field",
             "type": "string"
@@ -1305,6 +2186,654 @@
           "artifact_id"
         ],
         "title": "Complaint",
+        "type": "object"
+      },
+      "ContractApproved": {
+        "additionalProperties": false,
+        "properties": {
+          "allowedBy": {
+            "title": "Allowedby",
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "contract": {
+            "$ref": "#/components/schemas/DataContract"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "contract_approved",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "contract",
+          "allowedBy"
+        ],
+        "title": "ContractApproved",
+        "type": "object"
+      },
+      "ContractLine": {
+        "additionalProperties": false,
+        "properties": {
+          "check": {
+            "enum": [
+              "schema",
+              "code"
+            ],
+            "title": "Check",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "text",
+          "check"
+        ],
+        "title": "ContractLine",
+        "type": "object"
+      },
+      "ContractLineEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "line": {
+            "$ref": "#/components/schemas/ContractLine"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "contract_line_drafted",
+              "contract_line_approved"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "line"
+        ],
+        "title": "ContractLineEvent",
+        "type": "object"
+      },
+      "ControllerDecided": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "approve",
+              "reject",
+              "ask",
+              "escalate"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "binding": {
+            "$ref": "#/components/schemas/CanvasBinding"
+          },
+          "by": {
+            "title": "By",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "controller_decided",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "action",
+          "by",
+          "note",
+          "binding"
+        ],
+        "title": "ControllerDecided",
+        "type": "object"
+      },
+      "CoverageUniverse": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_record": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Authority Record",
+            "type": "string"
+          },
+          "boundary_notice": {
+            "default": "Synthetic ZIP inclusion registry; postal ZIPs are not city boundaries.",
+            "title": "Boundary Notice",
+            "type": "string"
+          },
+          "expected_keys": {
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Expected Keys",
+            "type": "array"
+          },
+          "geography": {
+            "enum": [
+              "San Francisco",
+              "Oakland"
+            ],
+            "title": "Geography",
+            "type": "string"
+          },
+          "pin": {
+            "$ref": "#/components/schemas/SourcePin"
+          }
+        },
+        "required": [
+          "pin",
+          "geography",
+          "expected_keys",
+          "authority_record"
+        ],
+        "title": "CoverageUniverse",
+        "type": "object"
+      },
+      "DataContract": {
+        "additionalProperties": false,
+        "properties": {
+          "buyer": {
+            "title": "Buyer",
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/ContractLine"
+            },
+            "title": "Lines",
+            "type": "array"
+          },
+          "price": {
+            "title": "Price",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "buyer",
+          "title",
+          "price",
+          "lines"
+        ],
+        "title": "DataContract",
+        "type": "object"
+      },
+      "DatasetDelivery": {
+        "additionalProperties": false,
+        "properties": {
+          "binding": {
+            "$ref": "#/components/schemas/Binding"
+          },
+          "csv": {
+            "$ref": "#/components/schemas/Artifact"
+          },
+          "domain": {
+            "const": "aggregate_dataset",
+            "default": "aggregate_dataset",
+            "title": "Domain",
+            "type": "string"
+          },
+          "preview": {
+            "$ref": "#/components/schemas/Artifact"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "review_deadline": {
+            "format": "date-time",
+            "title": "Review Deadline",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "csv",
+          "preview",
+          "published_at",
+          "review_deadline",
+          "binding"
+        ],
+        "title": "DatasetDelivery",
+        "type": "object"
+      },
+      "DatasetReference": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "column": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Column",
+            "type": "string"
+          },
+          "coverage_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coverage Sha256"
+          },
+          "expected_key": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Key"
+          },
+          "kind": {
+            "const": "dataset",
+            "default": "dataset",
+            "title": "Kind",
+            "type": "string"
+          },
+          "row": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Row",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          },
+          "source_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "sha256",
+          "source_id",
+          "version",
+          "row",
+          "column",
+          "value"
+        ],
+        "title": "DatasetReference",
+        "type": "object"
+      },
+      "DatasetSpecification": {
+        "additionalProperties": false,
+        "properties": {
+          "age_max": {
+            "const": 34,
+            "default": 34,
+            "title": "Age Max",
+            "type": "integer"
+          },
+          "age_min": {
+            "const": 25,
+            "default": 25,
+            "title": "Age Min",
+            "type": "integer"
+          },
+          "category": {
+            "default": "gym_or_fitness_app",
+            "enum": [
+              "gym_or_fitness_app",
+              "gym_app_or_yoga"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "category_meaning": {
+            "default": "Gym membership or fitness-app use; yoga alone requires accepted taxonomy evidence.",
+            "title": "Category Meaning",
+            "type": "string"
+          },
+          "completeness": {
+            "const": "every_registry_key_once",
+            "default": "every_registry_key_once",
+            "title": "Completeness",
+            "type": "string"
+          },
+          "corpus_id": {
+            "default": "sf-aggregate-v1",
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Corpus Id",
+            "type": "string"
+          },
+          "count_unit": {
+            "const": "unique_adults_per_zip",
+            "default": "unique_adults_per_zip",
+            "title": "Count Unit",
+            "type": "string"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/CoverageUniverse"
+          },
+          "domain": {
+            "const": "aggregate_dataset",
+            "default": "aggregate_dataset",
+            "title": "Domain",
+            "type": "string"
+          },
+          "geography": {
+            "default": "San Francisco",
+            "enum": [
+              "San Francisco",
+              "Oakland"
+            ],
+            "title": "Geography",
+            "type": "string"
+          },
+          "grouping": {
+            "const": "zip",
+            "default": "zip",
+            "title": "Grouping",
+            "type": "string"
+          },
+          "groups_disjoint": {
+            "const": true,
+            "default": true,
+            "title": "Groups Disjoint",
+            "type": "boolean"
+          },
+          "policy_version": {
+            "const": "aggregate-brokerage-v1",
+            "default": "aggregate-brokerage-v1",
+            "title": "Policy Version",
+            "type": "string"
+          },
+          "population": {
+            "const": "synthetic_adults",
+            "default": "synthetic_adults",
+            "title": "Population",
+            "type": "string"
+          },
+          "provenance": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/TermProvenance"
+            },
+            "title": "Provenance",
+            "type": "array"
+          },
+          "required_columns": {
+            "default": [
+              "zip",
+              "area",
+              "count",
+              "status"
+            ],
+            "items": {
+              "enum": [
+                "zip",
+                "area",
+                "count",
+                "status"
+              ],
+              "type": "string"
+            },
+            "title": "Required Columns",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourcePin"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Sources",
+            "type": "array"
+          },
+          "suppressed_count": {
+            "title": "Suppressed Count",
+            "type": "null"
+          },
+          "suppression_threshold": {
+            "const": 50,
+            "default": 50,
+            "title": "Suppression Threshold",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "coverage",
+          "sources"
+        ],
+        "title": "DatasetSpecification",
+        "type": "object"
+      },
+      "DecisionAcknowledgement": {
+        "additionalProperties": false,
+        "properties": {
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "ok": {
+            "const": true,
+            "default": true,
+            "title": "Ok",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "decision_id"
+        ],
+        "title": "DecisionAcknowledgement",
+        "type": "object"
+      },
+      "DecisionBinding": {
+        "additionalProperties": false,
+        "properties": {
+          "deliveryVersion": {
+            "minimum": 0.0,
+            "title": "Deliveryversion",
+            "type": "integer"
+          },
+          "evidenceVersion": {
+            "minimum": 1.0,
+            "title": "Evidenceversion",
+            "type": "integer"
+          },
+          "orderId": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Orderid",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 1.0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "runId": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Runid",
+            "type": "string"
+          },
+          "snapshotId": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Snapshotid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deliveryVersion",
+          "evidenceVersion",
+          "runId",
+          "orderId",
+          "snapshotId",
+          "revision"
+        ],
+        "title": "DecisionBinding",
         "type": "object"
       },
       "Delivery": {
@@ -1346,6 +2875,83 @@
         "title": "Delivery",
         "type": "object"
       },
+      "DeliveryReady": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "delivery": {
+            "$ref": "#/components/schemas/CanvasDelivery"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "delivery_ready",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "delivery"
+        ],
+        "title": "DeliveryReady",
+        "type": "object"
+      },
+      "Dispute": {
+        "additionalProperties": false,
+        "properties": {
+          "claim": {
+            "title": "Claim",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "raisedBy": {
+            "title": "Raisedby",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "claim",
+          "raisedBy"
+        ],
+        "title": "Dispute",
+        "type": "object"
+      },
       "DisputeCommand": {
         "additionalProperties": false,
         "properties": {
@@ -1373,6 +2979,59 @@
           "complaint"
         ],
         "title": "DisputeCommand",
+        "type": "object"
+      },
+      "DisputeOpened": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "dispute": {
+            "$ref": "#/components/schemas/Dispute"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "dispute_opened",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "dispute"
+        ],
+        "title": "DisputeOpened",
         "type": "object"
       },
       "ErrorResponse": {
@@ -1487,6 +3146,90 @@
           "block_hash"
         ],
         "title": "EscrowObservation",
+        "type": "object"
+      },
+      "EvidenceAttachment": {
+        "additionalProperties": false,
+        "properties": {
+          "evidenceId": {
+            "title": "Evidenceid",
+            "type": "string"
+          },
+          "kind": {
+            "const": "evidence",
+            "default": "evidence",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidenceId"
+        ],
+        "title": "EvidenceAttachment",
+        "type": "object"
+      },
+      "EvidenceFound": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InterviewEvidence"
+              },
+              {
+                "$ref": "#/components/schemas/CellEvidence"
+              },
+              {
+                "$ref": "#/components/schemas/CategoryEvidence"
+              }
+            ],
+            "title": "Evidence"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "evidence_found",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "evidence"
+        ],
+        "title": "EvidenceFound",
         "type": "object"
       },
       "EvidenceRequest": {
@@ -1645,6 +3388,64 @@
         "title": "FundingPreparation",
         "type": "object"
       },
+      "InterviewEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "interview_quote",
+              "claim"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MessageSource"
+              },
+              {
+                "$ref": "#/components/schemas/CellSource"
+              },
+              {
+                "$ref": "#/components/schemas/NoSource"
+              }
+            ],
+            "title": "Source"
+          },
+          "speaker": {
+            "title": "Speaker",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "note",
+          "source",
+          "kind",
+          "speaker",
+          "quote"
+        ],
+        "title": "InterviewEvidence",
+        "type": "object"
+      },
       "Job": {
         "additionalProperties": false,
         "properties": {
@@ -1728,6 +3529,194 @@
         "title": "Job",
         "type": "object"
       },
+      "JournalEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          },
+          "credit": {
+            "title": "Credit",
+            "type": "string"
+          },
+          "debit": {
+            "title": "Debit",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "memo": {
+            "title": "Memo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "memo",
+          "debit",
+          "credit",
+          "amount"
+        ],
+        "title": "JournalEntry",
+        "type": "object"
+      },
+      "Margin": {
+        "additionalProperties": false,
+        "properties": {
+          "cost": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost"
+          },
+          "revenue": {
+            "title": "Revenue",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revenue",
+          "cost"
+        ],
+        "title": "Margin",
+        "type": "object"
+      },
+      "Message": {
+        "additionalProperties": false,
+        "properties": {
+          "asks": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Asks"
+          },
+          "attach": {
+            "default": [],
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ChecklistAttachment"
+                },
+                {
+                  "$ref": "#/components/schemas/EvidenceAttachment"
+                }
+              ]
+            },
+            "title": "Attach",
+            "type": "array"
+          },
+          "from": {
+            "enum": [
+              "buyer",
+              "agent",
+              "controller"
+            ],
+            "title": "From",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "from",
+          "text"
+        ],
+        "title": "Message",
+        "type": "object"
+      },
+      "MessageEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "message",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "message"
+        ],
+        "title": "MessageEvent",
+        "type": "object"
+      },
+      "MessageSource": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "message",
+            "default": "message",
+            "title": "Kind",
+            "type": "string"
+          },
+          "messageId": {
+            "title": "Messageid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "messageId"
+        ],
+        "title": "MessageSource",
+        "type": "object"
+      },
       "Money": {
         "additionalProperties": false,
         "description": "Integer minor units; asset identity/chain mapping awaits the payment spike.",
@@ -1755,6 +3744,26 @@
           "decimals"
         ],
         "title": "Money",
+        "type": "object"
+      },
+      "NoSource": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "none",
+            "default": "none",
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "NoSource",
         "type": "object"
       },
       "Obligation": {
@@ -2058,6 +4067,53 @@
         "title": "PaymentAccount",
         "type": "object"
       },
+      "PaymentAuthorized": {
+        "additionalProperties": false,
+        "properties": {
+          "allowedBy": {
+            "title": "Allowedby",
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/CanvasPayment"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "payment_authorized",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "type",
+          "payment",
+          "allowedBy"
+        ],
+        "title": "PaymentAuthorized",
+        "type": "object"
+      },
       "PaymentBinding": {
         "additionalProperties": false,
         "properties": {
@@ -2083,6 +4139,66 @@
           "delivery_version"
         ],
         "title": "PaymentBinding",
+        "type": "object"
+      },
+      "PaymentCaptured": {
+        "additionalProperties": false,
+        "properties": {
+          "allowedBy": {
+            "title": "Allowedby",
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "captureTx": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capturetx"
+          },
+          "paymentId": {
+            "title": "Paymentid",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "payment_captured",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "type",
+          "paymentId",
+          "captureTx",
+          "allowedBy"
+        ],
+        "title": "PaymentCaptured",
         "type": "object"
       },
       "PaymentInfo": {
@@ -2755,7 +4871,14 @@
             ]
           },
           "policy": {
-            "$ref": "#/components/schemas/Policy",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Policy"
+              },
+              {
+                "$ref": "#/components/schemas/BrokeragePolicy"
+              }
+            ],
             "default": {
               "authorization_seconds": 3600,
               "clarification_rounds": 3,
@@ -2767,7 +4890,8 @@
               "max_questions": 2,
               "review_seconds": 60,
               "version": "catalog-v0.3"
-            }
+            },
+            "title": "Policy"
           },
           "provider_actor": {
             "default": "server:catalog-price-v1",
@@ -3022,7 +5146,13 @@
               "fields",
               "completeness",
               "provenance",
-              "pdf"
+              "pdf",
+              "cohort",
+              "geography",
+              "schema",
+              "coverage",
+              "suppression",
+              "artifact"
             ],
             "title": "Check",
             "type": "string"
@@ -3044,6 +5174,56 @@
           "check"
         ],
         "title": "Requirement",
+        "type": "object"
+      },
+      "ResolvedCell": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "cell",
+            "default": "cell",
+            "title": "Kind",
+            "type": "string"
+          },
+          "reference": {
+            "$ref": "#/components/schemas/DatasetReference"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "reference",
+          "value"
+        ],
+        "title": "ResolvedCell",
+        "type": "object"
+      },
+      "ResolvedMessage": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "message",
+            "default": "message",
+            "title": "Kind",
+            "type": "string"
+          },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "ResolvedMessage",
         "type": "object"
       },
       "ReviewCommand": {
@@ -3111,7 +5291,14 @@
           },
           "delivered_citations": {
             "items": {
-              "$ref": "#/components/schemas/Span"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Span"
+                },
+                {
+                  "$ref": "#/components/schemas/DatasetReference"
+                }
+              ]
             },
             "title": "Delivered Citations",
             "type": "array"
@@ -3180,7 +5367,14 @@
           },
           "source_citations": {
             "items": {
-              "$ref": "#/components/schemas/Span"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Span"
+                },
+                {
+                  "$ref": "#/components/schemas/DatasetReference"
+                }
+              ]
             },
             "title": "Source Citations",
             "type": "array"
@@ -3218,7 +5412,9 @@
             "enum": [
               "request_evidence",
               "release_authorization",
-              "propose_exception"
+              "propose_exception",
+              "reject",
+              "escalate"
             ],
             "title": "Action",
             "type": "string"
@@ -3248,7 +5444,14 @@
           },
           "supporting_evidence": {
             "items": {
-              "$ref": "#/components/schemas/Span"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Span"
+                },
+                {
+                  "$ref": "#/components/schemas/DatasetReference"
+                }
+              ]
             },
             "title": "Supporting Evidence",
             "type": "array"
@@ -3284,6 +5487,487 @@
           "idempotency_key"
         ],
         "title": "RevisionCommand",
+        "type": "object"
+      },
+      "RuleUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "activationId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activationid"
+          },
+          "decidedBy": {
+            "title": "Decidedby",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "illustration": {
+            "default": false,
+            "title": "Illustration",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "text",
+          "decidedBy"
+        ],
+        "title": "RuleUpdate",
+        "type": "object"
+      },
+      "RuleUpdated": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "rule": {
+            "$ref": "#/components/schemas/RuleUpdate"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "rule_updated",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "rule"
+        ],
+        "title": "RuleUpdated",
+        "type": "object"
+      },
+      "RunCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "corpus_id": {
+            "const": "sf-aggregate-v1",
+            "default": "sf-aggregate-v1",
+            "title": "Corpus Id",
+            "type": "string"
+          },
+          "prompt": {
+            "default": "SF adults 25\u201334 interested in fitness, counts by ZIP.",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          }
+        },
+        "title": "RunCreate",
+        "type": "object"
+      },
+      "RunCreated": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "poll_after_ms": {
+            "const": 1000,
+            "default": 1000,
+            "title": "Poll After Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "RunCreated",
+        "type": "object"
+      },
+      "RunDecision": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "approve",
+              "reject",
+              "ask",
+              "escalate"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "binding": {
+            "$ref": "#/components/schemas/DecisionBinding"
+          },
+          "evidence_ids": {
+            "default": [],
+            "items": {
+              "maxLength": 160,
+              "minLength": 1,
+              "type": "string"
+            },
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "reason": {
+            "default": "Review current cited evidence and the proposed remedy.",
+            "maxLength": 1200,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "binding"
+        ],
+        "title": "RunDecision",
+        "type": "object"
+      },
+      "RunEvidenceAnswer": {
+        "additionalProperties": false,
+        "properties": {
+          "binding": {
+            "$ref": "#/components/schemas/DecisionBinding"
+          },
+          "references": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/DatasetReference"
+            },
+            "title": "References",
+            "type": "array"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "binding",
+          "text"
+        ],
+        "title": "RunEvidenceAnswer",
+        "type": "object"
+      },
+      "RunOffer": {
+        "additionalProperties": false,
+        "properties": {
+          "binding": {
+            "$ref": "#/components/schemas/DecisionBinding"
+          },
+          "scope": {
+            "enum": [
+              "oakland",
+              "yoga",
+              "replacement"
+            ],
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "binding",
+          "scope"
+        ],
+        "title": "RunOffer",
+        "type": "object"
+      },
+      "RunPage": {
+        "additionalProperties": false,
+        "properties": {
+          "available_actions": {
+            "items": {
+              "$ref": "#/components/schemas/ActionAvailability"
+            },
+            "title": "Available Actions",
+            "type": "array"
+          },
+          "binding": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DecisionBinding"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "captureClosesAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captureclosesat"
+          },
+          "caught_up": {
+            "title": "Caught Up",
+            "type": "boolean"
+          },
+          "disputeClosesAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disputeclosesat"
+          },
+          "events": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "amendment_signed": "#/components/schemas/AmendmentSigned",
+                  "books_posted": "#/components/schemas/BooksPosted",
+                  "check_failed": "#/components/schemas/CheckFailed",
+                  "check_fixed": "#/components/schemas/CheckFixed",
+                  "check_passed": "#/components/schemas/CheckPassed",
+                  "contract_approved": "#/components/schemas/ContractApproved",
+                  "contract_line_approved": "#/components/schemas/ContractLineEvent",
+                  "contract_line_drafted": "#/components/schemas/ContractLineEvent",
+                  "controller_decided": "#/components/schemas/ControllerDecided",
+                  "delivery_ready": "#/components/schemas/DeliveryReady",
+                  "dispute_opened": "#/components/schemas/DisputeOpened",
+                  "evidence_found": "#/components/schemas/EvidenceFound",
+                  "message": "#/components/schemas/MessageEvent",
+                  "payment_authorized": "#/components/schemas/PaymentAuthorized",
+                  "payment_captured": "#/components/schemas/PaymentCaptured",
+                  "rule_updated": "#/components/schemas/RuleUpdated",
+                  "state_changed": "#/components/schemas/StateChanged",
+                  "step_completed": "#/components/schemas/StepStarted",
+                  "step_started": "#/components/schemas/StepStarted",
+                  "step_waiting": "#/components/schemas/StepWaiting",
+                  "steps_planned": "#/components/schemas/StepsPlanned",
+                  "verdict": "#/components/schemas/VerdictEvent"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/StepsPlanned"
+                },
+                {
+                  "$ref": "#/components/schemas/StepStarted"
+                },
+                {
+                  "$ref": "#/components/schemas/StepWaiting"
+                },
+                {
+                  "$ref": "#/components/schemas/MessageEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/ContractLineEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/ContractApproved"
+                },
+                {
+                  "$ref": "#/components/schemas/DeliveryReady"
+                },
+                {
+                  "$ref": "#/components/schemas/CheckPassed"
+                },
+                {
+                  "$ref": "#/components/schemas/CheckFailed"
+                },
+                {
+                  "$ref": "#/components/schemas/CheckFixed"
+                },
+                {
+                  "$ref": "#/components/schemas/EvidenceFound"
+                },
+                {
+                  "$ref": "#/components/schemas/DisputeOpened"
+                },
+                {
+                  "$ref": "#/components/schemas/VerdictEvent"
+                },
+                {
+                  "$ref": "#/components/schemas/ControllerDecided"
+                },
+                {
+                  "$ref": "#/components/schemas/AmendmentSigned"
+                },
+                {
+                  "$ref": "#/components/schemas/RuleUpdated"
+                },
+                {
+                  "$ref": "#/components/schemas/BooksPosted"
+                },
+                {
+                  "$ref": "#/components/schemas/PaymentAuthorized"
+                },
+                {
+                  "$ref": "#/components/schemas/PaymentCaptured"
+                },
+                {
+                  "$ref": "#/components/schemas/StateChanged"
+                }
+              ]
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "high_watermark": {
+            "title": "High Watermark",
+            "type": "integer"
+          },
+          "latestSafeSubmissionAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latestsafesubmissionat"
+          },
+          "next_after": {
+            "title": "Next After",
+            "type": "integer"
+          },
+          "payment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "poll_after_ms": {
+            "const": 1000,
+            "default": 1000,
+            "title": "Poll After Ms",
+            "type": "integer"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Quote"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request": {
+            "$ref": "#/components/schemas/RequestDraft"
+          },
+          "reviewClosesAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewclosesat"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "events",
+          "next_after",
+          "high_watermark",
+          "caught_up",
+          "server_time",
+          "binding",
+          "available_actions",
+          "request",
+          "quote",
+          "payment",
+          "reviewClosesAt",
+          "disputeClosesAt",
+          "captureClosesAt",
+          "latestSafeSubmissionAt"
+        ],
+        "title": "RunPage",
         "type": "object"
       },
       "Snapshot": {
@@ -3401,6 +6085,34 @@
           "authority"
         ],
         "title": "Source",
+        "type": "object"
+      },
+      "SourcePin": {
+        "additionalProperties": false,
+        "properties": {
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          },
+          "source_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_id",
+          "version",
+          "sha256"
+        ],
+        "title": "SourcePin",
         "type": "object"
       },
       "SourcePolicy": {
@@ -3524,7 +6236,15 @@
             "type": "string"
           },
           "terms": {
-            "$ref": "#/components/schemas/Terms"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Terms"
+              },
+              {
+                "$ref": "#/components/schemas/DatasetSpecification"
+              }
+            ],
+            "title": "Terms"
           }
         },
         "required": [
@@ -3535,6 +6255,319 @@
           "limitations"
         ],
         "title": "Specification",
+        "type": "object"
+      },
+      "StateChanged": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "binding": {
+            "$ref": "#/components/schemas/CanvasBinding"
+          },
+          "paymentState": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paymentstate"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "state_changed",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "state",
+          "binding"
+        ],
+        "title": "StateChanged",
+        "type": "object"
+      },
+      "Step": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "clarify",
+              "paid",
+              "produce",
+              "review",
+              "captured",
+              "investigate",
+              "verdict",
+              "amend",
+              "grey",
+              "decide"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "panel": {
+            "default": false,
+            "title": "Panel",
+            "type": "boolean"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "detail"
+        ],
+        "title": "Step",
+        "type": "object"
+      },
+      "StepStarted": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "step_started",
+              "step_completed"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type"
+        ],
+        "title": "StepStarted",
+        "type": "object"
+      },
+      "StepWaiting": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "step_waiting",
+            "title": "Type",
+            "type": "string"
+          },
+          "waitingOn": {
+            "title": "Waitingon",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "waitingOn"
+        ],
+        "title": "StepWaiting",
+        "type": "object"
+      },
+      "StepsPlanned": {
+        "additionalProperties": false,
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/Step"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "steps_planned",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "type",
+          "steps"
+        ],
+        "title": "StepsPlanned",
+        "type": "object"
+      },
+      "TermProvenance": {
+        "additionalProperties": false,
+        "properties": {
+          "actor_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Actor Id",
+            "type": "string"
+          },
+          "origin": {
+            "enum": [
+              "original_intent",
+              "customer_answer",
+              "provider_confirmation",
+              "accepted_source",
+              "approved_template"
+            ],
+            "title": "Origin",
+            "type": "string"
+          },
+          "reference_id": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Reference Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reference_id",
+          "origin",
+          "actor_id"
+        ],
+        "title": "TermProvenance",
         "type": "object"
       },
       "Terms": {
@@ -3793,6 +6826,106 @@
         "title": "ValidationIssue",
         "type": "object"
       },
+      "Verdict": {
+        "additionalProperties": false,
+        "properties": {
+          "decidedBy": {
+            "enum": [
+              "rules",
+              "controller",
+              "contract"
+            ],
+            "title": "Decidedby",
+            "type": "string"
+          },
+          "evidenceIds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidenceids",
+            "type": "array"
+          },
+          "kind": {
+            "enum": [
+              "agree",
+              "disagree",
+              "grey"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "reason",
+          "decidedBy",
+          "evidenceIds"
+        ],
+        "title": "Verdict",
+        "type": "object"
+      },
+      "VerdictEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "allowedBy": {
+            "title": "Allowedby",
+            "type": "string"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "attempt": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "seq": {
+            "minimum": 1.0,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          },
+          "track": {
+            "default": "shared",
+            "enum": [
+              "shared",
+              "red",
+              "green",
+              "amber"
+            ],
+            "title": "Track",
+            "type": "string"
+          },
+          "type": {
+            "const": "verdict",
+            "title": "Type",
+            "type": "string"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/Verdict"
+          }
+        },
+        "required": [
+          "seq",
+          "at",
+          "step",
+          "type",
+          "verdict",
+          "allowedBy"
+        ],
+        "title": "VerdictEvent",
+        "type": "object"
+      },
       "Verification": {
         "additionalProperties": false,
         "properties": {
@@ -3856,11 +6989,75 @@
         ],
         "title": "Verification",
         "type": "object"
+      },
+      "ZipCount": {
+        "additionalProperties": false,
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Count"
+          },
+          "flag": {
+            "anyOf": [
+              {
+                "enum": [
+                  "withheld",
+                  "missing",
+                  "added",
+                  "yoga"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flag"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "released",
+                  "suppressed",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "zip": {
+            "title": "Zip",
+            "type": "string"
+          }
+        },
+        "required": [
+          "zip",
+          "area",
+          "count"
+        ],
+        "title": "ZipCount",
+        "type": "object"
       }
     }
   },
   "info": {
-    "title": "Catalog order to cash",
+    "title": "Aggregate dataset brokerage",
     "version": "0.4.0"
   },
   "openapi": "3.1.0",
@@ -6194,6 +9391,627 @@
           }
         },
         "summary": "Decision"
+      }
+    },
+    "/runs": {
+      "post": {
+        "operationId": "create_runs_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 160,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunCreated"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Create"
+      }
+    },
+    "/runs/{run_id}/answers": {
+      "post": {
+        "operationId": "answer_runs__run_id__answers_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 160,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunEvidenceAnswer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionAcknowledgement"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Answer"
+      }
+    },
+    "/runs/{run_id}/decisions": {
+      "post": {
+        "operationId": "decide_runs__run_id__decisions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 160,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-reviewer-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Reviewer-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunDecision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionAcknowledgement"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Decide"
+      }
+    },
+    "/runs/{run_id}/events": {
+      "get": {
+        "operationId": "events_runs__run_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "After",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Events"
+      }
+    },
+    "/runs/{run_id}/evidence/{evidence_id}": {
+      "get": {
+        "operationId": "evidence_runs__run_id__evidence__evidence_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "evidence_id",
+            "required": true,
+            "schema": {
+              "title": "Evidence Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ResolvedCell"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ResolvedMessage"
+                    }
+                  ],
+                  "title": "Response Evidence Runs  Run Id  Evidence  Evidence Id  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Evidence"
+      }
+    },
+    "/runs/{run_id}/offers": {
+      "post": {
+        "operationId": "offer_runs__run_id__offers_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "maxLength": 160,
+              "minLength": 1,
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "x-internal-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunOffer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Quote"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Offer"
       }
     }
   }

@@ -456,7 +456,11 @@ class CatalogPayments:
         ):
             return False
         if intent.action == "capture":
-            return payment.state in ("funded", "capture_pending") and capture_allowed(order, now)
+            return (
+                payment.state in ("funded", "capture_pending")
+                and capture_allowed(order, now)
+                and self.owner.current_dataset_checks(order)
+            )
         if intent.action == "void":
             reviewer_authority = any(
                 d.action == "release_authorization" and d.binding == order.binding
@@ -578,6 +582,7 @@ class CatalogPayments:
         if before != (payment.model_dump_json(), order.model_dump_json()):
             order.revision += 1
             self.owner.repository.put(db, "order", payment.order_id, order)
+            self.owner.effects.state(db, order)
 
     def complete(self, db, operation, evidence):
         payment = self.journal.payment(db, operation.intent.payment_id)
@@ -651,6 +656,8 @@ class CatalogPayments:
         self._state(db, payment, desired, last_error=None, latest_observation=operation.observation)
         order.revision += 1
         self.owner.repository.put(db, "order", payment.order_id, order)
+        self.owner.effects.payment(db, order, action, receipt)
+        self.owner.effects.state(db, order)
         if action == "void":
             for child_id in order.children:
                 child = self.owner.repository.load(db, "order", child_id, CatalogOrder)
@@ -665,6 +672,7 @@ class CatalogPayments:
                     )
                 child.revision += 1
                 self.owner.repository.put(db, "order", child_id, child)
+                self.owner.effects.state(db, child)
 
     def work(self, limit=20):
         if type(limit) is not int or not 0 <= limit <= 20:

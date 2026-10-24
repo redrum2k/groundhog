@@ -1,3 +1,38 @@
+# DatumCo — aggregate data brokerage
+
+Turn AcmeFitness's request into a frozen data contract, fund it explicitly, deliver
+independently checked synthetic aggregate CSV/JSON, then settle under the review rules.
+The primary canvas at `/` consumes durable backend events. Recorded rehearsal is
+separate. Mock payments are the default; no live testnet success is claimed.
+
+Start with [product policy](HACK.md), [migration and runnable acceptance](docs/workstreams/06-data-broker.md),
+[domain language](CONTEXT.md) and [migration decision](docs/adr/0001-aggregate-brokerage.md).
+The migration handoff contains exact backend/frontend production commands, trusted
+local-demo configuration, explicit acceptance/funding steps, and browser-test setup.
+No private .env, wallet or existing database is needed.
+
+```sh
+uv sync --locked --project backend
+uv run --locked --directory backend python ../tools/brokerage_acceptance.py --output /private/tmp/datumco-acceptance
+cd frontend
+npm ci
+npm run generate:check
+npm test
+npm run build
+```
+
+Use Node 24 (minimum 22.12). The offline runner saves source/authority/coverage
+artifacts, event traces, CSVs and final payment bookings in a fresh directory.
+A real production browser smoke remains blocked in the agent sandbox because local
+ports cannot be bound; see the handoff to run it outside that sandbox.
+
+The payment rail is direct Base Commerce Payments on Base Sepolia, with a trusted
+platform operator; no x402 facilitator or CDP server-wallet operator is implemented.
+Accepted historical catalog, invoice/jobflow, broker-review-v0.3 and improvements
+remain compatible under their existing policies.
+
+## Historical catalog reference (compatibility only)
+
 # Catalog order to cash
 
 A CalHacks backend for a company selling custom data deliverables: turn a prompt into an

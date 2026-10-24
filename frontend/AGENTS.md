@@ -1,3 +1,14 @@
+# DatumCo canvas — Lucas
+
+The primary route is the live aggregate brokerage canvas. Preserve its visual design.
+Use lib/run/live.ts and generated Pydantic DTOs for production events, bindings and
+permissions. lib/run/source.ts and scenario.ts are recorded rehearsal only.
+Read HACK.md and docs/workstreams/06-data-broker.md for current prices and timing.
+The bridge permits only loopback local-demo mode with distinct server-only credentials.
+Generate catalog, runs, jobflow, broker and improvement clients together; never hand-edit them.
+
+The remaining catalog/PDF guidance applies to retained compatibility behavior:
+
 # Complete frontend — Lucas
 
 Follow root AGENTS.md, HACK.md and docs/API.md (catalog v0.3, payment policy v1). Own prompt intake/clarification,
@@ -8,7 +19,7 @@ and frontend deployment. Phase 1 is the mock/fake contract handoff; a live testn
 must never be inferred from fixtures or API capability fields.
 
 Use React/TypeScript; the full UI is outside this backend refactor. See contracts.ts and API
-examples. Poll every two seconds, stop on unmount, and use server_time plus persisted deadlines.
+examples. Poll runs every one second (legacy orders every two seconds), stop on unmount, and use server_time plus persisted deadlines.
 Delivery and dispute windows are 60 seconds. Refetch on 409; never silently reapprove stale work.
 Red means operational failure. Show evidence gaps, pending consent, human review, synthetic
 fixtures and mock payments distinctly. Quote approval displays network, token, exact amount,

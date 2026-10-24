@@ -1,5 +1,12 @@
 # Architecture — catalog v0.3 / payment contracts v1
 
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
+
+
 Python, uv, FastAPI, Pydantic and SQLite remain. The refactor adds a catalog domain alongside
 read-only historical DTOs rather than changing the framework or rewriting old financial data.
 

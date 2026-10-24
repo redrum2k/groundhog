@@ -19,6 +19,7 @@ htmlcov/
 dist/
 build/
 .next/
+.next-broker-production/
 out/
 coverage/
 artifacts/

@@ -8,6 +8,7 @@ const config: NextConfig = {
   agentRules: false,
   devIndicators: false,
   output: "standalone",
+  distDir: process.env.BROKER_BUILD_DIR ?? ".next",
   async rewrites() {
     return [
       {

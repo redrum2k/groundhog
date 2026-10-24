@@ -42,7 +42,7 @@ function Sheet({ rows, highlight, note }: { rows: ZipCount[]; highlight?: string
           {rows.map((r, i) => (
             <tr key={r.zip} id={`row-${r.zip}`} className={`${r.flag ? "f-" + r.flag : ""}${highlight === r.zip ? " flash" : ""}`}>
               <td className="rn">{i + 1}</td><td className="mono">{r.zip}</td><td>{r.area}</td>
-              <td className="num">{r.flag === "missing" ? "missing" : r.flag === "withheld" ? "withheld" : r.count.toLocaleString("en-US")}{r.flag === "yoga" && <span className="delta"> +yoga</span>}</td>
+              <td className="num">{r.flag === "missing" ? "missing" : r.flag === "withheld" ? "withheld" : r.count?.toLocaleString("en-US") ?? "unknown"}{r.flag === "yoga" && <span className="delta"> +yoga</span>}</td>
             </tr>
           ))}
         </tbody>
@@ -55,7 +55,7 @@ function Sheet({ rows, highlight, note }: { rows: ZipCount[]; highlight?: string
 function sheetRows(view: View, node: NodeState): ZipCount[] {
   const d = node.delivery ?? view.deliveries[view.deliveries.length - 1];
   if (!d) return [];
-  const missing = node.evidence.filter((e): e is Extract<Evidence, { kind: "sheet_cell" }> => e.kind === "sheet_cell" && e.value === null && e.source.kind === "cell" && e.source.version === d.version);
+  const missing = node.evidence.filter((e): e is import("../../lib/runs.generated").CellEvidence => e.kind === "sheet_cell" && e.value === null && e.source.kind === "cell" && e.source.version === d.version);
   const rows = [...d.rows];
   for (const m of missing) if (!rows.some((r) => r.zip === m.row)) rows.push({ zip: m.row, area: AREA[m.row] ?? "", count: 0, flag: "missing" });
   return rows.sort((a, b) => a.zip.localeCompare(b.zip));
@@ -81,8 +81,8 @@ function Books({ node }: { node: NodeState }) {
         <thead><tr><th>Entry</th><th>Debit</th><th>Credit</th><th className="num">Amount</th></tr></thead>
         <tbody>{entries.map((e) => <tr key={e.id}><td>{e.memo}</td><td>{e.debit}</td><td>{e.credit}</td><td className="num">${e.amount.toFixed(2)}</td></tr>)}</tbody>
       </table>
-      {margin && <div className="margin">Margin <b>${(margin.revenue - margin.cost).toFixed(2)}</b> <span className="faint">after ${margin.cost.toFixed(2)} of data and compute</span></div>}
-      <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Capture is a mock until the real x402 transaction lands on Base Sepolia. The Basescan link appears then.</div>
+      {margin && margin.cost !== null && <div className="margin">Margin <b>${(margin.revenue - margin.cost).toFixed(2)}</b> <span className="faint">after ${margin.cost.toFixed(2)} of data and compute</span></div>}
+      <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Capture is a mock until the observed Commerce Payments transaction lands on Base Sepolia. The Basescan link appears then.</div>
     </div>
   );
 }
@@ -115,7 +115,7 @@ function Checks({ node, view }: { node: NodeState; view: View }) {
   return (
     <>
       <div className="panel-sec"><TodoList title="Contract checks" items={items} /></div>
-      {privacy?.fix && node.attempt === 1 && <div className="callout">Privacy self-fix: ZIP 94129 has 42 people, under the 50 minimum, so it's held back before delivery. No customer involved.</div>}
+      {privacy?.fix && node.attempt === 1 && <div className="callout">Privacy self-fix: ZIP 94129 has suppressed people, under the 50 minimum, so it's held back before delivery. No customer involved.</div>}
       <Sheet rows={sheetRows(view, node)} highlight={privacy && !("coverage" in node.checks) ? "94129" : undefined} note={node.attempt > 1 ? "rerun" : undefined} />
     </>
   );
