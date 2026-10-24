@@ -35,7 +35,9 @@ it("keeps the approved card in place, receipt where the button was, before the s
   const card = document.querySelector(".decision.open");
   expect(card?.textContent).toMatch(/Approved/);
   expect(screen.queryByRole("button", { name: /^Approve and authorize/ })).toBeNull();
-  expect((document.querySelector("details.cust-sec") as HTMLDetailsElement | null)?.open).toBe(false); // the interview doesn't spring back open
+  // the interview stays open and short through the hand-off: it doesn't grow back while the stream catches up
+  expect((document.querySelector("details.cust-sec") as HTMLDetailsElement | null)?.open).toBe(true);
+  expect(document.querySelector("details.cust-sec .cust-body.short")).not.toBeNull();
 });
 
 it("refreshes the wallet cue when another authorization changes the held amount", () => {
