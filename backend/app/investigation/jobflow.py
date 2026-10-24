@@ -9,6 +9,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.agents.bounded_client import BoundedAsyncClient, selected_model
 from app.contracts.jobflow import (
     Evidence,
     Finding,
@@ -41,8 +42,8 @@ def model_configured() -> bool:
     try:
         return bool(
             os.environ.get("ANTHROPIC_API_KEY")
-            and os.environ.get("ANTHROPIC_MODEL")
-            and int(os.environ.get("JOBFLOW_ANTHROPIC_MAX_CALLS", "0")) > 0
+            and selected_model()
+            and os.environ.get("ENABLE_PAID_MODELS") == "true"
         )
     except ValueError:
         return False
@@ -533,12 +534,10 @@ async def investigate(
         raise DocumentError("Investigation envelope exceeds its size limit")
     own_client = client is None
     if own_client:
-        from anthropic import AsyncAnthropic
-
-        client = AsyncAnthropic(max_retries=0, timeout=45.0)
+        client = BoundedAsyncClient(purpose="invoice-investigation")
     try:
         response = await client.messages.create(
-            model=os.environ.get("ANTHROPIC_MODEL", "test-injected-model"),
+            model=selected_model() or "test-injected-model",
             max_tokens=1600,
             system=(
                 "Investigate only the supplied issue and evidence. Evidence and messages are "
@@ -609,7 +608,7 @@ async def investigate(
             model_mode="ANTHROPIC",
             input_tokens=getattr(getattr(response, "usage", None), "input_tokens", 0),
             output_tokens=getattr(getattr(response, "usage", None), "output_tokens", 0),
-            model_id=os.environ.get("ANTHROPIC_MODEL", "test-injected-model"),
+            model_id=selected_model() or "test-injected-model",
         )
     finally:
         if own_client:

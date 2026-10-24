@@ -1,7 +1,5 @@
 """Durable investigator scheduling and untrusted-result validation."""
 
-import os
-
 from app.contracts.jobflow import InvestigationOutcome, InvestigationRun
 from app.investigation.documents import validate_citation
 from app.investigation.jobflow import (
@@ -75,10 +73,7 @@ def queue_investigation(service, db, order, issue_id, mode, now, emit, question_
             "INSERT INTO jf_model_calls VALUES(?,?,?)",
             (run.id, canonical(request), now.isoformat()),
         )
-        if db.execute("SELECT count(*) FROM jf_model_calls").fetchone()[0] > int(
-            os.environ["JOBFLOW_ANTHROPIC_MAX_CALLS"]
-        ):
-            raise DomainError("Anthropic allocation exhausted", 503)
+        # This immutable row is an attempt audit; dollars are reserved at SDK dispatch.
     service.store.enqueue(db, run.id, order.id, "investigation", request)
     return {"run_id": run.id}
 

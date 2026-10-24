@@ -8,6 +8,33 @@ from app.contracts.catalog import Assessment, Obligation, Provenance, Verificati
 TOOL = Provenance(kind="deterministic", assessor="catalog-verifier", version="3.0")
 
 
+def pdf_records(lines):
+    """Bind each product identity to its adjacent values and citation.
+
+    Whole records may reorder, including across pages. Individual lines may not.
+    Unknown, incomplete, or duplicated content cannot disappear in normalization.
+    """
+    records, index = [], 0
+    while index < len(lines):
+        line = lines[index]
+        if line.startswith("SELECT "):
+            record = tuple(lines[index : index + 3])
+            if (
+                len(record) != 3
+                or not record[1].startswith(("net_unit=", "shipping="))
+                or not record[2].startswith("source=")
+            ):
+                return None
+            records.append(record)
+            index += 3
+        elif line.startswith(("EXCLUDED ", "UNRESOLVED ")):
+            records.append((line,))
+            index += 1
+        else:
+            return None
+    return Counter(records)
+
+
 def material_blockers(obligations, assessments):
     checks = {a.obligation_id: a for a in assessments}
     definitions = {o.obligation_id: o for o in obligations}
@@ -263,7 +290,8 @@ def verify(context, store, now, *, delivery=None, stage="fulfillment"):
             meaningful.extend(
                 line for line in text.splitlines() if line not in boilerplate and line != footer
             )
-        correct = Counter(meaningful) == Counter(expected)
+        actual_records = pdf_records(meaningful)
+        correct = actual_records is not None and actual_records == pdf_records(expected)
         citation = store.cite(delivery, "Cited product shortlist")
         add(
             "global:pdf",

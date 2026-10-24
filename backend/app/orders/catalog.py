@@ -44,6 +44,7 @@ from app.orders.service import DomainError, utc_now
 from app.payments.catalog import CatalogPayments
 from app.payments.mock import mock_receipt
 from app.runtime.catalog_policy import authorization_ready, capture_allowed
+from app.storage.run import append_catalog_event
 
 
 def identifier(prefix):
@@ -60,6 +61,7 @@ class CatalogService:
         compiler=None,
         assessor=None,
         auto_mock_funding=False,
+        producer=None,
     ):
         self.repository = repository
         self.clock = clock
@@ -70,12 +72,30 @@ class CatalogService:
         self.policy = Policy()
         self.auto_mock_funding = auto_mock_funding
         self.payments = CatalogPayments(self)
+        self.procedures = None
+        self.producer = producer
 
-    def _save(self, db, order):
+    def _save(
+        self, db, order, *, actor="system:catalog", operation="lifecycle", correlation_id=None
+    ):
         if order.schema_version < 4:
             raise DomainError(409, "historical catalog orders are read-only")
         self.payments.sync(db, order)
         self.repository.put(db, "order", order.snapshot.order_id, order)
+        procedure_version = "catalog-static-v1"
+        if self.procedures:
+            procedure_version = self.procedures.pin_order(db, order)
+            self.procedures.observe(db, order)
+        append_catalog_event(
+            db,
+            order,
+            self.payments.view(db, order),
+            self.clock(),
+            actor=actor,
+            operation=operation,
+            correlation_id=correlation_id,
+            procedure_version=procedure_version,
+        )
 
     @staticmethod
     def _response_key(scope, key):
@@ -114,6 +134,8 @@ class CatalogService:
                 deadline=now + timedelta(seconds=self.policy.clarification_seconds),
             )
             self.repository.put(db, "request", draft.request_id, draft)
+            if self.procedures:
+                self.procedures.pin_draft(db, draft)
             self.repository.remember(db, "requests", command.idempotency_key, fingerprint, draft)
             return draft
 
@@ -353,7 +375,13 @@ class CatalogService:
             )
             self.payments.initialize(db, order, self.auto_mock_funding)
             # Funding gates execution; accepting terms only reserves the durable job.
-            self._save(db, order)
+            self._save(
+                db,
+                order,
+                actor=command.customer_actor,
+                operation="quote.accepted",
+                correlation_id=command.idempotency_key,
+            )
             if parent:
                 parent.children = (*parent.children, order_id)
                 if quote.purpose == "substantive_amendment":
@@ -411,7 +439,13 @@ class CatalogService:
             }[operation]
             handler(order, command, self.clock(), actor)
             order.revision += 1
-            self._save(db, order)
+            self._save(
+                db,
+                order,
+                actor=actor or "customer:local-demo",
+                operation=operation,
+                correlation_id=command.idempotency_key,
+            )
             self._remember_order(db, order_id, command.idempotency_key, fingerprint, order)
             return order
 
@@ -1034,7 +1068,7 @@ class CatalogService:
                         else "delivery",
                     )
                 else:
-                    pdf, sidecar = produce(
+                    pdf, sidecar = (self.producer or produce)(
                         extracted, order.snapshot.quote.specification.terms, self.store
                     )
                     next_binding = order.binding.model_copy(
@@ -1058,12 +1092,20 @@ class CatalogService:
                     report,
                     self.store,
                 )
-            return self.complete_verification(order_id, job, report, pdf, sidecar, semantic)
+            result = self.complete_verification(order_id, job, report, pdf, sidecar, semantic)
         except DomainError:
             raise
         except Exception as exc:
             # Persist operational failure without pretending that a file or refund exists.
             return self.fail_job(order_id, job, f"{type(exc).__name__}: {exc}")
+        # The job is already committed. Acquisition failure must not rewrite it as
+        # a provider defect or undo a published result; the original hold is safe.
+        if self.procedures and result.order_state == "waiting_evidence":
+            try:
+                return self.procedures.maybe_acquire(result)
+            except (DomainError, ValueError, OSError):
+                return self.get(order_id)
+        return result
 
     def fail_job(self, order_id, job, reason):
         with self.repository.transaction() as db:
@@ -1086,6 +1128,29 @@ class CatalogService:
         with self.repository.transaction() as db:
             order = self.repository.load(db, "order", order_id, CatalogOrder)
             self._check_job(order, job)
+            if any(a.reason_code == "REGISTERED_REPAIR_CONFLICT" for a in assessments):
+                target = next(s for s in order.sources if s.source_id == amendment.target_source_id)
+                referenced = {
+                    span.sha256
+                    for assessment in assessments
+                    for span in assessment.conflicting_evidence
+                }
+                # Retain the exact registered contradictory bytes with this case.
+                # This does not replace accepted sources or grant repair consent.
+                corroborations = tuple(
+                    s.artifact
+                    for s in self.registry.versions(target.source_id)
+                    if s.artifact.sha256 in referenced
+                    and s.corpus_id == target.corpus_id
+                    and s.supplier_id == target.supplier_id
+                    and s.edition == target.edition
+                    and s.effective_date == target.effective_date
+                    and s.authority
+                    in order.snapshot.quote.specification.terms.source_policy.accepted_authority
+                )
+                for artifact in corroborations:
+                    self.store.read(artifact)
+                order.artifacts = tuple(dict.fromkeys((*order.artifacts, *corroborations)))
             for assessment in assessments:
                 for span in (*assessment.citations, *assessment.conflicting_evidence):
                     self.store.resolve(span, order.artifacts)

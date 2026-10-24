@@ -13,9 +13,12 @@ from app.agents.gateway import ClaudeGateway
 from app.api.broker import router as broker_router
 from app.api.catalog import reviewer, router
 from app.api.catalog import worker as catalog_worker
+from app.api.catalog_improvement import router as catalog_improvement_router
 from app.api.improvement import router as improvement_router
 from app.api.jobflow import router as jobflow_router
+from app.api.run import router as run_router
 from app.contracts.http import Capabilities, ErrorResponse
+from app.improvement.catalog import CatalogProcedures
 from app.improvement.service import Improvement
 from app.orders.catalog import CatalogService
 from app.orders.service import DomainError, utc_now
@@ -78,11 +81,16 @@ def create_app(
         )
         app.state.broker = Broker(app.state.jobflow)
         app.state.improvement = Improvement(app.state.broker)
+        app.state.procedures = CatalogProcedures(app.state.orders, store=app.state.jobflow.store)
+        catalog_improvement_app.state.procedures = app.state.procedures
+        catalog_improvement_app.state.internal_token = app.state.internal_token
+        catalog_improvement_app.state.reviewer_token = app.state.reviewer_token
         jobflow_app.state.jobflow = app.state.jobflow
         broker_app.state.jobflow = app.state.jobflow
         broker_app.state.broker = app.state.broker
         improvement_app.state.jobflow = app.state.jobflow
         improvement_app.state.improvement = app.state.improvement
+        run_app.state.orders = app.state.orders
 
         async def sweep():
             while True:
@@ -190,6 +198,17 @@ def create_app(
     improvement_app.add_exception_handler(ValueError, invalid_operation)
     improvement_app.include_router(improvement_router)
     app.mount("/api/improvements", improvement_app)
+    run_app = FastAPI(title="Committed catalog run events", version="0.1.0")
+    run_app.add_exception_handler(DomainError, domain_error)
+    run_app.add_exception_handler(RequestValidationError, validation_error)
+    run_app.include_router(run_router)
+    app.mount("/api/runs", run_app)
+    catalog_improvement_app = FastAPI(title="Prospective catalog procedures", version="0.1.0")
+    catalog_improvement_app.add_exception_handler(DomainError, domain_error)
+    catalog_improvement_app.add_exception_handler(RequestValidationError, validation_error)
+    catalog_improvement_app.add_exception_handler(ValueError, invalid_operation)
+    catalog_improvement_app.include_router(catalog_improvement_router)
+    app.mount("/api/catalog-improvements", catalog_improvement_app)
     return app
 
 

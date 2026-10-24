@@ -3,15 +3,15 @@ import { useEffect, useMemo, useState } from "react";
 import type { LaneId, Step } from "../../lib/run/contract";
 import { project, type FoldContext, type View } from "../../lib/run/fold";
 import { CASE_NAME, CONTRACT_V1, ENDINGS, LANES, MAIN, S, controllerContinuation, stamp, timeline, type Case, type Ending } from "../../lib/run/scenario";
-import { STUB_API, usePlayback, type Feed } from "../../lib/run/source";
+import { usePlayback, type Feed } from "../../lib/run/source";
 import Canvas, { type CanvasView, type CNode } from "./canvas";
 import { IcLogo, IcPause, IcPlay, IcReplay } from "./icons";
 import Panel, { PanelBody } from "./panel";
+import CatalogRun from "./catalog-run";
 
 // Datum Co.'s run screen. The canvas only ever sees the fold of events so far, so recorded
 // playback and the live poll are interchangeable feeds.
 
-type Mode = "recorded" | "live";
 const MAIN_IDS = new Set(MAIN.map((s) => s.id));
 const ctxFor = (lane: Case, ending: Ending, learned: boolean): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 });
 
@@ -35,12 +35,19 @@ const canvasView = (v: View, prefix = ""): CanvasView => ({
 });
 
 export default function RunApp() {
+  const [catalog, setCatalog] = useState(false);
+  useEffect(() => { setCatalog(localStorage.getItem("objection.canvas.mode") === "catalog"); }, []);
+  const select = (live: boolean) => { localStorage.setItem("objection.canvas.mode", live ? "catalog" : "recorded"); setCatalog(live); };
+  if (catalog) return <CatalogRun onRecorded={() => select(false)} />;
+  return <RecordedRun onCatalog={() => select(true)} />;
+}
+
+function RecordedRun({ onCatalog }: { onCatalog: () => void }) {
   const [tab, setTab] = useState<"run" | "customer">("run");
   const [run, setRun] = useState<Case>("shared");
   const [zoom, setZoom] = useState(true);
   const [ending, setEnding] = useState<Ending>("maya");
   const [learned, setLearned] = useState(false);
-  const [mode, setMode] = useState<Mode>("recorded");
   const [feed, setFeed] = useState<Feed>(() => ({ kind: "recorded", ...timeline("shared", "maya"), autoplay: false, ctx: ctxFor("shared", "maya", false) }));
   const [panel, setPanel] = useState<{ id: string; auto: boolean } | null>(null);
   const playback = usePlayback(feed);
@@ -81,12 +88,11 @@ export default function RunApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view.orb.step, status]);
 
-  const start = (c: Case, opts: { learned?: boolean; ending?: Ending; mode?: Mode; autoplay?: boolean } = {}) => {
-    const e = opts.ending ?? ending, l = opts.learned ?? false, m = opts.mode ?? mode;
+  const start = (c: Case, opts: { learned?: boolean; ending?: Ending; autoplay?: boolean } = {}) => {
+    const e = opts.ending ?? ending, l = opts.learned ?? false;
     setRun(c); setZoom(true); setPanel(null); setLearned(l); setEnding(e);
     const ctx = ctxFor(c, e, l);
-    if (c === "amber" && m === "live" && !l) setFeed({ kind: "live", api: STUB_API, ending: e, before: timeline("amber", e).events.slice(0, timeline("amber", e).start), ctx });
-    else setFeed({ kind: "recorded", ...timeline(c, e, l), autoplay: opts.autoplay ?? true, ctx });
+    setFeed({ kind: "recorded", ...timeline(c, e, l), autoplay: opts.autoplay ?? true, ctx });
   };
   const toOverview = () => { setZoom(false); playback.pause(); setPanel(null); };
   const onNode = (id: string) => {
@@ -101,7 +107,7 @@ export default function RunApp() {
     playback.pause();
     setPanel({ id, auto: false });
   };
-  const replayLearned = () => start("amber", { learned: true, ending: "maya", mode: "recorded" });
+  const replayLearned = () => start("amber", { learned: true, ending: "maya" });
 
   const panelStep = panel ? stepOf(panel.id) : undefined;
   const caption = zoom ? (view.caption || (status === "idle" ? "Press play to run this case." : "")) : S.positioning;
@@ -122,13 +128,8 @@ export default function RunApp() {
           <button role="tab" aria-selected={tab === "customer"} className={tab === "customer" ? "on" : ""} onClick={() => setTab("customer")}>Customer view</button>
         </div>
         <div className="top-r">
-          {zoom && run === "amber" && !learned && (
-            <div className="seg" aria-label="Feed">
-              <button className={mode === "recorded" ? "on" : ""} onClick={() => { setMode("recorded"); start("amber", { mode: "recorded" }); }}>Recorded</button>
-              <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start("amber", { mode: "live" }); }}>Live</button>
-            </div>
-          )}
-          <span className="tag">Sample run · synthetic data · mock payments</span>
+          <button className="btn" onClick={onCatalog}>Catalog live</button>
+          <span className="tag">Recorded sample · synthetic data · mock payments</span>
         </div>
       </header>
 

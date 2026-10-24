@@ -33,7 +33,7 @@ def request(h, order, key="investigate", mode="DETERMINISTIC"):
 def delivered_question(h, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "synthetic-no-network")
     monkeypatch.setenv("ANTHROPIC_MODEL", "injected-test-model")
-    monkeypatch.setenv("JOBFLOW_ANTHROPIC_MAX_CALLS", "1")
+    monkeypatch.setenv("ENABLE_PAID_MODELS", "true")
 
     async def injected(snapshot, issue_id, *, mode, **kwargs):
         baseline = assess(snapshot, issue_id, now=h.now)

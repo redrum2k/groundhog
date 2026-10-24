@@ -1,4 +1,5 @@
 import sqlite3
+from contextlib import closing
 
 from app.contracts.catalog import Source
 from app.orders.service import DomainError
@@ -47,7 +48,7 @@ class SourceRegistry:
     def identify(self, artifact, db=None):
         if db is None:
             # A read may run inside a serialized mutation; do not acquire a second write lock.
-            with sqlite3.connect(self.repository.path) as connection:
+            with closing(sqlite3.connect(self.repository.path)) as connection:
                 return self.identify(artifact, connection)
         return next(
             (
@@ -57,3 +58,14 @@ class SourceRegistry:
             ),
             None,
         )
+
+    def versions(self, source_id):
+        # This read also runs within amendment mutation transactions.
+        with closing(sqlite3.connect(self.repository.path)) as db:
+            return tuple(
+                Source.model_validate_json(row[0])
+                for row in db.execute(
+                    "SELECT data FROM catalog_sources WHERE source_id=? ORDER BY version",
+                    (source_id,),
+                )
+            )

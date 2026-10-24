@@ -26,6 +26,14 @@ class CatalogRepository(OrderRepository):
                 "NULL, PRIMARY KEY(source_id,version))"
             )
             db.execute("INSERT OR IGNORE INTO schema_migrations VALUES (3)")
+            db.execute(
+                "CREATE TABLE IF NOT EXISTS catalog_run_events ("
+                "seq INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, "
+                "digest TEXT NOT NULL, data TEXT NOT NULL)"
+            )
+            db.execute(
+                "CREATE INDEX IF NOT EXISTS catalog_run_cursor ON catalog_run_events(run_id,seq)"
+            )
 
     @staticmethod
     def load(db, kind, identifier, model):

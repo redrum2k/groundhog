@@ -266,7 +266,7 @@ def test_model_recommendation_cannot_grant_authority(h):
 def test_anthropic_budget_persisted_before_call_and_no_timeout_retry(h, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "synthetic-test-value")
     monkeypatch.setenv("ANTHROPIC_MODEL", "synthetic-test-model")
-    monkeypatch.setenv("JOBFLOW_ANTHROPIC_MAX_CALLS", "1")
+    monkeypatch.setenv("ENABLE_PAID_MODELS", "true")
     order = h.create()
     calls = []
 
@@ -295,25 +295,15 @@ def test_anthropic_budget_persisted_before_call_and_no_timeout_retry(h, monkeypa
     recover(h.service)
     h.drain()
     assert len(calls) == 1
-    assert not h.get(order).model_available
-    with pytest.raises(DomainError):
-        h.service.investigate(
-            h.actors["investigator"],
-            order.id,
-            request.model_copy(
-                update={"idempotency_key": "second", "expected_revision": current.revision}
-            ),
-        )
+    assert h.get(order).model_available  # No automatic retry; new work is dollar-guarded.
 
 
-@pytest.mark.parametrize(
-    "missing", ["ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "JOBFLOW_ANTHROPIC_MAX_CALLS"]
-)
+@pytest.mark.parametrize("missing", ["ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "ENABLE_PAID_MODELS"])
 def test_model_requires_all_explicit_configuration(h, monkeypatch, missing):
     for key, value in {
         "ANTHROPIC_API_KEY": "test",
         "ANTHROPIC_MODEL": "test",
-        "JOBFLOW_ANTHROPIC_MAX_CALLS": "3",
+        "ENABLE_PAID_MODELS": "true",
     }.items():
         monkeypatch.setenv(key, value)
     monkeypatch.delenv(missing)

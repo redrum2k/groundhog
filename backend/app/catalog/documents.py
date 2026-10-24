@@ -159,6 +159,12 @@ def disposition(product, terms):
     return "included", "qualifies"
 
 
+def exact_decimal(value, minimum_places):
+    """Preserve accepted source precision; padding must never round a fact."""
+    places = max(minimum_places, -value.as_tuple().exponent)
+    return format(value, f".{places}f")
+
+
 def output_lines(extracted, terms):
     lines = []
     for source in extracted:
@@ -171,8 +177,8 @@ def output_lines(extracted, terms):
                 lines.extend(
                     [
                         f"SELECT {product.product_id} | {product.name} | {product.supplier_id}",
-                        f"{terms.weight_concept}={weight:.3f} kg | "
-                        f"unit={product.currency} {product.unit_price:.2f}",
+                        f"{terms.weight_concept}={exact_decimal(weight, 3)} kg | "
+                        f"unit={product.currency} {exact_decimal(product.unit_price, 2)}",
                         f"source={source.source.source_id}@{source.source.version} "
                         f"p{product.citations[0].page} sha={source.source.artifact.sha256[:12]}",
                     ]

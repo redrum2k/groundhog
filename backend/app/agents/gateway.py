@@ -7,6 +7,8 @@ from typing import Protocol, TypeVar
 import anthropic
 from pydantic import BaseModel, ValidationError
 
+from app.agents.bounded_client import BoundedClient
+from app.agents.budget import BudgetExceeded
 from app.contracts.catalog import (
     Assessment,
     CompilerOutput,
@@ -59,9 +61,11 @@ class ClaudeGateway:
         self.model = model or os.getenv("CLAUDE_MODEL")
         if not self.model:
             raise ModelFailure("CLAUDE_MODEL must name a structured-output capable model.")
-        self.client = client or anthropic.Anthropic(timeout=20.0, max_retries=0)
+        self.client = client or BoundedClient(purpose="catalog-compile-or-assessment")
+        self.last_response = None
 
     def parse(self, schema: type[T], instruction: str, payload: dict) -> T:
+        self.last_response = None
         encoded = json.dumps(payload, sort_keys=True)
         if len(encoded) > 50000:
             raise ModelFailure("Evidence exceeds the bounded model context.")
@@ -77,10 +81,14 @@ class ClaudeGateway:
                 ),
                 messages=[{"role": "user", "content": encoded}],
             )
+            self.last_response = (
+                result.model_dump(mode="json") if hasattr(result, "model_dump") else None
+            )
             if result.stop_reason != "end_turn" or result.parsed_output is None:
                 raise ModelFailure(f"Claude did not complete: {result.stop_reason}")
             return schema.model_validate(result.parsed_output)
-        except (anthropic.APIError, ValidationError, ValueError) as exc:
+        except (anthropic.APIError, ValidationError, ValueError, BudgetExceeded) as exc:
+            self.last_response = getattr(self.client, "last_response", None)
             raise ModelFailure(f"Claude failure: {type(exc).__name__}") from exc
 
     def compile(self, context: PrecontractContext) -> CompilerOutput:

@@ -6,7 +6,7 @@ from app.contracts.catalog import Assessment, Provenance
 TOOL = Provenance(kind="deterministic", assessor="amendment-checker", version="3.0")
 
 
-def assess_amendment(amendment, target, registry, store, terms):
+def assess_amendment(amendment, target, registry, store, terms, *, check_corroborations=True):
     registered = registry.identify(amendment.artifact)
     candidate = registered or target.model_copy(
         update={"artifact": amendment.artifact, "authority": "unverified", "authority_record": None}
@@ -100,6 +100,7 @@ def assess_amendment(amendment, target, registry, store, terms):
         )
     changed = (
         candidate.source_id != target.source_id
+        or candidate.corpus_id != target.corpus_id
         or candidate.supplier_id != target.supplier_id
         or new.edition != old.edition
         or new.effective_date != old.effective_date
@@ -151,6 +152,54 @@ def assess_amendment(amendment, target, registry, store, terms):
             ),
             None,
         )
+    if check_corroborations:
+        # No accepted precedence chooses one of two contradictory restorations.
+        # Check the same ordinary classification first; changed known facts,
+        # editions, untrusted authority, and incomplete copies are not repairs.
+        fields = ("net_kg" if terms.weight_concept == "net_unit" else "shipping_kg", "unit_price")
+        material_missing = {
+            (p.product_id, field)
+            for p in old.products
+            if disposition(p, terms)[0] == "unresolved"
+            for field in fields
+            if getattr(p, field) is None
+        }
+        restored = {p.product_id: p for p in new.products}
+        for other in registry.versions(target.source_id):
+            if (
+                other.artifact.sha256 in (target.artifact.sha256, candidate.artifact.sha256)
+                or other.corpus_id != target.corpus_id
+                or other.authority not in terms.source_policy.accepted_authority
+            ):
+                continue
+            alternative = amendment.model_copy(update={"artifact": other.artifact})
+            classification, _, _ = assess_amendment(
+                alternative, target, registry, store, terms, check_corroborations=False
+            )
+            if classification != "evidence_only":
+                continue
+            corroboration = extract_source(other, store)
+            comparison = {p.product_id: p for p in corroboration.products}
+            conflicts = tuple(
+                citation
+                for pid, field in sorted(material_missing)
+                if getattr(restored[pid], field) != getattr(comparison[pid], field)
+                for citation in (*restored[pid].citations, *comparison[pid].citations)
+            )
+            if conflicts:
+                return (
+                    "unresolved",
+                    (
+                        finding(
+                            "CONFLICT",
+                            "REGISTERED_REPAIR_CONFLICT",
+                            "Registered same-edition copies disagree on material missing facts; "
+                            "the accepted policy establishes no precedence between them.",
+                            conflicts=conflicts,
+                        ),
+                    ),
+                    None,
+                )
     return (
         "evidence_only",
         (

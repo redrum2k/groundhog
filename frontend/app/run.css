@@ -24,6 +24,16 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 ::selection { background: color-mix(in srgb, var(--blue) 22%, transparent); }
 * { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
 .muted { color: var(--ink-2); } .faint { color: var(--ink-3); } .ink { color: var(--ink); font-weight: 400; }
+.catalog-detail { overflow-y: auto; padding: 20px; }
+.catalog-detail section { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }
+.catalog-detail h3 { font-size: 14px; font-weight: 500; }
+.catalog-detail label { display: block; margin: 10px 0; }
+.catalog-detail input, .catalog-detail select, .catalog-detail textarea { display: block; width: 100%; border: 1px solid var(--line); padding: 8px; font: inherit; background: var(--bg); margin-top: 5px; }
+.catalog-detail textarea { min-height: 95px; resize: vertical; }
+.catalog-detail p, .catalog-detail a { overflow-wrap: anywhere; }
+.catalog-detail .btn { margin: 5px 5px 5px 0; }
+.catalog-detail pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+.catalog-note { background: var(--sunk); border: 1px solid var(--line); padding: 10px; font-size: 12px; }
 .mono { font-family: var(--mono); font-size: 12.5px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 

@@ -24,6 +24,8 @@ for (const [module, exported] of [
   ["jobflow", "ContractExport"],
   ["broker", "BrokerContractExport"],
   ["improvement", "ImprovementContractExport"],
+  ["run", "CatalogRunContractExport"],
+  ["catalog_improvement", "CatalogImprovementContractExport"],
 ]) {
   const target = new URL(`../lib/${module}.generated.ts`, import.meta.url);
   const raw = execFileSync(
