@@ -19,6 +19,8 @@ from pydantic import (
     model_validator,
 )
 
+from app.contracts.data_product import DataSpecification, RequirementAssessment
+
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 Version = Annotated[StrictInt, Field(ge=1)]
 Digest = Annotated[str, StringConstraints(pattern=r"^[a-f0-9]{64}$")]
@@ -43,6 +45,7 @@ class AcceptedPolicy(Contract):
     max_questions: Literal[2] = 2
     max_question_rounds: Literal[2] = 2
     additional_processing_price: Money | None = None
+    overall_case_seconds: Literal[1800] | None = None
 
 
 class EvidencePointer(Contract):
@@ -89,7 +92,7 @@ def validate_structured_data(
 
 
 class OrderSnapshot(Contract):
-    job_type: Literal["invoice_register"] = "invoice_register"
+    job_type: Literal["invoice_register", "regional_market_intelligence"] = "invoice_register"
     order_id: Text
     snapshot_id: Text
     accepted_at: AwareDatetime
@@ -98,9 +101,25 @@ class OrderSnapshot(Contract):
     structured_data: tuple[EvidenceReference, ...] = ()
     price: Money
     policy: AcceptedPolicy
+    data_specification: DataSpecification | None = None
 
     @model_validator(mode="after")
     def check_inputs(self) -> Self:
+        if self.job_type == "regional_market_intelligence":
+            if (
+                self.data_specification is None
+                or self.policy.policy_version != "broker-review-v0.3"
+            ):
+                raise ValueError(
+                    "broker orders require their accepted specification and v0.3 policy"
+                )
+            if self.policy.additional_processing_price is not None:
+                raise ValueError("broker review has no automatic refutation fee")
+        elif (
+            self.data_specification is not None
+            or self.policy.policy_version == "broker-review-v0.3"
+        ):
+            raise ValueError("broker policy and data specification require the broker profile")
         unique_evidence(self.input_versions)
         if any(item.kind != "accepted_input" for item in self.input_versions):
             raise ValueError("snapshot inputs must be accepted_input evidence")
@@ -137,6 +156,32 @@ class ProposalBinding(Contract):
     delivery_version: Version
     evidence_version: Version
     proposal_version: Version
+
+
+class DataVerification(Contract):
+    proposal: ProposalBinding
+    specification_sha256: Digest
+    evidence_sha256: Digest
+    verified_at: AwareDatetime
+    checks: Annotated[tuple[RequirementAssessment, ...], Field(min_length=1)]
+    verdict: Literal["PASS", "FAIL", "UNKNOWN"] | None = None
+
+    @model_validator(mode="after")
+    def derived_verdict(self) -> Self:
+        states = {check.verdict for check in self.checks}
+        calculated = "FAIL" if "FAIL" in states else "UNKNOWN" if "UNKNOWN" in states else "PASS"
+        if self.verdict is not None and self.verdict != calculated:
+            raise ValueError("Aggregate verdict must agree with the source-bound checks")
+        object.__setattr__(self, "verdict", calculated)
+        return self
+
+
+class AcceptedDataAmendment(Contract):
+    amendment_id: Text
+    effective_at: AwareDatetime
+    specification: DataSpecification
+    accepted_by_customer: Text
+    accepted_by_provider: Text
 
 
 class InvestigationInput(Contract):

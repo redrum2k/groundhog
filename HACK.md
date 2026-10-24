@@ -14,6 +14,16 @@ not a catalog payment adapter. Its prior UI, tests and accepted policy are prese
 by the merge; catalog orders continue to follow the rules below. Historical invoice
 rows outside active jobflow cases remain read-only.
 
+The additional mock broker profile lives at `/api/broker`, with its prospective
+improvement API at `/api/improvements`. It supplies typed regional data products
+using the preserved compatibility financial authority and shared database. Its
+accepted `broker-review-v0.3` policy has a 600-second review, current complete PASS
+plus customer acceptance or undisputed expiry, two questions, one free correction
+and a 1,800-second overall case bound. It never changes catalog or accepted invoice
+terms. UNKNOWN holds; refutation means NO_REMEDY without a fee; extra work needs a
+separate accepted offer and authorization. See POLICY_DELTA.md and
+IMPROVEMENT_DESIGN.md. Catalog below remains the default product.
+
 ## Product and bounded demo
 
 Request -> agent draft -> clarification -> accepted specification/quote -> buyer signature

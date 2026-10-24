@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OBJECTION — Job workbench",
-  description: "Evidence-led document delivery and simulated order accounting.",
+  title: "Datum Co. run",
+  description: "Order-to-cash agent for a data broker.",
 };
 export default function RootLayout({
   children,

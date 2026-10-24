@@ -128,3 +128,58 @@ Authenticated GET `/orders/{id}/artifacts/{source_id}/pages/{page_number}` retur
 bounded PNG rendition with X-Source-SHA256. Exact source field citations carry normalized
 rectangles. The browser verifies original bytes, renders the page and overlays its
 cited region. Page inspection and courier replay are read-only.
+
+## V5 broker and improvement interfaces
+
+These are separately mounted routes/schemas on the same FastAPI app/DB. They use the
+existing Bearer session/registered actor boundary. Root routes remain the frozen
+catalog API and reject broker IDs; retired invoice creation is not restored.
+Broker consent and tenant checks cannot be bypassed through catalog or invoice routes.
+
+| Route | Contract / purpose |
+| --- | --- |
+| POST `/api/broker/drafts` | `DraftCreate`; original intent and pinned active template; no payment |
+| GET `/api/broker/drafts/{id}` | `IntakeDraft`; actual questions, missing fields, capability, digest |
+| POST `/api/broker/drafts/{id}/sources` | Provider-only immutable `SourceUpload` |
+| POST `/api/broker/drafts/{id}/commands` | Customer answers/accepts/declines, provider offers, controller clarifies |
+| GET `/api/broker/orders[/{id}]` | `BrokerRecord`; separate authoritative `base_order`, colour, owner, tasks |
+| POST `/api/broker/orders/{id}/commands` | Produce, accept, dispute, investigate, answer, amend, resolve human task |
+| POST `/api/broker/orders/{id}/sources` | New evidence version, not automatic replacement of accepted sources |
+| GET `/api/broker/entities/{id}/events` | Existing `Event` schema, monotonic sequence, optional `after` |
+| GET `/api/broker/entities/{id}/artifacts/{artifact_id}` | Exact bounded bytes and SHA256 ETag |
+| POST `/api/improvements/commands` | `ImprovementCommand`: propose, probe, approve, activate, revoke |
+| GET `/api/improvements/?customer_id=...` | Scoped incidents/outcomes, candidates, probes, versions, experience |
+| GET `/api/improvements/records/{id}` | Immutable full evidence, including probe traces |
+| GET `/api/improvements/jobs/{id}` | Durable COMPLETE/BLOCKED/FAILED/UNKNOWN status; no automatic retry |
+| GET `/api/improvements/entities/{id}/events` | Reviewer/job lifecycle events without mutation |
+
+Every broker mutation carries an idempotency key and the broker/draft's
+`expected_revision`, not its nested base revision. Customer acceptance also supplies
+the displayed `digest` and an explicit `authorization_expires_at`; a provider must
+already have accepted that exact complete specification/price/policy. Intake
+`value` is a typed field answer, never an authenticated source fact.
+
+The broker profile is `aggregate_regional_market_intelligence`; catalog remains the
+application default. Broker source inputs use
+the bounded `SourceSnapshot` JSON schema. Units, geography/revision, period, entity
+unit, coverage denominator, missingness and date basis/age/as-of must be explicit.
+Data citations contain source ID/version/hash, locator/value and actual artifact ID.
+The server serializes the derived aggregate verification verdict; clients do not
+decide financial eligibility from colour or model prose.
+
+Human decisions require the exact current task/revision. RESUME rechecks evidence,
+effective amendments, authority and bounds. A successful overdue resume without new
+delivery requires explicit customer acceptance. An answer resumes the same issue
+once without changing its PDF version or review deadline.
+
+Improvement generation defaults to the configured application model; unavailable
+access returns a persisted BLOCKED job. Explicit simulated infrastructure mode is
+available only in demo mode. Approval and activation are distinct controller
+commands; candidate/baseline/probe/backend hashes are rechecked. Revocation moves
+only the future-template pointer. No command can submit a raw arbitrary template,
+generated code, changed accepted amount or new payment permission.
+
+Generated DTOs: `frontend/lib/{jobflow,broker,improvement}.generated.ts`.
+Client helpers: `frontend/lib/broker-api.ts`. Stable prepared mutations are explicit;
+polling/replay/focus never dispatch a POST. Lucas can consume these without a new UI
+stack. `POLICY_DELTA.md` defines the versioned financial semantics.

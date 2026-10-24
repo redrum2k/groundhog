@@ -30,8 +30,9 @@ export async function request<T>(
   path: string,
   token?: string,
   init: RequestInit = {},
+  base: "/api/jobflow" | "/api/broker" | "/api/improvements" = API,
 ): Promise<T> {
-  const response = await fetch(`${API}${path}`, {
+  const response = await fetch(`${base}${path}`, {
     ...init,
     cache: "no-store",
     headers: {

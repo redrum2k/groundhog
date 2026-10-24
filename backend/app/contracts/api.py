@@ -5,9 +5,11 @@ from typing import Annotated, Literal
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StrictInt
 
 from app.contracts.models import (
+    AcceptedDataAmendment,
     CaseState,
     Contract,
     CustomerAnswer,
+    DataVerification,
     DeliveryState,
     DeliveryVersion,
     EvidenceReference,
@@ -127,6 +129,9 @@ class OrderRecord(BaseModel):
     free_regenerations_used: Annotated[StrictInt, Field(ge=0, le=1)] = 0
     regeneration_pending: bool = False
     result: InvestigationResult | None = None
+    data_verification: DataVerification | None = None
+    data_amendments: tuple[AcceptedDataAmendment, ...] = ()
+    review_requires_customer_acceptance: bool = False
     failure: Text | None = None
     requires_quote: bool = False
     quote: ProcessingQuote | None = None
