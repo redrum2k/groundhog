@@ -86,7 +86,11 @@ def _category(text):
 
 
 def _affirmative(text):
-    return " ".join(re.findall(r"[a-z]+", text.lower())) in {
+    # Normalize ordinary affirmative punctuation, not arbitrary non-letters.
+    # Digits, operators, Unicode qualifiers and question marks may change scope
+    # or intent; dropping them would turn e.g. "yes, 65+" into false consent.
+    normalized = " ".join(re.sub(r"[.,!]", " ", text.lower()).split())
+    return normalized in {
         "yes",
         "yes please",
         "i accept",

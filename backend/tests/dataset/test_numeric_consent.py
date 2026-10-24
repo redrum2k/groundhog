@@ -34,7 +34,9 @@ def test_qualified_answer_cannot_accept_model_cohort_offer(dataset_service, offl
 
 @pytest.mark.parametrize("offline_restart", [False, True])
 @pytest.mark.parametrize("reply", ["yes, 65+", "yes, 94110", "yes, 50%"])
-def test_numeric_qualifier_does_not_accept_broader_category(dataset_service, offline_restart, reply):
+def test_numeric_qualifier_does_not_accept_broader_category(
+    dataset_service, offline_restart, reply
+):
     service, clock = dataset_service
     first = start(service, "SF adults 25-34, gym membership only, counts by ZIP.")
     assert first.question.field == "category_offer_base"
