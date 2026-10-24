@@ -6,7 +6,13 @@ from types import SimpleNamespace
 import pytest
 
 from app.contracts.jobflow import Agreement, Amendment, Evidence, Issue, Message, OrderView
-from app.investigation.documents import DocumentError, cite, extract_document, validate_citation
+from app.investigation.documents import (
+    DocumentError,
+    cite,
+    cite_field,
+    extract_document,
+    validate_citation,
+)
 from app.investigation.jobflow import (
     Interpretation,
     ModelResponseError,
@@ -286,3 +292,24 @@ def test_extraction_preserves_original_hash_and_cell_data():
     parsed = extract_document(raw, "invoices.csv", "text/csv")
     assert parsed["sha256"] == hashlib.sha256(raw).hexdigest()
     assert parsed["structured"]["rows"] == [["N-1", "1200"]]
+
+
+def test_json_pointer_exact_field_and_escaped_key():
+    evidence = source("json", '{"rows":[{"a/b":1200}]}', "source", "COMPANY_RECORD")
+    evidence.media_type = "application/json"
+    citation = cite_field(evidence, "json:/rows/0/a~1b")
+    assert citation.quote == "1200"
+    validate_citation([evidence], citation)
+    for locator in ("json:", "json:/rows", "json:/rows/00/a~1b", "json:/rows/1/a~1b"):
+        with pytest.raises(DocumentError):
+            cite_field(evidence, locator)
+
+
+def test_csv_cell_keeps_row_and_column_distinct():
+    evidence = source("csv", "invoice,amount\nA,1200\nB,2400\n", "source", "COMPANY_RECORD")
+    evidence.media_type = "text/csv"
+    citation = cite_field(evidence, 'csv:[2,"amount"]')
+    assert citation.quote == "2400"
+    validate_citation([evidence], citation)
+    with pytest.raises(DocumentError):
+        validate_citation([evidence], citation.model_copy(update={"locator": 'csv:[1,"amount"]'}))

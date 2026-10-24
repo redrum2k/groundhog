@@ -118,10 +118,60 @@ def cite(source: Evidence, quote: str) -> SourceLocation:
     )
 
 
+def _located_value(source: Evidence, locator: str) -> str:
+    if locator.startswith("json:") and source.media_type == "application/json":
+        pointer = locator[5:]
+        if not pointer.startswith("/"):
+            raise DocumentError("A non-root JSON pointer is required")
+        value = json.loads(source.text, object_pairs_hook=_unique_object)
+        try:
+            for segment in pointer[1:].split("/"):
+                if re.search(r"~(?![01])", segment):
+                    raise DocumentError("Malformed JSON pointer escape")
+                key = segment.replace("~1", "/").replace("~0", "~")
+                if isinstance(value, list):
+                    if not re.fullmatch(r"0|[1-9][0-9]*", key):
+                        raise DocumentError("Invalid array index")
+                    value = value[int(key)]
+                else:
+                    value = value[key]
+        except (TypeError, KeyError, IndexError) as exc:
+            raise DocumentError("JSON pointer does not resolve") from exc
+        if isinstance(value, (dict, list)):
+            raise DocumentError("Citation must identify one scalar field")
+        return json.dumps(value, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    if locator.startswith("csv:") and source.media_type == "text/csv":
+        try:
+            row_number, column = json.loads(locator[4:])
+            rows = list(csv.reader(io.StringIO(source.text), strict=True))
+            if type(row_number) is not int or not 1 <= row_number < len(rows):
+                raise DocumentError("CSV data row does not exist")
+            if len(set(rows[0])) != len(rows[0]) or column not in rows[0]:
+                raise DocumentError("CSV column must resolve unambiguously")
+            return rows[row_number][rows[0].index(column)]
+        except (ValueError, TypeError, IndexError, csv.Error) as exc:
+            raise DocumentError("Invalid CSV cell locator") from exc
+    raise DocumentError("Unsupported structured locator for source type")
+
+
+def cite_field(source: Evidence, locator: str) -> SourceLocation:
+    return SourceLocation(
+        source_id=source.id,
+        version=source.version,
+        sha256=source.sha256,
+        quote=_located_value(source, locator),
+        locator=locator,
+    )
+
+
 def validate_citation(sources: list[Evidence], citation: SourceLocation) -> None:
     source = next((s for s in sources if s.id == citation.source_id), None)
     if source is None or (source.version, source.sha256) != (citation.version, citation.sha256):
         raise DocumentError("Citation names an unavailable source version")
+    if citation.locator.startswith(("json:", "csv:")):
+        if _located_value(source, citation.locator) != citation.quote:
+            raise DocumentError("Citation quote does not match the located field")
+        return
     match = re.fullmatch(r"text:(\d+):(\d+)", citation.locator)
     if match is None:
         raise DocumentError("A precise text range is required")
