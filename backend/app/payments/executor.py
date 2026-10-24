@@ -6,11 +6,21 @@ restart after marking submitted but before broadcast deliberately requires recov
 
 from __future__ import annotations
 
+import logging
+import sqlite3
 from dataclasses import asdict, dataclass, field
+from threading import Event
 from typing import Literal, Protocol
 
 from app.contracts.payments import BlockEvidence, EscrowObservation
-from app.orders.service import DomainError
+from app.payments.attempt import (
+    SUBMISSION_SECONDS,
+    ActionIneligible,
+    AttemptStopped,
+    PaymentAttempt,
+    checkpoint,
+    current_attempt,
+)
 from app.payments.journal import PaymentJournal
 
 
@@ -53,38 +63,37 @@ class PaymentExecutor:
         guard=None,
         complete=None,
         changed=None,
+        authority=None,
+        attempt_factory=PaymentAttempt,
     ):
         self.journal = journal
         self.transport = transport
         self.guard = guard
         self.complete = complete
         self.changed = changed
+        self.authority = authority
+        self.attempt_factory = attempt_factory
+        self.cancelled = Event()
+
+    def stop(self):
+        """Stop future work and signal active synchronous attempts; callers drain them."""
+        self.cancelled.set()
 
     def _changed(self, db, operation, evidence=None):
         if self.changed is not None:
             self.changed(db, operation, evidence or {})
         return operation
 
-    def _eligible(self, db, operation):
-        try:
-            if self.guard is not None and self.guard(db, operation) is False:
-                raise DomainError(409, "payment eligibility changed")
-        except DomainError:
-            result = self.journal.invalidate_operation(
-                db,
-                operation.operation_id,
-                "settlement eligibility or binding changed before submission",
-            )
-            self._changed(db, result)
-            return False
-        return True
-
-    def run_one(self, operation_id=None, *, broadcast=False):
+    def run_one(self, operation_id=None, *, broadcast=False, attempt=None):
         """Process one operation or audit the latest confirmed receipt.
 
         Live signing/submission requires explicit broadcast=True; inspection and receipt
         reconciliation remain available by default. Transport adds its own opt-in guard.
         """
+        if self.cancelled.is_set():
+            return None
+        attempt = attempt or self.attempt_factory(SUBMISSION_SECONDS, cancelled=self.cancelled)
+        attempt.executor_cancelled = self.cancelled
         with self.journal.transaction() as db:
             if operation_id is None:
                 candidates = self.journal.pending(db, limit=1, include_confirmed=True)
@@ -97,21 +106,46 @@ class PaymentExecutor:
             token = self.journal.claim(db, operation_id)
             if token is None:
                 return operation
-        try:
-            return self._process(operation_id, token, broadcast)
-        finally:
-            with self.journal.transaction() as db:
-                self.journal.release_claim(db, operation_id, token)
+            terms = self.journal.payment_terms(db, operation.intent.payment_id)
+            inspection = operation.state in ("submitted", "uncertain", "confirmed")
+            remaining = self.authority(db, operation) if self.authority and not inspection else None
+        attempt.configure(
+            operation.intent.action, terms, inspection=inspection, remaining_authority=remaining
+        )
+        with attempt.scope(), attempt.claim(self.journal, operation_id, token, self.guard):
+            try:
+                checkpoint(effect=True)
+                return self._process(operation_id, token, broadcast)
+            except AttemptStopped as error:
+                return self._stopped(operation_id, token, error)
+            except sqlite3.Error:
+                return self._stopped(operation_id, token, AttemptStopped("journal unavailable"))
+
+    def _stopped(self, operation_id, token, error):
+        current_attempt().stopped = error
+        logging.getLogger(__name__).warning(
+            "payment attempt stopped operation=%s reason=%s", operation_id, error
+        )
+        with self.journal.transaction() as db:
+            operation = self.journal.get(db, operation_id)
+            if not self.journal.owns(db, operation_id, token):
+                return operation
+            if isinstance(error, ActionIneligible) and operation.state in ("reserved", "signed"):
+                return self._changed(
+                    db, self.journal.invalidate_operation(db, operation_id, str(error))
+                )
+            # Transient stop preserves reservation, nonce and bytes. Submitted remains
+            # unresolved, never rolled back or retried. Inspection exhaustion proves nothing.
+            return self.journal.update(db, operation_id, error=f"attempt stopped: {error}")
 
     def _process(self, operation_id, token, broadcast):
         with self.journal.transaction() as db:
+            current_attempt().check_db(db, effect=True)
             operation = self.journal.get(db, operation_id)
             terms = self.journal.payment_terms(db, operation.intent.payment_id)
             if operation.intent.mode == "mock":
                 if operation.state == "confirmed":
                     return operation
-                if not self._eligible(db, operation):
-                    return self.journal.get(db, operation_id)
                 return self.journal.complete_mock(db, operation_id, self.complete)
         if self.transport is None or (
             not broadcast and operation.state not in ("submitted", "uncertain", "confirmed")
@@ -119,6 +153,7 @@ class PaymentExecutor:
             # Bounded workers select by last attempt time. A disabled reservation
             # must yield its turn so other submitted payments can still reconcile.
             with self.journal.transaction() as db:
+                current_attempt().check_db(db)
                 if self.journal.owns(db, operation_id, token):
                     return self.journal.update(db, operation_id)
                 return self.journal.get(db, operation_id)
@@ -126,12 +161,14 @@ class PaymentExecutor:
             return self._reconcile(operation, terms, token)
         if operation.state == "reserved":
             try:
+                checkpoint(effect=True)
                 nonce = self.transport.pending_nonce(terms.payment_info.operator)
                 with self.journal.transaction() as db:
+                    current_attempt().check_db(db, effect=True)
                     operation = self.journal.get(db, operation_id)
                     if not self.journal.owns(db, operation_id, token):
                         return operation
-                    if operation.state != "reserved" or not self._eligible(db, operation):
+                    if operation.state != "reserved":
                         return self.journal.get(db, operation_id)
                     nonce = self.journal.reserve_nonce(
                         db, operation_id, terms.payment_info.operator, nonce
@@ -143,19 +180,23 @@ class PaymentExecutor:
                     operation.intent.action, terms, nonce, buyer_signature=signature
                 )
                 with self.journal.transaction() as db:
+                    current_attempt().check_db(db, effect=True)
                     if not self.journal.owns(db, operation_id, token):
                         return self.journal.get(db, operation_id)
                     operation = self.journal.get(db, operation_id)
-                    if operation.state != "reserved" or not self._eligible(db, operation):
+                    if operation.state != "reserved":
                         return self.journal.get(db, operation_id)
                     operation = self.journal.save_signed(db, operation_id, signed)
+            except AttemptStopped:
+                raise
             except Exception as error:
                 return self._before_submission_failure(operation_id, token, error)
         with self.journal.transaction() as db:
+            current_attempt().check_db(db, effect=True)
             operation = self.journal.get(db, operation_id)
             if not self.journal.owns(db, operation_id, token):
                 return operation
-            if operation.state != "signed" or not self._eligible(db, operation):
+            if operation.state != "signed":
                 return self.journal.get(db, operation_id)
             raw_transaction, _, _ = self.journal.private(db, operation_id)
             if raw_transaction is None:
@@ -167,13 +208,19 @@ class PaymentExecutor:
             )
             self._changed(db, operation)
         try:
+            checkpoint(effect=True)
             returned_hash = self.transport.broadcast(
                 raw_transaction, explicit_testnet_broadcast=True
             )
             if returned_hash.lower() != operation.transaction_hash.lower():
                 raise ValueError("RPC returned another transaction hash")
+            checkpoint()
+            current_attempt().sent = True
+        except AttemptStopped:
+            raise
         except Exception as error:
             with self.journal.transaction() as db:
+                current_attempt().check_db(db)
                 operation = self.journal.update(
                     db,
                     operation_id,
@@ -186,7 +233,11 @@ class PaymentExecutor:
         return operation
 
     def _before_submission_failure(self, operation_id, token, error):
+        if isinstance(error, sqlite3.Error):
+            current_attempt().stop("journal unavailable")
+        checkpoint()
         with self.journal.transaction() as db:
+            current_attempt().check_db(db)
             operation = self.journal.get(db, operation_id)
             if not self.journal.owns(db, operation_id, token) or operation.state not in (
                 "reserved",
@@ -209,12 +260,15 @@ class PaymentExecutor:
                 operation.intent.action, terms, operation.transaction_hash
             )
             evidence = asdict(observation)
+        except AttemptStopped:
+            raise
         except Exception as error:
             observation = ChainObservation(
                 "uncertain", error=f"{type(error).__name__}: receipt inspection unavailable"
             )
             evidence = asdict(observation)
         with self.journal.transaction() as db:
+            current_attempt().check_db(db)
             current = self.journal.get(db, operation.operation_id)
             if not self.journal.owns(db, operation.operation_id, token):
                 return current
@@ -285,7 +339,11 @@ class PaymentExecutor:
                     confirmed = self.journal.confirm(
                         db, current.operation_id, evidence, self.complete
                     )
-                    return self._changed(db, confirmed, evidence)
+                    confirmed = self._changed(db, confirmed, evidence)
+                    # The booking callback shares this transaction. If it consumed
+                    # the remaining lease/budget, roll back BOTH evidence and books.
+                    current_attempt().check_db(db)
+                    return confirmed
             self.journal.record_observation(db, current.operation_id, evidence)
             failed = (
                 observation.status == "failed"

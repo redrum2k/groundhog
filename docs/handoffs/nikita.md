@@ -1,4 +1,62 @@
-# Current job — complete 09's two remaining boundaries
+# Current integration — October 24
+
+Independent review of `593e02fcbc63b45d95d252e7314289eda39d4fb0` reproduced
+78 ms streaming termination, no late buyer reservation, 63 passing boundary cases
+and all 27 offline lab commands. It is being integrated with published main
+`04756e131233d47739dfa6c3eb89b917f2b60284` and the scoped frontend/schema checkpoint.
+Combined-tree validation and publication are pending. Jeff's published feature
+branch remains a separate review item. Exact-byte recovery and live proof remain
+future work; no paid calls, real RPC or broadcasts are authorized.
+
+The following records describe their own historical checkpoints; statements about
+unmerged work or missing renewal are not current integration status.
+
+# Historical 09b implementation handoff
+
+[Review amendment in workstream 09](../workstreams/09-payment-lease-renewal.md#review-amendment--finite-http-and-initial-buyer-authorization)
+continues local `9622fe0ecff1bcae01e4b7104f053c9d58e2e393` and closes R9-A/R9-B.
+The original Web3 15-second timeout was inactivity-only: the saved 100 ms streaming
+probe took 678 ms. The new HTTP-only child has one elapsed 15-second allowance,
+including a reserved 250 ms kill/reap interval, and checks cancellation/time at
+most 25 ms apart. It performs one direct POST, no retry/redirect, with no inherited
+environment or journal/signer code; all waits/cleanup remain outside SQLite locks.
+Responses are capped at 4 MiB, default TLS verification remains on, and proxy
+environment discovery is disabled. Process scheduling is not a real-time guarantee.
+
+Initial funding now checks after buyer signing and inside the existing reservation
+transaction, including write-lock wait time. A late new authorization leaves no
+operation or private capability; a concurrent durable operation/nonce/bytes survives.
+The API-adapted saved probe now stops at 78 ms and the late signer returns status 3
+with zero operations/broadcasts. Loopback HTTP and deterministic signing/lock tests
+cover cleanup, cancellation and financial expiry. Validation: **63 focused passes**,
+**377 payment/runtime/dataset/API passes**, **720 full-backend passes**, with the
+same two compiler xfails; all **27** offline lab examples, backend/tools/lab Ruff,
+Node **24.14.1** generated-contract freshness and whitespace checks passed. The
+original 695-pass record remains historical; exact commands/timings are in 09.
+
+Submitted identity remains unresolved on timeout; inspection after financial expiry
+uses that same saved identity without resend. No transaction recovery or live proof
+is added. No main merge/push occurred; preserve newer Lucas main changes and integrate
+Jeff's exact reviewed compiler commit separately. Public contracts/frontend and
+Jeff's two strict expected failures remain unchanged.
+
+[Workstream 09](../workstreams/09-payment-lease-renewal.md) implements fenced renewal
+and finite shared attempts from reviewed main `62fe03542f18d9f7514550bcff25968ae2557c08`.
+A 120-second lease renews cooperatively every 30 elapsed seconds; submission has a
+300-second total budget including lab preflight/staging, and receipt inspection a
+180-second budget independent of financial expiry. Presign/send and durable-write
+checks preserve accepted financial cutoffs, ownership and current policy. Shutdown
+signals active attempts, then drains synchronous calls. Lease loss is not a payment
+outcome. Transient stops retain the original reservation/nonce; submitted bytes stay
+unresolved and are never automatically resent.
+
+The historical sections below describe their original checkpoints. Prompt 07's
+readiness test and lab call sites were narrowly adapted as listed in 09; historical
+reports remain unchanged. Exact-byte recovery, live latency/deployment/receipt proof
+and Jeff's R3/R4 compiler blockers remain outstanding. No live run is authorized.
+
+
+# Historical 09 review — two remaining boundaries
 
 Review of `9622fe0ecff1bcae01e4b7104f053c9d58e2e393` independently reproduced
 695 passing backend tests, two Jeff-owned expected failures, 38 focused cases,
@@ -22,6 +80,7 @@ The 120-second worker lease is not a payment-expiry or automatic-void timer.
 The sections below describe earlier checkpoints. Their statements that renewal
 is wholly unimplemented or all prompt-07 files remain unchanged are historical;
 09 narrowly adapts those lab call sites and retains their original failure evidence.
+
 
 # Historical review remediation and remaining shared payment work
 

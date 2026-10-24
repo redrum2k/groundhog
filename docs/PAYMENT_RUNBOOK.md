@@ -122,10 +122,41 @@ After timeout/restart, inspect/reconcile the same saved operation/hash/nonce/ter
 is not failure. No automatic rebroadcast, replacement, fee bump or fresh-nonce recovery exists.
 A crash after durable submitted state but before actual send can remain unresolved indefinitely;
 Nikita must investigate it manually. Never delete state or reset a salt/nonce to escape ambiguity.
-RPC requests time out individually after 15 seconds with no retries. Multi-read preflight can
-outlive the 120-second payment lease; lease checks fence stale completion/submission. Check
-latency before live use. No lease-renewal or hard thread cancellation is claimed; graceful shutdown
-waits for active calls. Deadlines continue in independent lanes while the process runs.
+RPC requests now have a 15-second **elapsed** allowance without retries. The old Web3
+15-second inactivity setting did not bound a continuously streaming response (review R9-A).
+Each request runs in one stdlib-only HTTP child process; startup, DNS/TLS, transmission and
+response handling consume the allowance. The parent reserves 0.25 seconds inside it for
+kill/reap, stops request work at 14.75 seconds, polls cancellation/time every at most 25 ms,
+and closes pipes before returning. No request thread survives cancellation. OS suspension
+or scheduling stalls can delay deadline observation; this is not a real-time OS guarantee.
+There are no redirects, environment proxies, retries, inherited wallet environment or new
+dependencies. Default verified TLS is used; responses larger than 4 MiB fail structurally.
+The helper only posts HTTP and cannot sign or access the journal; all HTTP/cleanup happens
+outside SQLite locks. A timeout may follow a send reaching the server: it proves no absence.
+
+Shared cooperative checkpoints renew only a current 120-second claim, every 30 elapsed
+seconds during bounded work. Submission attempts have a 300-second monotonic budget
+including initial lab preflight and reclaim staging; receipt inspections have a separate
+180-second budget after financial expiry. Each next RPC requires its full 15-second
+allowance after any checkpoint lock wait. Original application funding
+(180 seconds), lab funding (300 seconds or shorter accepted lifetime), capture and aggregate
+latest-safe-submission cutoffs still apply. Renewal changes none of them; void/reclaim and
+receipt inspection do not inherit an expired funding/capture upper cutoff.
+
+Cancellation/ownership loss/budget exhaustion stops new work and discards late results.
+Shutdown signals cancellation and drains the HTTP child with bounded cleanup. Local buyer
+and transaction signers remain synchronous: checks discard late results on return. Initial
+lab funding rechecks immediately after buyer signing and inside the reservation transaction
+after acquiring its write lock (R9-B). A stopped new action saves neither an operation nor
+a private authorization; time spent waiting for SQLite counts in the original attempt.
+Existing durable operations/nonces/bytes remain intact. No detached payment helper continues
+afterward. An unsubmitted transient stop retains
+its reservation/nonce/bytes; after durable submitted, a stop leaves an unresolved operation
+for reconciliation, including the existing crash-before-send gap. No automatic resend occurs.
+Lease expiry removes worker commit authority; it is not payment expiry or evidence of returned
+funds. Check actual latency before live use. See [workstream 09](workstreams/09-payment-lease-renewal.md)
+for clock boundaries, margins, tests and remaining limitations. Deadlines continue in independent
+lanes while the process runs.
 
 Confirmed evidence and catalog bookings commit atomically, once. Submitted capture cannot be
 cancelled by new evidence: late complaints remain in human review even if capture confirms.
