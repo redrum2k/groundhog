@@ -23,7 +23,7 @@ export default function LiveRun({recorded}: {recorded:()=>void}) {
   const [resolved,setResolved] = useState<string>();
   const [preparation,setPreparation] = useState<FundingPreparation>();
   const [offer,setOffer] = useState<Quote>();
-  const view = useMemo(()=>project(live.events,{lane:"shared",ending:"maya",learned:false,contract:EMPTY,live:true}),[live.events]);
+  const view = useMemo(()=>project(live.events,{lane:"shared",ending:"human",learned:false,contract:EMPTY,live:true}),[live.events]);
   const nodes: CNode[] = view.order.map((key)=>({id:key,row:MAIN.has(key)?0:1,col:view.order.filter(k=>MAIN.has(k)===MAIN.has(key)).indexOf(key),title:view.nodes[key].step.title,desc:view.nodes[key].step.detail}));
   const canvas = {status:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,n.status])),chip:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,n.chip])),orb:{node:view.orb.step,mode:view.orb.mode},coin:view.coin,loops:view.loops,cards:view.cards};
   const node = view.nodes[panel];

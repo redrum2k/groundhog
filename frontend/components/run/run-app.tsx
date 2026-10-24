@@ -20,10 +20,10 @@ const DEMO: [Case, string][] = [["green", "The order"], ["amber", "Act two: esca
 const LIVE_DETAIL: Record<string, string> = { paid: "Authorized on acceptance, mock", review: "Accept or dispute" };
 const ctxFor = (lane: Case, ending: Ending, learned: boolean): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 });
 
-/** The whole recorded run for a case, with Maya's approval when the ending needs her. */
+/** The whole recorded run for a case, with Human's approval when the ending needs them. */
 function fullEvents(c: Case, ending: Ending, learned: boolean) {
   const { events } = timeline(c, ending, learned);
-  if (c !== "amber" || ending !== "maya" || learned) return events;
+  if (c !== "amber" || ending !== "human" || learned) return events;
   const v = project(events, ctxFor(c, ending, learned));
   return [...events, ...stamp("amber", controllerContinuation("approve", { deliveryVersion: 1, evidenceVersion: Object.keys(v.evidence).length }), events.length)];
 }
@@ -43,11 +43,11 @@ export default function RunApp() {
   const [tab, setTab] = useState<"run" | "customer">("run");
   const [run, setRun] = useState<Case>("green");
   const [zoom, setZoom] = useState(true);
-  const [ending, setEnding] = useState<Ending>("maya");
+  const [ending, setEnding] = useState<Ending>("human");
   const [learned, setLearned] = useState(false);
   const [mode, setMode] = useState<Mode>("recorded");
   useEffect(() => { fetch(`${LIVE_API}/health`, { cache: "no-store" }).then((r) => r.ok && setMode("live")).catch(() => {}); }, []);
-  const [feed, setFeed] = useState<Feed>(() => ({ kind: "recorded", ...timeline("green", "maya"), start: 0, autoplay: false, ctx: ctxFor("green", "maya", false) }));
+  const [feed, setFeed] = useState<Feed>(() => ({ kind: "recorded", ...timeline("green", "human"), start: 0, autoplay: false, ctx: ctxFor("green", "human", false) }));
   const [panel, setPanel] = useState<{ id: string; auto: boolean } | null>(null);
   const playback = usePlayback(feed);
   const { view, status } = playback;
@@ -92,13 +92,13 @@ export default function RunApp() {
     else setFeed({ kind: "recorded", ...timeline(c, e, l), start: 0, autoplay: opts.autoplay ?? true, ctx });
   };
   const onNode = (id: string) => { playback.pause(); setPanel({ id, auto: false }); };
-  const replayLearned = () => start("amber", { learned: true, ending: "maya", mode: "recorded" });
+  const replayLearned = () => start("amber", { learned: true, ending: "human", mode: "recorded" });
 
   const panelStep = panel ? stepOf(panel.id) : undefined;
   // The last panel stays mounted while it slides out, then Panel reports it gone
   const [shown, setShown] = useState(panelStep);
   if (panelStep && panelStep !== shown) setShown(panelStep);
-  const offerLearned = run === "amber" && ending === "maya" && !learned && done;
+  const offerLearned = run === "amber" && ending === "human" && !learned && done;
   const caption = zoom ? (view.caption || (status === "idle" ? (mode === "live" ? "Press Play live to start the order on the backend." : "Press play to run the recorded order.") : "")) : S.positioning;
   const bodyProps = { view, lane: run, ending, learned, done, live: playback.live, decide: playback.decide, onReplayLearned: replayLearned };
 
@@ -166,7 +166,8 @@ export default function RunApp() {
           {shown && <Panel key={shown.id + (learned ? "L" : "")} step={shown} {...bodyProps} closing={!panelStep} onClose={() => setPanel(null)} onClosed={() => setShown(undefined)} />}
         </main>
       ) : (
-        <Customer run={run} steps={steps} view={view} bodyProps={bodyProps} awaiting={playback.awaiting} buyer={playback.buyer} />
+        // a beat after Acme's move, long enough to see the receipt line land, the view goes back to the agent at work
+        <Customer run={run} steps={steps} view={view} bodyProps={bodyProps} awaiting={playback.awaiting} buyer={playback.buyer} onMoved={() => { window.setTimeout(() => setTab("run"), 600); }} />
       )}
     </div>
   );

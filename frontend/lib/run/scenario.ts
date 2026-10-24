@@ -35,7 +35,7 @@ export const S = {
   agent: "Order agent",
   buyer: "Acme Fitness",
   buyerAgent: "Acme's buying agent",
-  controller: "Maya",
+  controller: "Human",
   controllerRole: "Controller",
   order: "SF adults 25–34 interested in fitness, counts by ZIP",
   price: 120,
@@ -72,7 +72,7 @@ const V2: DataContract = { ...CONTRACT_V1, version: 2, lines: [...CONTRACT, CONT
 
 const buyer = (id: string, text: string, attach?: Message["attach"]): Message => ({ id, from: "buyer", text, attach });
 const agent = (id: string, text: string, attach?: Message["attach"], asks?: string): Message => ({ id, from: "agent", text, attach, asks });
-const maya = (id: string, text: string): Message => ({ id, from: "controller", text });
+const human = (id: string, text: string): Message => ({ id, from: "controller", text });
 
 /** The intake interview. Each answer settles one contract line. */
 export const INTERVIEW: Message[] = [
@@ -252,14 +252,14 @@ export const GREEN: Draft[] = [
 ];
 
 /** How the grey-area lane ends; on stage the live agent decides, the switch is the rehearsal. */
-export type Ending = "rules_no" | "rules_yes" | "maya";
-export const ENDINGS: [Ending, string][] = [["rules_no", "Rules: we're right"], ["rules_yes", "Rules: they're right"], ["maya", `${S.controller} decides`]];
-export const MAYA_QUESTION = "Should yoga studio members count as fitness for Acme's order?";
+export type Ending = "rules_no" | "rules_yes" | "human";
+export const ENDINGS: [Ending, string][] = [["rules_no", "Rules: we're right"], ["rules_yes", "Rules: they're right"], ["human", `${S.controller} decides`]];
+export const HUMAN_QUESTION = "Should yoga studio members count as fitness for Acme's order?";
 const AMBER_EVIDENCE = ["e-fitness", "e-wellness", "e-claim"];
 const YOGA: Amendment = { id: "extra", summary: "Add yoga studio members", price: S.yoga, line: { id: "yoga-amend", text: `Amendment: add yoga studio members · +$${S.yoga}`, check: "code" } };
 const YOGA_SHEET = sheet(2, "acme-sf-fitness-v2.csv", yoga(withheld(VENDOR)));
 
-/** The decide step's title depends on the ending; learned = the replay after Maya's ruling. */
+/** The decide step's title depends on the ending; learned = the replay after Human's ruling. */
 export function amberSteps(ending: Ending, learned: boolean): Step[] {
   const decide = learned ? step("decide", "decide", "Contract v2 decides", "Yoga counts, free rerun", true)
     : ending === "rules_no" ? step("decide", "decide", "Rules: we're right", `Yoga amendment for $${S.yoga}`, true)
@@ -324,9 +324,9 @@ export function amberEnding(ending: Ending, learned: boolean): Draft[] {
     { type: "verdict", step: "decide", verdict: { kind: "disagree", decidedBy: "rules", evidenceIds: AMBER_EVIDENCE, reason: "The vendor's category decides, so we're right and yoga is extra." }, allowedBy: POLICY.vendorCategory },
     ...yogaAmendment,
   ];
-  // maya: hold here until the controller clicks; controllerContinuation supplies the rest
+  // human: hold here until the controller clicks; controllerContinuation supplies the rest
   return [
-    say("decide", agent("m-escalate", MAYA_QUESTION, cite("e-fitness", "e-wellness", "e-claim"))),
+    say("decide", agent("m-escalate", HUMAN_QUESTION, cite("e-fitness", "e-wellness", "e-claim"))),
     wait("decide", S.controller),
   ];
 }
@@ -337,7 +337,7 @@ export function controllerContinuation(action: ControllerAction, binding: { deli
   switch (action) {
     case "approve": return [
       decided("Yoga counts. They're right that it's fitness."),
-      say("decide", maya("m-maya", "Yoga counts. They're right that it's fitness.")),
+      say("decide", human("m-human", "Yoga counts. They're right that it's fitness.")),
       { type: "verdict", step: "decide", verdict: { kind: "agree", decidedBy: "controller", evidenceIds: AMBER_EVIDENCE, reason: `${S.controller} ruled that yoga studio members count as fitness.` }, allowedBy: POLICY.ruling },
       { type: "contract_approved", step: "decide", contract: V2, allowedBy: POLICY.ruling },
       { type: "rule_updated", step: "decide", rule: { id: "rule-yoga", label: "Learned · yoga counts as fitness (contract v2)", text: CONTRACT_V2.text, decidedBy: S.controller } },
@@ -347,20 +347,20 @@ export function controllerContinuation(action: ControllerAction, binding: { deli
     ];
     case "reject": return [
       decided("Yoga wasn't agreed. Offer it as an amendment."),
-      say("decide", maya("m-maya", "Yoga wasn't agreed. Offer it as an amendment.")),
+      say("decide", human("m-human", "Yoga wasn't agreed. Offer it as an amendment.")),
       { type: "verdict", step: "decide", verdict: { kind: "disagree", decidedBy: "controller", evidenceIds: AMBER_EVIDENCE, reason: `${S.controller} ruled that yoga was not in scope.` }, allowedBy: POLICY.ruling },
       say("decide", agent("m-offer", `Our controller reviewed it: yoga isn't in your order. Want it added for $${S.yoga}?`)),
       ...yogaAmendment,
     ];
     case "ask": return [
       decided("Asked Acme for their member categories."),
-      say("decide", maya("m-maya", "Can you share how your own members are categorized?")),
+      say("decide", human("m-human", "Can you share how your own members are categorized?")),
       say("decide", buyer("m-cats", "We tag yoga, pilates and gyms all as fitness.")),
       wait("decide", S.controller),
     ];
     case "escalate": return [
       decided("Sent up to the CFO."),
-      say("decide", maya("m-maya", "Sending this up to the CFO.")),
+      say("decide", human("m-human", "Sending this up to the CFO.")),
       wait("decide", "the CFO"),
     ];
   }
@@ -383,7 +383,7 @@ export function timeline(c: Case, ending: Ending, learned = false): { events: Ru
 }
 
 /** The canvas chip for a step, from what the step has been through. */
-export function chipFor(step: Step, n: { status: string; attempt: number; checks: number; lines: number; sources: number; verdictKind?: string; verdictBy?: string; amendmentPrice?: number; waitingOn?: string; learned: boolean; disputed: boolean; decided?: string; ruled: boolean }): string | undefined {
+export function chipFor(step: Step, n: { status: string; attempt: number; checks: number; lines: number; sources: number; verdictKind?: string; verdictBy?: string; amendmentPrice?: number; waitingOn?: string; window?: string; learned: boolean; disputed: boolean; decided?: string; ruled: boolean }): string | undefined {
   const { status, attempt } = n;
   if (status === "idle") return undefined;
   switch (step.kind) {
@@ -392,7 +392,7 @@ export function chipFor(step: Step, n: { status: string; attempt: number; checks
     case "produce":
       if (status === "running") return attempt > 1 ? (n.verdictKind === "agree" ? `Rerun · our cost $${S.rerunCost}` : n.amendmentPrice === S.oakland ? "Adding Oakland" : "Adding yoga") : "Checking";
       return attempt > 1 ? (n.verdictKind === "agree" ? "Rechecked" : "Checks passed") : `${n.checks} of ${n.lines} passed`;
-    case "review": return status === "waiting" ? "Disputed" : status === "done" ? "Accepted" : attempt > 1 ? `New ${S.reviewHours}h window` : `${S.reviewHours}h window`;
+    case "review": return status === "waiting" ? "Disputed" : status === "done" ? "Accepted" : attempt > 1 ? "New review window" : `${n.window ?? `${S.reviewHours}h`} window`;
     case "captured": return "Done";
     case "investigate": return status === "done" ? `${n.sources} source${n.sources === 1 ? "" : "s"}` : "Checking";
     case "verdict": return n.verdictKind === "agree" ? "Our miss" : "We're right";

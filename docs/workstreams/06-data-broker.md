@@ -120,7 +120,7 @@ before freshness checks. Stale reviewer commands mutate nothing and are not auto
 
 Reviewer actions are server-owned: approve an eligible proposed release only;
 reject records a reason and retains review; ask persists one bounded actual question;
-escalate retains review for Maya/CFO. Actor/reason/citations/current binding are stored.
+escalate retains review for Human/CFO. Actor/reason/citations/current binding are stored.
 Neither an answer nor a reviewer decision can change scope or create money authority.
 
 ## Timing and signing

@@ -9,10 +9,10 @@ Rules of the design:
   Produce & check and walks Review → Captured again. No separate Recheck / Redeliver / Books steps.
   - Our fault: Investigate → They're right → back to Produce (free rerun)
   - We were right: Investigate → We're right → Amendment → back to Produce
-  - Grey area: Investigate → Grey area → (Rules decide | Maya decides) → back to Produce
+  - Grey area: Investigate → Grey area → (Rules decide | Human decides) → back to Produce
 - Only the selected case is on screen. "All cases" is a quiet map (verdict chips only, no cards, no orb).
 - Opens on "No dispute", paused. Camera scale ~1, follows the orb. Step details open in one right panel
-  (interview + live checklist, sheet with highlighted rows, citations, Maya's review, books + margin).
+  (interview + live checklist, sheet with highlighted rows, citations, Human's review, books + margin).
 - Evidence cards pop under the step only while the orb is there; rule cards stay.
 - Files: timeline.ts (steps + frames), Canvas.tsx (layout, edges, camera, orb), Panel.tsx (step panels),
   App.tsx (case picker, runner), styles.css (tokens + all classes), scenario.ts (names, amounts, text).

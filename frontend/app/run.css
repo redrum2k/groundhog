@@ -225,7 +225,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .panel-b { flex: 1; overflow: auto; padding: 16px 20px 28px; display: flex; flex-direction: column; gap: 14px; }
 .panel-sec.sticky { position: sticky; top: -16px; z-index: 1; background: var(--bg); padding-top: 0; box-shadow: 0 -16px 0 var(--bg); }
 /* messages scrolling under the pinned contract fade out instead of being cut */
-.panel-sec.sticky::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 16px; background: linear-gradient(var(--bg), transparent); pointer-events: none; }
+.panel-sec.sticky::after, .cust-h::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 16px; background: linear-gradient(var(--bg), transparent); pointer-events: none; }
 
 .chat { display: flex; flex-direction: column; gap: 10px; }
 .bub { max-width: 90%; padding: 9px 13px 10px; border-radius: 14px; background: var(--sunk); position: relative; transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out); }
@@ -318,6 +318,8 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .todo-list { list-style: none; margin: 0; padding: 0 8px 8px; }
 .todo-item { display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 4px 6px; border-radius: 4px; }
 .todo-sicon { width: 20px; height: 20px; margin: 0 2px; flex: none; overflow: visible; }
+.todo-arc { transform-origin: 12px 12px; }
+.todo-arc.spin { animation: spin 1.1s linear infinite; }
 .todo-title { flex: 1; min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .s-pending .todo-title { color: var(--ink-3); }
 .s-in-progress .todo-title, .s-completed .todo-title { color: var(--ink); }
@@ -327,10 +329,16 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 
 /* ---------- customer view ---------- */
 .customer { overflow: auto; min-height: 0; }
-.cust-col { max-width: 620px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
+.cust-col { max-width: 740px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
 .cust-h .title { font-size: 17px; }
 .cust-sec { display: flex; flex-direction: column; gap: 10px; }
-.cust-step { font-size: 12.5px; color: var(--ink-3); padding-top: 14px; border-top: 1px solid var(--line); }
+.cust-step { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-3); padding-top: 14px; border-top: 1px solid var(--line); cursor: pointer; list-style: none; }
+.cust-step::-webkit-details-marker { display: none; }
+.cust-step .chev { transition: transform .2s var(--ease-out, ease); }
+.cust-sec[open] > .cust-step .chev { transform: rotate(90deg); }
+/* the live stretch of conversation scrolls in its own box; the page stays short enough to keep the decision in view */
+.cust-body { max-height: min(46vh, 440px); overflow: auto; }
+.cust-body .panel-sec.sticky { top: 0; box-shadow: none; }
 
 @media (max-width: 760px) {
   .top { flex-wrap: wrap; gap: 10px 24px; }
@@ -344,13 +352,13 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 
 @media (prefers-reduced-motion: reduce) {
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
-  .orb, .orb-eyes, .orb-look .orb-face, .orb-inspect .orb-face, .orb-wait .orb-eyes, .orb-lens, .spin2 { animation: none; }
+  .orb, .orb-eyes, .orb-look .orb-face, .orb-inspect .orb-face, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
   :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .sheet-lens.scan { animation: none; }
   :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, .bub, .panel { transition: opacity 150ms ease; transform: none; }
 }
 
 /* ---------- customer view: Acme's decisions ---------- */
-.cust-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.cust-h { position: sticky; top: 0; z-index: 2; margin-top: -14px; padding: 14px 0 6px; background: var(--bg); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .cust-who { display: flex; align-items: center; gap: 12px; }
 .cust-money { display: flex; align-items: center; gap: 8px; }
 .wallet { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
@@ -358,6 +366,14 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .wallet.w-paid { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
 .decision { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
 .decision.open { border-color: var(--ink); }
+/* a taken decision folds to its receipt line; the chevron opens the detail */
+.decision.taken { gap: 0; padding: 10px 16px; }
+.decision.taken > summary { cursor: pointer; list-style: none; }
+.decision.taken > summary::-webkit-details-marker { display: none; }
+.decision.taken .chev { color: var(--ink-3); transition: transform .2s var(--ease-out, ease); }
+.decision.taken[open] > summary { margin-bottom: 12px; }
+.decision.taken[open] > summary .chev { transform: rotate(90deg); }
+.decision-body { display: flex; flex-direction: column; gap: 12px; }
 .decision-h { display: flex; align-items: center; gap: 10px; }
 .decision-t { font-size: 15px; }
 .decision-tag { display: inline-flex; align-items: center; gap: 5px; height: 21px; padding: 0 9px; border-radius: 999px; font-size: 12px; color: var(--amber); background: var(--amber-t); }

@@ -13,7 +13,7 @@ const snapshot = (c: Case, upTo = Infinity): BrokerSnapshot => {
   const { checksBySeq, rowsByVersion } = load<Pick<BrokerSnapshot, "checksBySeq" | "rowsByVersion">>(`${c}-snapshots`);
   return { events, order, checksBySeq, rowsByVersion };
 };
-const view = (c: Case) => project(translate(snapshot(c), c), { lane: c, ending: "maya", learned: false, contract: CONTRACT_V1 });
+const view = (c: Case) => project(translate(snapshot(c), c), { lane: c, ending: "human", learned: false, contract: CONTRACT_V1 });
 
 describe("broker stream → canvas", () => {
   it("walks the no-dispute order from interview to a mock capture", () => {

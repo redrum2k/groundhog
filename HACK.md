@@ -51,7 +51,7 @@ changing source editions. Substantive changes require a separate accepted child
 agreement and confirmed parent void before child funding/work. Additional work
 has a separate accepted price and authorization. Unsupported complaints incur no fee.
 
-Maya can approve an eligible proposed return of uncaptured funds, reject with a
+Human can approve an eligible proposed return of uncaptured funds, reject with a
 reason, ask one bounded question or retain human review. Decisions cite evidence,
 carry the exact observed binding and use trusted server credentials. They cannot
 change accepted scope, activate a global rule or grant unconditional capture.

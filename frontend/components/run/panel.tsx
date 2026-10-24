@@ -21,15 +21,20 @@ function CiteChip({ e, onCite }: { e: Evidence; onCite: (s: Source) => void }) {
 function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View; highlight?: string; onCite: (s: Source) => void }) {
   const box = useRef<HTMLDivElement>(null);
   const seen = useRef(items.length);
-  // A new message glides into view, unless the viewer has scrolled up to reread earlier ones
+  const height = useRef(0); // the pane's scroll height before the latest messages landed
+  // New messages glide into view unless the viewer had scrolled up to reread earlier ones.
+  // Judged against the height before this batch, so a burst of bubbles never reads as the viewer scrolling away.
   useEffect(() => {
     const added = items.length > seen.current;
     seen.current = items.length;
     const last = box.current?.lastElementChild as HTMLElement | null | undefined;
-    const pane = box.current?.closest(".panel-b, .customer");
-    if (!added || !last || !pane) return;
-    if (pane.scrollHeight - pane.scrollTop - pane.clientHeight - last.offsetHeight > 160) return;
-    last.scrollIntoView?.({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" });
+    const pane = box.current?.closest(".cust-body, .panel-b, .customer");
+    if (!last || !pane) return;
+    const following = height.current - pane.scrollTop - pane.clientHeight < 160;
+    height.current = pane.scrollHeight;
+    if (!added || !following) return;
+    const below = last.getBoundingClientRect().bottom - pane.getBoundingClientRect().bottom;
+    if (below > 0) pane.scrollBy?.({ top: below + 12, behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [items.length]);
   return (
     <div className="chat" ref={box}>
