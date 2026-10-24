@@ -6,12 +6,14 @@ under their original strict markers on this combined baseline (720 passes, two
 expected failures). They were neither removed nor reinstated by integration.
 
 Your published `origin/feature/aggregate-intake-integration-20261024` is available
-at `e774495192f903d0c1191590cf13cfc4a9439977`, including `d2b6ba1`, `5946378` and
-`ef8c99a`; it remains a separate review/integration item. The reported `0983c1b`
-object is still unavailable. This integration does not qualify an unpublished
+initially at `e774495192f903d0c1191590cf13cfc4a9439977`, including `d2b6ba1`,
+`5946378` and `ef8c99a`. The final fetch advanced it to
+`849e98a791551546ee29fda67392041301bf1a43`, including newly published intake work
+at `706f41e`. These commits remain a separate review/integration item. The reported `0983c1b`
+object is still unavailable. This integration does not qualify the newly published
 conversational-intake amendment or rewrite your existing branch. Prompt 10's audit
 reuse candidate is `tools/audit_primary_evidence.py` at `ef8c99a` (same blob at
-`e774495`); inspect and attribute it separately, without running its private-path
+`e774495` and `849e98a`); inspect and attribute it separately, without running its private-path
 entry point or merging compiler/runtime changes just to obtain tooling.
 
 The review and job assignments below are preserved as historical checkpoints.

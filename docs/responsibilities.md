@@ -17,7 +17,8 @@ The [frontend/payment integration](reviews/frontend-payment-integration.md) merg
 reviewed `593e02f` with published main `04756e1`; implementation merge `4a24c9f`
 passed combined offline validation. Nikita's 09b boundary work is complete.
 Exact-byte transaction recovery and live proof remain separate future work.
-Jeff's published compiler/intake branch at `e774495` is available but unmerged;
+Jeff's published compiler/intake branch advanced from `e774495` to `849e98a`
+at the final fetch, including `706f41e`; it remains available but unreviewed/unmerged;
 R3/R4 remain two strict expected failures on this main baseline. Prompt 10 may
 review audit tooling at `ef8c99a`; no evaluator implementation is included here.
 Lucas's `/` retained-broker canvas and `/live` aggregate intake both remain intact.

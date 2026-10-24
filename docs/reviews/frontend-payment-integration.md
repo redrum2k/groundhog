@@ -4,9 +4,10 @@ Implementation merge: **`4a24c9f91962c2924770614e38b6e6edee905a94`**. This combi
 reviewed 09/09b, the existing local frontend/schema fixes and latest fetched main.
 The combined offline checks below passed before publication. No paid models, real
 chain RPC, wallet/private-database access, broadcasts or deployment were used.
-The remaining documentation commit records these results without changing runtime
-code. Normal main publication follows a final fetch; the session reports the
-verified local/remote SHA.
+Documentation commit `676b4e258098a2be75c5aeec8b3d3033307fedeb` records these results
+without changing runtime code. The final fetch kept main at `04756e1`; only Jeff's
+separate branch advanced, as recorded below. The session reports the normal push
+and verified local/remote SHA.
 
 ## Exact inputs and preservation
 
@@ -20,7 +21,8 @@ verified local/remote SHA.
 | Original 09 commit | `9622fe0ecff1bcae01e4b7104f053c9d58e2e393` |
 | 09 base / merge base with local main | `62fe03542f18d9f7514550bcff25968ae2557c08` |
 | Reviewed payment merge | `4a24c9f91962c2924770614e38b6e6edee905a94`; exact `593e02f` is an ancestor |
-| Separate Jeff branch | `origin/feature/aggregate-intake-integration-20261024` at `e774495192f903d0c1191590cf13cfc4a9439977`, unmerged |
+| Separate Jeff branch, first fetch | `origin/feature/aggregate-intake-integration-20261024` at `e774495192f903d0c1191590cf13cfc4a9439977`, unmerged |
+| Separate Jeff branch, final fetch | `849e98a791551546ee29fda67392041301bf1a43`, still unmerged and unreviewed |
 | Jeff/main merge base | `31ad60b9a95b73e0c788752030edc0c0f195f441` |
 | Remote | `origin`, `https://github.com/redrum2k/order-to-cash.git` |
 
@@ -182,11 +184,16 @@ The fetched feature branch is not merged or cherry-picked. Available commits:
 `5946378555e1966b45de34c684a60c4eac83af68`, and
 `ef8c99afb9cf5f3b6928f505242f2d622fce2c3e`.
 Reported `0983c1b` remains an unavailable object and is not substituted for another
-revision. Unpublished conversational-intake work is not qualified by this review.
+revision. The final fetch now exposes additional published intake-consent/Claude
+wiring at `706f41e`, frontend integration at `37a8bf1`, and handoff `849e98a`.
+Only their history/diff scope was inspected; this task did not review or qualify
+them. Publication alone is not semantic qualification. The branch remains unchanged
+and unmerged; its inclusion of newer main does not authorize the remaining feature.
 
 For prompt 10, available audit tooling is `tools/audit_primary_evidence.py` at
 `ef8c99a`; blob **`51acbf86a90ff8f1cc3e7397db3fd7776ad2fc68`** is identical at
-`e774495`. This identifies provenance, not completed evaluation qualification.
+`e774495` and final fetched `849e98a`. This identifies provenance, not completed
+evaluation qualification.
 Do not execute its private-path entry point. Review/reuse pure audit logic in the
 separately scoped task, with attribution and compatibility tests.
 
