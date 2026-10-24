@@ -116,7 +116,7 @@ export interface Action {
   id: string;
   issue_id?: string | null;
   job_ids?: string[];
-  kind: "CORRECT" | "QUOTE" | "INCLUDED_FIELD" | "CONCESSION" | "HUMAN_REVIEW";
+  kind: "CORRECT" | "QUOTE" | "INCLUDED_FIELD" | "CONCESSION" | "HUMAN_REVIEW" | "NO_REMEDY";
   owner: string;
   revision: number;
   scope_digest: string;
@@ -311,10 +311,13 @@ export interface Check {
 }
 export interface InvestigationOutcome {
   findings: Finding[];
+  input_tokens?: number;
   issue_id: string;
+  model_id?: string | null;
   model_mode: "DETERMINISTIC" | "ANTHROPIC";
+  output_tokens?: number;
   questions: Question[];
-  recommendations: ("INCLUDED_FIELD" | "QUOTE" | "HUMAN_REVIEW")[];
+  recommendations: ("INCLUDED_FIELD" | "QUOTE" | "HUMAN_REVIEW" | "NO_REMEDY")[];
   revision: number;
   summary: string;
 }
