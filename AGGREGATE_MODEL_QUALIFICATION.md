@@ -17,7 +17,7 @@ that binding, four fresh real intake cases passed, including confirmation/refusa
 
 This is **bounded scenario qualification**, not independently reviewed, blind
 held-out accuracy or unrestricted dispute competence. All model-dependent features
-remain OFF by default. No main merge, deployment, live-server restart, real payment
+remain OFF by default. No merge into main, deployment, live-server restart, real payment
 broadcast, automatic rule activation or new purchase occurred.
 
 PR: https://github.com/redrum2k/order-to-cash/pull/12
@@ -83,6 +83,17 @@ dispute cohorts were not rerun, relabeled or overwritten.
 | Pilot I1–I6, D1–D5 | Harness `82bc5ba`; application inherited from `706f41e`/published `849e98a`. Six intake passes; raw and effective dispute outcomes each 4/5, with different failing cases. |
 | Follow-up F1–F5 | `1b7ed755a870a04d78320ba2fd7a54bf6e3e831d`: explicit taxonomy-authority instruction and whole-clause scope-first predicate. Five new orders/paraphrases; all raw/effective outcomes correct. |
 | Confirmation C1–C4 | `b9476d930b413f03a6d86582d9596c1e3a052a2f`: cohort-offer confirmation binding. Four new intake requests; all acceptance checks pass. Dispute implementation is unchanged from `1b7ed75`. |
+
+Subsequent integration commit `3a15bd8b66ff4800940499f44a2b4f7ca7472e04`
+merges current main `b177d53b68db9aa9ed3885315fc7d4f704ea571a` **into this feature
+branch only**. Qualified agents, investigation, order and contract components are
+byte-identical to `b9476d9`. Payment code, lifecycle startup/shutdown, payment tests,
+lab files and Lucas's visual/interview code match the newer main. The two conflicts
+were equivalent 422 schema wording (retained main's implementation) and a handoff
+document (retained both histories with a current pointer). No paid cohort was rerun
+or relabeled after this integration. It changes the integrated runtime, so the
+frozen live-call evidence is attributed to the earlier versions above, not to a
+new paid run on the merge commit.
 
 **D4, retained model failure:** raw FAIL inferred taxonomy from the accepted exclusion
 despite `yoga_is_gym=null`. The independent guard correctly retained UNKNOWN and
@@ -168,6 +179,8 @@ unless provider-output fault is independently established.
 
 ## Regression and integration status
 
+### Before the newer-main integration
+
 108 focused intake/semantic tests pass, including preserved R3/R4, new proof guards
 and cohort-confirmation cases. The full `1b7ed75` backend run had **794 pass / 11
 pre-existing Windows failures** (805 tests). Final `b9476d9` full run:
@@ -189,10 +202,42 @@ All original XML and incident evidence remains under
 [test summary](docs/evidence/aggregate-qualification-tests-20261024.json) includes
 the raw XML digests and exact failures.
 
-Generated-contract checks pass. No DTO or frontend source changed in this follow-up;
-the previous 109 frontend tests/typecheck/build remain evidence for that unchanged
-frontend. Lucas's `/` broker canvas and `/live` aggregate intake are preserved.
-Nikita's payments and `tools/brokerage_acceptance.py` are untouched. This one-off
+### Current integrated result and payment incident
+
+Full suite at **`3a15bd8`: 852 passed / 13 failed / 0 skipped / 0 errors**, 865
+tests in 352.120 seconds (JUnit). All **108 focused intake/semantic tests pass**
+within this run. The unchanged model-budget and new lease tests are included.
+Raw XML: `backend/artifacts/aggregate-qualification-20261024/full-integrated-main.xml`;
+the public test summary includes its SHA-256, exact failures and baseline comparison.
+
+The number 13 is coincidentally the same as the original baseline, **not the same
+failure set**. Two original failures persist: the POSIX-only `0600` file-mode
+assertion and the hard-coded `.venv/bin/python` schema-export subprocess path.
+All nine old payment-lab help cases and both submitted/broadcast observation-race
+cases pass on this run with current main's changes.
+
+The other **11 failures are newly imported main payment HTTP-boundary tests**.
+Their helper launches with `env={}`. A read-only Windows control reproduced
+`socket.socket()` failing with **WinError 10106** in that empty environment and
+succeeding with only the nonsecret `SystemRoot` variable. Running the exact
+unchanged `_http_request.py` request function against a synthetic loopback server
+likewise failed with an empty environment (0.125 s) and succeeded with only
+`SystemRoot` (0.093 s). No external RPC, key or financial state was used.
+
+This establishes a Windows child-startup/environment problem, not an intake or
+dispute regression. It does **not** prove that adding `SystemRoot` would make all
+100 ms boundary tests pass: the scaled startup timing also needs qualification.
+Nikita owns that follow-up, including a minimal nonsecret Windows environment,
+`CREATE_NO_WINDOW`, and real timing/cleanup regressions without weakening isolation,
+deadlines or assertions. His payment source/tests are byte-identical to `b177d53`;
+none were rewritten, skipped or marked expected-failure here. The overall Windows
+suite is **not green**, and this PR is not a payment/deployment qualification.
+
+At `3a15bd8`, generated-contract freshness, all **109 frontend tests**, typecheck
+and production build pass again with Lucas's newer frontend. Backend/tools Ruff
+lint and formatting pass across **182 files**. Lucas's `/` broker canvas and `/live`
+aggregate intake are preserved. Nikita's payment changes were imported intact from
+main, not rewritten; `tools/brokerage_acceptance.py` is unchanged. This one-off
 qualification reuses the existing dispute harness and citation auditor; it does not
 duplicate the proposed general aggregate evaluation runner/Rehan expectation lane.
 

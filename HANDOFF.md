@@ -9,7 +9,9 @@ PR https://github.com/redrum2k/order-to-cash/pull/12 targeting main. Do not self
 Latest frontend and Human naming are preserved. The user's separate 90-minute
 qualification window runs conservatively from 12:52 to 14:22 Pacific on October 24.
 Old windows/spending were not reset. Real API evidence is distinct from injected
-tests; no production/shared-main enablement or main merge occurred.
+tests; no production/shared-main enablement or merge into main occurred.
+Integration commit `3a15bd8` brings main `b177d53` into this feature branch only.
+Qualified semantic components are unchanged; newer payment/frontend work is retained.
 
 The original semantic evidence in [PRIMARY_HANDOFF.md](PRIMARY_HANDOFF.md) and
 [PRIMARY_RESULTS.md](PRIMARY_RESULTS.md) is frozen history, not current integration
