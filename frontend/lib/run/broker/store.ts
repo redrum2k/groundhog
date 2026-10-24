@@ -23,12 +23,13 @@ export async function startRun(c: Case): Promise<{ id: string; poll_after_ms: nu
   return { id: handle, poll_after_ms: 1000 };
 }
 
-export interface Poll { events: RunEvent[]; poll_after_ms: number; awaiting: BuyerGate | null; error?: string }
+// server_time: this bridge only runs on loopback beside the backend, so its clock is the deadlines' clock
+export interface Poll { events: RunEvent[]; poll_after_ms: number; awaiting: BuyerGate | null; server_time: string; error?: string }
 export async function eventsAfter(handle: string, after: number): Promise<Poll | { error: string; status: number }> {
   const live = runs.get(handle);
   if (!live) return { error: "Run not found", status: 404 };
   const { run } = live;
-  if (!run.id) return run.error ? { error: run.error, status: 502 } : { events: [], poll_after_ms: 1000, awaiting: null };
+  if (!run.id) return run.error ? { error: run.error, status: 502 } : { events: [], poll_after_ms: 1000, awaiting: null, server_time: new Date().toISOString() };
   try {
     // The interview happens on the draft; the order record exists only from acceptance on
     const record = () => getOrder(run.tokens.customer, run.id).catch((err: unknown) => (err instanceof BrokerError && err.status === 404 ? getDraft(run.tokens.customer, run.id) : Promise.reject(err)));
@@ -42,7 +43,7 @@ export async function eventsAfter(handle: string, after: number): Promise<Poll |
       if (version && !(version in live.rowsByVersion)) live.rowsByVersion[version] = await deliveredRows(run.tokens.customer, run.id, order.delivery_artifact_ids ?? []);
       live.translated = translate({ events: stream, order, checksBySeq: live.checksBySeq, rowsByVersion: live.rowsByVersion }, run.case);
     }
-    return { events: live.translated.filter((e) => e.seq > after), poll_after_ms: run.finished && run.error ? 4000 : 1000, awaiting: run.awaiting, ...(run.error ? { error: run.error } : {}) };
+    return { events: live.translated.filter((e) => e.seq > after), poll_after_ms: run.finished && run.error ? 4000 : 1000, awaiting: run.awaiting, server_time: new Date().toISOString(), ...(run.error ? { error: run.error } : {}) };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err), status: 502 };
   }

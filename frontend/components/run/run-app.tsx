@@ -167,7 +167,7 @@ export default function RunApp() {
         </main>
       ) : (
         // a beat after Acme's move, long enough to see the receipt line land, the view goes back to the agent at work
-        <Customer run={run} steps={steps} view={view} bodyProps={bodyProps} awaiting={playback.awaiting} buyer={playback.buyer} onMoved={() => { window.setTimeout(() => setTab("run"), 600); }} />
+        <Customer run={run} steps={steps} view={view} bodyProps={bodyProps} awaiting={playback.awaiting} skew={playback.skew} buyer={playback.buyer} onMoved={() => { window.setTimeout(() => setTab("run"), 600); }} />
       )}
     </div>
   );
