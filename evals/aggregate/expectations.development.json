@@ -1,0 +1,559 @@
+{
+  "schema_version": "aggregate-expectations-v1",
+  "expectations": [
+    {
+      "case_id": "D01",
+      "classification": "development",
+      "review_status": "engineering",
+      "reviewer": "Nikita engineering fixture; Rehan review pending",
+      "review_rationale": "Tooling regression expectation from explicit fixture construction and accepted policy; not independently reviewed gold.",
+      "checkpoints": [
+        {
+          "id": "delivery",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            }
+          ],
+          "action": "publish",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "valid",
+          "complaint_result": null
+        },
+        {
+          "id": "settled",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            }
+          ],
+          "action": "settle",
+          "payment_state": "captured",
+          "booking_count": 1,
+          "artifact_result": "valid",
+          "complaint_result": null
+        }
+      ]
+    },
+    {
+      "case_id": "D02",
+      "classification": "development",
+      "review_status": "engineering",
+      "reviewer": "Nikita engineering fixture; Rehan review pending",
+      "review_rationale": "Tooling regression expectation from explicit fixture construction and accepted policy; not independently reviewed gold.",
+      "checkpoints": [
+        {
+          "id": "initial",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "FAIL",
+              "rationale": "The producer removes a required ZIP; the independent frozen registry still requires it."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "FAIL",
+              "rationale": "The defective CSV disagrees with both complete source rows and the unchanged JSON preview."
+            }
+          ],
+          "action": "correct",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "invalid",
+          "complaint_result": null
+        },
+        {
+          "id": "corrected",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            }
+          ],
+          "action": "publish",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "valid",
+          "complaint_result": null
+        }
+      ]
+    },
+    {
+      "case_id": "D03",
+      "classification": "development",
+      "review_status": "engineering",
+      "reviewer": "Nikita engineering fixture; Rehan review pending",
+      "review_rationale": "Tooling regression expectation from explicit fixture construction and accepted policy; not independently reviewed gold.",
+      "checkpoints": [
+        {
+          "id": "delivery",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            }
+          ],
+          "action": "publish",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "valid",
+          "complaint_result": null
+        },
+        {
+          "id": "complaint",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            }
+          ],
+          "action": "unsupported",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "valid",
+          "complaint_result": "FAIL"
+        }
+      ]
+    },
+    {
+      "case_id": "D04",
+      "classification": "development",
+      "review_status": "engineering",
+      "reviewer": "Nikita engineering fixture; Rehan review pending",
+      "review_rationale": "Tooling regression expectation from explicit fixture construction and accepted policy; not independently reviewed gold.",
+      "checkpoints": [
+        {
+          "id": "parent",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            }
+          ],
+          "action": "publish",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "valid",
+          "complaint_result": null
+        },
+        {
+          "id": "child",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            }
+          ],
+          "action": "publish",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "valid",
+          "complaint_result": null
+        }
+      ]
+    },
+    {
+      "case_id": "D05",
+      "classification": "development",
+      "review_status": "engineering",
+      "reviewer": "Nikita engineering fixture; Rehan review pending",
+      "review_rationale": "Tooling regression expectation from explicit fixture construction and accepted policy; not independently reviewed gold.",
+      "checkpoints": [
+        {
+          "id": "source",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "UNKNOWN",
+              "rationale": "The frozen authority does not identify a registered publisher."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "UNKNOWN",
+              "rationale": "No CSV/JSON delivery exists. Output agreement is unestablished even if other source checks pass; an early PASS is a runtime gap."
+            }
+          ],
+          "action": "request_evidence",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "not_produced",
+          "complaint_result": null
+        }
+      ]
+    },
+    {
+      "case_id": "D06",
+      "classification": "development",
+      "review_status": "engineering",
+      "reviewer": "Nikita engineering fixture; Rehan review pending",
+      "review_rationale": "Tooling regression expectation from explicit fixture construction and accepted policy; not independently reviewed gold.",
+      "checkpoints": [
+        {
+          "id": "source",
+          "requirements": [
+            {
+              "requirement_id": "R-COHORT",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-CATEGORY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-GEOGRAPHY",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SCHEMA",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-COVERAGE",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-SUPPRESSION",
+              "result": "PASS",
+              "rationale": "Explicit frozen synthetic specification and complete conforming source/output evidence support this requirement."
+            },
+            {
+              "requirement_id": "R-PROVENANCE",
+              "result": "CONFLICT",
+              "rationale": "The registered edition and the source document edition disagree."
+            },
+            {
+              "requirement_id": "R-ARTIFACT",
+              "result": "UNKNOWN",
+              "rationale": "No CSV/JSON delivery exists. Output agreement is unestablished even if other source checks pass; an early PASS is a runtime gap."
+            }
+          ],
+          "action": "request_evidence",
+          "payment_state": "funded",
+          "booking_count": 0,
+          "artifact_result": "not_produced",
+          "complaint_result": null
+        }
+      ]
+    }
+  ]
+}
