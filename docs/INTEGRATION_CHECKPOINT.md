@@ -1,4 +1,20 @@
-# Shared integration checkpoint — catalog v0.3 / payments v1
+# Shared integration checkpoint — aggregate brokerage v1
+
+> Aggregate brokerage update (October 24): new default intake uses
+> `aggregate-brokerage-v1`, funded CSV/JSON deliveries and the persisted `/runs` API.
+> See [workstream 06](workstreams/06-data-broker.md) for current contracts, commands,
+> compatibility boundaries and validation limitations. The catalog-specific details
+> below remain historical compatibility guidance and do not set new dataset policy.
+
+
+The current combined task branch contains reviewed main, baseline backend, the
+migration and completed Prompt 7 work. The 615-test backend suite, 88 frontend tests,
+production build and actual production browser flow pass. Exact startup commands,
+policy boundaries, screenshot/trace/payment evidence and PR description are in
+[workstream 06](workstreams/06-data-broker.md). Mock remains the default; no live
+application payment, hosted-auth boundary or deployment has been validated.
+
+## Historical catalog checkpoint
 
 Deadline: Sunday, October 25, 2026, 9 a.m. America/Los_Angeles. Hold the first integration
 checkpoint 90 minutes after the team starts its split; check the shared fixture at 30 minutes.
@@ -43,16 +59,17 @@ No paid calls, broadcasts or deployment are authorized. Never route evaluator la
 privileged worker/reviewer tokens through the browser or model context.
 
 
-## Payment handoff first
+## Integrated payment handoff
 
-Phase 1 freezes API version 0.4.0 (`catalog-api-v1`, `catalog-payments-v1`), adds schema-4
+The contract handoff retains API version 0.4.0 (`catalog-api-v1`, `catalog-payments-v1`), adds schema-4
 accepted terms while preserving historical mock records, and supplies executable mock/fake
-responses for all payment states. Live Base RPC/operator execution is a later independent
-Nikita milestone; no testnet outcome is claimed. Current mock terminal actions complete
-atomically, and pending/reorg fixtures exist for frontend development.
+responses for all payment states. Base RPC/operator execution and automatic catalog dispatch are now integrated and validated
+with synthetic RPC, clocks and PDFs; no observed testnet outcome is claimed. Mock terminal
+actions complete atomically; Base bookings wait for confirmation. See workstreams/04-integration.md
+and handoffs/lucas.md for the exact evidence and server bridge recipe.
 
-Nikita can build the payment laboratory with synthetic accepted terms and a fixture settlement
-decision without waiting for Jeff's prompts or Lucas's UI. The later separately authorized
+The executable payment laboratory uses synthetic accepted terms and a fixture settlement
+decision independent of Jeff's prompts or Lucas's UI. The later separately authorized
 live proof is two 0.10 test-USDC payments: fund/restart/capture and fund/void. Main catalog
 USD 15 pricing remains 15000000 atomic USDC under an explicit 1:1 demo conversion.
 

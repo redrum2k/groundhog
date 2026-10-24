@@ -16,10 +16,13 @@ export interface Run {
 const key = () => crypto.randomUUID();
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const PACE = 1400; // between party actions, so the canvas can follow
+// Legacy market-v1 requires numeric values. Offer only released demo rows and
+// freeze that same coverage; never turn the aggregate fixture's nulls into counts.
+const SOURCE_ROWS = ROWS.flatMap((row) => row.count === null ? [] : [{ zip: row.zip, count: row.count }]);
 
 /** Our order in the backend's parameters: SF ZIPs, a fitness-interest metric, no missing records. */
 export function parameters(now: Date) {
-  const zips = ROWS.map((r) => r.zip);
+  const zips = SOURCE_ROWS.map((r) => r.zip);
   return {
     freshness_basis: "observed_at", max_age_days: 90, as_of: now.toISOString(),
     geography: "San Francisco", boundary_version: "2026-Q3", region_ids: zips,
@@ -35,7 +38,7 @@ export function sourceSnapshot(c: Case, version = 1) {
     source_id: "vendor-fitness-panel", version, geography: "San Francisco", boundary_version: "2026-Q3", reference_period: "2026-Q3",
     metric_name: "adults_25_34_interested_in_fitness", metric_unit: "people", entity_unit: "region",
     published_at: "2026-10-20T00:00:00Z", exported_at: "2026-10-24T00:00:00Z",
-    rows: ROWS.map((r) => ({ entity_id: r.zip, region_id: r.zip, value: r.count, observed_at: c === "amber" && version === 1 && r.zip === "94110" ? null : "2026-10-10T00:00:00Z" })),
+    rows: SOURCE_ROWS.map((r) => ({ entity_id: r.zip, region_id: r.zip, value: r.count, observed_at: c === "amber" && version === 1 && r.zip === "94110" ? null : "2026-10-10T00:00:00Z" })),
   };
 }
 const encode = (v: unknown) => Buffer.from(JSON.stringify(v)).toString("base64");

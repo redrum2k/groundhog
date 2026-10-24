@@ -83,7 +83,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
         <div className="cv-dots" style={{ inset: -DOTS }} aria-hidden />
         {rows.map((r) => {
           const lane = byRow(r)[0].lane!;
-          return <div key={r} className={`band band-${lane}`} style={{ top: ROW_Y[r] - 44 }}><span className="band-label">{LANE_NAME[lane]}</span></div>;
+          return <div key={r} className={`band band-${lane}`} style={{ top: ROW_Y[r] - 44 }}><span className="band-label">{lane ? LANE_NAME[lane] : "Evidence review"}</span></div>;
         })}
         <svg className="edges" width={WW} height={WH} aria-hidden>
           <defs>

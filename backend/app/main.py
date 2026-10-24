@@ -1,7 +1,6 @@
 import asyncio
-import logging
 import os
-from contextlib import asynccontextmanager, nullcontext, suppress
+from contextlib import asynccontextmanager, nullcontext
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -15,19 +14,20 @@ from app.api.catalog import reviewer, router
 from app.api.catalog import worker as catalog_worker
 from app.api.improvement import router as improvement_router
 from app.api.jobflow import router as jobflow_router
+from app.api.runs import router as runs_router
 from app.contracts.http import Capabilities, ErrorResponse
 from app.improvement.service import Improvement
 from app.orders.catalog import CatalogService
 from app.orders.service import DomainError, utc_now
-from app.payments import configured_payment_mode
+from app.payments import catalog_payment_setup
+from app.runtime.background import background_workers
 from app.runtime.broker import Broker
+from app.runtime.catalog_worker import CatalogWorker
 from app.runtime.jobflow import Jobflow
 from app.runtime.jobflow_worker import recover, run_once
 from app.storage.catalog import CatalogRepository
 from app.storage.jobflow import DomainError as JobflowError
 from app.storage.jobflow_lock import worker_ownership
-
-logger = logging.getLogger(__name__)
 
 
 def create_app(
@@ -41,8 +41,10 @@ def create_app(
     compiler=None,
     service=None,
     worker=None,
+    payment_mode=None,
+    payment_config=None,
+    payment_transport=None,
 ):
-    mode = configured_payment_mode()
     if isinstance(database_path, Jobflow):
         service, database_path = database_path, None
     if service is not None:
@@ -52,6 +54,13 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app):
+        payments = await asyncio.to_thread(
+            catalog_payment_setup,
+            mode=payment_mode,
+            config=payment_config,
+            transport=payment_transport,
+        )
+        app.state.payment_capabilities = payments.capabilities
         path = Path(
             service.store.path
             if service
@@ -68,6 +77,9 @@ def create_app(
             clock,
             compiler=selected_compiler,
             assessor=selected_compiler if isinstance(selected_compiler, ClaudeGateway) else None,
+            payment_mode=payments.mode,
+            payment_config=payments.config,
+            payment_transport=payments.transport,
         )
         app.state.internal_token = internal_token or os.getenv("INTERNAL_API_TOKEN")
         app.state.reviewer_token = reviewer_token or os.getenv("REVIEWER_API_TOKEN")
@@ -84,46 +96,37 @@ def create_app(
         improvement_app.state.jobflow = app.state.jobflow
         improvement_app.state.improvement = app.state.improvement
 
-        async def sweep():
-            while True:
-                try:
-                    await asyncio.to_thread(app.state.orders.expire_due)
-                    await asyncio.to_thread(app.state.orders.payments.work)
-                    await asyncio.to_thread(app.state.jobflow.base.expire_due)
-                    await asyncio.to_thread(app.state.broker.expire_due)
-                except Exception:
-                    logger.exception("Deadline recovery failed; persisted work will be retried")
-                await asyncio.sleep(1)
-
-        async def consume_jobflow():
-            while True:
-                try:
-                    if await run_once(app.state.jobflow):
-                        continue
-                except Exception:
-                    logger.exception("Jobflow worker interrupted; persisted work needs recovery")
-                    recover(app.state.jobflow)
-                await asyncio.sleep(0.25)
+        def consume_jobflow():
+            # Keep even synchronous invoice claim/result writes off the lifespan loop.
+            try:
+                return asyncio.run(run_once(app.state.jobflow))
+            except Exception:
+                recover(app.state.jobflow)
+                raise
 
         ownership = worker_ownership(path) if run_worker else nullcontext()
         with ownership:
             app.state.orders.expire_due()
-            tasks = []
             if run_worker:
                 recover(app.state.jobflow)
                 app.state.improvement.recover()
-                tasks = [asyncio.create_task(sweep()), asyncio.create_task(consume_jobflow())]
-            try:
+                app.state.catalog_worker = CatalogWorker(app.state.orders)
+                async with background_workers(
+                    (
+                        ("catalog-deadlines", lambda: app.state.orders.expire_due(), 1),
+                        ("invoice-deadlines", lambda: app.state.jobflow.base.expire_due(), 1),
+                        ("broker-deadlines", lambda: app.state.broker.expire_due(), 1),
+                        ("catalog", app.state.catalog_worker.run_once, 0.25),
+                        ("payments", lambda: app.state.orders.payments.work(limit=1), 0.25),
+                        ("invoice", consume_jobflow, 0.25),
+                    )
+                ):
+                    yield
+            else:
                 yield
-            finally:
-                for task in tasks:
-                    task.cancel()
-                for task in tasks:
-                    with suppress(asyncio.CancelledError):
-                        await task
 
     app = FastAPI(
-        title="Catalog order to cash",
+        title="Aggregate dataset brokerage",
         version="0.4.0",
         lifespan=lifespan,
         responses={status: {"model": ErrorResponse} for status in (403, 404, 409, 422, 503)},
@@ -162,9 +165,10 @@ def create_app(
 
     @app.get("/health", response_model=Capabilities)
     def health():
-        return Capabilities(payment_mode=mode)
+        return app.state.payment_capabilities
 
     app.include_router(router)
+    app.include_router(runs_router)
     app.include_router(catalog_worker)
     app.include_router(reviewer)
     # Separate schemas retain the frozen catalog component names and the existing

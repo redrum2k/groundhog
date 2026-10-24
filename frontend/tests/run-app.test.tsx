@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import RunApp from "../components/run/run-app";
+import { RecordedRunApp as RunApp } from "../components/run/run-app";
 
 // The run screen through its buttons and captions only. Fake timers stand in for the recorded
 // scenario's pacing; nothing here reaches into the fold or the canvas internals.

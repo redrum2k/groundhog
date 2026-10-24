@@ -1,3 +1,4 @@
+// Recorded rehearsal and legacy broker demo. The aggregate backend feed is live.ts.
 "use client";
 // Where the canvas gets its events: a recorded scenario played on a timer, or a live run polled
 // by seq. Both produce the same RunEvent list, folded by the same function.
@@ -11,7 +12,7 @@ export const LIVE_API = "/api/broker-run";
 export type Feed =
   | { kind: "still"; events: RunEvent[]; ctx: FoldContext } // the whole timeline at once, not playing
   | { kind: "recorded"; events: RunEvent[]; start: number; autoplay: boolean; ctx: FoldContext }
-  | { kind: "live"; api: string; body: Record<string, unknown>; before: RunEvent[]; ctx: FoldContext };
+  | { kind: "fixture"; api: string; body: Record<string, unknown>; before: RunEvent[]; ctx: FoldContext };
 
 export type Status = "idle" | "playing" | "paused" | "waiting" | "done" | "error";
 export interface Playback {
@@ -37,7 +38,7 @@ export function usePlayback(feed: Feed): Playback {
   const [error, setError] = useState<string>();
   const runId = useRef<string | null>(null);
   const lastSeq = useRef(0); // the live cursor; recorded events before it keep their own seqs
-  const live = feed.kind === "live";
+  const live = feed.kind === "fixture";
 
   // A new feed resets playback
   useEffect(() => {
@@ -62,7 +63,7 @@ export function usePlayback(feed: Feed): Playback {
         const next = fresh.filter((e) => e.seq > lastSeq.current);
         if (next.length) {
           lastSeq.current = next[next.length - 1].seq;
-          setEvents((prev) => [...prev, ...next]);
+          setEvents((prev) => [...prev, ...next.map((e,i)=>({...e,seq:prev.length+i+1}))]);
           setCursor((c) => c + next.length);
         }
         timer = setTimeout(poll, poll_after_ms);
@@ -88,7 +89,7 @@ export function usePlayback(feed: Feed): Playback {
   // Live: status follows the events alone. A decision sets "playing" before its continuation
   // arrives, and re-reading the gate here would flip it straight back to "waiting".
   useEffect(() => {
-    if (feed.kind !== "live" || events.length <= feed.before.length) return;
+    if (feed.kind !== "fixture" || events.length <= feed.before.length) return;
     const last = events[events.length - 1];
     setStatus((s) => (s === "error" ? s : last.type === "step_completed" && last.step === "captured" ? "done" : atControllerGate(events) ? "waiting" : "playing"));
   }, [feed, events]);
@@ -96,7 +97,7 @@ export function usePlayback(feed: Feed): Playback {
   const view = useMemo(() => project(events.slice(0, cursor), feed.ctx), [events, cursor, feed.ctx]);
 
   const decide = useCallback(async (action: ControllerAction, binding: Binding) => {
-    if (feed.kind === "live") {
+    if (feed.kind === "fixture") {
       const res = await fetch(`${feed.api}/runs/${runId.current}/decisions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, binding }) });
       if (!res.ok) { const { detail } = (await res.json().catch(() => ({ detail: `Request failed (${res.status})` }))) as { detail: string }; return detail; }
       setStatus("playing");

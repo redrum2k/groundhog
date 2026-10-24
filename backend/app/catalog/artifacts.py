@@ -1,7 +1,9 @@
 import hashlib
 import io
+import os
 from functools import lru_cache
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 import pdfplumber
 from pdfminer.psexceptions import PSException
@@ -51,16 +53,22 @@ class ArtifactStore:
             except (PSException, PdfminerException) as exc:
                 raise ValueError("PDF is malformed, encrypted or unreadable") from exc
         digest = hashlib.sha256(data).hexdigest()
-        extension = "pdf" if media_type == "application/pdf" else "json"
+        extension = {"application/pdf": "pdf", "application/json": "json", "text/csv": "csv"}[
+            media_type
+        ]
         key = f"objects/{digest}.{extension}"
         path = self.root / key
         path.parent.mkdir(exist_ok=True)
-        try:
-            with path.open("xb") as stream:
-                stream.write(data)
-        except FileExistsError:
-            if path.read_bytes() != data:
-                raise ValueError("artifact storage collision") from None
+        # Publish complete bytes atomically without replacing an existing immutable object.
+        with NamedTemporaryFile(dir=path.parent, prefix=".pending-", mode="wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+            try:
+                os.link(stream.name, path)
+            except FileExistsError:
+                if path.read_bytes() != data:
+                    raise ValueError("artifact storage collision") from None
         return Artifact(
             artifact_id=digest[:24], sha256=digest, storage_key=key, media_type=media_type
         )
@@ -102,6 +110,11 @@ class ArtifactStore:
         )
 
     def resolve(self, span: Span, artifacts: tuple[Artifact, ...]):
+        from app.contracts.dataset import DatasetReference
+        from app.datasets import resolve_reference
+
+        if isinstance(span, DatasetReference):
+            return resolve_reference(span, artifacts, self)
         artifact = next(
             (a for a in artifacts if a.artifact_id == span.artifact_id and a.sha256 == span.sha256),
             None,

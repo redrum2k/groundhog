@@ -3,6 +3,20 @@ from app.contracts.catalog import Requirement, Specification, Terms
 
 def specification(terms: Terms, revision: int, summary: str, limitations: tuple[str, ...]):
     """Stable, server-owned allowlist. A compiler cannot delete global checks."""
+    from app.contracts.dataset import DatasetSpecification
+    from app.datasets import requirement_words
+
+    if isinstance(terms, DatasetSpecification):
+        return Specification(
+            revision=revision,
+            terms=terms,
+            summary=summary,
+            limitations=limitations,
+            requirements=tuple(
+                Requirement(requirement_id=f"R-{key.upper()}", wording=value, check=key)
+                for key, value in requirement_words(terms).items()
+            ),
+        )
     words = {"lt": "below", "lte": "at most"}
     wording = {
         "category": f"Select products in category {terms.category}.",
