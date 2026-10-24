@@ -6,26 +6,101 @@ from app.contracts.catalog import Clarification, CompilerOutput
 from app.datasets import make_terms
 
 
+def _clauses(text):
+    return re.split(r"[.;,]|\b(?:but|however|and|or)\b", text.lower().replace("’", "'"))
+
+
+def _cohort(text):
+    """Positive values and explicit exclusions, not union of every token in history."""
+    ages, cities, excluded_ages, excluded_cities = set(), set(), set(), set()
+    for clause in _clauses(text):
+        for match in re.finditer(r"\b(\d{2})\s*(?:–|-|to)\s*(\d{2})\b", clause):
+            prefix = clause[: match.start()]
+            negative = bool(
+                re.search(
+                    r"\b(?:not|exclude|excluding|except|without)\s*(?:adults?\s*(?:aged?\s*)?)?$",
+                    prefix,
+                )
+            )
+            (excluded_ages if negative else ages).add(tuple(map(int, match.groups())))
+        for match in re.finditer(r"\bsan francisco\b|\bsf\b|\boakland\b", clause):
+            city = "oakland" if match[0] == "oakland" else "san francisco"
+            negative = bool(
+                re.search(
+                    r"\b(?:not|exclude|excluding|except|without)\s*$", clause[: match.start()]
+                )
+            )
+            (excluded_cities if negative else cities).add(city)
+    return ages, cities, excluded_ages, excluded_cities
+
+
+def _category(text):
+    lower = text.lower().replace("’", "'")
+    if not re.search(r"\bgym\b", lower) or not re.search(r"\b(?:app|apps)\b", lower):
+        return None
+    if re.search(
+        r"\b(?:not|no|without|exclude)\s+(?:include\s+)?(?:gym|fitness[- ]?apps?)\b", lower
+    ):
+        return None
+    include, exclude, ambiguous = False, False, False
+    for clause in _clauses(lower):
+        if not re.search(r"\byoga\b", clause):
+            continue
+        if re.search(
+            r"\b(?:not|never|don't|do not)\s+(?:exclude|omit|without)\b|\bnot only\b", clause
+        ):
+            ambiguous = True
+        negative = bool(
+            re.search(
+                r"\b(?:not|no|never|don't|exclude|excluded|excluding|without|except|omit)\b", clause
+            )
+        )
+        positive = bool(
+            re.search(r"\b(?:include|included|including|add|with|cover|count)\b", clause)
+        )
+        exclude |= negative
+        include |= positive and not negative
+        ambiguous |= not negative and not positive
+    if ambiguous or include and exclude:
+        return None
+    return "gym_app_or_yoga" if include else "gym_or_fitness_app"
+
+
 def compile_dataset(context, store):
     draft = context.draft
-    text = " ".join((draft.prompt, *(a.text for a in draft.answers))).lower()
-    age = re.search(r"\b25\s*(?:–|-|to)\s*34\b", text)
     expected_city = "oakland" if draft.corpus_id.startswith("oakland") else "san francisco"
-    city_ok = (
-        expected_city in text
-        or expected_city == "san francisco"
-        and bool(re.search(r"\bsf\b", text))
+    ages, cities, excluded_ages, excluded_cities = _cohort(draft.prompt)
+    category = _category(draft.prompt)
+    unrelated_conflict = False
+    for answer in draft.answers:
+        # The service has already checked exact current question identity. Preserve
+        # immutable prompt/history; only replace the field that question solicited.
+        field = answer.question_id.removeprefix(draft.request_id + ":").split(":")[0]
+        a, c, na, nc = _cohort(answer.text)
+        if field == "cohort":
+            if a or na:
+                ages, excluded_ages = a, na
+            if c or nc:
+                cities, excluded_cities = c, nc
+        elif a or c or na or nc:
+            unrelated_conflict |= bool(
+                (a and a != ages) or (c and c != cities) or na & ages or nc & cities
+            )
+        proposed_category = _category(answer.text)
+        if field == "category":
+            category = proposed_category
+        elif proposed_category and category is None:
+            category = proposed_category
+        elif proposed_category and proposed_category != category:
+            category = None  # Contradictory unbound scope needs its own clarification.
+    cohort_ok = (
+        ages == {(25, 34)}
+        and cities == {expected_city}
+        and not ages & excluded_ages
+        and not cities & excluded_cities
+        and not unrelated_conflict
     )
-    other_city = "san francisco" if expected_city == "oakland" else "oakland"
-    if other_city in text or any(
-        (int(a), int(b)) != (25, 34)
-        for a, b in re.findall(r"\b(\d{2})\s*(?:–|-|to)\s*(\d{2})\b", text)
-    ):
-        city_ok = False
-    category = None
-    if "gym" in text and "app" in text:
-        category = "gym_app_or_yoga" if "include yoga" in text else "gym_or_fitness_app"
-    if not age or not city_ok:
+    if not cohort_ok:
         question = (
             "Confirm the supported cohort: adults aged 25–34 in "
             + ("Oakland" if expected_city == "oakland" else "San Francisco")
