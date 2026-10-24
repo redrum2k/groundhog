@@ -1166,6 +1166,8 @@ class CatalogService(DatasetLifecycle):
                 }
             )
             order.jobs = tuple(job if j.job_id == job.job_id else j for j in order.jobs)
+            if is_dataset(order) and candidate.status == "running":
+                self.reclaim_dataset_assessment(db, order)
             order.revision += 1
             self._save(db, order)
             self.effects.job(db, order, job)

@@ -502,7 +502,9 @@ def supports_candidate(order, store, candidate, proof):
 def stale_semantic_attempt(service, order):
     with service.repository.transaction() as db:
         attempt = semantic_attempt(db, order)
-        if attempt:
+        # A superseded worker cannot poison completed work already carried by a
+        # newer lease. The current worker still checks revision/binding/deadlines.
+        if attempt and attempt.application_revision <= order.revision:
             service.repository.put(
                 db,
                 "dataset_assessment",
