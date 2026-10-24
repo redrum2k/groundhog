@@ -1,4 +1,82 @@
 {
+  "semantic_recovery_followup": {
+    "reviewed_head": "d007157abf7c016e88be18af0fbee77037b6edd1",
+    "review_id": 5640192157,
+    "review_check_id": 120998642681,
+    "finding_id": 4368666207,
+    "test_first_commit": "c7f82dd",
+    "tested_backend_commit": "7b97c2b8779d523f561bd509240e2fc816979f42",
+    "reproduction": {
+      "artifact": "backend/artifacts/semantic-recovery-20261024/before-d007157.xml",
+      "sha256": "5564eaad8604c79168525284b7a7ce49e0c26dc22dfef502b8b282b379402e54",
+      "tests": 3,
+      "passed": 0,
+      "failed": 3,
+      "elapsed_seconds": 2.517
+    },
+    "initial_fix": {
+      "artifact": "backend/artifacts/semantic-recovery-20261024/initial-fix.xml",
+      "sha256": "b81737fbd7205b305cb02deea840b5da03e13285cf870c57c3d85855782542a3",
+      "tests": 51,
+      "passed": 51,
+      "failed": 0,
+      "elapsed_seconds": 15.666
+    },
+    "focused": {
+      "artifact": "backend/artifacts/semantic-recovery-20261024/guards.xml",
+      "sha256": "440500aae665aeb0221d3f155e1472f577d0fe6f15c9f7a1e4a2b1347e65272e",
+      "tests": 65,
+      "passed": 65,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 20.723
+    },
+    "full_suite": {
+      "artifact": "backend/artifacts/semantic-recovery-20261024/full.xml",
+      "sha256": "19f92ed94bc9d0dd6a9f08754b243ce54fb0110a252f59dde389e7174fc695ef",
+      "tests": 1003,
+      "passed": 987,
+      "failed": 16,
+      "errors": 0,
+      "skipped": 0,
+      "elapsed_seconds": 459.402,
+      "baseline_failure_ids_match": true,
+      "failure_id_delta": [],
+      "failures": [
+        "tests.evals.test_runner::test_leakage_stable_report_additive_runs_and_no_gold_claim",
+        "tests.evals.test_runner::test_real_child_timeout_then_unrelated_case_continues",
+        "tests.evals.test_runner::test_step_limit_preserves_partial_state_and_reports",
+        "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[stream]",
+        "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[headers]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[success]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[rpc_error]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[redirect]",
+        "tests.payments.test_http_boundary::test_cancellation_kills_http_before_return_and_cannot_deliver_late_result",
+        "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[budget]",
+        "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[financial]",
+        "tests.payments.test_http_boundary::test_process_interruption_also_reaps_request",
+        "tests.payments.test_http_boundary::test_actual_http_allowance_is_reserved_before_launch[inspection]",
+        "tests.payments.test_http_boundary::test_ambiguous_http_send_retains_durable_identity_and_only_reconciles",
+        "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline",
+        "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments"
+      ],
+      "ledger_sha256": "000cfe72360895d2ae1c0fec6ed6023499d31bcbcb265ea699930f4a23b7fad5"
+    },
+    "ruff": "Lint and format PASS; 212 files",
+    "generated_contracts": "PASS",
+    "frontend_typecheck": "PASS",
+    "new_paid_calls": 0,
+    "qualification": "Injected assessor, actual service restart and retained store, original lease/case clocks; no real-model call",
+    "recovery_invariants": [
+      "Only the expired running job's claim transition can advance application revision, atomically with its new lease.",
+      "Exact semantic key, current revision, completed non-stale result and open unexpired case required.",
+      "Original order_revision, request, candidate, effective result and provenance retained during legitimate recovery.",
+      "No automatic retry of uncertain calls; no resurrection of already stale attempts.",
+      "Old workers cannot invalidate completed results already carried by a newer lease.",
+      "Claim rollback includes recovery metadata rollback; normal financial and job commit guards remain."
+    ]
+  },
   "latest_frontend_integration": {
     "commit": "e41dd03b300c4d6248fb061a45aeee5fe21c57db",
     "main": "34aa7701467a090ed985e0f5fae0ae46c6ffb475",

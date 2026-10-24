@@ -1,22 +1,15 @@
 # Current scope/dispatch remediation — October 24
 
-Fresh review of `9bff90c` found one further P1: numeric qualifiers were removed
-from affirmative consent. Test-first `2146cde` reproduces it in model and offline
-restart paths; fix `3f90ad5` retains qualifiers. 332 focused tests pass; full backend
-is 970 pass / the exact same 16 Windows failures. See the current report.
-No paid calls or frontend changes.
-Subsequent integration `e41dd03` imports Lucas's main `34aa770` (PR #21) intact;
-frontend 120 tests, generated contracts, TypeScript and build pass again. The
-backend still exactly matches tested `3f90ad5`.
-
-See [current report](../../BROKER_RECOVERY_REMEDIATION.md): the two follow-up
-findings on `e60aa6f` have test-first reproductions and fixes at `ba79817`.
-44 focused tests pass; `e45ddde` imports Lucas's main `3d69b92` unchanged, with
-120 frontend tests, generated contracts, TypeScript and build passing.
-The shared scope-fulfillment helper preserves acceptance/payment gates; the
-transactional outbox recovers only undispatched work without retrying uncertain
-attempts. Full-suite results and exact baseline failures are in the report.
-Earlier [three P1 fixes](../../GREPTILE_P1_REMEDIATION.md) remain intact.
+See [current report](../../BROKER_RECOVERY_REMEDIATION.md). Latest fix `7b97c2b`
+preserves completed primary dataset assessments across pure expired-job reclaims,
+without weakening revision/binding/lease/deadline checks or retrying uncertain calls.
+Test-first `c7f82dd`: three failures; expanded semantic suite: 65 pass. Full backend:
+987 pass / the exact same 16 baseline Windows failures, 1,003 tests. The report
+preserves immutable evidence for every earlier phase.
+Preserved fixes: numeric consent `3f90ad5`, broker fulfillment/atomic dispatch
+`ba79817`, and the [earlier three P1 fixes](../../GREPTILE_P1_REMEDIATION.md).
+Lucas main `34aa770` (PR #21) is imported intact at `e41dd03`; its 120 tests,
+types and build pass. Generated contracts and TypeScript pass again on `7b97c2b`.
 PR #12 still needs fresh independent review and an explicit resolution of main's
 automatic production-deployment consequence before merge. No paid calls, payment
 execution changes or shared procedure activation. Lucas owns the imported

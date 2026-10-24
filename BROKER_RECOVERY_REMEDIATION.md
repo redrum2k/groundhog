@@ -1,5 +1,57 @@
 # PR #12 — accepted scope and durable dispute dispatch
 
+## Latest review follow-up: completed primary assessments and lease recovery
+
+Review `5640192157` on `d007157` completed at 22:00:09 UTC, October 24, with
+one new P1: [Restarts discard completed assessments](https://github.com/redrum2k/order-to-cash/pull/12#discussion_r4368666207).
+The prior numeric-consent finding was absent from its findings list. Again,
+successful check completion and a 4/5 score were not approval to merge.
+
+Reproduction: stop after the existing primary assessment row is completed but
+before `complete_verification`; advance the injected clock to the original
+45-second job lease expiry and restart through `CatalogService` on the same DB.
+The original 60-second case deadline remains unchanged. `claim_job` increments
+the order revision, so the old strict equality check replaces the saved result
+with UNKNOWN even though its case, accepted terms and evidence are identical.
+All three saved FAIL/PASS/UNKNOWN regressions fail on the unchanged `d007157`
+runtime; test-first commit **`c7f82dd`** retains that reproduction.
+
+Fix **`7b97c2b8779d523f561bd509240e2fc816979f42`** uses the existing job-claim
+transaction and assessment row. An expired running job may append its own +1
+revision to `recovery_revisions` only when the exact semantic key still matches,
+the case is open and unexpired, the result is completed and non-stale, and there
+has been no intervening revision. The original assessment revision, request,
+candidate, effective result and provenance are preserved. The semantic key binds
+the case/complaint/answers, accepted specification and evidence binding. New
+queued work does not obtain this exception. No second queue/ledger is introduced.
+
+Application still requires the current job lease, binding, applicable revision,
+case deadline and financial gates. A superseded old worker cannot mark the result
+STALE after a newer lease has legitimately recovered it; the newer worker's own
+stale-state checks remain in force. Uncertain DISPATCHED and already STALE results
+are not recovered as completed work or retried. Existing records without the new
+optional audit field remain readable and can recover through the same checks.
+Already-invalidated historical attempts are not automatically resurrected.
+
+**65 focused tests pass**: 17 new recovery cases plus the 48 existing primary
+semantic cases. Coverage includes real service restart/lease reclaim, supported/
+contradicted/unknown outcomes, completed deterministic fallback after a provider
+failure, legacy records, a late old worker, atomic claim rollback, unrelated
+revision changes, changed complaint/accepted terms/binding, original case expiry,
+uncertain calls and already-stale attempts. Content-change tests explicitly inject
+storage faults; they do not claim accepted contracts can legally be edited in place.
+No model result books money or spends a correction. Ruff lint/format pass (212
+files); generated frontend contracts and TypeScript checks pass again. Full backend
+on `7b97c2b`: **987 passed / 16 failed / 0 skipped / 0 errors**, 1,003 tests in
+459.67 seconds. The 16 failure IDs exactly match the established Windows baseline;
+no new failing IDs. Main remains `34aa770`; no further integration is needed for
+this report. The shared API ledger hash is unchanged. No new real Claude calls or
+spending-window extension.
+
+Evidence lives under `backend/artifacts/semantic-recovery-20261024/` and the
+`semantic_recovery_followup` entry in the portable JSON. Earlier phase results
+below remain historical results of their stated commits, not the latest full run.
+
 ## Fresh-review follow-up: numeric consent
 
 Greptile review `5640140487` completed on published head `9bff90c` at
