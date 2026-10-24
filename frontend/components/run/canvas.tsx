@@ -91,8 +91,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     s = Math.min((size.w - 40) / WW, (size.h - 90) / WH, 1.1);
     tx = (size.w - WW * s) / 2; ty = Math.max(10, (size.h - 70 - WH * s) / 2);
   } else {
-    // never below 1: the smallest text stays 12px on screen, the camera pans instead
-    s = clamp(Math.min((vw - 48) / WW, (size.h - 110) / WH), 1, 1.15);
+    // never below 1.15: cards, chips and the orb stay easy to read from the back of a room; the camera pans instead
+    s = clamp(Math.min((vw - 48) / WW, (size.h - 110) / WH), 1.15, 1.3);
     tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp(vw / 2 - cx(orbNode) * s, vw - WW * s - 24, 24);
     ty = WH * s <= size.h - 90 ? (size.h - 70 - WH * s) / 2 : clamp(size.h / 2 - (ROW_Y[orbNode.row] + 40) * s, size.h - WH * s - 70, 20);
   }
