@@ -1,3 +1,20 @@
+# Payment lease renewal follow-up
+
+[Workstream 09](../workstreams/09-payment-lease-renewal.md) implements fenced renewal
+and finite shared attempts from reviewed main `62fe03542f18d9f7514550bcff25968ae2557c08`.
+A 120-second lease renews cooperatively every 30 elapsed seconds; submission has a
+300-second total budget including lab preflight/staging, and receipt inspection a
+180-second budget independent of financial expiry. Presign/send and durable-write
+checks preserve accepted financial cutoffs, ownership and current policy. Shutdown
+signals active attempts, then drains synchronous calls. Lease loss is not a payment
+outcome. Transient stops retain the original reservation/nonce; submitted bytes stay
+unresolved and are never automatically resent.
+
+The historical sections below describe their original checkpoints. Prompt 07's
+readiness test and lab call sites were narrowly adapted as listed in 09; historical
+reports remain unchanged. Exact-byte recovery, live latency/deployment/receipt proof
+and Jeff's R3/R4 compiler blockers remain outstanding. No live run is authorized.
+
 # Review remediation and remaining shared payment work
 
 [Workstream 08](../workstreams/08-review-remediation.md) records R1/R2/R5/R6 fixes,

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def background_workers(operations):
+async def background_workers(operations, *, on_stop=None):
     """Run (name, synchronous attempt, polling interval) lanes in separate thread slots.
 
     Cancellation of an asyncio wrapper cannot stop synchronous SDK/PDF work. Stop
@@ -40,6 +40,8 @@ async def background_workers(operations):
             yield
         finally:
             stop.set()
+            if on_stop is not None:
+                on_stop()
             drained = asyncio.gather(*tasks)
             try:
                 await asyncio.shield(drained)

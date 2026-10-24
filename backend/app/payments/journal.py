@@ -326,10 +326,30 @@ class PaymentJournal:
         token = str(uuid4())
         changed = db.execute(
             "UPDATE payment_operations SET lease_token=?,lease_until=? WHERE operation_id=? "
+            "AND state IN ('reserved','signed','submitted','uncertain','confirmed') "
             "AND (lease_until IS NULL OR lease_until<=?)",
             (token, now + lease_seconds, operation_id, now),
         ).rowcount
         return token if changed else None
+
+    @staticmethod
+    def renew_claim(db, operation_id, token, lease_seconds=120, *, activity="prepare"):
+        """Extend only a strictly current owner, never revive an expired/finished activity."""
+        states = {
+            "prepare": ("reserved", "signed"),
+            "submit": ("submitted",),
+            "inspect": ("submitted", "uncertain", "confirmed"),
+        }[activity]
+        now = datetime.now(UTC).timestamp()
+        placeholders = ",".join("?" for _ in states)
+        return bool(
+            db.execute(
+                "UPDATE payment_operations SET lease_until=MAX(lease_until,?) "
+                "WHERE operation_id=? AND lease_token=? AND lease_until>? "
+                f"AND state IN ({placeholders})",
+                (now + lease_seconds, operation_id, token, now, *states),
+            ).rowcount
+        )
 
     @staticmethod
     def owns(db, operation_id, token):
@@ -337,7 +357,13 @@ class PaymentJournal:
             "SELECT lease_token,lease_until FROM payment_operations WHERE operation_id=?",
             (operation_id,),
         ).fetchone()
-        return bool(row and row[0] == token and row[1] > datetime.now(UTC).timestamp())
+        return bool(
+            row
+            and token
+            and row[0] == token
+            and row[1] is not None
+            and row[1] > datetime.now(UTC).timestamp()
+        )
 
     @staticmethod
     def release_claim(db, operation_id, token):

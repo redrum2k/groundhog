@@ -10,6 +10,7 @@ from eth_utils import keccak, to_checksum_address
 from hexbytes import HexBytes
 
 from app.contracts.payments import PaymentTerms
+from app.payments.attempt import RPC_SECONDS, AttemptStopped, checkpoint, current_attempt
 from app.payments.base_rpc import BaseTransportError, HttpRpc, PinnedAbi, hex_bytes, quantity
 from app.payments.executor import ChainObservation, SignedTransaction
 from app.payments.protocol import (
@@ -44,12 +45,22 @@ class BasePaymentTransport:
         self.token = PinnedAbi("USDC")
 
     def _rpc(self, method, params):
+        checkpoint(reserve=RPC_SECONDS, effect=method == "eth_sendRawTransaction")
+        attempt = current_attempt()
+        started = attempt.clock() if attempt else None
         try:
-            return self.rpc.request(method, params)
+            result = self.rpc.request(method, params)
+        except AttemptStopped:
+            raise
         except Exception:
+            checkpoint()
             raise BaseTransportError(
                 f"{method} unavailable; inspect/reconcile before retrying"
             ) from None
+        if attempt and method == "eth_getBlockByNumber" and params[0] == "latest" and result:
+            attempt.observe_chain(quantity(result["timestamp"]), started)
+        checkpoint()
+        return result
 
     def _chain(self):
         if quantity(self._rpc("eth_chainId", [])) != self.config.chain_id:
@@ -354,6 +365,7 @@ class BasePaymentTransport:
                 "set BASE_OPERATOR_PRIVATE_KEY to the dedicated test operator key"
             )
         request = self.transaction_request(action, terms, nonce, buyer_signature)
+        checkpoint(effect=True)
         try:
             signed = Account.sign_transaction(request, self.config.operator_private_key)
         except Exception:
@@ -416,6 +428,20 @@ class BasePaymentTransport:
                 "saved transaction is not an allowed escrow transaction for this signer"
             ) from None
         expected = "0x" + keccak(raw_transaction).hex()
+        # Read again INSIDE the transport: executor checks precede these slow reads.
+        # Decode the saved bytes, including on a later attempt starting at signed.
+        method = next(
+            name for name in methods if bytes(tx["data"])[:4] == self.escrow.selector(name)
+        )
+        info = self.escrow.decode(method, "0x" + bytes(tx["data"])[4:].hex(), inputs=True)[0]
+        now = quantity(self._block()["timestamp"])
+        if (
+            (method == "authorize" and now >= info[5])
+            or (method == "capture" and now >= info[6])
+            or (method == "reclaim" and now < info[6])
+        ):
+            raise BaseTransportError("saved transaction is outside its accepted action window")
+        checkpoint(effect=True)
         observed = self._rpc("eth_sendRawTransaction", ["0x" + raw_transaction.hex()])
         if not isinstance(observed, str) or observed.lower() != expected:
             raise BaseTransportError("broadcast hash mismatch; reconcile saved hash")
@@ -425,6 +451,8 @@ class BasePaymentTransport:
         """One bounded observation. Missing, conflicting, or unavailable proof never succeeds."""
         try:
             return self._reconcile(action, self._terms(terms), transaction_hash)
+        except AttemptStopped:
+            raise
         except Exception:
             return ChainObservation(
                 "uncertain",

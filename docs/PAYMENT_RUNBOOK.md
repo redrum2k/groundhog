@@ -122,10 +122,24 @@ After timeout/restart, inspect/reconcile the same saved operation/hash/nonce/ter
 is not failure. No automatic rebroadcast, replacement, fee bump or fresh-nonce recovery exists.
 A crash after durable submitted state but before actual send can remain unresolved indefinitely;
 Nikita must investigate it manually. Never delete state or reset a salt/nonce to escape ambiguity.
-RPC requests time out individually after 15 seconds with no retries. Multi-read preflight can
-outlive the 120-second payment lease; lease checks fence stale completion/submission. Check
-latency before live use. No lease-renewal or hard thread cancellation is claimed; graceful shutdown
-waits for active calls. Deadlines continue in independent lanes while the process runs.
+RPC requests retain their individual 15-second timeout without retries. Shared cooperative
+checkpoints renew only a current 120-second claim, every 30 elapsed seconds during bounded
+work. Submission attempts have a 300-second monotonic budget including initial lab preflight
+and reclaim staging; receipt inspections have a separate 180-second budget after financial
+expiry. Each next RPC requires its full 15-second allowance. Original application funding
+(180 seconds), lab funding (300 seconds or shorter accepted lifetime), capture and aggregate
+latest-safe-submission cutoffs still apply. Renewal changes none of them; void/reclaim and
+receipt inspection do not inherit an expired funding/capture upper cutoff.
+
+Cancellation/ownership loss/budget exhaustion stops new work and discards late results.
+Synchronous calls cannot be forcibly killed: shutdown signals cancellation and drains active
+calls. No detached payment helper continues afterward. An unsubmitted transient stop retains
+its reservation/nonce/bytes; after durable submitted, a stop leaves an unresolved operation
+for reconciliation, including the existing crash-before-send gap. No automatic resend occurs.
+Lease expiry removes worker commit authority; it is not payment expiry or evidence of returned
+funds. Check actual latency before live use. See [workstream 09](workstreams/09-payment-lease-renewal.md)
+for clock boundaries, margins, tests and remaining limitations. Deadlines continue in independent
+lanes while the process runs.
 
 Confirmed evidence and catalog bookings commit atomically, once. Submitted capture cannot be
 cancelled by new evidence: late complaints remain in human review even if capture confirms.

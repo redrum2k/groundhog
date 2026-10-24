@@ -10,6 +10,7 @@ from test_base_transport import buyer_signature, lab
 from test_payment_lab import invoke
 
 from app.payments import journal as journal_module
+from app.payments.attempt import PaymentAttempt
 from app.payments.base import BasePaymentTransport
 from app.payments.journal import PaymentJournal
 
@@ -59,6 +60,11 @@ def test_multi_read_latency_expires_lease_without_send_and_preserves_nonce(tmp_p
             return super().request(method, params)
 
     monkeypatch.setattr(journal_module, "datetime", Clock)
+    # Retain the historical fencing reproduction with cooperative renewal unavailable.
+    # Chain time deliberately stays fixed here; progressing chain/window cases live in
+    # test_lease_renewal.py. A stalled checkpoint schedule cannot revive an expired lease.
+    monkeypatch.setattr("app.payments.attempt.RENEW_SECONDS", 1000)
+    monkeypatch.setattr(lab, "PaymentAttempt", lambda: PaymentAttempt(clock=lambda: Clock.elapsed))
     rpc = SlowRpc()
     assert invoke(tmp_path, "prepare", "--save-fixture", rpc=rpc) == 0
     path = tmp_path / "lab.sqlite3"

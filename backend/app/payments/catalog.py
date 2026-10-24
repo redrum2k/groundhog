@@ -38,6 +38,7 @@ from app.payments.protocol import (
     verify_buyer_signature,
 )
 from app.runtime.catalog_policy import capture_allowed
+from app.runtime.dataset_policy import cutoff
 
 MOCK_DOMAIN = usdc_domain("Mock USDC (no onchain authorization)")
 MOCK_PAYER = "0x" + "2" * 40
@@ -58,7 +59,12 @@ class CatalogPayments:
         self.owner, self.mode, self.config, self.transport = owner, mode, config, transport
         self.journal = PaymentJournal(owner.repository)
         self.executor = PaymentExecutor(
-            self.journal, transport, guard=self.guard, changed=self.changed, complete=self.complete
+            self.journal,
+            transport,
+            guard=self.guard,
+            changed=self.changed,
+            complete=self.complete,
+            authority=self.attempt_authority,
         )
 
     @staticmethod
@@ -487,6 +493,18 @@ class CatalogPayments:
         payment = self.journal.payment(db, operation.intent.payment_id)
         order = self.owner.repository.load(db, "order", payment.order_id, CatalogOrder)
         return self._eligible(db, order, payment, operation)
+
+    def attempt_authority(self, db, operation):
+        """Frozen action cutoff; UTC owner clock stays separate from elapsed budget."""
+        payment = self.journal.payment(db, operation.intent.payment_id)
+        if operation.intent.action == "fund":
+            deadline = payment.terms.payment_info.pre_approval_expiry
+        elif operation.intent.action == "capture":
+            order = self.owner.repository.load(db, "order", payment.order_id, CatalogOrder)
+            deadline = cutoff(order).timestamp()
+        else:
+            return None
+        return lambda: deadline - self.owner.clock().timestamp()
 
     def reserve_terminal(self, db, order, action):
         payment = self.journal.payment(db, order.payment_id)

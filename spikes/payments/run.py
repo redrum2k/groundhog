@@ -29,6 +29,13 @@ from app.contracts.payments import (
     PaymentTerms,
 )
 from app.orders.service import DomainError
+from app.payments.attempt import (
+    ActionIneligible,
+    AttemptStopped,
+    PaymentAttempt,
+    checkpoint,
+    current_attempt,
+)
 from app.payments.base import BasePaymentTransport
 from app.payments.base_config import BasePaymentConfig
 from app.payments.base_rpc import BaseTransportError
@@ -308,6 +315,13 @@ def report(payment, operations, *, offline):
 
 
 def execute(args, *, env=None, rpc=None):
+    # One elapsed budget includes initial buyer preflight/signing, payer staging,
+    # and executor entry. Nested scopes never restart the submission clock.
+    with PaymentAttempt().scope():
+        return _execute(args, env=env, rpc=rpc)
+
+
+def _execute(args, *, env=None, rpc=None):
     env = os.environ if env is None else env
     broadcast = getattr(args, "broadcast_testnet", False)
     simulate = getattr(args, "simulate", False)
@@ -334,6 +348,16 @@ def execute(args, *, env=None, rpc=None):
             raise BaseTransportError(str(error)) from None
         path = args.journal or Path(config.journal_path)
     payment, operations = read_payment(path, args.payment_id)
+    if payment and args.command in ACTIONS:
+        current_attempt().configure(
+            args.command,
+            payment.terms,
+            inspection=any(
+                op.intent.action == args.command
+                and op.state in ("submitted", "uncertain", "confirmed")
+                for op in operations
+            ),
+        )
     if payment:
         if (
             payment.terms.pricing_rule != "isolated-test-usdc-0.10-v1"
@@ -426,14 +450,20 @@ def execute(args, *, env=None, rpc=None):
         candidates = [op for op in operations if op.state not in ("failed", "invalidated")]
         if candidates:
             journal = writable_journal(path)
-            laboratory_executor(journal, transport).run_one(candidates[-1].operation_id)
+            laboratory_executor(journal, transport).run_one(
+                candidates[-1].operation_id, attempt=current_attempt()
+            )
         payment, operations = read_payment(path, args.payment_id)
         code = (
             4
             if operations and operations[-1].state in ("failed", "invalidated")
             else 3
-            if operations
-            and operations[-1].state in ("reserved", "signed", "submitted", "uncertain", "orphaned")
+            if current_attempt().stopped is not None
+            or (
+                operations
+                and operations[-1].state
+                in ("reserved", "signed", "submitted", "uncertain", "orphaned")
+            )
             else 0
         )
         return report(payment, operations, offline=args.offline), code
@@ -457,6 +487,7 @@ def execute(args, *, env=None, rpc=None):
                 raise BaseTransportError(
                     "fund requires SPIKE_BUYER_PRIVATE_KEY for this isolated laboratory only"
                 )
+            checkpoint(effect=True)
             try:
                 buyer = Account.from_key(key)
                 if buyer.address.lower() != payment.terms.payment_info.payer.lower():
@@ -483,14 +514,18 @@ def execute(args, *, env=None, rpc=None):
             key = BUYER_KEY if args.offline else env.get("SPIKE_BUYER_PRIVATE_KEY")
             stage_reclaim(journal, transport, existing.operation_id, key)
         transport = ReclaimSubmission(transport, payment.terms)
-    result = laboratory_executor(journal, transport).run_one(existing.operation_id, broadcast=True)
+    result = laboratory_executor(journal, transport).run_one(
+        existing.operation_id, broadcast=True, attempt=current_attempt()
+    )
     payment, operations = read_payment(path, args.payment_id)
     code = (
         4
         if result.state in ("failed", "invalidated")
         else 3
-        if result.state in ("reserved", "signed", "uncertain", "orphaned")
-        or (result.state == "submitted" and existing.state != "reserved")
+        if current_attempt().stopped is not None
+        or (result.error or "").startswith("attempt stopped:")
+        or result.state in ("reserved", "signed", "uncertain", "orphaned")
+        or (result.state == "submitted" and not current_attempt().sent)
         else 0
     )
     return report(payment, operations, offline=args.offline), code
@@ -513,6 +548,9 @@ def main(argv=None, *, env=None, rpc=None):
     except BaseTransportError as error:
         print(json.dumps({"error": str(error)}), file=sys.stderr)
         return 2
+    except AttemptStopped as error:
+        print(json.dumps({"error": f"attempt stopped: {error}"}), file=sys.stderr)
+        return 2 if isinstance(error, ActionIneligible) else 3
     except Exception:
         # Pydantic, SQLite and RPC exceptions can echo inputs/capabilities. Keep
         # diagnostics structural; inspect the private journal locally for recovery.

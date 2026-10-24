@@ -119,7 +119,8 @@ def create_app(
                         ("catalog", app.state.catalog_worker.run_once, 0.25),
                         ("payments", lambda: app.state.orders.payments.work(limit=1), 0.25),
                         ("invoice", consume_jobflow, 0.25),
-                    )
+                    ),
+                    on_stop=app.state.orders.payments.executor.stop,
                 ):
                     yield
             else:

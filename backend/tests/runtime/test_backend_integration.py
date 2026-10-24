@@ -60,6 +60,10 @@ class DelayedRpc(OfflineRpc):
     receipts_visible = False
     visible_receipts = ()
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.sent = Event()
+
     def request(self, method, params):
         if (
             method == "eth_getTransactionReceipt"
@@ -67,7 +71,10 @@ class DelayedRpc(OfflineRpc):
             and params[0] not in self.visible_receipts
         ):
             return None
-        return super().request(method, params)
+        result = super().request(method, params)
+        if method == "eth_sendRawTransaction":
+            self.sent.set()
+        return result
 
 
 @pytest.mark.parametrize("mode", ["mock", "base_sepolia"])
@@ -172,6 +179,9 @@ def test_http_automatic_repair_and_settlement_with_restart(setup, mode, scenario
             )
             assert waiting["order"]["jobs"][0]["attempts"] == 0
             assert not waiting["order"]["deliveries"] and not waiting["order"]["ledger"]
+            # The durable submitted marker precedes the actual send. Restart only
+            # after this synthetic send completes; the unsent gap has its own test.
+            assert rpc.sent.wait(3)
             assert len(rpc.broadcasts) == 1
 
     # Reconstruct the application against the same temporary store before confirming.
