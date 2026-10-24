@@ -11,7 +11,7 @@ const SPRING_SWAP = { type: "spring", stiffness: 520, damping: 34 } as const;
 const SPRING_LAYOUT = { type: "spring", stiffness: 380, damping: 36 } as const;
 
 export type ItemStatus = "pending" | "in-progress" | "completed" | "cancelled";
-export interface ChecklistItem { id: string; title: string; status: ItemStatus; detail?: string }
+export interface ChecklistItem { id: string; title: string; status: ItemStatus; detail?: string; mark?: "settles" | "fail" } // mark: what an inspection found on this line
 const LABEL: Record<ItemStatus, string> = { "in-progress": "In progress", completed: "Completed", cancelled: "Failed", pending: "Pending" };
 
 function RollNumber({ value }: { value: number }) {
@@ -83,7 +83,7 @@ export default function TodoList({ items, title, defaultOpen = true }: { items: 
                   <motion.li layout="position" key={item.id} initial={reduce ? { opacity: 1 } : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                     exit={reduce ? { opacity: 0 } : { opacity: 0, y: -3 }}
                     transition={reduce ? { duration: 0 } : { opacity: { duration: 0.18, ease: EASE_OUT }, y: SPRING_LAYOUT, layout: SPRING_LAYOUT }}
-                    className={`todo-item s-${item.status}`}>
+                    data-id={item.id} className={`todo-item s-${item.status}${item.mark ? ` mark-${item.mark}` : ""}`}>
                     <StatusIcon status={item.status} />
                     <span className="sr-only">{LABEL[item.status]}: </span>
                     <span className="todo-title">{item.title}</span>

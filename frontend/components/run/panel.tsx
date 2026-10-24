@@ -1,12 +1,11 @@
 "use client";
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Binding, ContractLine, ControllerAction, Delivery, Evidence, Message, Source, Step, ZipCount } from "../../lib/run/contract";
 import { bindingFor, type NodeState, type View } from "../../lib/run/fold";
 import type { CellEvidence } from "../../lib/runs.generated";
 import { CONTRACT, CONTRACT_V2, S, type Case, type Ending } from "../../lib/run/scenario";
 import TodoList, { type ChecklistItem } from "./checklist";
-import { IcCheck, IcChevronRight, IcLens, IcLock, IcX } from "./icons";
-import { OrbSlot } from "./guide";
+import { IcCheck, IcChevronRight, IcLock, IcX } from "./icons";
 import Label from "./label";
 
 // One right-side panel holds every step's detail. It renders whatever the event stream attached
@@ -52,38 +51,9 @@ function Chat({ items, view, highlight, onCite }: { items: Message[]; view: View
   );
 }
 
-/** `lens` puts the orb's magnifier on the sheet: it sweeps the delivered rows, then rests on `row` once evidence names one. */
-function Sheet({ rows, highlight, note, lens }: { rows: ZipCount[]; highlight?: string; note?: string; lens?: { row?: string } }) {
-  const box = useRef<HTMLDivElement>(null);
-  const [at, setAt] = useState<{ y0: number; y1: number; y: number; h: number } | null>(null);
-  const lensOn = !!lens, lensRow = lens?.row;
-  useLayoutEffect(() => {
-    const el = box.current;
-    if (!lensOn || !el) { setAt(null); return; }
-    // A long sheet scrolls inside its pane: sweep only the rows in view, and bring the cited row into view
-    const pane = el.closest<HTMLElement>(".cust-body, .panel-b");
-    const measure = () => {
-      const top = el.getBoundingClientRect().top, view = pane?.getBoundingClientRect();
-      const y = (r: Element | null) => (r ? r.getBoundingClientRect().top - top : 0);
-      const delivered = [...el.querySelectorAll("tbody tr:not(.f-missing)")];
-      const shown = view ? delivered.filter((r) => { const b = r.getBoundingClientRect(); return b.top >= view.top && b.bottom <= view.bottom; }) : [];
-      const sweep = shown.length > 1 ? shown : delivered;
-      setAt({ y0: y(sweep[0]), y1: y(sweep[sweep.length - 1]), y: y(lensRow ? el.querySelector(`#row-${lensRow}`) : null), h: delivered[0]?.getBoundingClientRect().height ?? 0 });
-    };
-    if (lensRow) el.querySelector(`#row-${lensRow}`)?.scrollIntoView?.({ block: "nearest" });
-    measure();
-    pane?.addEventListener("scroll", measure, { passive: true });
-    return () => pane?.removeEventListener("scroll", measure);
-  }, [lensOn, lensRow, rows.length]);
+function Sheet({ rows, highlight, note }: { rows: ZipCount[]; highlight?: string; note?: string }) {
   return (
-    <div className="sheet" ref={box}>
-      {/* mounted with the lens, hidden until measured, so the customer view's orb has its slot in the same render */}
-      {lens && (
-        <div className={`sheet-lens${lensRow ? "" : " scan"}`} aria-hidden
-          style={at ? { height: at.h, "--y0": `${at.y0}px`, "--y1": `${at.y1}px`, "--y": `${lensRow ? at.y : at.y0}px` } as CSSProperties : { visibility: "hidden" }}>
-          <OrbSlot name="sheet" fallback={<IcLens size={15} strokeWidth={1.7} />} />
-        </div>
-      )}
+    <div className="sheet">
       <div className="sheet-h"><span>Delivered sheet</span><span className="faint">Synthetic data{note && `, ${note}`}</span></div>
       <table>
         <thead><tr><th style={{ width: 34 }} /><th>ZIP</th><th>Area</th><th className="num">People</th></tr></thead>
@@ -253,11 +223,10 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
     case "captured": content = <Books node={node} />; break;
     case "investigate": case "verdict": case "grey": {
       const msgs = investigate?.messages ?? [];
-      const cited = investigate?.evidence.find((e): e is CellEvidence => e.kind === "sheet_cell");
-      const lens = step.kind === "investigate" && investigate && (investigate.status === "running" || cited) ? { row: cited?.row } : undefined;
+      // the customer view inspects the objected delivery in its own card, so its answer is just the conversation
       content = (<>
         <Chat items={msgs} view={view} highlight={hl.msg} onCite={onCite} />
-        {lane === "amber" && learned ? <Contract view={view} /> : <Sheet rows={sheetRows(view, investigate ?? node)} highlight={hl.row} lens={lens}
+        {customer ? null : lane === "amber" && learned ? <Contract view={view} /> : <Sheet rows={sheetRows(view, investigate ?? node)} highlight={hl.row}
           note={lane === "red" ? (rerunDone ? "94110 added" : "as delivered") : lane === "green" ? "SF only, as agreed" : "fitness = gyms + apps"} />}
       </>);
       break;

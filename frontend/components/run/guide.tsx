@@ -5,23 +5,23 @@ import type { OrbMode } from "../../lib/run/fold";
 import Orb from "./orb";
 
 // The customer view's orb walks the buyer through the order: it waits beside Acme's open decision,
-// rides the magnifier over the delivered sheet while it checks, and sits beside the interview while
-// it asks. Each place it can be is a slot; the orb lives in one slot at a time and flies between them.
+// inspects an objected delivery with its magnifier, and sits beside the interview while it asks.
+// Each place it can be is a slot; the orb lives in one slot at a time and flies between them.
 
-export type Stop = "home" | "transcript" | "decision" | "sheet";
-const MODE: Record<Stop, OrbMode> = { home: "float", transcript: "look", decision: "wait", sheet: "inspect" };
+export type Stop = "home" | "transcript" | "decision" | "inspect";
+const MODE: Record<Stop, OrbMode> = { home: "float", transcript: "look", decision: "wait", inspect: "float" };
 const EASE_IN_OUT = [0.77, 0, 0.175, 1] as const; // --ease-in-out, the canvas orb's travel curve
 
 const Guide = createContext<{ at: Stop; mood: Partial<Record<Stop, OrbMode>> } | null>(null); // mood: a stop's mode when the view knows better
 export const GuideProvider = Guide.Provider;
 
-/** Where the orb can stand. Outside the customer view (no provider) it renders `fallback` instead. */
-export function OrbSlot({ name, fallback }: { name: Stop; fallback?: ReactNode }) {
+/** Where the orb can stand; `orb` replaces the plain one there (the inspector). Outside the customer view it renders `fallback`. */
+export function OrbSlot({ name, orb, fallback }: { name: Stop; orb?: ReactNode; fallback?: ReactNode }) {
   const guide = useContext(Guide);
   if (!guide) return <>{fallback}</>;
   return (
     <span className={`orb-slot slot-${name}`} data-orb-slot={name}>
-      {guide.at === name ? <span className="cust-orb"><Orb mode={guide.mood[name] ?? MODE[name]} /></span> : fallback}
+      {guide.at === name ? orb ?? <span className="cust-orb"><Orb mode={guide.mood[name] ?? MODE[name]} /></span> : fallback}
     </span>
   );
 }
@@ -30,7 +30,7 @@ export function OrbSlot({ name, fallback }: { name: Stop; fallback?: ReactNode }
 export function useOrbFlight(root: RefObject<HTMLElement | null>, want: Stop): Stop {
   const [at, setAt] = useState<Stop>("home");
   const from = useRef<{ rect: DOMRect | null; stop: Stop } | null>(null);
-  const seen = useRef<DOMRect | null>(null); // where it last stood: a slot can vanish with the orb in it (the lens, once checking ends)
+  const seen = useRef<DOMRect | null>(null); // where it last stood: a slot can vanish with the orb in it
   useLayoutEffect(() => {
     const orb = root.current?.querySelector(".cust-orb");
     if (orb) seen.current = orb.getBoundingClientRect();
@@ -46,7 +46,7 @@ export function useOrbFlight(root: RefObject<HTMLElement | null>, want: Stop): S
     from.current = null;
     if (!el || !f?.width || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     // A copy flies above the page and re-aims at the slot every frame: the sticky header, a clipping
-    // transcript box, a smooth scroll or the sweeping lens can't strand it. The real orb shows on landing.
+    // transcript box or a smooth scroll can't strand it. The real orb shows on landing.
     const flyer = el.cloneNode(true) as HTMLElement;
     flyer.classList.add("orb-flyer");
     el.style.visibility = "hidden";
