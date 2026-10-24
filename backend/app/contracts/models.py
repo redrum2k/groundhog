@@ -45,6 +45,7 @@ class AcceptedPolicy(Contract):
     max_questions: Literal[2] = 2
     max_question_rounds: Literal[2] = 2
     additional_processing_price: Money | None = None
+    overall_case_seconds: Literal[1800] | None = None
 
 
 class EvidencePointer(Contract):
@@ -163,11 +164,16 @@ class DataVerification(Contract):
     evidence_sha256: Digest
     verified_at: AwareDatetime
     checks: Annotated[tuple[RequirementAssessment, ...], Field(min_length=1)]
+    verdict: Literal["PASS", "FAIL", "UNKNOWN"] | None = None
 
-    @property
-    def verdict(self) -> Literal["PASS", "FAIL", "UNKNOWN"]:
+    @model_validator(mode="after")
+    def derived_verdict(self) -> Self:
         states = {check.verdict for check in self.checks}
-        return "FAIL" if "FAIL" in states else "UNKNOWN" if "UNKNOWN" in states else "PASS"
+        calculated = "FAIL" if "FAIL" in states else "UNKNOWN" if "UNKNOWN" in states else "PASS"
+        if self.verdict is not None and self.verdict != calculated:
+            raise ValueError("Aggregate verdict must agree with the source-bound checks")
+        object.__setattr__(self, "verdict", calculated)
+        return self
 
 
 class AcceptedDataAmendment(Contract):

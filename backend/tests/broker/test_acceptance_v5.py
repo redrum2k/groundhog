@@ -497,9 +497,13 @@ def test_C16_uncertain_base_payment_survives_restart_and_cannot_capture(broker, 
         base.revision += 1
         broker.base.repository.save(db, base)
     restarted = Broker(Jobflow(broker.store.path, demo=True, clock=broker.clock))
-    with pytest.raises(ValueError, match="reconcile submitted/uncertain"):
+    with pytest.raises(OrderError, match="active, undisputed"):
         command(restarted, order, "customer", "accept_delivery")
     current = restarted.view(ACTORS["customer"], order.id)
     assert current.base_order.order.payment_state == state
     assert current.base_order.order.authorization_id == order.base_order.order.authorization_id
     assert not current.base_order.order.ledger
+    assert current.base_order.order.order_state == "human_review"
+    assert current.base_order.order.payment_phase == "held"
+    assert "reconciliation" in current.base_order.order.failure
+    assert current.human_tasks[0].owner == "controller"

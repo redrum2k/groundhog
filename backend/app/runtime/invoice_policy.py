@@ -98,6 +98,10 @@ def validate_capture(
     )
     evidenced = context.evidence_verdict == "compliant" and context.verification_binding == binding
     if snapshot.policy.policy_version == "broker-review-v0.3":
+        if now >= snapshot.accepted_at + timedelta(
+            seconds=snapshot.policy.overall_case_seconds or 1800
+        ):
+            raise ValueError("overall broker case deadline requires human review")
         if not evidenced or context.delivery_state != DeliveryState.PASSED:
             raise ValueError("broker capture requires current source-backed verification PASS")
         deadline = context.review_deadline or review_deadline

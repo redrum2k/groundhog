@@ -35,6 +35,7 @@ from app.contracts.models import (
     OrderState,
 )
 from app.data_products import (
+    DIMENSIONS,
     FIELDS,
     QUESTION_TEXT,
     build_package,
@@ -51,6 +52,8 @@ from app.runtime.jobflow_policy import require
 from app.storage import broker as storage
 from app.storage import improvement as improvements
 from app.storage.jobflow import DomainError, canonical, digest, uid
+
+BROKER_POLICY = AcceptedPolicy(policy_version="broker-review-v0.3", overall_case_seconds=1800)
 
 
 def reference(metadata, kind, derived_from=()):
@@ -95,6 +98,12 @@ class Broker:
         template = improvements.template(
             db, draft.customer_id, draft.product_id, draft.template_version
         )
+        draft.validator_bindings = {
+            dimension: recipe
+            for dimension, (recipe, _) in DIMENSIONS.items()
+            if recipe in template.get("validators", ())
+        }
+        draft.template_approved_by = template.get("approved_by")
         missing = missing_fields(draft.parameters)
         for field in template["required_fields"]:
             if field in missing and not any(
@@ -137,6 +146,27 @@ class Broker:
                 sources=draft.sources,
                 questions=tuple(q.prompt for q in draft.questions),
             )
+            if not any(task.state == "OPEN" for task in draft.human_tasks):
+                draft.human_tasks.append(
+                    HumanTask(
+                        id=uid("intake-task"),
+                        issue_id=draft.id,
+                        reason="Current intake has no approved question for material terms.",
+                        missing_facts=unasked,
+                        evidence=list(draft.sources),
+                        binding=None,
+                        next_action=(
+                            "Ask a scoped clarification for each missing field; "
+                            "never invent its value."
+                        ),
+                        created_at=self.clock(),
+                    )
+                )
+        for task in draft.human_tasks:
+            if task.state == "OPEN":
+                task.missing_facts = [field for field in task.missing_facts if field in missing]
+                if not task.missing_facts:
+                    task.state, task.resolved_at = "RESOLVED", self.clock()
 
     def create_draft(self, actor, request):
         require(actor, roles={"customer"})
@@ -201,7 +231,30 @@ class Broker:
             if draft.status in {"ACCEPTED", "DECLINED"}:
                 raise DomainError("An accepted or declined draft cannot be rewritten")
             draft.revision += 1
-            if request.verb == "answer_intake":
+            if request.verb == "clarify_intake":
+                require(actor, roles={"controller"})
+                if request.field not in draft.unresolved_fields or any(
+                    q.field == request.field and q.answer_id is None for q in draft.questions
+                ):
+                    raise DomainError("Manual clarification must address an unasked material field")
+                question = DraftQuestion(
+                    id=uid("spec-question"),
+                    field=request.field,
+                    prompt=QUESTION_TEXT[request.field],
+                )
+                draft.questions.append(question)
+                self._emit(
+                    db,
+                    draft,
+                    actor,
+                    request.idempotency_key,
+                    "spec.question_requested",
+                    question=question.model_dump(mode="json"),
+                    company_staff_touches=1,
+                    measured_staff_seconds=None,
+                    template_version=draft.template_version,
+                )
+            elif request.verb == "answer_intake":
                 require(actor, roles={"customer"})
                 question = next(
                     (
@@ -213,6 +266,10 @@ class Broker:
                 )
                 if question is None:
                     raise DomainError("The exact intake question is not open")
+                if request.value is None:
+                    raise DomainError(
+                        "Supply a concrete answer or explicitly decline the draft", 422
+                    )
                 values = draft.parameters.model_dump(mode="json")
                 values[question.field] = request.value
                 draft.parameters = Parameters.model_validate(values)
@@ -274,7 +331,7 @@ class Broker:
                         {
                             "specification": draft.specification.model_dump(mode="json"),
                             "price": request.price.model_dump(mode="json"),
-                            "policy": "broker-review-v0.3",
+                            "policy": BROKER_POLICY.model_dump(mode="json"),
                         }
                     )
                     draft.provider_accepted_digest = draft.acceptance_digest
@@ -320,7 +377,9 @@ class Broker:
             storage.save(db, "br_drafts", draft)
             return self._receipt(db, actor, request, envelope, draft)
 
-    def _accept_draft(self, db, draft, actor, request):
+    def _accept_draft(self, db, draft, actor, request, *, historical_import=False):
+        if historical_import:
+            draft.template_version = draft.specification.template_version
         metadata = storage.artifact(
             db,
             draft.id,
@@ -328,7 +387,7 @@ class Broker:
                 {
                     "specification": draft.specification.model_dump(mode="json"),
                     "price": draft.offered_price.model_dump(mode="json"),
-                    "policy": "broker-review-v0.3",
+                    "policy": BROKER_POLICY.model_dump(mode="json"),
                     "customer": actor.id,
                     "provider": draft.provider_actor_id,
                     "digest": draft.acceptance_digest,
@@ -357,7 +416,7 @@ class Broker:
             accepted_brief=draft.messages[0].text,
             input_versions=tuple(inputs),
             price=draft.offered_price,
-            policy=AcceptedPolicy(policy_version="broker-review-v0.3"),
+            policy=BROKER_POLICY,
             data_specification=draft.specification,
         )
         base = self.base.create(
@@ -395,7 +454,17 @@ class Broker:
             policy="broker-review-v0.3",
             authorization_id=base.authorization_id,
             mode="SIMULATED",
+            historical_import=historical_import,
         )
+        if not historical_import:
+            improvements.record_outcome(
+                db,
+                record.id,
+                record.customer_id,
+                draft.product_id,
+                "ACCEPTED_AFTER_CLARIFICATION",
+                self.clock(),
+            )
 
     def upload(self, actor, entity_id, request, *, accepted=False):
         require(actor, roles={"provider"})
@@ -421,6 +490,8 @@ class Broker:
                 raise DomainError("Source upload is stale")
             if not accepted and record.status in {"ACCEPTED", "DECLINED"}:
                 raise DomainError("Accepted source versions cannot be overwritten")
+            if accepted and len(record.source_artifact_ids) >= 32:
+                raise DomainError("Source acquisition bound reached; human review required")
             for row in db.execute(
                 "SELECT metadata,raw FROM jf_artifacts WHERE order_id=?", (entity_id,)
             ):
@@ -484,6 +555,9 @@ class Broker:
                 "provider",
                 base.failure or "Inspect provider failure",
             )
+            if base.order_state == OrderState.HUMAN_REVIEW:
+                record.owner = "controller"
+                record.next_action = "Resolve the persistent human task; correction is exhausted"
         elif base.order_state == OrderState.HUMAN_REVIEW:
             record.colour, record.owner, record.next_action = (
                 "orange",
@@ -555,7 +629,24 @@ class Broker:
             )
         else:
             current.binding = base.binding
+            current.reason = reason
             current.missing_facts = missing
+            current.evidence = list(effective_specification(base, self.clock()).sources)
+        if base.payment_phase != "booked" and self.clock() >= base.authorization_expires_at:
+            current.next_action = (
+                "Request an explicitly authorized payment renewal from the payment owner; "
+                "this workflow cannot auto-renew expired authority."
+            )
+        elif base.payment_state in {"submitted", "uncertain"}:
+            current.next_action = (
+                "Reconcile the existing payment operation with the payment owner; "
+                "do not submit another capture."
+            )
+        elif self.clock() >= record.overall_case_deadline:
+            current.next_action = (
+                "Review the evidence and arrange an authorized human remedy; "
+                "automated case time is exhausted."
+            )
         record.resolution = "HUMAN_REVIEW"
         for question in record.questions:
             if question.status == "OPEN":
@@ -565,6 +656,16 @@ class Broker:
     def _sync(self, db, record):
         base = self.base.repository.get(db, record.id)
         prior_revision = record.base_order.order.revision if record.base_order else None
+        if (
+            self.clock() >= record.overall_case_deadline
+            and base.order_state not in {OrderState.CLOSED, OrderState.HUMAN_REVIEW}
+            and (record.issue_id or base.regeneration_pending)
+        ):
+            self.base._hold(
+                base, "Overall case deadline reached; further work requires human review"
+            )
+            base.revision += 1
+            self.base.repository.save(db, base)
         if self.base._advance(base, self.clock()):
             base.revision += 1
             self.base.repository.save(db, base)
@@ -609,10 +710,51 @@ class Broker:
         artifacts = []
         for ref in (*base.deliveries[-1].artifacts, *base.deliveries[-1].structured_data):
             raw, meta, _ = self.store.artifact(db, record.id, ref.evidence_id)
+            if meta["sha256"] != ref.sha256 or meta["version"] != ref.version:
+                raise DomainError("Delivery bytes no longer match the frozen reference")
             artifacts.append((meta["filename"], meta["media_type"], raw, ref.evidence_id))
         checks = delivery_checks(
             specification, self._source_bytes(db, record, specification), artifacts
         )
+        source_artifacts = {}
+        for identifier in record.source_artifact_ids:
+            raw, _, _ = self.store.artifact(db, record.id, identifier)
+            pin = source_pin(raw)
+            source_artifacts[(pin.source_id, pin.version, pin.sha256)] = identifier
+        checks = tuple(
+            check.model_copy(
+                update={
+                    "citations": tuple(
+                        citation.model_copy(
+                            update={
+                                "artifact_id": source_artifacts.get(
+                                    (citation.source_id, citation.version, citation.sha256),
+                                    citation.source_id,
+                                )
+                            }
+                        )
+                        for citation in check.citations
+                    )
+                }
+            )
+            for check in checks
+        )
+        for question in record.questions:
+            if question.status == "OPEN" and (
+                question.binding != base.binding
+                or question.specification_sha256 != specification_digest(specification)
+            ):
+                question.status = "CANCELLED"
+                self._emit(
+                    db,
+                    record,
+                    actor,
+                    causal,
+                    "question.cancelled",
+                    question_id=question.id,
+                    issue_id=question.issue_id,
+                    reason="Evidence or effective specification changed",
+                )
         base.data_verification = DataVerification(
             proposal=base.binding,
             specification_sha256=specification_digest(specification),
@@ -632,6 +774,9 @@ class Broker:
         )
         if base.data_verification.verdict == "PASS":
             base.delivery_state = DeliveryState.PASSED
+            base.failure = None
+            if base.payment_phase != "booked":
+                base.payment_phase = "open"
             base.scope_obligations = tuple(
                 item.model_copy(update={"fulfilled": True})
                 if item.effective_at <= self.clock()
@@ -658,6 +803,15 @@ class Broker:
                 requires_customer_acceptance=base.review_requires_customer_acceptance,
                 resolution=record.resolution,
             )
+            improvements.record_outcome(
+                db,
+                record.id,
+                record.customer_id,
+                specification.product_id,
+                "EVIDENCE_RESOLVED",
+                self.clock(),
+                binding=base.binding,
+            )
         elif base.data_verification.verdict == "FAIL":
             base.delivery_state = DeliveryState.NEEDS_REVIEW
             if not base.regeneration_pending:
@@ -675,6 +829,8 @@ class Broker:
             )
         else:
             base.delivery_state = DeliveryState.NEEDS_REVIEW
+            if base.payment_phase != "booked":
+                base.payment_phase = "held"
             record.issue_id = record.issue_id or uid("issue")
             base.case_state = CaseState.OPEN
             gaps = [check for check in checks if check.verdict == "UNKNOWN"]
@@ -694,7 +850,12 @@ class Broker:
                     specification_sha256=specification_digest(specification),
                     questions=tuple(q.text for q in record.questions),
                 )
-            if record.question_count >= 2 or resume or self.clock() >= record.overall_case_deadline:
+            if (
+                record.question_count >= 2
+                or resume
+                or self.clock() >= record.overall_case_deadline
+                or any(gap.cause in {"UNSUPPORTED_SUBJECTIVE", "VALIDATOR_FAILURE"} for gap in gaps)
+            ):
                 self.base._hold(
                     base, "Material evidence remains unresolved; authorized human judgment required"
                 )
@@ -962,10 +1123,14 @@ class Broker:
                     )
                     task.decision, task.decided_by = request.decision, actor.id
                     if request.decision == "RESUME":
+                        if base.payment_state in {"submitted", "uncertain"}:
+                            raise DomainError(
+                                "Reconcile the original payment operation before resuming"
+                            )
                         if (
-                            self.clock() >= base.authorization_expires_at
-                            or self.clock() >= record.overall_case_deadline
-                        ):
+                            base.payment_phase != "booked"
+                            and self.clock() >= base.authorization_expires_at
+                        ) or self.clock() >= record.overall_case_deadline:
                             raise DomainError(
                                 "Resume needs valid authority and a live overall case; "
                                 "no automatic renewal"
@@ -1014,6 +1179,16 @@ class Broker:
                 or {r.id for r in new.requirements} != {r.id for r in old.requirements}
             ):
                 raise DomainError("New product/requirements require a separate scope quote")
+            if any(
+                amendment.specification.version >= new.version for amendment in record.amendments
+            ):
+                raise DomainError("Amendment specification versions must increase monotonically")
+            if any(
+                amendment.effective_at > request.effective_at for amendment in base.data_amendments
+            ):
+                raise DomainError(
+                    "A new amendment cannot reorder previously accepted effective dates"
+                )
             for original in old.requirements:
                 candidate = next(r for r in new.requirements if r.id == original.id)
                 if (candidate.recipe, candidate.dimension) != (original.recipe, original.dimension):
@@ -1059,6 +1234,11 @@ class Broker:
                 raise DomainError("Amendment acceptance must bind the exact proposed terms")
             if any(item.amendment_id == amendment.id for item in base.data_amendments):
                 raise DomainError("Amendment is already accepted")
+            if any(
+                item.specification.version >= amendment.specification.version
+                for item in base.data_amendments
+            ):
+                raise DomainError("A newer accepted amendment superseded this proposal")
             if actor.role == "customer":
                 amendment.customer_accepted_by = actor.id
             else:
@@ -1117,3 +1297,11 @@ class Broker:
             for record in records
             if actor.role != "customer" or record.customer_id == actor.customer_id
         ]
+
+    def expire_due(self):
+        with self.store.connect(write=True) as db:
+            for row in db.execute("SELECT body FROM br_orders").fetchall():
+                record = BrokerRecord.model_validate_json(row[0])
+                self._sync(db, record)
+                if record.model_dump_json() != row[0]:
+                    storage.save(db, "br_orders", record)

@@ -14,6 +14,14 @@ const config: NextConfig = {
         source: "/api/jobflow/:path*",
         destination: `${backend}/api/jobflow/:path*`,
       },
+      {
+        source: "/api/broker/:path*",
+        destination: `${backend}/api/broker/:path*`,
+      },
+      {
+        source: "/api/improvements/:path*",
+        destination: `${backend}/api/improvements/:path*`,
+      },
     ];
   },
 };

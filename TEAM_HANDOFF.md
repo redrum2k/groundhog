@@ -48,3 +48,29 @@ V4 change orders for genuinely new work. One free regeneration is shared at orde
 level. Older prepayment databases are preserved, not silently converted. The active
 demo uses a fresh v0.2 database. Root API_CONTRACT.md and RUN_INSTRUCTIONS.md describe
 the extension; docs/API.md is still the original team API reference.
+
+## V5 ownership handoff
+
+- Nikita: retain the shared OrderService/DB/ledger. Review v0.3 dispatch and immutable
+  source/spec/delivery capture binding. Human tasks explicitly retain expired or
+  uncertain authority for the payment owner; no renewal/live payment path was invented.
+- Jeff: typed regional-data predicates, scoped questions/answers, incident diagnosis,
+  protected proposal surface and actual isolated improvement loop are implemented.
+  Real model generation still needs the existing approved application configuration;
+  fixture generation and injected SDK tests are separately labeled.
+- Lucas: use the generated broker/improvement DTOs, typed request helpers, current
+  ownership/next-action fields, full probe/diff records and existing Event schema.
+  New routes proxy through the existing Next app. No broker screen redesign is imposed.
+- Rehan: review the 12 development inputs and 6 reserved transfer inputs and the
+  separately stored offline reference endpoints. Results include declined/unknown
+  cases, real command traces and company/customer effort separately. No enterprise
+  performance or payroll savings is inferred from synthetic fixtures.
+
+Template rollback: POST `revoke` with the active `version_id` as controller, using a
+new stable idempotency key. New drafts revert; existing accepted orders stay pinned.
+Keep the V5 application/schema when rolling back a template. Do not replace a V5 DB
+with an older parser or restore an old DB over new orders as a template rollback.
+
+The original V4 PR is already merged at main `39538c0`. V5 is a separate feature
+branch; it must not be auto-merged or deployed. See EVALUATION_RESULTS.md and the
+updated run instructions for evidence and exact owner follow-up.

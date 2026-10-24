@@ -31,6 +31,8 @@ class IntakeDraft(Model):
     revision: Annotated[StrictInt, Field(ge=1)] = 1
     product_id: Name = "aggregate_regional_market_intelligence"
     template_version: Name = "intake-v1"
+    validator_bindings: dict[str, str] = Field(default_factory=dict)
+    template_approved_by: str | None = None
     messages: list[IntentMessage]
     parameters: Parameters = Field(default_factory=Parameters)
     sources: list[SourcePin] = Field(default_factory=list)
@@ -46,6 +48,7 @@ class IntakeDraft(Model):
     customer_accepted_digest: str | None = None
     order_id: str | None = None
     parent_order_id: str | None = None
+    human_tasks: list["HumanTask"] = Field(default_factory=list)
     status: Literal["DRAFT", "CLARIFYING", "READY", "ACCEPTED", "UNSUPPORTED", "DECLINED"] = "DRAFT"
     created_at: AwareDatetime
 
@@ -78,6 +81,9 @@ class HumanTask(Model):
     decided_by: str | None = None
     created_at: AwareDatetime
     resolved_at: AwareDatetime | None = None
+
+
+IntakeDraft.model_rebuild()
 
 
 class BrokerAmendment(Model):
@@ -123,6 +129,7 @@ class BrokerCommand(Frozen):
     idempotency_key: Name
     expected_revision: Annotated[StrictInt, Field(ge=1)]
     verb: Literal[
+        "clarify_intake",
         "answer_intake",
         "offer",
         "accept_specification",
@@ -137,6 +144,7 @@ class BrokerCommand(Frozen):
         "accept_amendment",
     ]
     question_id: str | None = None
+    field: str | None = None
     text: Annotated[str | None, Field(max_length=8000)] = None
     value: str | int | list[str] | None = None
     price: Money | None = None
@@ -161,3 +169,5 @@ class BrokerContractExport(Frozen):
     draft: IntakeDraft
     order: BrokerRecord
     command: BrokerCommand
+    draft_create: DraftCreate
+    source_upload: SourceUpload

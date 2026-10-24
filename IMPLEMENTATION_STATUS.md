@@ -4,6 +4,18 @@
 
 # Jobflow implementation
 
+## V5 extension
+
+The broker backend, actual data/PDF verification, versioned review policy, persistent
+question/human paths and bounded prospective improvement loop are implemented in
+the same application. Generated APIs/types and compatibility helpers are ready for
+Lucas. Current local checks: 341 backend tests, 32 frontend tests, generated-contract
+check, TypeScript and production build pass. Final transfer/demo evidence is being
+recorded in EVALUATION_RESULTS.md. Real model generation is BLOCKED by missing
+application configuration; deterministic infrastructure tests are not labeled live.
+
+## V4 integrated baseline
+
 Rebased on main `06112e2`. User resolved the base financial policy to HACK.md v0.2.
 
 - Existing OrderService, contracts, payment policy, polling API and tests retained.

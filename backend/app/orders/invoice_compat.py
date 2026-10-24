@@ -2,7 +2,8 @@
 
 import hashlib
 import json
-from contextlib import nullcontext
+import sqlite3
+from contextlib import closing, nullcontext
 from datetime import timedelta
 
 from app.contracts.api import (
@@ -29,6 +30,7 @@ from app.contracts.models import (
     EvidenceReference,
     InvestigationInput,
     OrderState,
+    PaymentState,
     ProposalBinding,
     SettlementIntent,
 )
@@ -199,8 +201,27 @@ class OrderService:
         order.failure = reason
 
     def _advance(self, order, now) -> bool:
+        if (
+            order.snapshot.policy.policy_version == "broker-review-v0.3"
+            and order.payment_phase not in {"booked", "expired"}
+            and now >= order.authorization_expires_at
+        ):
+            self._hold(
+                order, "Payment authorization expired independently of human review.", expired=True
+            )
+            return True
         if order.order_state in (OrderState.CLOSED, OrderState.HUMAN_REVIEW):
             return False
+        if order.snapshot.policy.policy_version == "broker-review-v0.3":
+            if order.payment_state in {PaymentState.SUBMITTED, PaymentState.UNCERTAIN}:
+                self._hold(
+                    order, "Existing payment operation requires reconciliation; do not resend."
+                )
+                return True
+            limit = order.snapshot.policy.overall_case_seconds or 1800
+            if now >= order.snapshot.accepted_at + timedelta(seconds=limit):
+                self._hold(order, "Overall case deadline reached; human review required.")
+                return True
         if now >= order.authorization_expires_at and order.payment_phase != "booked":
             self._hold(order, "Payment authorization expired; human review required.", expired=True)
             return True
@@ -219,6 +240,7 @@ class OrderService:
 
             if order.snapshot.policy.policy_version == "broker-review-v0.3" and (
                 not current_data_verification(order, now)
+                or not self._broker_artifacts_valid(order)
                 or order.delivery_state != DeliveryState.PASSED
                 or order.review_requires_customer_acceptance
             ):
@@ -439,7 +461,7 @@ class OrderService:
         if order.snapshot.policy.policy_version == "broker-review-v0.3":
             from app.data_products import current_data_verification
 
-            if not current_data_verification(order, now):
+            if not current_data_verification(order, now) or not self._broker_artifacts_valid(order):
                 raise DomainError(
                     409,
                     "Broker capture requires complete current spec/evidence/delivery verification",
@@ -504,6 +526,30 @@ class OrderService:
         )
         order.payment_phase = "booked"
         order.order_state = OrderState.CLOSED
+
+    def _broker_artifacts_valid(self, order):
+        """Check stored bytes against frozen references at the financial boundary."""
+        try:
+            with closing(sqlite3.connect(self.repository.path, timeout=10)) as db:
+                for reference in order.evidence:
+                    if reference.kind == "customer_evidence":
+                        continue
+                    row = db.execute(
+                        "SELECT metadata,raw FROM jf_artifacts WHERE id=? AND order_id=?",
+                        (reference.evidence_id, order.snapshot.order_id),
+                    ).fetchone()
+                    if row is None:
+                        return False
+                    metadata = json.loads(row[0])
+                    if (
+                        metadata["version"] != reference.version
+                        or metadata["sha256"] != reference.sha256
+                        or hashlib.sha256(bytes(row[1])).hexdigest() != reference.sha256
+                    ):
+                        return False
+            return True
+        except (sqlite3.Error, ValueError, KeyError, TypeError):
+            return False
 
     def _accept(self, order, command, now):
         allowed = (

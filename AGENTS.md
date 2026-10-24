@@ -1,5 +1,21 @@
 # Coding-agent instructions
 
+## Scoped V5 broker extension
+
+Catalog remains the default product and its contracts/payment execution are unchanged.
+The separate `/api/broker` mock profile uses `broker-review-v0.3` and the existing
+compatibility OrderService/DB. It does not change catalog-v0.3's 60-second review or
+accepted invoice-v0.2 terms. Read POLICY_DELTA.md, PIPELINE_MAPPING.md and
+IMPROVEMENT_DESIGN.md for that extension; current results/pickup are in HANDOFF.md.
+The broker's 600-second review requires current complete PASS plus acceptance or
+undisputed expiry, with independent authorization expiry. UNKNOWN holds. Improvement
+changes are prospective typed intake fields/questions/approved validator bindings,
+never accepted terms, source truth, payment controls, pricing or arbitrary code.
+Keep the mounted broker/improvement schemas separate from the frozen catalog API.
+Lucas owns UI design; supply compatible typed interfaces, not a replacement frontend.
+
+## Main application policy
+
 Read HACK.md, docs/PAYMENT_SPIKE.md and applicable nested AGENTS.md before editing.
 Inspect git status; preserve teammates' changes. Product policy is in HACK.md;
 CONTEXT.md is glossary only. **Catalog policy v0.3 supersedes invoice assumptions,

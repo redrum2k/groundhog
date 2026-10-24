@@ -99,9 +99,20 @@ def make_specification(draft) -> DataSpecification:
                     f"Customer-confirmed {dimension.replace('_', ' ')} for: "
                     f"{draft.messages[0].text[:800]}"
                 ),
-                recipe=recipe,
+                recipe=draft.validator_bindings.get(dimension, recipe),
                 parameters=parameters,
-                provenance=provenance,
+                provenance=provenance
+                + (
+                    (
+                        TermProvenance(
+                            reference_id=draft.template_version,
+                            origin="approved_template",
+                            actor_id=draft.template_approved_by,
+                        ),
+                    )
+                    if dimension in draft.validator_bindings and draft.template_approved_by
+                    else ()
+                ),
             )
         )
     return DataSpecification(
@@ -233,11 +244,20 @@ def source_checks(specification: DataSpecification, sources: list[bytes]):
                     cite("/entity_unit", source.entity_unit)
                     ids = [row.entity_id for row in source.rows]
                     cite("/rows/*/entity_id", ids)
-                    states.append(
-                        "PASS"
-                        if source.entity_unit == p.entity_unit and len(ids) == len(set(ids))
-                        else "FAIL"
-                    )
+                    all_ids = [row.entity_id for other, _ in parsed for row in other.rows]
+                    variants = {}
+                    for other, _ in parsed:
+                        for row in other.rows:
+                            variants.setdefault(row.entity_id, set()).add(
+                                canonical(row.model_dump(mode="json"))
+                            )
+                    if source.entity_unit != p.entity_unit or len(ids) != len(set(ids)):
+                        states.append("FAIL")
+                    elif any(len(values) > 1 for values in variants.values()):
+                        states.append("UNKNOWN")
+                        cause = "CONFLICTING_AUTHORITY"
+                    else:
+                        states.append("PASS" if len(all_ids) == len(set(all_ids)) else "FAIL")
                     details.append("Checked uniqueness under the accepted entity unit.")
                 case "coverage_ids":
                     ids = {row.entity_id for other, _ in parsed for row in other.rows}
@@ -322,8 +342,13 @@ def report_lines(specification, data, checks):
         f"Specification SHA256: {specification_digest(specification)}",
         "Method: preserve accepted source values and revisions; "
         "no scraping, imputation or personal-data enrichment.",
-        "Source provenance",
     ]
+    lines.append("Accepted definitions")
+    for requirement in specification.requirements:
+        values = requirement.parameters.model_dump(mode="json", exclude_none=True)
+        values = {key: value for key, value in values.items() if value != []}
+        lines.append(f"{requirement.dimension}: {canonical(values)}")
+    lines.append("Source provenance")
     for source in specification.sources:
         lines.append(f"{source.source_id} | version {source.version} | SHA256 {source.sha256}")
     lines.append("Acceptance checks and exceptions")

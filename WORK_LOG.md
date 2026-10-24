@@ -33,3 +33,28 @@ in the implementation/design handoff.
    credential files were read. Live generation is BLOCKED; independent local work continues.
 5. Improvement persistence/types are present; executable proposal/probe/activation work
    is next. The typed records alone are not a completed learning feature.
+
+6. The executable local loop is now implemented and tested: two generated fixture
+   proposals, actual isolated application comparisons, a retained negative candidate,
+   explicit reviewer approval/activation, new accepted PASS/FAIL/UNKNOWN deliveries,
+   experience-backed question reuse and rollback/restart with accepted versions pinned.
+7. Integrated checks: 341 backend tests passed in 95.77s; 32 frontend tests,
+   generated-contract drift check, TypeScript and production build passed. The prior
+   worker-observer test passed unchanged on this integrated tree.
+8. Remaining release work: offline 12+6 reference run, visual artifact/browser checks,
+   final evidence/handoff, source/secret review, current-main integration and verified
+   feature-branch push. Real application-model access remains unavailable.
+
+## Acceptance incidents and regression guards
+
+The isolated acceptance worker retained four genuine counterexamples against `a41c852`:
+initial operational retries survived the overall deadline; new evidence left a stale
+open question; duplicates across sources passed per-source uniqueness; and human tasks
+refreshed their binding without refreshing source pins. Their regression tests are
+preserved in the acceptance commit. The integrator added transactional cutoff handling,
+stale-question cancellation, combined-dataset uniqueness, and current task evidence.
+Capture also rehashes stored bytes against frozen references. No guard was relaxed.
+
+The worker also observed an existing deadline-test instrumentation race: the persisted
+DB contained one correct cutoff capture but its late-installed observer missed it.
+This is separate from a settlement failure and is being checked on the integrated tree.

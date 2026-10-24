@@ -2,7 +2,7 @@
 
 import json
 
-from app.contracts.improvement import GreyAreaIncident
+from app.contracts.improvement import GreyAreaIncident, IncidentOutcome
 from app.data_products import BASE_FIELDS
 from app.storage.broker import event
 from app.storage.jobflow import canonical, uid
@@ -130,3 +130,36 @@ def incident(
         db, entity_id, "system", item.id, now, "incident.recorded", incident_id=item.id, cause=cause
     )
     return item.id
+
+
+def record_outcome(db, entity_id, customer_id, product_id, outcome, now, binding=None):
+    incidents = [
+        item
+        for item in records(db, "incident", customer_id, product_id)
+        if item["entity_id"] == entity_id
+    ]
+    previous = records(db, "outcome", customer_id, product_id)
+    touches = sum(
+        json.loads(row[0])["payload"].get("company_staff_touches", 0)
+        for row in db.execute("SELECT body FROM jf_events WHERE order_id=?", (entity_id,))
+    )
+    for item in incidents:
+        if any(
+            prior["incident_id"] == item["id"] and prior["outcome"] == outcome for prior in previous
+        ):
+            continue
+        put(
+            db,
+            "outcome",
+            IncidentOutcome(
+                id=uid("incident-outcome"),
+                incident_id=item["id"],
+                entity_id=entity_id,
+                customer_id=customer_id,
+                product_id=product_id,
+                outcome=outcome,
+                company_staff_touches=touches,
+                binding=binding,
+                created_at=now,
+            ),
+        )

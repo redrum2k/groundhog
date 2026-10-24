@@ -63,6 +63,7 @@ def test_S04_C05_missing_date_unknown_cutoff_holds(broker):
     )
     order = command(broker, accept_order(broker, raw=raw), "provider", "produce")
     assert order.base_order.order.data_verification.verdict == "UNKNOWN"
+    assert order.base_order.order.payment_phase == "held"
     assert order.questions[0].recipient == "provider"
     broker.clock.advance(600)
     held = broker.view(ACTORS["customer"], order.id)

@@ -44,7 +44,11 @@ class SourcePin(Frozen):
 class TermProvenance(Frozen):
     reference_id: Name
     origin: Literal[
-        "original_intent", "customer_answer", "provider_confirmation", "accepted_source"
+        "original_intent",
+        "customer_answer",
+        "provider_confirmation",
+        "accepted_source",
+        "approved_template",
     ]
     actor_id: Name
 
@@ -55,19 +59,26 @@ class Parameters(Frozen):
     as_of: AwareDatetime | None = None
     geography: Name | None = None
     boundary_version: Name | None = None
-    region_ids: tuple[Name, ...] = ()
+    region_ids: Annotated[tuple[Name, ...], Field(max_length=250)] = ()
     reference_period: Name | None = None
     metric_name: Name | None = None
     metric_unit: Name | None = None
     entity_unit: (
         Literal["establishment", "legal_entity", "household", "person", "region"] | None
     ) = None
-    coverage_ids: tuple[Name, ...] = ()
+    coverage_ids: Annotated[tuple[Name, ...], Field(max_length=1000)] = ()
     max_missing_records: Annotated[StrictInt, Field(ge=0, le=1000)] | None = None
     output_schema: Literal["market-v1"] | None = None
     output_format: Literal["json", "csv"] | None = None
     revision_policy: Literal["exact_accepted_versions"] | None = None
     conflict_policy: Literal["UNKNOWN"] | None = None
+
+    @model_validator(mode="after")
+    def unique_sets(self):
+        for values in (self.region_ids, self.coverage_ids):
+            if len(values) != len(set(values)):
+                raise ValueError("Accepted coverage and region lists must contain unique IDs")
+        return self
 
 
 class Requirement(Frozen):
@@ -127,6 +138,7 @@ class DataCitation(Frozen):
     sha256: Hash
     locator: Annotated[str, Field(min_length=1, max_length=400)]
     value: Annotated[str, Field(max_length=1600)]
+    artifact_id: str | None = None
 
 
 class RequirementAssessment(Frozen):

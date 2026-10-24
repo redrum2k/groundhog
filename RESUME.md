@@ -10,8 +10,13 @@ The application must execute its own improvement loop; source edits by a coding
 assistant are not runtime learning. Distinguish deterministic infrastructure results
 from an authorized real model run. No new paid access is authorized.
 
-Baseline is green; broker flow and bound question delivery are implemented. Focused
-broker/question tests: 48 passed. All 224 existing tests also passed after the broker
-addition. Executable improvement runtime is next; only its contracts/storage exist.
-Application model access is absent: do not report real generation as demonstrated.
+Broker flow, bound question delivery, persistent human resume and the executable
+prospective improvement loop are implemented. Integrated suite: 341 backend tests
+pass; 32 frontend tests, generated types, typecheck and build pass. Four acceptance
+counterexamples are fixed with their regressions retained. No original tests removed.
+Run `evals/run_v5.py` into a NEW results directory for the finite 12+6 evidence packet,
+then render/inspect its PDF and run the existing browser acceptance. Finish handoff,
+fetch/reconcile current main, scan staged contents and push only the feature branch.
+Application model access is absent: real generation remains BLOCKED. Deterministic
+infrastructure and injected transports must not be presented as real-model evidence.
 Implementation start/cutoff are in WORK_LOG.md. Do not invoke or repair RAP.

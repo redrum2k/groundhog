@@ -111,8 +111,9 @@ def enable_clarity(broker):
         )
 
 
-def accept_order(broker, *, raw=None, params=None, auth_seconds=3600, parent=None):
-    enable_clarity(broker)
+def accept_order(broker, *, raw=None, params=None, auth_seconds=3600, parent=None, clarity=True):
+    if clarity:
+        enable_clarity(broker)
     params = (params or parameters()).model_dump(mode="json")
     draft = broker.create_draft(
         ACTORS["customer"],
@@ -142,6 +143,29 @@ def accept_order(broker, *, raw=None, params=None, auth_seconds=3600, parent=Non
                 verb="answer_intake",
                 question_id=question.id,
                 value=params[question.field],
+            ),
+        )
+    for field in list(draft.unresolved_fields):
+        draft = broker.draft_command(
+            ACTORS["controller"],
+            draft.id,
+            BrokerCommand(
+                idempotency_key=uid("manual"),
+                expected_revision=draft.revision,
+                verb="clarify_intake",
+                field=field,
+            ),
+        )
+        question = next(q for q in reversed(draft.questions) if q.field == field)
+        draft = broker.draft_command(
+            ACTORS["customer"],
+            draft.id,
+            BrokerCommand(
+                idempotency_key=uid("answer"),
+                expected_revision=draft.revision,
+                verb="answer_intake",
+                question_id=question.id,
+                value=params[field],
             ),
         )
     draft = broker.draft_command(

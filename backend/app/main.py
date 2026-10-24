@@ -13,8 +13,10 @@ from app.agents.gateway import ClaudeGateway
 from app.api.broker import router as broker_router
 from app.api.catalog import reviewer, router
 from app.api.catalog import worker as catalog_worker
+from app.api.improvement import router as improvement_router
 from app.api.jobflow import router as jobflow_router
 from app.contracts.http import Capabilities, ErrorResponse
+from app.improvement.service import Improvement
 from app.orders.catalog import CatalogService
 from app.orders.service import DomainError, utc_now
 from app.payments import configured_payment_mode
@@ -75,9 +77,12 @@ def create_app(
             path, demo=os.getenv("JOBFLOW_DEMO") == "1", clock=clock
         )
         app.state.broker = Broker(app.state.jobflow)
+        app.state.improvement = Improvement(app.state.broker)
         jobflow_app.state.jobflow = app.state.jobflow
         broker_app.state.jobflow = app.state.jobflow
         broker_app.state.broker = app.state.broker
+        improvement_app.state.jobflow = app.state.jobflow
+        improvement_app.state.improvement = app.state.improvement
 
         async def sweep():
             while True:
@@ -85,6 +90,7 @@ def create_app(
                     await asyncio.to_thread(app.state.orders.expire_due)
                     await asyncio.to_thread(app.state.orders.payments.work)
                     await asyncio.to_thread(app.state.jobflow.base.expire_due)
+                    await asyncio.to_thread(app.state.broker.expire_due)
                 except Exception:
                     logger.exception("Deadline recovery failed; persisted work will be retried")
                 await asyncio.sleep(1)
@@ -105,6 +111,7 @@ def create_app(
             tasks = []
             if run_worker:
                 recover(app.state.jobflow)
+                app.state.improvement.recover()
                 tasks = [asyncio.create_task(sweep()), asyncio.create_task(consume_jobflow())]
             try:
                 yield
@@ -176,6 +183,13 @@ def create_app(
     broker_app.add_exception_handler(ValueError, invalid_operation)
     broker_app.include_router(broker_router)
     app.mount("/api/broker", broker_app)
+    improvement_app = FastAPI(title="Prospective broker improvement API", version="0.3.0")
+    improvement_app.add_exception_handler(JobflowError, jobflow_error)
+    improvement_app.add_exception_handler(DomainError, domain_error)
+    improvement_app.add_exception_handler(RequestValidationError, validation_error)
+    improvement_app.add_exception_handler(ValueError, invalid_operation)
+    improvement_app.include_router(improvement_router)
+    app.mount("/api/improvements", improvement_app)
     return app
 
 
