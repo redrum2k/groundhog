@@ -20,7 +20,7 @@ const DIMENSIONS: [string, string[], (p: Record<string, unknown>) => string, str
   ["output_schema", ["output_schema", "output_format"], (p) => `Output: ${p.output_schema} as ${String(p.output_format ?? "json").toUpperCase()}`, "Output schema and format"],
 ];
 const count = (v: unknown) => (Array.isArray(v) ? v.length : 0);
-const words = (v: unknown) => String(v ?? "").replace(/_/g, " ");
+const words = (v: unknown) => String(v ?? "").replace(/_/g, " ").replace(/\b(\d+) (\d+)\b/g, "$1-$2"); // adults_25_34 reads as a range
 const dimensionOf = (field: string) => DIMENSIONS.find(([, fields]) => fields.includes(field))?.[0];
 const lineFor = (d: string, answered: Record<string, unknown>): ContractLine => ({ id: d, text: DIMENSIONS.find(([id]) => id === d)![2](answered), check: "code" });
 const askFor = (d: string): ContractLine => ({ id: d, text: DIMENSIONS.find(([id]) => id === d)![3], check: "code" });
@@ -85,7 +85,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
   let detour: Detour | null = null, detourDelivery = 0, detourStep = "investigate", resumed = false, verdictDone = false, controllerOpen = false;
   // A message on the decide step reads as activity; while the controller's task is open the gate is re-asserted after it
   const holdForController = () => { if (controllerOpen && detourStep === "decide") emit({ type: "step_waiting", step: "decide", waitingOn: S.controller }); };
-  const lines = (): ContractLine[] => DIMENSIONS.filter(([d]) => drafted.has(d)).map(([d]) => lineFor(d, answered));
+  const lines = (): ContractLine[] => [...drafted].map((d) => lineFor(d, answered)); // in the order the interview settled them, so approval and review list the same thing
   const stepsWithWindow = (window: number | null): Step[] => MAIN.map((s) => s.kind === "review" ? { ...s, detail: window ? `${window}-minute window to accept or dispute` : "Accept or dispute" } : s.kind === "paid" ? { ...s, detail: `$${price} authorized · mock` } : s);
   const closeDetour = () => {
     if (!detour) return;
