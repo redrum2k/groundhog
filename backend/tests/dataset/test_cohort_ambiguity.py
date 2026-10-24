@@ -104,3 +104,59 @@ def test_model_cohort_offer_replay_wrong_question_and_budget(dataset_service):
     assert final.status == "ready" and final.questions_asked == 1
     assert len(fake.calls) == 2
     assert final.deadline == first.deadline
+    replayed_answer = service.clarify(
+        first.request_id,
+        ClarifyCommand(
+            expected_revision=first.revision,
+            idempotency_key=f"answer:{first.revision}",
+            question_id=first.question.question_id,
+            text="yes",
+        ),
+    )
+    assert service.get_request(first.request_id) == final
+    assert (
+        service.compile_request(
+            first.request_id,
+            RevisionCommand(
+                expected_revision=replayed_answer.revision,
+                idempotency_key=f"compile:{replayed_answer.revision}",
+            ),
+        )
+        == final
+    )
+    assert len(fake.calls) == 2
+
+
+def test_unresolved_model_cohort_respects_two_question_bound(dataset_service):
+    service, _ = dataset_service
+
+    class StillAmbiguous(AmbiguousCohort):
+        def parse(self, **kwargs):
+            result = super().parse(**kwargs)
+            result.parsed_output = result.parsed_output.model_copy(
+                update={"requested_scope": "ambiguous"}
+            )
+            return result
+
+    fake = StillAmbiguous()
+    use_model(service, fake)
+    first = start(service, PROMPT)
+    second = answer(service, first, "yes")
+    assert second.question.prompt != first.question.prompt
+    assert second.questions_asked == 2
+    final = answer(service, second, "yes")
+    assert final.status == "human_review" and final.specification is None
+    assert final.questions_asked == 2 and final.deadline == first.deadline
+
+
+def test_model_cohort_consent_cannot_extend_deadline(dataset_service):
+    service, clock = dataset_service
+    fake = AmbiguousCohort()
+    use_model(service, fake)
+    first = start(service, PROMPT)
+    clock.value = first.deadline
+    with pytest.raises(DomainError):
+        answer(service, first, "yes")
+    expired = service.get_request(first.request_id)
+    assert expired.status == "human_review" and expired.specification is None
+    assert expired.deadline == first.deadline and len(fake.calls) == 1

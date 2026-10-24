@@ -117,14 +117,19 @@ def compile_dataset(context, store, *, proposal=None):
     ages, cities, excluded_ages, excluded_cities = _cohort(draft.prompt)
     category = _category(draft.prompt)
     category_text = draft.prompt
+    model_cohort_ambiguity = bool(
+        proposal
+        and proposal.requested_scope == "ambiguous"
+        and proposal.clarification_field == "cohort"
+    )
     unrelated_age_conflict = unrelated_city_conflict = False
     for answer in draft.answers:
         # The service has already checked exact current question identity. Preserve
         # immutable prompt/history; only replace the field that question solicited.
         field = answer.question_id.removeprefix(draft.request_id + ":").split(":")[0]
         a, c, na, nc = _cohort(answer.text)
-        if field in {"cohort", "cohort_offer"}:
-            if field == "cohort_offer":
+        if field in {"cohort", "cohort_offer", "cohort_scope_offer"}:
+            if field in {"cohort_offer", "cohort_scope_offer"}:
                 # The opaque question ID binds an exact server-rendered offer,
                 # not a model-inferred acceptance of an arbitrary open question.
                 offered = any(
@@ -133,6 +138,13 @@ def compile_dataset(context, store, *, proposal=None):
                     and q.prompt.endswith(_cohort_offer(expected_city))
                     for q in draft.question_history
                 )
+                # Material model-detected scope may contain values the local parser
+                # cannot recognize. Persist that gate in the opaque question ID;
+                # another partial parse (or offline restart) cannot establish consent.
+                if field == "cohort_scope_offer" and not _affirmative(answer.text):
+                    raise ValueError(
+                        "Unsupported or unresolved cohort: the supported scope was not accepted."
+                    )
                 if _affirmative(answer.text):
                     if not offered:
                         raise ValueError("The cohort confirmation has no bound supported offer.")
@@ -212,13 +224,18 @@ def compile_dataset(context, store, *, proposal=None):
         and not cities & excluded_cities
         and not unrelated_age_conflict
         and not unrelated_city_conflict
+        and not model_cohort_ambiguity
     )
     if not cohort_ok:
         question = _cohort_offer(expected_city)
-        field = "cohort_offer"
+        field = "cohort_scope_offer" if model_cohort_ambiguity else "cohort_offer"
         if any(
             a.question_id.startswith(
-                (draft.request_id + ":cohort:", draft.request_id + ":cohort_offer:")
+                (
+                    draft.request_id + ":cohort:",
+                    draft.request_id + ":cohort_offer:",
+                    draft.request_id + ":cohort_scope_offer:",
+                )
             )
             for a in draft.answers
         ):
@@ -297,7 +314,7 @@ def compile_dataset(context, store, *, proposal=None):
         question=Clarification(
             question_id=f"{draft.request_id}:{field}:{draft.questions_asked + 1}",
             prompt=question,
-            field="cohort" if field == "cohort_offer" else field,
+            field="cohort" if field in {"cohort_offer", "cohort_scope_offer"} else field,
         ),
         summary="One bounded cohort/category clarification is required.",
         limitations=("Only the synthetic registered cohort is supported.",),

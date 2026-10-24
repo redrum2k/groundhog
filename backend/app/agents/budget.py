@@ -166,13 +166,16 @@ class ModelBudget:
         finally:
             db.close()
 
+    def check_window(self):
+        now = datetime.now(UTC)
+        if now >= self.cutoff or (self.starts_at and now < self.starts_at):
+            raise BudgetExceeded("Absolute authorized model-call cutoff/window is closed")
+        return now
+
     def reserve(self, purpose, model, payload, max_tokens, *, final_evaluation=False):
         if model != "claude-opus-5-5":
             raise BudgetExceeded("Model is outside the priced envelope")
-        if datetime.now(UTC) >= self.cutoff or (
-            self.starts_at and datetime.now(UTC) < self.starts_at
-        ):
-            raise BudgetExceeded("Absolute authorized model-call cutoff/window is closed")
+        self.check_window()
         if (
             isinstance(max_tokens, bool)
             or not isinstance(max_tokens, int)
@@ -221,6 +224,9 @@ class ModelBudget:
             cooldown = db.execute("SELECT until_at FROM model_cooldown WHERE id=1").fetchone()
             if cooldown and datetime.now(UTC) < datetime.fromisoformat(cooldown[0]):
                 raise BudgetExceeded("Provider rate-limit cooldown is active")
+            # Lock acquisition and the preceding reads may span the cutoff. This
+            # check is inside BEGIN IMMEDIATE, immediately before the durable insert.
+            reserved_at = self.check_window()
             db.execute(
                 "INSERT INTO calls(id,purpose,model,request_sha256,started_at,status,"
                 "reserved_micro_usd,window_id) "
@@ -230,12 +236,26 @@ class ModelBudget:
                     purpose,
                     model,
                     request_hash,
-                    datetime.now(UTC).isoformat(),
+                    reserved_at.isoformat(),
                     reserved,
                     self.window_id,
                 ),
             )
         return identifier
+
+    def abort_before_dispatch(self, identifier, reason):
+        """Only the guarded client may attest it never invoked the SDK.
+
+        Retain the original reservation/hash/window; release its cost only when
+        dispatch is known not to have begun. Uncertain sent requests use finish().
+        """
+        with self.connect() as db:
+            db.execute(
+                "UPDATE calls SET finished_at=?,status='ABORTED_BEFORE_DISPATCH',"
+                "actual_micro_usd=0,input_tokens=0,output_tokens=0,failure_signature=? "
+                "WHERE id=? AND status='RESERVED'",
+                (datetime.now(UTC).isoformat(), reason, identifier),
+            )
 
     def finish(
         self, identifier, usage=None, *, failed=False, failure_signature=None, cooldown_seconds=0

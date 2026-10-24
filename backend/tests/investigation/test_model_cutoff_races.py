@@ -76,8 +76,9 @@ def invoke(kind, ledger, transport):
     return BoundedClient(client=transport, budget=ledger).parse(**kwargs)
 
 
-def test_cutoff_rechecked_after_sqlite_write_lock_wait(ledger, monkeypatch):
-    transport = Transport()
+@pytest.mark.parametrize("kind", ["parse", "raw", "async"])
+def test_cutoff_rechecked_after_sqlite_write_lock_wait(ledger, monkeypatch, kind):
+    transport = Transport(raw=kind == "raw")
     waiting = Event()
     original_connect = sqlite3.connect
 
@@ -97,7 +98,7 @@ def test_cutoff_rechecked_after_sqlite_write_lock_wait(ledger, monkeypatch):
 
     def work():
         try:
-            invoke("parse", ledger, transport)
+            invoke(kind, ledger, transport)
         except BudgetExceeded:
             return "closed"
         return "dispatched"
@@ -166,3 +167,36 @@ def test_open_window_dispatches_once_with_bounded_timeout(ledger, kind):
     assert len(transport.calls) == 1
     assert 0 < transport.calls[0]["timeout"] <= 5
     assert ledger.summary()["known_cost_usd"] == 0.000024
+
+
+def test_future_authorized_window_fails_closed_before_dispatch(ledger):
+    ledger.starts_at = Clock.current + timedelta(seconds=1)
+    with pytest.raises(BudgetExceeded):
+        remaining_timeout(ledger)
+    assert ledger.summary()["requests_used"] == 0
+
+
+@pytest.mark.parametrize("kind", ["parse", "raw", "async"])
+def test_failure_after_sdk_invocation_never_releases_uncertain_cost(ledger, kind):
+    class Failing(Transport):
+        def parse(self, **kwargs):
+            self.calls.append(kwargs)
+            Clock.current = ledger.cutoff
+            raise TimeoutError("Synthetic uncertain request")
+
+        raw = parse
+
+    transport = Failing(raw=kind == "raw")
+    with pytest.raises(TimeoutError):
+        invoke(kind, ledger, transport)
+    assert len(transport.calls) == 1
+    summary = ledger.summary()
+    assert summary["active"] == 0 and summary["conservative_committed_usd"] > 0
+    with ledger.connect() as db:
+        identifier, status, cost = db.execute(
+            "SELECT id,status,actual_micro_usd FROM calls"
+        ).fetchone()
+    assert status == "FAILED_UNKNOWN_USAGE" and cost is None
+    # A later accidental abort cannot rewrite an already completed/uncertain record.
+    ledger.abort_before_dispatch(identifier, "test-late-abort")
+    assert ledger.summary() == summary

@@ -6,11 +6,11 @@ benchmark, credential bridge, or generated executable code is installed.
 
 import asyncio
 import json
-import os
 import re
 
 from pydantic import Field
 
+from app.agents.bounded_client import selected_model
 from app.contracts.data_product import Frozen
 from app.contracts.improvement import (
     GreyAreaIncident,
@@ -567,6 +567,9 @@ class Improvement:
     async def _model_proposals(self, context):
         if len(canonical(context)) > 80000:
             raise ValueError("Bounded proposal context is too large")
+        model = selected_model()
+        if not model:
+            raise ValueError("A proposal model must be configured")
         own_client = self.model_client is None
         if own_client:
             from app.agents.bounded_client import BoundedAsyncClient
@@ -576,7 +579,7 @@ class Improvement:
             client = self.model_client
         try:
             response = await client.messages.create(
-                model=os.getenv("CLAUDE_MODEL") or os.environ["ANTHROPIC_MODEL"],
+                model=model,
                 max_tokens=2400,
                 system=(
                     "Propose at most two small prospective workflow patches from incidents. "
@@ -604,7 +607,7 @@ class Improvement:
             if len(blocks) != 1 or response.stop_reason == "max_tokens":
                 raise ValueError("Model did not return one complete bounded patch bundle")
             usage = {
-                "proposer_model": os.environ["ANTHROPIC_MODEL"],
+                "proposer_model": model,
                 "input_tokens": getattr(getattr(response, "usage", None), "input_tokens", 0),
                 "output_tokens": getattr(getattr(response, "usage", None), "output_tokens", 0),
             }

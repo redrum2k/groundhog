@@ -1,7 +1,6 @@
 """Budget every real SDK request, including failed/uncertain attempts; no SDK retries."""
 
 import os
-from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import anthropic
@@ -33,7 +32,10 @@ def failure_metadata(error):
 
 
 def remaining_timeout(budget):
-    return max(0.001, min(60.0, (budget.cutoff - datetime.now(UTC)).total_seconds()))
+    # This is a local pre-dispatch check, not a real-time scheduling guarantee.
+    # An OS pause or SDK-internal work can delay network transmission afterward.
+    now = budget.check_window()
+    return min(60.0, (budget.cutoff - now).total_seconds())
 
 
 class BoundedClient:
@@ -59,6 +61,7 @@ class BoundedClient:
             final_evaluation=self.final_evaluation,
         )
         self.last_call_id = call
+        dispatched = False
         try:
             if hasattr(self.client.messages, "with_raw_response"):
                 from anthropic.lib._parse._transform import transform_schema
@@ -75,9 +78,10 @@ class BoundedClient:
                         "schema": transform_schema(schema.model_json_schema()),
                     }
                 }
-                raw = self.client.messages.with_raw_response.create(
-                    **wire, timeout=min(remaining_timeout(self.budget), kwargs.get("timeout", 60.0))
-                )
+                dispatch = self.client.messages.with_raw_response.create
+                timeout = min(remaining_timeout(self.budget), kwargs.get("timeout", 60.0))
+                dispatched = True
+                raw = dispatch(**wire, timeout=timeout)
                 self.last_response = raw.http_response.json()
                 self.budget.finish(call, self.last_response.get("usage"))
                 if self.response_sink:
@@ -94,9 +98,15 @@ class BoundedClient:
                     parsed_output=parsed,
                     model_dump=response.model_dump,
                 )
-            result = self.client.messages.parse(**kwargs)
+            dispatch = self.client.messages.parse
+            timeout = min(remaining_timeout(self.budget), kwargs.get("timeout", 60.0))
+            dispatched = True
+            result = dispatch(**{**kwargs, "timeout": timeout})
         except BaseException as error:
-            self.budget.finish(call, **failure_metadata(error))
+            if dispatched:
+                self.budget.finish(call, **failure_metadata(error))
+            else:
+                self.budget.abort_before_dispatch(call, type(error).__name__)
             raise
         self.budget.finish(call, result.usage)
         return result
@@ -124,12 +134,17 @@ class BoundedAsyncClient:
             self.purpose, kwargs["model"], envelope(kwargs), kwargs["max_tokens"]
         )
         self.last_call_id = call
+        dispatched = False
         try:
-            result = await self.client.messages.create(
-                **kwargs, timeout=remaining_timeout(self.budget)
-            )
+            dispatch = self.client.messages.create
+            timeout = min(remaining_timeout(self.budget), kwargs.get("timeout", 60.0))
+            dispatched = True
+            result = await dispatch(**{**kwargs, "timeout": timeout})
         except BaseException as error:
-            self.budget.finish(call, **failure_metadata(error))
+            if dispatched:
+                self.budget.finish(call, **failure_metadata(error))
+            else:
+                self.budget.abort_before_dispatch(call, type(error).__name__)
             raise
         self.budget.finish(call, result.usage)
         return result
