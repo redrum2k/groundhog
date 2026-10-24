@@ -269,7 +269,7 @@ class Jobflow:
                 extraction=parsed,
                 version=version,
             )
-            invalidate(order)
+            invalidate(order, now)
             emit("evidence.collected", source_id=evidence.id, issue_id=request.issue_id)
 
         return OrderView.model_validate(

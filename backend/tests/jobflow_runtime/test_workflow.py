@@ -293,6 +293,7 @@ def test_targeted_question_answer_and_included_field_fulfillment(h):
     assert resumed.issues[0].state != "RESOLVED"
     signed, activation = sign_future(h, resumed, ["due_date"])
     h.now = activation
+    h.service.investigator = None
     h.service.investigate(
         h.actors["investigator"],
         signed.id,

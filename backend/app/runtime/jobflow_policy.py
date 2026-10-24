@@ -37,6 +37,29 @@ def evidence_digest(order):
     return digest([(item.id, item.version, item.sha256, item.authority) for item in order.evidence])
 
 
+def action_evidence_digest(order, kind, job_ids, issue_id):
+    selected = [job for job in order.jobs if job.id in job_ids]
+    ids = {job.source_id for job in selected}
+    if kind in {"INCLUDED_FIELD", "NO_REMEDY", "CONCESSION"}:
+        ids.update(job.artifact_id for job in selected if job.artifact_id)
+    linked_messages = {m.source_id for issue in order.issues for m in issue.messages if m.source_id}
+    ids.update(
+        m.source_id
+        for issue in order.issues
+        if issue.id == issue_id
+        for m in issue.messages
+        if m.source_id
+    )
+    relevant = [
+        item
+        for item in order.evidence
+        if item.id in ids
+        or item.kind in {"agreement", "amendment"}
+        or (item.kind == "message" and item.id not in linked_messages)
+    ]
+    return digest([(item.id, item.version, item.sha256, item.authority) for item in relevant])
+
+
 def action_digest(action):
     return digest(action.model_dump(mode="json", exclude={"status", "owner"}))
 
@@ -52,7 +75,7 @@ def proposal(order, now, *, kind, fields, job_ids, basis, issue_id=None, citatio
         citations=citations or [],
         revision=order.revision,
         agreement_version=order.agreement.version,
-        evidence_digest=evidence_digest(order),
+        evidence_digest=action_evidence_digest(order, kind, job_ids, issue_id),
         scope_digest=scope_digest(order, now),
         expires_at=now + timedelta(hours=1),
         owner="controller",
@@ -68,7 +91,8 @@ def current_action(order, action, now):
     if (
         action.expires_at <= now
         or action.agreement_version != order.agreement.version
-        or action.evidence_digest != evidence_digest(order)
+        or action.evidence_digest
+        != action_evidence_digest(order, action.kind, action.job_ids, action.issue_id)
         or action.scope_digest != scope_digest(order, now)
     ):
         raise DomainError("Action is stale; investigate current evidence and effective terms")
@@ -77,12 +101,24 @@ def current_action(order, action, now):
         raise DomainError("Cannot charge for fields already owed under current terms")
     if action.kind == "INCLUDED_FIELD" and not set(action.fields) <= owed:
         raise DomainError("Included work lacks an effective accepted agreement")
+    if action.kind in {"INCLUDED_FIELD", "NO_REMEDY"}:
+        from app.investigation.jobflow import assess
+
+        if (
+            not action.issue_id
+            or action.kind not in assess(order, action.issue_id, now=now).recommendations
+        ):
+            raise DomainError("Current exact-source evidence does not support this action")
 
 
-def invalidate(order):
+def invalidate(order, now=None):
+    at = now or utcnow()
     for action in order.actions:
         if action.status in {"PROPOSED", "APPROVED"}:
-            action.status = "STALE"
+            try:
+                current_action(order, action, at)
+            except (DomainError, ValueError):
+                action.status = "STALE"
 
 
 def refresh_quotes(order, now, emit):

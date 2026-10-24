@@ -8,7 +8,8 @@ import pdfplumber
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-from app.contracts.jobflow import Check, Evidence, SourceLocation
+from app.contracts.jobflow import Check, Evidence
+from app.investigation.documents import cite as exact_cite
 from app.storage.jobflow import DomainError, canonical, uid
 
 BASE_FIELDS = ["invoice_number", "vendor", "amount", "currency"]
@@ -181,10 +182,4 @@ def store_evidence(
 
 
 def cite(evidence, quote=None):
-    return SourceLocation(
-        source_id=evidence.id,
-        version=evidence.version,
-        sha256=evidence.sha256,
-        quote=quote or evidence.text,
-        locator="document text",
-    )
+    return exact_cite(evidence, quote or evidence.text)

@@ -3,9 +3,9 @@
 import os
 
 from app.contracts.jobflow import InvestigationOutcome, InvestigationRun
-from app.provider.jobflow import cite
+from app.investigation.documents import validate_citation
+from app.investigation.jobflow import assess, scoped_sources
 from app.runtime.jobflow_policy import (
-    effective_fields,
     evidence_digest,
     find,
     proposal,
@@ -65,7 +65,8 @@ def validate_outcome(order, raw, request, *, store=None, db=None):
         or outcome.model_mode != request["mode"]
     ):
         raise DomainError("Investigator returned the wrong issue, revision or execution mode")
-    evidence = {item.id: item for item in order.evidence}
+    scoped = scoped_sources(order, outcome.issue_id)
+    evidence = {item.id: item for item in scoped}
     question_ids = {question.id for issue in order.issues for question in issue.questions}
     finding_ids = set()
     for finding in outcome.findings:
@@ -85,6 +86,7 @@ def validate_outcome(order, raw, request, *, store=None, db=None):
                 or not citation.locator
             ):
                 raise DomainError("Finding cites missing, stale or inexact evidence")
+            validate_citation(scoped, citation)
             if citation.page is not None and citation.page < 1:
                 raise DomainError("Citation page must be one-based")
             if citation.page is not None and store is not None:
@@ -120,14 +122,21 @@ def apply_outcome(order, outcome, now, emit):
     for action in order.actions:
         if action.issue_id == issue.id and action.status in {"PROPOSED", "APPROVED"}:
             action.status = "STALE"
-    owned = issue.field in effective_fields(order, now)
-    # Terms establish authority. The model's recommendation alone never does.
-    kinds = {"INCLUDED_FIELD"} if owned else set(outcome.recommendations)
-    if not owned and "INCLUDED_FIELD" in kinds:
-        kinds.remove("INCLUDED_FIELD")
-        kinds.add("HUMAN_REVIEW")
+    baseline = assess(order, issue.id, now=now)
+    allowed = {*baseline.recommendations, "HUMAN_REVIEW"}
+    kinds = {kind if kind in allowed else "HUMAN_REVIEW" for kind in outcome.recommendations}
     if not kinds:
         kinds.add("HUMAN_REVIEW")
+    if "HUMAN_REVIEW" not in kinds and not outcome.questions:
+        for question in issue.questions:
+            if question.status == "OPEN":
+                question.status = "CANCELLED"
+                emit(
+                    "question.cancelled",
+                    question_id=question.id,
+                    issue_id=issue.id,
+                    reason="Current accepted evidence resolved the question",
+                )
     for kind in sorted(kinds):
         action = proposal(
             order,
@@ -136,14 +145,8 @@ def apply_outcome(order, outcome, now, emit):
             fields=[issue.field] if kind != "HUMAN_REVIEW" else [],
             job_ids=issue.job_ids,
             issue_id=issue.id,
-            basis=(
-                "Effective signed terms include this field"
-                if owned
-                else "Runtime-scoped proposal; independent approval required"
-            ),
-            citations=[
-                cite(item) for item in order.evidence if item.authority == "ACCEPTED_AGREEMENT"
-            ],
+            basis=baseline.summary,
+            citations=[c for finding in baseline.findings for c in finding.citations],
         )
         order.actions.append(action)
         emit("action.proposed", action_id=action.id, issue_id=issue.id)

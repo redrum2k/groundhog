@@ -174,7 +174,7 @@ def amend(db, order, actor, command, now, emit):
     amendment.source_id = source.id
     if accepted:
         order.agreement.version += 1
-    invalidate(order)
+    invalidate(order, now)
     emit(
         "agreement.accepted" if accepted else "agreement.signature_recorded",
         amendment_id=amendment.id,
@@ -277,6 +277,19 @@ def execute(service, db, order, actor, command, now, emit):
         issue.owner = "controller"
         issue.next_action = "Obtain accepted terms or a documented business decision"
         issue.state = "WAITING_INTERNAL"
+    elif action.kind == "NO_REMEDY":
+        issue = find(order.issues, action.issue_id, "Issue")
+        issue.state = "RESOLVED"
+        issue.resolution = action.basis
+        issue.owner = "customer"
+        issue.next_action = "No additional work or charge; inspect the verified delivery"
+        for question in issue.questions:
+            if question.status == "OPEN":
+                question.status = "CANCELLED"
+        for job in order.jobs:
+            if issue.id in job.issue_ids:
+                job.dispute = "RESOLVED"
+        emit("dispute.resolved", issue_id=issue.id, action_id=action.id, no_remedy=True)
     else:
         raise DomainError("Use the bounded provider correction command")
     action.status = "EXECUTED"
@@ -460,7 +473,7 @@ def apply_command(service, db, order, actor, command, now, emit):
         for job in jobs:
             job.issue_ids.append(issue.id)
             job.dispute = "OPEN"
-        invalidate(order)
+        invalidate(order, now)
         emit("dispute.opened", issue_id=issue.id)
     elif verb == "answer":
         from app.runtime.jobflow_investigations import queue_investigation
@@ -495,7 +508,7 @@ def apply_command(service, db, order, actor, command, now, emit):
         issue.messages.append(message)
         question.status = "ANSWERED"
         question.answer_id = message.id
-        invalidate(order)
+        invalidate(order, now)
         emit("answer.received", question_id=question.id, issue_id=issue.id, source_id=source.id)
         # A party response resumes the exact issue, but never authorizes a paid model call.
         queue_investigation(

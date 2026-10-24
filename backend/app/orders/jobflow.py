@@ -2,7 +2,7 @@
 
 import json
 
-from app.contracts.jobflow import Agreement, Issue, Job, OrderView, PaymentOperation
+from app.contracts.jobflow import Agreement, Issue, Job, Message, OrderView, PaymentOperation
 from app.payments.jobflow import post, project
 from app.provider.jobflow import (
     BASE_FIELDS,
@@ -203,6 +203,32 @@ def create_order(db, store, actor, request, records, now, model_available):
             title=f"Is {request.disputed_field} included?",
         )
         order.issues.append(issue)
+        complaint = (
+            f"At kickoff we discussed {request.disputed_field}. I understood that it was "
+            "included in the accepted work. Please check the agreement and our messages."
+        )
+        message_source = store_evidence(
+            db,
+            order,
+            complaint.encode(),
+            filename="customer-kickoff-message.txt",
+            media_type="text/plain",
+            kind="message",
+            authority="PARTY_ASSERTION",
+            actor_id="customer",
+            now=now,
+        )
+        issue.messages.append(
+            Message(
+                id=uid("message"),
+                issue_id=issue.id,
+                author_id="customer",
+                author_name=request.customer_name,
+                text=complaint,
+                timestamp=now,
+                source_id=message_source.id,
+            )
+        )
         job.issue_ids.append(issue.id)
         job.dispute = "OPEN"
         emit("dispute.opened", issue_id=issue.id, job_id=job.id)

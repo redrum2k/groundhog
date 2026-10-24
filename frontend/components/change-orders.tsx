@@ -1,8 +1,8 @@
 import type { Actor, OrderView } from "../lib/jobflow.generated";
 import type { CommandInput } from "../lib/api";
-import { can, money, words } from "../lib/projection";
+import { can, historical, money, words } from "../lib/projection";
 import { Badge, Button } from "./ui";
-import { SourceCard } from "./evidence";
+import { CitationList, SourceCard } from "./evidence";
 
 export function ChangeOrders({
   order,
@@ -17,7 +17,10 @@ export function ChangeOrders({
   busy: boolean;
   command: (input: CommandInput, label: string) => void;
 }) {
-  if (!order.change_orders?.length) return null;
+  const proposals = (order.actions ?? []).filter(
+    (a) => a.kind === "QUOTE" && !a.issue_id,
+  );
+  if (!order.change_orders?.length && !proposals.length) return null;
   return (
     <section className="panel">
       <div className="section-heading">
@@ -25,9 +28,99 @@ export function ChangeOrders({
           <span className="eyebrow">Separate from original delivery</span>
           <h2>Added scope</h2>
         </div>
-        <Badge>{order.change_orders.length} change orders</Badge>
+        <Badge>{order.change_orders?.length ?? 0} change orders</Badge>
       </div>
-      {order.change_orders.map((change) => (
+      {proposals.map((action) => {
+        const old = historical(action, order);
+        const approval = order.approvals?.find(
+          (a) =>
+            a.action_id === action.id &&
+            a.actor_id !== actor?.id &&
+            Date.parse(a.expires_at) > Date.now(),
+        );
+        return (
+          <article
+            key={action.id}
+            className={`inset ${old ? "historical" : ""}`}
+          >
+            <div className="row spread">
+              <strong>
+                Additional-field quote · {money(action.amount_minor)}
+              </strong>
+              <Badge>
+                {old
+                  ? `Historical · ${action.status}`
+                  : (action.status ?? "PROPOSED")}
+              </Badge>
+            </div>
+            <p>
+              {action.fields?.join(", ")} · {action.job_ids?.length ?? 0}{" "}
+              documents
+            </p>
+            <p className="small muted">{action.basis}</p>
+            <details>
+              <summary>Quote evidence</summary>
+              <CitationList
+                order={order}
+                citations={action.citations ?? []}
+                token={token}
+              />
+            </details>
+            {!old && (
+              <div className="row">
+                {(action.status ?? "PROPOSED") === "PROPOSED" &&
+                  can(actor, "approve_action") && (
+                    <>
+                      <Button
+                        variant="primary"
+                        disabled={busy}
+                        onClick={() =>
+                          command(
+                            { verb: "approve_action", action_id: action.id },
+                            "Approve quote",
+                          )
+                        }
+                      >
+                        Approve quote
+                      </Button>
+                      <Button
+                        disabled={busy}
+                        onClick={() =>
+                          command(
+                            { verb: "decline_action", action_id: action.id },
+                            "Decline quote proposal",
+                          )
+                        }
+                      >
+                        Decline quote proposal
+                      </Button>
+                    </>
+                  )}
+                {action.status === "APPROVED" &&
+                  can(actor, "execute_action") && (
+                    <Button
+                      variant="primary"
+                      disabled={busy || !approval}
+                      onClick={() =>
+                        command(
+                          {
+                            verb: "execute_action",
+                            action_id: action.id,
+                            approval_id: approval?.id,
+                          },
+                          "Create approved quote",
+                        )
+                      }
+                    >
+                      Create approved quote
+                    </Button>
+                  )}
+              </div>
+            )}
+          </article>
+        );
+      })}
+      {(order.change_orders ?? []).map((change) => (
         <article className="change-order" key={change.id}>
           <div className="row spread">
             <strong>{change.fields.join(", ")}</strong>

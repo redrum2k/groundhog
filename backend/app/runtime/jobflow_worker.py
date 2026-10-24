@@ -145,7 +145,7 @@ def finish_delivery(
         emit("check.passed" if passed else "check.failed", job_id=job.id, attempt_id=attempt.id)
         successful = successful and passed
     if not unknown:
-        invalidate(order)
+        invalidate(order, now)
         if request.get("change_id"):
             change = find(order.change_orders, request["change_id"], "Change order")
             change.artifact_ids = artifact_ids
@@ -301,6 +301,8 @@ async def run_once(service):
 
                 investigator = investigate
             kwargs = {"mode": request["mode"]}
+            if service.investigator is None:
+                kwargs["now"] = service.clock()
             if request["mode"] == "ANTHROPIC":
                 with service.store.connect() as db:
                     reserved = db.execute(
@@ -356,6 +358,8 @@ async def run_once(service):
                     )
                 else:
                     apply_outcome(order, outcome, now, emit)
+                    run.input_tokens = outcome.input_tokens
+                    run.output_tokens = outcome.output_tokens
                     run.status = "COMPLETE"
             if run.status != "COMPLETE":
                 issue = find(order.issues, run.issue_id, "Issue")

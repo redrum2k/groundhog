@@ -351,8 +351,9 @@ async def investigate(
     mode: str = "DETERMINISTIC",
     call_authorized: bool = False,
     client=None,
+    now: datetime | None = None,
 ) -> InvestigationOutcome:
-    baseline = assess(order, issue_id)
+    baseline = assess(order, issue_id, now=now)
     if mode == "DETERMINISTIC":
         return baseline
     if mode != "ANTHROPIC":
