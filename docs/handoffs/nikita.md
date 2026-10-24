@@ -1,26 +1,36 @@
-# Nikita — runtime and payments
+# Nikita — integrated runtime and payments
 
-Own the full payment boundary: shared DTOs, configuration/signers, pinned ABI, buyer signature
-verification, dedicated operator execution, nonce/outbox durability, receipt/event/state
-reconciliation, API/persistence/jobs, exact settlement gates and deployment integration. Keep
-agent gateway/harness/permissions/observability ownership. No wallet task belongs to Jeff.
+The three completed workstreams are integrated on `codex/backend-integration`; see
+[exact SHAs and validation](../workstreams/04-integration.md). All validation is offline.
+**No observed live testnet receipt, paid model call, deployment or push.**
 
-Phase 1 gives Lucas the frozen API contract, generated TypeScript, mock/fake responses and all
-payment states. New schema-4 accepted terms preserve historical mock snapshots/responses.
-Acceptance, authorization, submission and funding remain distinct. Current mock terminal
-operations complete atomically; live asynchronous execution is the next independent slice.
+`CatalogWorker(service).run_once()` selects one draft/job attempt. Lifespan owns five bounded
+independent lanes and drains in-flight calls before releasing its process lock. Compilation
+exhaustion now invalidates an in-flight fourth result and persists exact exhaustion replay.
+`CatalogService(..., payment_mode, payment_config, payment_transport)` injects the payment layer.
+`BasePaymentTransport(config, rpc=...)` implements PaymentTransport and verified_usdc_domain().
+`payments.work(limit=0..20)` handles bounded submission/reconciliation; deferred operations yield
+so disabled signing cannot starve another payment's receipt. Confirmed effects and bookings share
+the catalog SQLite transaction, regardless of the isolated lab's PAYMENT_JOURNAL_PATH.
 
-Build the reusable Base adapter and thin terminal laboratory from [runbook](../PAYMENT_RUNBOOK.md).
-Use explicit synthetic accepted terms and a fixture settlement decision, not an AI verdict.
-Prove preflight → prepare/sign → funded → restart → capture, and separately fund → void, with
-100000 atomic test USDC each only after separately authorized execution. This needs neither
-Jeff's new prompts nor Lucas's UI. Integrate the same adapter with the offline catalog journey.
+`payments.catalog_payment_setup()` runs only during lifespan, defaults to mock, and performs
+read-only preflight only when Base is selected. Missing signer/config or failed preflight leaves
+Base unavailable with submission disabled; restart after fixing it. Receipt inspection can
+continue with an available transport. Import/schema export has no configuration, RPC or .env
+side effects. Invoice mock policy and adapter selection remain separate.
 
-Keep current verification/evidence/consent/dispute/review/amount/expiry gates. Recheck before
-submission; invalidate stale unsubmitted captures. Submitted captures cannot be cancelled by
-new evidence. Parent replacement void must confirm before child funding/work. Ambiguity must
-not become success or a fresh-nonce retry. No partial capture, fees or refunds in this MVP.
+Own configuration/signers, operator execution, outbox/nonces, reconciliation, lifecycle gates,
+provider dispatch and backend deployment. Preserve current evidence/consent/dispute/review/
+amount/expiry gates and immutable accepted terms. A submitted capture cannot be cancelled;
+parent replacement void must confirm before child funding/work. No AI wallet authority.
 
-Done for the live milestone means matching payment-specific events/state, restart recovery,
-unique terminal effects and redacted reports, not an interface stub. No real testnet result is
-claimed now; see PAYMENT_SPIKE.md for remaining checks and source provenance.
+Remaining live milestone requires separate authorization and fresh disposable setup: follow
+[runbook](../PAYMENT_RUNBOOK.md) and [payment spike](../PAYMENT_SPIKE.md) for two independent
+100000-atomic-USDC payments, fund/restart/capture and fund/void. Verify actual deployment,
+RPC historical support, gas, balances, canonical evidence and provider non-authority. No ordinary
+catalog USD 15 order is funded by the lab's 0.10 test-USDC amount. Orphaned/crash-around-broadcast
+operations need explicit manual recovery; no rebroadcast/fee-bump/refund implementation exists.
+
+[Lucas's concrete backend/bridge handoff](lucas.md) is ready. Catalog UI and wallet integration,
+customer authentication/tenancy, independent quality evaluation and sponsor verification remain
+with their assigned owners; no public deployment is part of this integration.

@@ -113,12 +113,17 @@ class PaymentExecutor:
                 if not self._eligible(db, operation):
                     return self.journal.get(db, operation_id)
                 return self.journal.complete_mock(db, operation_id, self.complete)
-        if self.transport is None:
-            return operation
+        if self.transport is None or (
+            not broadcast and operation.state not in ("submitted", "uncertain", "confirmed")
+        ):
+            # Bounded workers select by last attempt time. A disabled reservation
+            # must yield its turn so other submitted payments can still reconcile.
+            with self.journal.transaction() as db:
+                if self.journal.owns(db, operation_id, token):
+                    return self.journal.update(db, operation_id)
+                return self.journal.get(db, operation_id)
         if operation.state in ("submitted", "uncertain", "confirmed"):
             return self._reconcile(operation, terms, token)
-        if not broadcast:
-            return operation
         if operation.state == "reserved":
             try:
                 nonce = self.transport.pending_nonce(terms.payment_info.operator)

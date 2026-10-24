@@ -727,7 +727,7 @@
             "type": "boolean"
           },
           "live_adapter": {
-            "default": "planned",
+            "default": "disabled",
             "enum": [
               "planned",
               "disabled",

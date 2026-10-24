@@ -1,4 +1,4 @@
-"""Stable public errors and Phase 1 capabilities; never echo sensitive request inputs."""
+"""Stable public errors and startup capabilities; never echo sensitive request inputs."""
 
 from typing import Literal
 
@@ -25,5 +25,5 @@ class Capabilities(Contract):
     live_settlement_enabled: bool = False
     buyer_signature_validation: bool = True
     mock_funding_requires_authorization: bool = True
-    live_adapter: Literal["planned", "disabled", "ready", "unavailable"] = "planned"
+    live_adapter: Literal["planned", "disabled", "ready", "unavailable"] = "disabled"
     customer_authentication: bool = False

@@ -1,81 +1,135 @@
 # Nikita payment runbook
 
-Phase 1 is executable offline. Live RPC execution and the isolated runner are the next
-independent milestone; no testnet transaction is claimed or authorized here. Do not inspect
-existing secrets to fill setup. No Jeff prompts or Lucas UI are required for the payment lab.
+Runtime, Base transport and asynchronous catalog settlement are integrated and validated offline.
+**No real testnet RPC result or receipt is claimed; no broadcast or deployment is authorized.**
+Do not inspect existing secrets to fill setup. Use fresh disposable configuration only for a
+separately authorized live milestone. [Integration evidence](workstreams/04-integration.md).
 
-## Run now
+## Run offline now
 
 From the repository root:
 
 ```sh
 uv sync --locked --project backend
-uv run --locked --directory backend pytest tests/payments tests/api tests/catalog tests/legacy
-uv run --locked --directory backend python ../tools/frontend_mock.py --port 4173
+uv run --locked --directory backend pytest
+uv run --locked --directory backend python ../tools/offline_journey.py --scenario repaired --output artifacts/catalog-repaired
+uv run --locked --directory backend python ../tools/offline_journey.py --scenario unresolved --output artifacts/catalog-unresolved
+uv run --locked --directory backend python ../spikes/payments/examples.py
 ```
 
-The last command serves all-state frontend fixtures; it is not a wallet runner. Inspect
-`http://127.0.0.1:4173/orders/demo/payment?state=funding_pending` and `/__mock/states`.
-Run the main API with the README command to exercise quote acceptance → funding preparation
-→ explicit `simulate: true` authorization → bounded mock worker → fulfillment → gated mock
-capture. `docs/handoffs/lucas.md` gives exact request/response contracts. Keep `PAYMENT_ADAPTER=mock`.
+Use fresh output directories: completed journey replays return their saved summaries. The
+catalog harness explicitly simulates funding and uses CatalogWorker selection with an injected
+clock. The lab examples run 27 independent subprocess commands with synthetic RPC/public test
+scalars and temporary journals: capture, void and expiry/reclaim. Neither executes EVM bytecode
+or establishes deployed-contract success. The combined HTTP/lifespan tests use actual Base
+transport encoding/signing/reconciliation with injected RPC and synthetic accepted catalog terms.
 
-## Future local configuration
+`uv run --locked --directory backend python ../tools/frontend_mock.py --port 4173` serves all
+12 simulated payment states at `/orders/demo/payment?state=funding_pending` and `/__mock/states`.
+It is not a wallet runner. Start the main API as in README after seeding a local corpus. Default
+mock funding needs explicit simulate authorization; background workers then run automatically.
 
-`.env.example` contains actual key=value entries; copy only into an ignored private local file.
-The app does not auto-load `.env`. Use explicit shell configuration or uv `--env-file` only
-when appropriate; do not silently select another existing account's key.
+## Configuration and capabilities
+
+`.env.example` contains key=value entries. The app never auto-loads a private .env; use explicit
+shell configuration or uv --env-file only when separately appropriate. Imports and OpenAPI
+export do not initialize adapters, read signer configuration, start workers or call RPC.
+Base selection/preflight occurs in application lifespan; failures never select mock instead.
 
 | Variable | Purpose |
 | --- | --- |
-| PAYMENT_ADAPTER | `mock` now; `base_sepolia` is planned opt-in execution. |
-| BASE_SEPOLIA_RPC_URL | RPC for chain 84532; validate chain before signing/submission. |
-| BASE_CHAIN_ID | `84532` only. |
-| BASE_USDC_ADDRESS / BASE_ESCROW_ADDRESS / BASE_ERC3009_COLLECTOR_ADDRESS | Pinned values in PAYMENT_SPIKE.md; verify live deployment before use. |
-| BASE_OPERATOR_PRIVATE_KEY | Dedicated disposable test EOA, backend only. Operator needs Base Sepolia ETH for gas. |
+| PAYMENT_ADAPTER | `mock` default; `base_sepolia` explicitly selects the implemented transport. |
+| ORDER_DB_PATH / ARTIFACT_ROOT | Catalog/invoice store and approved evidence root. Catalog payment journal uses this same database for atomic financial effects. |
+| INTERNAL_API_TOKEN / REVIEWER_API_TOKEN | Different server-only worker/provider and reviewer credentials. Never NEXT_PUBLIC/browser/model inputs. |
+| BASE_SEPOLIA_RPC_URL | Explicit HTTP(S) RPC supporting Base Sepolia and EIP-1898 historical block-hash reads. |
+| BASE_CHAIN_ID | 84532 only. |
+| BASE_USDC_ADDRESS / BASE_ESCROW_ADDRESS / BASE_ERC3009_COLLECTOR_ADDRESS | Pinned addresses in PAYMENT_SPIKE.md. Startup read probes do not attest full deployed bytecode. |
+| BASE_OPERATOR_ADDRESS | Optional public address for key-free preparation/inspection; must match the signer if both supplied. |
+| BASE_OPERATOR_PRIVATE_KEY | Dedicated disposable operator EOA, backend only; needs test ETH for gas. Never a buyer key. |
 | BASE_PROVIDER_ADDRESS | Receiver; provider private key is not required. |
-| SPIKE_BUYER_PRIVATE_KEY | Isolated runner only; buyer needs test USDC and ETH only for payer reclaim. |
-| PAYMENT_CONFIRMATIONS | `2` minimum/default; receipt threshold is not L1 finality. |
-| ENABLE_TESTNET_BROADCAST | `false`; future execution also requires explicit CLI opt-in. |
-| PAYMENT_JOURNAL_PATH | Private durable SQLite state; authorization capabilities/raw transactions are not reports. |
+| SPIKE_BUYER_PRIVATE_KEY | Isolated lab only; buyer needs test USDC and test ETH only for payer reclaim. |
+| PAYMENT_CONFIRMATIONS | 2 minimum/default, at most 100; receipt threshold is not L1 finality. |
+| BASE_MAX_GAS / BASE_MAX_FEE_PER_GAS | Defaults 1000000 / 10000000000 wei; conservative ceilings, not a gas quote. |
+| ENABLE_TESTNET_BROADCAST | false by default. App requires ready startup plus this opt-in. Lab additionally requires --broadcast-testnet. Separate human authorization is still required. |
+| PAYMENT_JOURNAL_PATH | Private lab SQLite only. Catalog deliberately ignores this path and journals with ORDER_DB_PATH. |
 
-A CDP key alone does not sign these operations. CDP faucet/wallet alternatives are optional
-for the direct RPC/local signer path. Missing credentials do not block offline tests.
+A CDP API key alone does not sign these operations. The app never selects an existing wallet
+implicitly. Config syntax/invalid chain/address/signer mismatches fail startup with redacted
+errors; missing configuration leaves selected Base unavailable. Malformed configuration is not
+silently repaired. Preparation with a configured public operator can work without a signer;
+automatic submission stays disabled until signer/preflight configuration is repaired and restarted.
 
-## Next executable runner contract — not implemented in Phase 1
+Existing `/health` shape:
 
-Implement `spikes/payments/run.py` as a thin wrapper over the reusable adapter. Required
-commands are `preflight`, `prepare`, `fund`, `status`, `capture`, `void`, `reconcile`, `reclaim`.
-Each accepts a durable `--payment-id`; default is inspection/dry-run. Actual testnet submission
-requires `--broadcast-testnet` plus ENABLE_TESTNET_BROADCAST=true and separate human authorization.
+| live_adapter | Meaning |
+| --- | --- |
+| disabled | Base implementation present, not selected; current mode mock. |
+| unavailable | Base selected but missing usable RPC/parties/signer, or read-only startup preflight failed. |
+| ready | Configured signer/parties and successful read-only startup preflight. |
+| planned | Historical enum retained for compatibility; current startup does not emit it. |
 
-Planned invocation shape (these commands do not exist yet):
+`live_settlement_enabled` is true only for ready Base with explicit broadcast opt-in. This
+reports startup readiness, not ongoing RPC health, balance sufficiency or chain success. Every
+transaction repeats term/action-specific preflight. Failed startup disables signing until restart;
+available transport still inspects submitted receipts. Missing receipts remain pending. A reserved
+operation that cannot submit yields its bounded turn so another payment can reconcile.
 
-```text
+## Automatic and protected operations
+
+Five independent lanes: catalog and invoice deadline sweeps (1 second), catalog dispatcher,
+payment worker limit 1, invoice dispatcher (0.25 seconds after each completed call). Each lane
+has a thread slot; model/PDF/RPC work does not monopolize deadline execution or the event loop.
+SQLite transactions never span payment RPC/signing. One application worker owns a database lock;
+graceful shutdown stops selection and drains calls before releasing it. Hard restart recovers
+persisted leases (catalog 45 seconds; payment operation 120 seconds).
+
+No normal browser work call is required. Provider offers/approvals, failed-job retry and reviewer
+decisions still require the respective trusted server caller; manual compile/work/payment-work
+routes remain protected and compatible. [Lucas handoff](handoffs/lucas.md) has exact paths,
+headers, request examples, available_actions and replay/409 rules. Lucas owns the authenticated
+bridge. No unauthenticated credential-forwarding proxy is provided.
+
+## Isolated lab, implemented commands
+
+See [laboratory README](../spikes/payments/README.md) for all flags and copyable offline examples.
+Every command requires durable --payment-id. Inspection is the default; prepare --save-fixture
+persists frozen terms and reconcile persists observations. --dry-run never reserves/signs/sends.
+
+```sh
+uv run --locked --directory backend python ../spikes/payments/run.py --help
 uv run --locked --directory backend python ../spikes/payments/run.py preflight --payment-id capture-a
-uv run --locked --directory backend python ../spikes/payments/run.py prepare --payment-id capture-a
-uv run --locked --directory backend python ../spikes/payments/run.py fund --payment-id capture-a
 uv run --locked --directory backend python ../spikes/payments/run.py status --payment-id capture-a
-uv run --locked --directory backend python ../spikes/payments/run.py capture --payment-id capture-a
 uv run --locked --directory backend python ../spikes/payments/run.py reconcile --payment-id capture-a
-uv run --locked --directory backend python ../spikes/payments/run.py void --payment-id void-b
-uv run --locked --directory backend python ../spikes/payments/run.py reclaim --payment-id expiry-c
 ```
 
-Use distinct accepted fixture IDs/salts for capture-a, void-b and expiry-c, each exactly 100000
-atomic USDC. Before each submission, inspect frozen parties/amount/deadlines and live preflight.
-Do not treat the 0.10 laboratory amount as settlement of a USD 15 catalog order. Keep JSON
-reports redacted; never print private keys, authorization signatures or signed transaction bytes.
+These last three require explicit RPC configuration; do not run them as an offline test.
+Other implemented commands: prepare, fund, capture, void and reclaim. Live submission requires
+both --broadcast-testnet and ENABLE_TESTNET_BROADCAST=true; no such run was performed here.
+Use distinct fixture IDs/salts capture-a, void-b and expiry-c, each exactly 100000 atomic USDC.
+Do not treat this lab amount as funding a USD 15 catalog order (15000000 atomic USDC).
+Reports redact private keys, buyer authorizations, funding calldata and signed transaction bytes.
 
-## Recovery requirements
+## Recovery and remaining live proof
 
-After timeout/restart, inspect/reconcile the same durable operation. Missing receipt is not
-proof of failure; do not make a new payment, salt or nonce. The future runner must explicitly
-implement and document identical-byte rebroadcast, or leave submission unresolved for manual
-recovery. Until implemented, no automatic rebroadcast is claimed. Expiry blocks capture but
-funds remain held until void/reclaim evidence. Changed/orphaned block observations require a
-hold and manual recovery; never rerun work or reissue a transfer automatically.
+After timeout/restart, inspect/reconcile the same saved operation/hash/nonce/terms. Missing receipt
+is not failure. No automatic rebroadcast, replacement, fee bump or fresh-nonce recovery exists.
+A crash after durable submitted state but before actual send can remain unresolved indefinitely;
+Nikita must investigate it manually. Never delete state or reset a salt/nonce to escape ambiguity.
+RPC requests time out individually after 15 seconds with no retries. Multi-read preflight can
+outlive the 120-second payment lease; lease checks fence stale completion/submission. Check
+latency before live use. No lease-renewal or hard thread cancellation is claimed; graceful shutdown
+waits for active calls. Deadlines continue in independent lanes while the process runs.
 
-Completion evidence is the two independent scenarios in PAYMENT_SPIKE.md, with matching events,
-state, canonical block evidence, token-store balances and observed explorer links. Current
-receipt threshold/reorg handling is a demo limitation, not production settlement assurance.
+Confirmed evidence and catalog bookings commit atomically, once. Submitted capture cannot be
+cancelled by new evidence: late complaints remain in human review even if capture confirms.
+Reorgs enter a hold without deleting historical bookings or rerunning work. Transient unchanged
+canonical evidence can clear uncertainty without rebooking; orphaned operations need explicit
+manual recovery. Human-review cases are not automatically dismissed. Expiry alone never returns
+funds; a substantive replacement waits for confirmed parent void and its own funding deadline.
+
+Separately authorized live evidence: verify actual pinned deployment/code/linkage, USDC domain/
+decimals, EOA identities, test ETH/USDC, token-store custody, historical RPC support and latency.
+Observe independent fund → restart → capture and fund → void fixtures, provider non-authority,
+matching events/state/balance deltas and canonical threshold; then ambiguity/duplicate/reclaim
+recovery. Only actually observed transactions get real explorer links. See PAYMENT_SPIKE.md.
+Customer auth/tenancy, production settlement/finality, refunds and public deployment remain out of scope.

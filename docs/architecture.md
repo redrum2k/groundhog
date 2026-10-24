@@ -23,8 +23,11 @@ Jobs persist queued/running/done/failed/stale states, attempts, lease IDs/deadli
 Expired leases can be reclaimed after restart, at most three attempts. A former lease holder
 cannot publish after another worker claims it, evidence changes, or deadlines expire.
 
-The deadline worker runs on startup and each second. Jobs are explicitly dispatched through
-trusted work routes or the offline harness; there is no implicit paid inference worker.
+CatalogWorker.run_once() automatically selects one draft/job attempt. Five independent thread
+lanes handle catalog/invoice deadlines, catalog work, payments and invoice work. Sweeps run each
+second; dispatch/payment turns wait 0.25 seconds after each call. Paid inference requires explicit
+model opt-in. Trusted manual routes and the offline harness remain available. Graceful shutdown
+drains calls before releasing the database worker lock; hard restart uses durable leases.
 Compiler calls reserve a persisted revision/budget before calling the injectable compiler;
 late results are rejected. A process interruption can leave a compiling draft: replay returns
 the durable reservation, and a worker refetches/retries with a new key within the existing
@@ -67,7 +70,7 @@ Application invalidates findings, pending approvals and stale jobs, then reruns 
 A source problem does not spend the free-correction allowance. Substantive amendment creates
 a proposed provider quote with a new manifest/specification; customer acceptance creates a
 linked child order with independent authorization. Parent release gates the child; the current
-mock release completes atomically, while planned Base execution must wait for confirmed void. Historical agreement, artifacts and ledger remain intact. Rejected/missing consent leads
+mock release completes atomically, while integrated Base execution waits for confirmed void. Historical agreement, artifacts and ledger remain intact. Rejected/missing consent leads
 to human review of the original agreement. No changed terms become effective by timeout.
 
 Precontract, fulfillment, repair and dispute have separate typed contexts. Pre-delivery evidence
@@ -95,15 +98,19 @@ Current `contracts/payments.py` defines immutable PaymentInfo/terms, funding pre
 authorization, payment accounts, operations and redacted views independently of historical v0.2
 SettlementIntent. The additive payment journal and mock execution boundary preserve idempotency,
 current binding and ledger consistency. Mock capture/release remains atomic. Funding preparation
-uses a non-chain mock domain; explicit simulation never invents a buyer token signature.
+uses a non-chain domain in mock mode; Base obtains a verified USDC domain outside database locks.
+Explicit simulation never invents a buyer token signature and is rejected for Base.
 
 The selected live integration is Base Commerce Payments v1.1 on Base Sepolia with a dedicated
 platform operator EOA. The contract holds funds; buyers/providers trust the operator to apply
-accepted settlement policy. AI findings do not confer wallet authority. Live adapter execution
-is planned after the Phase-1 frontend contract handoff; there are no observed testnet receipts.
-The target durable executor persists signed bytes/hash before broadcast, serializes nonces,
+accepted settlement policy. AI findings do not confer wallet authority. The integrated Base transport is
+validated with injected RPC only; there are no observed testnet receipts. Lifespan-only adapter
+selection defaults to mock and fails closed on missing signer or preflight failure. Import/schema
+export has no RPC/configuration side effects. The durable executor persists signed bytes/hash before broadcast, serializes nonces,
 reconciles receipts/events/state and canonicality, and never retries uncertainty with a new
-payment/salt/nonce. Two canonical receipt confirmations are not Ethereum/L1 finality.
+payment/salt/nonce. Confirmation and catalog booking share one transaction. Bounded disabled
+reservations yield to other pending receipts; uncertainty/reorgs hold money and evidence.
+Two canonical receipt confirmations are not Ethereum/L1 finality.
 
 The frontend mock API supplies every pending/terminal/uncertain/expired/reorg account state
 without pretending they are observed chain transitions. Mock receipts have no live transaction

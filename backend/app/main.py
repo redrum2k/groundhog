@@ -15,7 +15,7 @@ from app.api.jobflow import router as jobflow_router
 from app.contracts.http import Capabilities, ErrorResponse
 from app.orders.catalog import CatalogService
 from app.orders.service import DomainError, utc_now
-from app.payments import configured_payment_mode
+from app.payments import catalog_payment_setup
 from app.runtime.background import background_workers
 from app.runtime.catalog_worker import CatalogWorker
 from app.runtime.jobflow import Jobflow
@@ -36,8 +36,10 @@ def create_app(
     compiler=None,
     service=None,
     worker=None,
+    payment_mode=None,
+    payment_config=None,
+    payment_transport=None,
 ):
-    mode = configured_payment_mode()
     if isinstance(database_path, Jobflow):
         service, database_path = database_path, None
     if service is not None:
@@ -47,6 +49,13 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(app):
+        payments = await asyncio.to_thread(
+            catalog_payment_setup,
+            mode=payment_mode,
+            config=payment_config,
+            transport=payment_transport,
+        )
+        app.state.payment_capabilities = payments.capabilities
         path = Path(
             service.store.path
             if service
@@ -63,6 +72,9 @@ def create_app(
             clock,
             compiler=selected_compiler,
             assessor=selected_compiler if isinstance(selected_compiler, ClaudeGateway) else None,
+            payment_mode=payments.mode,
+            payment_config=payments.config,
+            payment_transport=payments.transport,
         )
         app.state.internal_token = internal_token or os.getenv("INTERNAL_API_TOKEN")
         app.state.reviewer_token = reviewer_token or os.getenv("REVIEWER_API_TOKEN")
@@ -140,7 +152,7 @@ def create_app(
 
     @app.get("/health", response_model=Capabilities)
     def health():
-        return Capabilities(payment_mode=mode)
+        return app.state.payment_capabilities
 
     app.include_router(router)
     app.include_router(catalog_worker)

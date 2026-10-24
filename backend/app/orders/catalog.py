@@ -146,7 +146,9 @@ class CatalogService:
                 raise DomainError(409, "draft revision/state is stale")
             if draft.compiler_calls >= 4:
                 draft.status, draft.error = "human_review", "Compiler call budget exhausted."
+                draft.revision += 1
                 self.repository.put(db, "request", request_id, draft)
+                self.repository.remember(db, scope, command.idempotency_key, fingerprint, draft)
                 return draft
             sources = self.registry.manifest(draft.corpus_id, db)
             draft.compiler_calls += 1
@@ -185,7 +187,11 @@ class CatalogService:
             result, failure = None, str(exc)
         with self.repository.transaction() as db:
             current = self.repository.load(db, "request", request_id, RequestDraft)
-            if current.revision != reserved_revision or self.clock() >= current.deadline:
+            if (
+                current.revision != reserved_revision
+                or current.status != "compiling"
+                or self.clock() >= current.deadline
+            ):
                 raise DomainError(409, "stale compiler result; refetch draft")
             if failure:
                 current.status, current.error = "human_review", failure

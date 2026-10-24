@@ -741,7 +741,7 @@ export interface components {
             customer_authentication?: boolean;
             /**
              * Live Adapter
-             * @default planned
+             * @default disabled
              * @enum {string}
              */
             live_adapter?: "planned" | "disabled" | "ready" | "unavailable";

@@ -240,4 +240,4 @@ def test_exported_openapi_matches_runtime_and_wallet_schema(payment_api):
     assert schema["paths"]["/orders/{order_id}/funding-authorizations"]["post"]["responses"]["422"][
         "content"
     ]["application/json"]["schema"]["$ref"].endswith("ErrorResponse")
-    assert client.get("/health").json()["live_adapter"] == "planned"
+    assert client.get("/health").json()["live_adapter"] == "disabled"

@@ -15,6 +15,6 @@ def test_health_discloses_mock_mode(tmp_path):
         "payment_policy": "catalog-payments-v1",
         "buyer_signature_validation": True,
         "mock_funding_requires_authorization": True,
-        "live_adapter": "planned",
+        "live_adapter": "disabled",
         "customer_authentication": False,
     }
