@@ -504,13 +504,31 @@ def apply_command(service, db, order, actor, command, now, emit):
         emit("dispute.opened", issue_id=issue.id)
     elif verb == "answer":
         from app.runtime.jobflow_investigations import queue_investigation
+        from app.runtime.jobflow_policy import evidence_digest
 
         issue = find(order.issues, command.issue_id, "Issue")
         question = find(issue.questions, command.question_id, "Question")
         if question.recipient != actor.role:
             raise DomainError("Answer must come from the question's addressed role", 403)
-        if question.status != "OPEN" or not command.text or len(command.text) > 20000:
+        if (
+            question.status != "OPEN"
+            or not command.text
+            or not command.text.strip()
+            or len(command.text) > 20000
+        ):
             raise DomainError("Question must be open and answer must be nonempty and bounded")
+        if question.issue_id != issue.id or issue.state == "RESOLVED":
+            raise DomainError("Answer must resume its exact unresolved issue")
+        # Legacy persisted questions may lack bindings; any supplied binding
+        # must still match. Answers remain testimony even for a controller.
+        if (
+            question.agreement_version is not None
+            and question.agreement_version != order.agreement.version
+        ) or (
+            question.evidence_digest is not None
+            and question.evidence_digest != evidence_digest(order)
+        ):
+            raise DomainError("Question binding is stale; refetch and investigate current evidence")
         source = store_evidence(
             db,
             order,

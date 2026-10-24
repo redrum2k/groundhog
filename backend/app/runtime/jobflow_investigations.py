@@ -4,7 +4,13 @@ import os
 
 from app.contracts.jobflow import InvestigationOutcome, InvestigationRun
 from app.investigation.documents import validate_citation
-from app.investigation.jobflow import assess, scoped_sources
+from app.investigation.jobflow import (
+    ModelResponseError,
+    assess,
+    bind_question,
+    scoped_sources,
+    validate_question,
+)
 from app.runtime.jobflow_policy import (
     evidence_digest,
     find,
@@ -32,6 +38,24 @@ def queue_investigation(service, db, order, issue_id, mode, now, emit, question_
         raise DomainError(
             "Anthropic credentials, model and remaining explicit call budget required", 503
         )
+    for question in issue.questions:
+        if question.status == "OPEN" and (
+            (
+                question.agreement_version is not None
+                and question.agreement_version != order.agreement.version
+            )
+            or (
+                question.evidence_digest is not None
+                and question.evidence_digest != evidence_digest(order)
+            )
+        ):
+            question.status = "CANCELLED"
+            emit(
+                "question.cancelled",
+                question_id=question.id,
+                issue_id=issue.id,
+                reason="Question evidence or agreement binding is stale",
+            )
     order.investigations.append(run)
     issue.state = "INVESTIGATING"
     issue.owner = "investigator"
@@ -61,18 +85,22 @@ def queue_investigation(service, db, order, issue_id, mode, now, emit, question_
 
 def validate_outcome(order, raw, request, *, store=None, db=None):
     outcome = InvestigationOutcome.model_validate(raw)
-    asked = sum(
-        question.recipient == "customer" for issue in order.issues for question in issue.questions
-    )
-    proposed = sum(question.recipient == "customer" for question in outcome.questions)
-    if asked + proposed > 2:
+    asked = sum(len(issue.questions) for issue in order.issues)
+    if outcome.questions and asked + len(outcome.questions) > 2:
         raise DomainError("The shared base case has exhausted its two-question budget")
+    if len(outcome.questions) > 1:
+        raise DomainError("Only one evidence question is permitted per round")
     if (
         outcome.revision != request["snapshot"]["revision"]
         or outcome.issue_id != request["issue_id"]
         or outcome.model_mode != request["mode"]
     ):
         raise DomainError("Investigator returned the wrong issue, revision or execution mode")
+    if outcome.questions and (
+        request.get("evidence_digest") != evidence_digest(order)
+        or request["snapshot"]["agreement"]["version"] != order.agreement.version
+    ):
+        raise DomainError("Question request has stale evidence or agreement bindings")
     scoped = scoped_sources(order, outcome.issue_id)
     evidence = {item.id: item for item in scoped}
     question_ids = {question.id for issue in order.issues for question in issue.questions}
@@ -111,7 +139,8 @@ def validate_outcome(order, raw, request, *, store=None, db=None):
                 or citation.rectangle[1] >= citation.rectangle[3]
             ):
                 raise DomainError("Invalid normalized citation rectangle")
-    for question in outcome.questions:
+    baseline = assess(order, outcome.issue_id) if outcome.questions else None
+    for index, question in enumerate(outcome.questions):
         if (
             question.issue_id != outcome.issue_id
             or question.id in question_ids
@@ -119,6 +148,25 @@ def validate_outcome(order, raw, request, *, store=None, db=None):
             or question.answer_id is not None
         ):
             raise DomainError("Question must be new, open and scoped to this exact issue")
+        # Old deterministic adapters have no metadata. Bind only an entirely
+        # unbound legacy shape, after the request's exact snapshot was checked.
+        # Partial or explicitly stale bindings are never repaired.
+        if (
+            outcome.model_mode == "DETERMINISTIC"
+            and question.origin == "DETERMINISTIC"
+            and question.predicate is None
+            and question.agreement_version is None
+            and question.evidence_digest is None
+            and baseline.questions
+        ):
+            question = bind_question(order, question, baseline.questions[0].predicate)
+            outcome.questions[index] = question
+        if outcome.model_mode == "DETERMINISTIC" and question.origin == "ANTHROPIC":
+            raise DomainError("Deterministic work cannot claim model-authored question text")
+        try:
+            validate_question(order, question, baseline)
+        except ModelResponseError as exc:
+            raise DomainError(str(exc)) from exc
         question_ids.add(question.id)
     return outcome
 
@@ -175,11 +223,20 @@ def apply_outcome(order, outcome, now, emit):
                 question_id=question.id,
                 issue_id=issue.id,
                 recipient=question.recipient,
+                text=question.text,
+                predicate=question.predicate,
+                agreement_version=question.agreement_version,
+                evidence_digest=question.evidence_digest,
+                origin=question.origin,
             )
     else:
-        issue.state = "OPEN"
+        issue.state = "WAITING_INTERNAL" if "HUMAN_REVIEW" in kinds else "OPEN"
         issue.owner = "controller"
-        issue.next_action = "Approve, decline or hand off the current supported proposal"
+        issue.next_action = (
+            "Review unresolved evidence or hand off; no further question is available"
+            if "HUMAN_REVIEW" in kinds
+            else "Approve, decline or hand off the current supported proposal"
+        )
     for job in order.jobs:
         if issue.id in job.issue_ids:
             job.dispute = issue.state

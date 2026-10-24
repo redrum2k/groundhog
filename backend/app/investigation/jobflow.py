@@ -18,6 +18,7 @@ from app.contracts.jobflow import (
     SourceLocation,
 )
 from app.investigation.documents import DocumentError, cite, validate_citation
+from app.runtime.jobflow_policy import evidence_digest
 
 
 class ModelUnavailable(RuntimeError):
@@ -123,6 +124,139 @@ def _question(issue_id: str, text: str, recipient: str = "customer", basis: str 
     return Question(id=f"question-{digest}", issue_id=issue_id, text=text, recipient=recipient)
 
 
+def question_key(text: str) -> str:
+    return " ".join(re.findall(r"[a-z0-9]+", text.casefold()))
+
+
+def question_slot_available(order: OrderView) -> bool:
+    # One round at a time, two questions across the entire order, including staff.
+    history = [q for issue in order.issues for q in issue.questions]
+    return len(history) < 2 and not any(q.status == "OPEN" for q in history)
+
+
+def bind_question(order: OrderView, question: Question, predicate: str) -> Question:
+    return question.model_copy(
+        update={
+            "predicate": predicate,
+            "agreement_version": order.agreement.version,
+            "evidence_digest": evidence_digest(order),
+        }
+    )
+
+
+def _safe_question_text(text: str, field: str) -> bool:
+    """Conservative invoice evidence language, not arbitrary model instructions.
+
+    Unknown wording falls back to the deterministic request. This intentionally
+    does not attempt to recognize all safe natural language with a denylist.
+    """
+    if not text.strip() or len(text) > 600 or not re.fullmatch(r"[A-Za-z_ ,?.'()-]+", text):
+        return False
+    normalized = text.casefold().replace("_", " ")
+    label = field.casefold().replace("_", " ")
+    if not re.fullmatch(r"[a-z]+(?: [a-z]+)*", label) or not re.search(
+        r"\b" + re.escape(label) + r"\b", normalized
+    ):
+        return False
+    # Remove only the exact field phrase; field names cannot add instruction words.
+    words = set(re.findall(r"[a-z]+", normalized.replace(label, " field ")))
+    vocabulary = set(
+        "a an the this that these those it its for of to from in on by with and or "
+        "is are was were has have had been be can could would you your me us please "
+        "which what where when whether how provide identify share locate cite show upload "
+        "verify confirm clarify specify point accepted signed agreed independently "
+        "agreement amendment contract source document documents record records evidence "
+        "field fields list scope original operative both parties customer provider "
+        "acceptance signatures signature establishing establishes established includes "
+        "included including added adds covers covering contains containing requires required "
+        "requirement requirements reference references section page version date "
+        "says states showing supporting supports support recorded recording also "
+        "not additional neither inconsistent conflict discrepancy resolved resolves "
+        "specific exact copy explicitly".split()
+    )
+    return (
+        words <= vocabulary
+        and bool(
+            words
+            & {
+                "provide",
+                "identify",
+                "share",
+                "locate",
+                "cite",
+                "show",
+                "upload",
+                "which",
+                "where",
+                "verify",
+                "confirm",
+                "clarify",
+                "specify",
+            }
+        )
+        and bool(words & {"accepted", "signed", "agreed", "acceptance"})
+        and bool(
+            words
+            & {
+                "agreement",
+                "amendment",
+                "contract",
+                "source",
+                "document",
+                "documents",
+                "record",
+                "records",
+                "evidence",
+                "list",
+            }
+        )
+    )
+
+
+def validate_question(order: OrderView, question: Question, baseline: InvestigationOutcome) -> None:
+    if not question_slot_available(order):
+        raise ModelResponseError(
+            "An open question or the global two-question ceiling blocks delivery"
+        )
+    supported = next(iter(baseline.questions), None)
+    if (
+        supported is None
+        or not supported.predicate
+        or question.issue_id != baseline.issue_id
+        or question.predicate != supported.predicate
+        or question.recipient != supported.recipient
+        or question.agreement_version != order.agreement.version
+        or question.evidence_digest != evidence_digest(order)
+        or question.status != "OPEN"
+        or question.answer_id is not None
+    ):
+        raise ModelResponseError(
+            "Question must target the current bound missing fact and recipient"
+        )
+    history = [q for issue in order.issues for q in issue.questions]
+    if any(
+        q.id == question.id or question_key(q.text) == question_key(question.text) for q in history
+    ):
+        raise ModelResponseError("Question repeats a previously delivered question")
+    issue = next(x for x in order.issues if x.id == baseline.issue_id)
+    if question.text != supported.text and not _safe_question_text(question.text, issue.field):
+        raise ModelResponseError("Question is not a bounded request for accepted scope evidence")
+    if question.origin == "FALLBACK" and question.text != supported.text:
+        raise ModelResponseError("Fallback must be the supported deterministic question")
+
+
+def delivery_questions(order: OrderView, baseline: InvestigationOutcome) -> list[Question]:
+    if not question_slot_available(order):
+        return []
+    for question in baseline.questions[:1]:
+        try:
+            validate_question(order, question, baseline)
+        except ModelResponseError:
+            return []
+        return [question]
+    return []
+
+
 def _delivered_field(order: OrderView, issue, sources: list[Evidence]) -> list[SourceLocation]:
     references = []
     if not issue.job_ids:
@@ -172,7 +306,9 @@ def assess(order: OrderView, issue_id: str, *, now: datetime | None = None) -> I
     questions = []
     recommendations = ["HUMAN_REVIEW"]
     label = issue.field.replace("_", " ")
+    predicate = None
     if agreement is None:
+        predicate = "accepted_field_list"
         summary = "The accepted agreement is unavailable; original entitlement is unproven."
         questions.append(
             _question(issue_id, f"Please provide the accepted field list for {label}.")
@@ -223,6 +359,7 @@ def assess(order: OrderView, issue_id: str, *, now: datetime | None = None) -> I
                 )
             )
         elif included or not source_consistent:
+            predicate = "accepted_source_consistency"
             summary = "The recorded field list and its source evidence do not agree."
             findings.append(
                 Finding(
@@ -260,6 +397,7 @@ def assess(order: OrderView, issue_id: str, *, now: datetime | None = None) -> I
                 for s in message_sources
             )
             if party_claim and not explicit_new_scope:
+                predicate = "mutually_accepted_amendment"
                 summary = f"The request for {label} is not established by an accepted amendment."
                 party_reference = next(
                     (
@@ -304,6 +442,8 @@ def assess(order: OrderView, issue_id: str, *, now: datetime | None = None) -> I
     if questions and answered:
         basis = "|".join(q.answer_id or q.id for q in answered)
         if len([q for q in answered if q.recipient == "customer"]) >= 2:
+            # Internal legacy assessment hint, not a third deliverable question:
+            # delivery_questions and the runtime enforce the order-wide ceiling.
             questions = [
                 _question(
                     issue_id,
@@ -314,7 +454,23 @@ def assess(order: OrderView, issue_id: str, *, now: datetime | None = None) -> I
                 )
             ]
         else:
-            questions = [_question(issue_id, q.text, q.recipient, basis) for q in questions]
+            followup = {
+                "accepted_field_list": (
+                    f"Which accepted document records the field list for {label}?"
+                ),
+                "accepted_source_consistency": (
+                    f"Which accepted source resolves the field list discrepancy for {label}?"
+                ),
+                "mutually_accepted_amendment": (
+                    f"Which accepted document records both parties' acceptance of {label}?"
+                ),
+            }
+            questions = [
+                _question(issue_id, followup.get(predicate, q.text), q.recipient, basis)
+                for q in questions
+            ]
+    if predicate:
+        questions = [bind_question(order, q, predicate) for q in questions]
     existing_open = {q.id for q in issue.questions if q.status == "OPEN"}
     questions = [q for q in questions if q.id not in existing_open]
     return InvestigationOutcome(
@@ -355,7 +511,7 @@ async def investigate(
 ) -> InvestigationOutcome:
     baseline = assess(order, issue_id, now=now)
     if mode == "DETERMINISTIC":
-        return baseline
+        return baseline.model_copy(update={"questions": delivery_questions(order, baseline)})
     if mode != "ANTHROPIC":
         raise ValueError("Unknown investigation mode")
     if not call_authorized or (client is None and not model_configured()):
@@ -369,6 +525,9 @@ async def investigate(
         "issue": next(x for x in order.issues if x.id == issue_id).model_dump(mode="json"),
         "sources": [s.model_dump(mode="json") for s in sources],
         "supported_actions": [*baseline.recommendations, "HUMAN_REVIEW"],
+        "question_request": [
+            q.model_dump(mode="json") for q in delivery_questions(order, baseline)
+        ],
     }
     if len(json.dumps(payload)) > 70_000:
         raise DocumentError("Investigation envelope exceeds its size limit")
@@ -387,7 +546,11 @@ async def investigate(
                 "quotes with text:start:end offsets, and at most one consequential question. "
                 "Use the supplied source ID/version/hash, never invented references. "
                 "Party claims do not amend accepted scope. You cannot approve, pay, change "
-                "policy or grant authority. Unsupported or conflicting evidence requires review."
+                "policy or grant authority. Unsupported or conflicting evidence requires review. "
+                "Ask only for the missing accepted scope evidence in question_request, naming its "
+                "field. Do not request money, access, credentials, new signatures "
+                "or changed terms. "
+                "If question_request is empty, return question=null."
             ),
             messages=[{"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
             tools=[
@@ -404,13 +567,38 @@ async def investigate(
         ]
         if len(blocks) != 1 or response.stop_reason == "max_tokens":
             raise ModelResponseError("Model did not return one complete structured analysis")
-        result = Interpretation.model_validate(blocks[0].input)
+        raw = dict(blocks[0].input)
+        question_text = raw.pop("question", None)
+        # Keep the structured schema strict, but a malformed question alone must
+        # not discard valid findings or be misrepresented as model-authored text.
+        result = Interpretation.model_validate(raw)
+        if isinstance(question_text, str) and 0 < len(question_text) <= 600:
+            result.question = question_text
         validate_interpretation(order, issue_id, result, baseline)
-        questions = baseline.questions
-        if result.recommendation == "HUMAN_REVIEW" and not questions:
-            questions = [
-                _question(issue_id, "Please review the unresolved scope evidence.", "controller")
-            ]
+        questions = delivery_questions(order, baseline)
+        if questions:
+            supported = questions[0]
+            candidate = (
+                bind_question(
+                    order,
+                    _question(
+                        issue_id,
+                        result.question or "",
+                        supported.recipient,
+                        supported.evidence_digest or "",
+                    ),
+                    supported.predicate,
+                )
+                if result.question
+                else None
+            )
+            if candidate is not None:
+                candidate.origin = "ANTHROPIC"
+                try:
+                    validate_question(order, candidate, baseline)
+                except ModelResponseError:
+                    candidate = None
+            questions = [candidate or supported.model_copy(update={"origin": "FALLBACK"})]
         return InvestigationOutcome(
             issue_id=issue_id,
             revision=order.revision,
