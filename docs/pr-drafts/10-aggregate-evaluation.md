@@ -21,6 +21,17 @@ mismatches expose source-stage `R-ARTIFACT=PASS` without output bytes. Funds rem
 held and evidence is requested. Rehan-reviewed gold, held-out qualification, raw model
 quality and provider cost remain unavailable. No accuracy or live payment claim.
 
-Validation details, exact base/reused SHAs, commands and evidence paths are in
-[workstream 10](../workstreams/10-aggregate-evaluation.md). Final verification results
-are recorded there before handoff. This draft is local; no publication or merge.
+Validation on implementation `ee8fd85`: **40 evaluator tests**, **233 combined
+evaluator/dataset/API/broker tests**, and **760 full backend tests** pass. Both
+regression runs retain the two unchanged strict R3/R4 expected failures. Ruff
+lint/format (179 files), the unchanged brokerage acceptance smoke, Node 24 generated
+contract freshness and `git diff --check` pass. The initial sandbox-denied localhost
+test setup and uv-cache attempts are recorded separately; approved retries pass.
+
+Exact base/reused SHAs, commands and evidence paths are in
+[workstream 10](../workstreams/10-aggregate-evaluation.md). The clean-tree six-case
+report is `/private/tmp/aggregate-evaluation-ee8fd85/aggregate-s7498cdm/report.md`,
+with adjacent schema-versioned `results.json` and retained private evidence. Default
+exit 1 preserves the two disclosed engineering mismatches; selected conforming/
+corrected cases exit 0. No independent gold or qualification success is claimed.
+This draft is local; no publication or merge.

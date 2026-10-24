@@ -18,6 +18,12 @@ worktrees before editing. The reviewed integration is documented in
 Root/nested instructions, HACK, PAYMENT_SPIKE, responsibilities, Jeff/Nikita/Rehan
 handoffs, workstream 06, acceptance smoke and legacy eval layout were read.
 
+Local implementation commits: `ade5d8eb14429418b41484682015d15f2ca97aa3`
+(runner/audits/tests) and **`ee8fd85aa85e63b35cace1af36ab1a7104a8b552`**
+(safe CLI startup-failure classification and two additional regressions). The final
+validation/handoff commit changes documentation only. No runtime feature commit is
+an input to this branch beyond the reviewed starting main.
+
 Fetched only `origin/feature/aggregate-intake-integration-20261024` for inspection;
 observed tip **`849e98a791551546ee29fda67392041301bf1a43`**. Inspected the exact
 published `primary_followup_eval.py`, `primary_certificate_probe.py`,
@@ -118,9 +124,64 @@ successful evaluation case. Missing labels/audits or operational failure instead
 
 ## Validation and reproducible commands
 
-The final command results and committed implementation identity are recorded below
-after verification. All commands use synthetic temporary state; no private .env,
+All commands use synthetic temporary state; no private .env,
 private ledger, live RPC, paid model, wallet, broadcast or deployment is involved.
+
+Clean-tree six-case run on exact `ee8fd85`:
+`/private/tmp/aggregate-evaluation-ee8fd85/aggregate-s7498cdm/` contains
+`report.md`, `results.json`, public audited artifacts and private frozen inputs,
+case DBs, snapshots, attempt evidence and events. Exit **1** records the two
+engineering mismatches above, with six operationally completed cases and zero
+incomplete cases. Frozen plan SHA-256:
+`63926da2ff8abcc63eaf17e0a48e73e8cec55674d70325f6ffd0350559d2859a`.
+Implementation-file SHA-256:
+`84e714199bac9299221413b5f25eda99d6fcbe6d28e3386906abd885143d7750`.
+The prior frozen run on `ade5d8e` remains at
+`/private/tmp/aggregate-evaluation-committed/aggregate-k_ally_d/`; no run was overwritten.
+
+The selected D01/D02 diagnostic completed with exit **0**, demonstrating that
+detected/corrected defects are successful evaluation cases:
+`/private/tmp/aggregate-evaluation-selected/aggregate-vkzxpqri/` (on `ade5d8e`).
+The unchanged acceptance smoke passed again on `ee8fd85`, evidence:
+`/private/tmp/aggregate-acceptance-ee8fd85/broker-lvz1i2gp/report.json`.
+Fourteen public artifact links/hashes were independently reopened in the committed
+report; all matched. Run/private/case directories use mode 0700, with no raw model
+results. Source/public-artifact and report privacy regressions additionally retain
+unsafe bytes only in test-owned private evidence.
+
+Initial full-suite attempt inside the sandbox retained **744 passed, 2 xfailed,
+13 setup errors** in `/private/tmp/aggregate-full-backend.log`: every error was the
+existing `tests/payments/test_http_boundary.py` fixture being denied a localhost bind.
+No assertions changed. With approved loopback access, the committed `ade5d8e` suite
+passed **758 tests plus the unchanged 2 xfails** in 101.24 s; log:
+`/private/tmp/aggregate-full-backend-final.log`. The final rerun below includes both
+additional CLI regressions. Earlier uv-based validation/Ruff and one generator retry
+were blocked by sandbox access to the existing uv cache; approved retries succeeded.
+The generator's denied attempt is retained in `/private/tmp/aggregate-generated-final.log`.
+Ruff must run from backend cwd, as documented; the initial root-cwd formatter sorted
+four task-owned imports differently. Backend-cwd fixes/checks passed; no unrelated
+imports or diagnostics were suppressed.
+
+| Final check on `ee8fd85` | Observed result / evidence |
+| --- | --- |
+| Locked dependencies | `uv sync --locked --project backend` passed; lockfile unchanged |
+| New evaluator tests | **40 passed**, 2.94 s, including safe CLI invalid-output/storage failures |
+| Evaluator + existing dataset/API/broker regressions | **233 passed, 2 xfailed**, 36.28 s; `/private/tmp/aggregate-focused-ee8fd85.log` |
+| Full backend suite, approved loopback access | **760 passed, 2 xfailed**, 99.51 s, successful teardown; `/private/tmp/aggregate-full-backend-ee8fd85.log` |
+| Default six-case evaluation | Completed, exit **1**, two disclosed engineering mismatches; clean tree, report/freeze paths above |
+| List/validate and selected-case run | Passed, no runtime work for list/validate; selected D01/D02 exit **0** |
+| Unchanged brokerage acceptance smoke | Passed again on `ee8fd85`; four scenarios, evidence path above |
+| Ruff lint + format, backend and all tooling | Passed; **179 files** formatted; exact backend-cwd commands below |
+| Generated contracts, Node **24.14.1** | `npm ci` and `npm run generate:check` passed; `/private/tmp/aggregate-generated-final-approved.log`; no DTO/frontend diff |
+| Scope preservation and whitespace | `git diff --check` passed; baseline comparison confirms `backend/app`, original dataset tests, frontend, payment spikes, acceptance smoke and legacy v5 runner unchanged |
+
+Both expected failures are the unchanged strict R3/R4 compiler cases. No assertions
+or xfail markers were edited. The only suite warning is the existing upstream
+websockets deprecation. There are no final test failures or operationally incomplete
+evaluation cases. The default evaluator's exit 1 is an observed quality result, not
+a failed harness command: its two engineering mismatches remain visible in both
+formats. All commands were rerun against this branch's actual final implementation;
+historical integration results were not substituted for current checks.
 
 ```sh
 uv sync --locked --project backend

@@ -20,7 +20,7 @@ Exact-byte transaction recovery and live proof remain separate future work.
 Jeff's published compiler/intake branch advanced from `e774495` to `849e98a`
 at the final fetch, including `706f41e`; it remains available but unreviewed/unmerged;
 R3/R4 remain two strict expected failures on this main baseline. Prompt 10 may
-review audit tooling at `ef8c99a`; no evaluator implementation is included here.
+review audit tooling at `ef8c99a`; that integration included no evaluator implementation.
 Lucas's `/` retained-broker canvas and `/live` aggregate intake both remain intact.
 
 ## Aggregate evaluation delegation — Prompt 10
