@@ -504,8 +504,12 @@ def _execute(args, *, env=None, rpc=None):
                 raise BaseTransportError(
                     "laboratory buyer key does not sign the frozen payer terms"
                 ) from None
+            checkpoint(effect=True)
         existing = operation_for(payment, args.command)
         with journal.transaction() as db:
+            # Waiting for BEGIN IMMEDIATE counts. Signing stays outside the lock;
+            # check_time uses this attempt without opening a checkpoint transaction.
+            current_attempt().check_time()
             journal.reserve(db, existing, private_authorization=signature)
     if args.command == "reclaim":
         from spikes.payments.reclaim import ReclaimSubmission, stage_reclaim

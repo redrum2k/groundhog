@@ -428,14 +428,13 @@ def test_outbox_restart_timeout_and_terminal_idempotency_use_same_bytes(setup):
 
 def test_http_provider_no_retry_and_redaction(monkeypatch):
     rpc = HttpRpc("https://rpc.invalid/secret-key")
-    assert rpc._provider.exception_retry_configuration is None
     calls = []
 
-    def failure(*args):
+    def failure(*args, **kwargs):
         calls.append(args)
         raise RuntimeError("https://rpc.invalid/secret-key raw-private-capability")
 
-    monkeypatch.setattr(rpc._provider, "make_request", failure)
+    monkeypatch.setattr("app.payments.base_rpc.subprocess.Popen", failure)
     with pytest.raises(BaseTransportError) as error:
         rpc.request("eth_sendRawTransaction", ["raw-private-capability"])
     assert len(calls) == 1

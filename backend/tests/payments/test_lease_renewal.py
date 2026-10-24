@@ -8,6 +8,7 @@ from threading import Event
 
 import pytest
 from eth_account import Account
+from eth_account.signers.local import LocalAccount
 from test_base_transport import buyer_signature, lab
 from test_payment_lab import invoke
 
@@ -143,6 +144,127 @@ def test_lab_preflight_does_not_reset_total_budget(rig, tmp_path, monkeypatch):
     with journal.transaction() as db:
         operation = journal.operations(db, "capture-a")[0]
     assert assert_unsubmitted(rig, operation).nonce == 0
+
+
+@pytest.mark.parametrize("stop", ["budget", "cancel", "financial"])
+@pytest.mark.parametrize("concurrent_reservation", [False, True])
+def test_late_buyer_signature_never_crosses_reservation_boundary(
+    rig, tmp_path, monkeypatch, capsys, stop, concurrent_reservation
+):
+    clock, journal, payment, rpc, transport = rig
+    attempt = clock.attempt()
+    monkeypatch.setattr(lab, "PaymentAttempt", lambda: attempt)
+    sign = LocalAccount.sign_message
+    signature = "0x" + buyer_signature(payment.terms).hex()
+    signed = transport.prepare_transaction("fund", payment.terms, 0, signature)
+    before = []
+
+    def delayed_sign(self, *args, **kwargs):
+        result = sign(self, *args, **kwargs)
+        if concurrent_reservation:
+            # Another owner reserves while this signer is outside the transaction.
+            operation = lab.operation_for(payment, "fund")
+            with journal.transaction() as db:
+                journal.reserve(db, operation, signature)
+                journal.reserve_nonce(db, operation.operation_id, signed.sender, 0)
+                journal.save_signed(db, operation.operation_id, signed)
+                before.append(journal.private(db, operation.operation_id))
+        if stop == "cancel":
+            attempt.cancelled.set()
+        elif stop == "financial":
+            # Independent absolute authority advances without exhausting elapsed budget.
+            timestamp, started = attempt.chain_anchor
+            attempt.chain_anchor = (timestamp + 300, started)
+        else:
+            clock.elapsed += 301
+        return result
+
+    monkeypatch.setattr(LocalAccount, "sign_message", delayed_sign)
+    assert invoke(tmp_path, "fund", "--simulate", rpc=rpc) == (2 if stop == "financial" else 3)
+    output = capsys.readouterr()
+    assert "attempt stopped" in output.err
+    assert signature not in output.err + output.out and BUYER_KEY not in output.err + output.out
+    with journal.transaction() as db:
+        operations = journal.operations(db, payment.payment_id)
+        assert len(operations) == int(concurrent_reservation)
+        if concurrent_reservation:
+            assert operations[0].state == "signed" and operations[0].nonce == 0
+            assert journal.private(db, operations[0].operation_id) == before[0]
+        assert journal.payment(db, payment.payment_id).terms == payment.terms
+        assert db.execute("SELECT count(*) FROM payment_effects").fetchone()[0] == 0
+    assert not rpc.broadcasts
+
+
+@pytest.mark.parametrize("stop", ["budget", "cancel", "financial"])
+@pytest.mark.parametrize("concurrent_reservation", [False, True])
+def test_reservation_rechecks_after_waiting_for_sqlite_write_lock(
+    rig, tmp_path, monkeypatch, capsys, stop, concurrent_reservation
+):
+    clock, journal, payment, rpc, transport = rig
+    attempt = clock.attempt()
+    monkeypatch.setattr(lab, "PaymentAttempt", lambda: attempt)
+    signature = "0x" + buyer_signature(payment.terms).hex()
+    signed = transport.prepare_transaction("fund", payment.terms, 0, signature)
+    sign = LocalAccount.sign_message
+    locked, waiting, release = Event(), Event(), Event()
+    before = []
+    connect = sqlite3.connect
+
+    class ObservedConnection(sqlite3.Connection):
+        def execute(self, sql, *args, **kwargs):
+            if sql == "BEGIN IMMEDIATE" and locked.is_set():
+                waiting.set()  # Real second connection must wait for the writer below.
+            return super().execute(sql, *args, **kwargs)
+
+    def observed_connect(*args, **kwargs):
+        return connect(*args, **kwargs, factory=ObservedConnection)
+
+    monkeypatch.setattr(journal_module.sqlite3, "connect", observed_connect)
+
+    def writer():
+        with journal.transaction() as db:
+            if concurrent_reservation:
+                operation = lab.operation_for(payment, "fund")
+                journal.reserve(db, operation, signature)
+                journal.reserve_nonce(db, operation.operation_id, signed.sender, 0)
+                journal.save_signed(db, operation.operation_id, signed)
+                before.append(journal.private(db, operation.operation_id))
+            locked.set()
+            assert release.wait(3)
+
+    def signing(self, *args, **kwargs):
+        result = sign(self, *args, **kwargs)
+        # Lock acquisition starts only after preflight and before the late write.
+        writer_future.append(pool.submit(writer))
+        assert locked.wait(3)
+        return result
+
+    writer_future = []
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        monkeypatch.setattr(LocalAccount, "sign_message", signing)
+        future = pool.submit(invoke, tmp_path, "fund", "--simulate", rpc=rpc)
+        try:
+            assert waiting.wait(3)
+            if stop == "cancel":
+                attempt.cancelled.set()
+            elif stop == "financial":
+                timestamp, started = attempt.chain_anchor
+                attempt.chain_anchor = (timestamp + 300, started)
+            else:
+                clock.elapsed += 301
+        finally:
+            release.set()
+        assert future.result(timeout=3) == (2 if stop == "financial" else 3)
+        writer_future[0].result(timeout=3)
+    assert "attempt stopped" in capsys.readouterr().err
+    with journal.transaction() as db:
+        operations = journal.operations(db, payment.payment_id)
+        assert len(operations) == int(concurrent_reservation)
+        if concurrent_reservation:
+            assert operations[0].state == "signed" and operations[0].nonce == 0
+            assert journal.private(db, operations[0].operation_id) == before[0]
+        assert journal.payment(db, payment.payment_id).terms == payment.terms
+    assert not rpc.broadcasts
 
 
 @pytest.mark.parametrize("offset", [120, 121])

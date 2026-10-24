@@ -45,7 +45,8 @@ class BasePaymentTransport:
         self.token = PinnedAbi("USDC")
 
     def _rpc(self, method, params):
-        checkpoint(reserve=RPC_SECONDS, effect=method == "eth_sendRawTransaction")
+        allowance = self.rpc.timeout if isinstance(self.rpc, HttpRpc) else RPC_SECONDS
+        checkpoint(reserve=allowance, effect=method == "eth_sendRawTransaction")
         attempt = current_attempt()
         started = attempt.clock() if attempt else None
         try:

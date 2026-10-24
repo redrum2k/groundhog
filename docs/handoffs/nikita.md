@@ -1,5 +1,32 @@
 # Payment lease renewal follow-up
 
+[Review amendment in workstream 09](../workstreams/09-payment-lease-renewal.md#review-amendment--finite-http-and-initial-buyer-authorization)
+continues local `9622fe0ecff1bcae01e4b7104f053c9d58e2e393` and closes R9-A/R9-B.
+The original Web3 15-second timeout was inactivity-only: the saved 100 ms streaming
+probe took 678 ms. The new HTTP-only child has one elapsed 15-second allowance,
+including a reserved 250 ms kill/reap interval, and checks cancellation/time at
+most 25 ms apart. It performs one direct POST, no retry/redirect, with no inherited
+environment or journal/signer code; all waits/cleanup remain outside SQLite locks.
+Responses are capped at 4 MiB, default TLS verification remains on, and proxy
+environment discovery is disabled. Process scheduling is not a real-time guarantee.
+
+Initial funding now checks after buyer signing and inside the existing reservation
+transaction, including write-lock wait time. A late new authorization leaves no
+operation or private capability; a concurrent durable operation/nonce/bytes survives.
+The API-adapted saved probe now stops at 78 ms and the late signer returns status 3
+with zero operations/broadcasts. Loopback HTTP and deterministic signing/lock tests
+cover cleanup, cancellation and financial expiry. Validation: **63 focused passes**,
+**377 payment/runtime/dataset/API passes**, **720 full-backend passes**, with the
+same two compiler xfails; all **27** offline lab examples, backend/tools/lab Ruff,
+Node **24.14.1** generated-contract freshness and whitespace checks passed. The
+original 695-pass record remains historical; exact commands/timings are in 09.
+
+Submitted identity remains unresolved on timeout; inspection after financial expiry
+uses that same saved identity without resend. No transaction recovery or live proof
+is added. No main merge/push occurred; preserve newer Lucas main changes and integrate
+Jeff's exact reviewed compiler commit separately. Public contracts/frontend and
+Jeff's two strict expected failures remain unchanged.
+
 [Workstream 09](../workstreams/09-payment-lease-renewal.md) implements fenced renewal
 and finite shared attempts from reviewed main `62fe03542f18d9f7514550bcff25968ae2557c08`.
 A 120-second lease renews cooperatively every 30 elapsed seconds; submission has a
