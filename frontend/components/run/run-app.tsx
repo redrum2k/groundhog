@@ -17,7 +17,7 @@ const MAIN_IDS = new Set(MAIN.map((s) => s.id));
 // One order is the demo; the escalation is act two. The other scenario cases stay in the code for the recorded fallback.
 const DEMO: [Case, string][] = [["green", "The order"], ["amber", "Act two: escalation"]];
 // Until a live stream plans the steps, the landing wording follows the backend, not the recorded sample
-const LIVE_DETAIL: Record<string, string> = { paid: "Authorized on acceptance, mock", review: "Accept or dispute" };
+const LIVE_DETAIL: Record<string, string> = { paid: "Authorized on acceptance", review: "Accept or dispute" };
 const ctxFor = (lane: Case, ending: Ending, learned: boolean): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 });
 
 /** The whole recorded run for a case, with Human's approval when the ending needs them. */
@@ -37,6 +37,8 @@ const canvasView = (v: View): CanvasView => ({
   status: Object.fromEntries(Object.entries(v.nodes).map(([id, n]) => [id, n.status])),
   chip: Object.fromEntries(Object.entries(v.nodes).map(([id, n]) => [id, n.chip])),
   orb: { node: v.orb.step, mode: v.orb.mode }, coin: v.coin, loops: v.loops, cards: v.cards,
+  source: (() => { const n = Object.values(v.nodes).find((n) => n.source && n.status !== "idle"); return n?.source ? { node: n.step.id, lines: n.source } : null; })(),
+  aside: v.aside ? { node: v.aside.step, text: v.aside.text } : null,
 });
 
 export default function RunApp() {
@@ -63,9 +65,10 @@ export default function RunApp() {
     const planned = (s: Step) => view.nodes[s.id]?.step ?? (mode === "live" && LIVE_DETAIL[s.id] ? { ...s, detail: LIVE_DETAIL[s.id] } : s);
     const main = toNodes(MAIN.map(planned), 0);
     if (run === "shared") return main;
+    // the detour exists only once a dispute opens; nothing is pre-drawn
     const streamed = view.order.filter((id) => !MAIN_IDS.has(id)).map((id) => view.nodes[id].step);
-    return [...main, ...toNodes(streamed.length ? streamed : steps.filter((s) => !MAIN_IDS.has(s.id)), 1, run)];
-  }, [run, steps, view, mode]);
+    return [...main, ...toNodes(streamed, 1, run)];
+  }, [run, view, mode]);
   const cv = useMemo(() => canvasView(view), [view]);
   const playing = status === "playing";
   const done = status === "done";

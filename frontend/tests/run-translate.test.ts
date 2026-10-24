@@ -27,7 +27,7 @@ describe("broker stream → canvas", () => {
     expect(v.deliveries.at(-1)?.rows.map((r) => r.zip)).toContain("94110");
     expect(v.deliveries.at(-1)?.rows.find((r) => r.zip === "94129")?.count).toBe(42);
     expect(v.reviewWindow).toBe("10 minutes");
-    expect(v.nodes.review.step.detail).toBe("10-minute window to accept or dispute");
+    expect(v.nodes.review.step.detail).toBe("10-minute review window");
     expect(v.nodes.captured.status).toBe("done");
     expect(v.coin).toEqual({ text: `$${S.price} captured · mock`, done: true });
     expect(v.nodes.captured.entries?.[0]).toMatchObject({ amount: S.price });
@@ -57,6 +57,10 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.investigate.evidence.map((e) => e.label)).toEqual(["Contract: San Francisco only", expect.stringMatching(/^\d+ of \d+ ZIPs delivered$/)]);
     expect(v.nodes.investigate.messages.at(-1)).toMatchObject({ from: "agent", attach: [{ kind: "evidence", evidenceId: "cite-geography" }, { kind: "evidence", evidenceId: "cite-coverage" }] });
     expect(v.nodes.verdict.chip).toBe("We're right");
+    // what the agent read at the source, ticked once the re-verification landed, and the thought it had at the verdict
+    expect(v.nodes.investigate.source?.map((l) => l.checked)).toEqual([true, true, true]);
+    expect(v.nodes.investigate.source?.[0].text).toMatch(/^Vendor panel v1, pinned/);
+    expect(v.aside).toEqual({ step: "verdict", text: "Settled by the contract and the source. No human needed." });
     expect(v.nodes.review.attempt).toBe(2);
     expect(v.nodes.captured.status).toBe("done");
   });
