@@ -1,5 +1,5 @@
 "use client";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Step, ZipCount } from "../../lib/run/contract";
 import type { View } from "../../lib/run/fold";
 import { S, type Case } from "../../lib/run/scenario";
@@ -68,6 +68,9 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer 
   const [objecting, setObjecting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const col = useRef<HTMLDivElement>(null);
+  // The presenter arrives here at Acme's turn; the open decision should be in view, not below the fold
+  useEffect(() => { col.current?.querySelector<HTMLElement>(".decision.open")?.scrollIntoView?.({ block: "center", behavior: "smooth" }); }, [awaiting]);
   const move = async (m: BuyerMove) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) setObjecting(false); };
   const step = (id: string) => view.nodes[id]?.step ?? steps.find((s) => s.id === id);
   const n = view.nodes;
@@ -87,7 +90,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer 
 
   return (
     <main className="customer">
-      <div className="cust-col">
+      <div className="cust-col" ref={col}>
         <div className="cust-h">
           <div className="cust-who"><span className="avatar" aria-hidden>{S.buyer.split(" ").map((w) => w[0]).join("")}</span><div><div className="title">{S.buyerAgent}</div><div className="faint" style={{ fontSize: 13 }}>Buying from {S.us}. Shown the way the customer sees it.</div></div></div>
           <div className="cust-money"><Orb mode={view.orb.mode === "wait" || view.orb.mode === "inspect" ? view.orb.mode : "float"} /><Wallet view={view} /></div>
