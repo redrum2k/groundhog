@@ -1,6 +1,6 @@
 {
- "id": "broker_33490e0c35a744afa892e3f08d683e67",
- "draft_id": "broker_33490e0c35a744afa892e3f08d683e67",
+ "id": "broker_e4367266321b4d9c9043ad65de4da0df",
+ "draft_id": "broker_e4367266321b4d9c9043ad65de4da0df",
  "customer_id": "northwind",
  "revision": 3,
  "original_specification": {
@@ -17,7 +17,7 @@
     "parameters": {
      "freshness_basis": "observed_at",
      "max_age_days": 90,
-     "as_of": "2026-10-24T16:10:00.434880Z",
+     "as_of": "2026-10-24T16:58:54.010878Z",
      "geography": null,
      "boundary_version": null,
      "region_ids": [],
@@ -36,87 +36,87 @@
     "conflict_policy": "UNKNOWN",
     "provenance": [
      {
-      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
       "origin": "original_intent",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "reference_id": "answer_71f3525b474847a2925e443932e668cb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
       "origin": "customer_answer",
       "actor_id": "customer"
      }
@@ -160,87 +160,87 @@
     "conflict_policy": "UNKNOWN",
     "provenance": [
      {
-      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
       "origin": "original_intent",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "reference_id": "answer_71f3525b474847a2925e443932e668cb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
       "origin": "customer_answer",
       "actor_id": "customer"
      }
@@ -273,87 +273,87 @@
     "conflict_policy": "UNKNOWN",
     "provenance": [
      {
-      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
       "origin": "original_intent",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "reference_id": "answer_71f3525b474847a2925e443932e668cb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
       "origin": "customer_answer",
       "actor_id": "customer"
      }
@@ -386,87 +386,87 @@
     "conflict_policy": "UNKNOWN",
     "provenance": [
      {
-      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
       "origin": "original_intent",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "reference_id": "answer_71f3525b474847a2925e443932e668cb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
       "origin": "customer_answer",
       "actor_id": "customer"
      }
@@ -499,87 +499,87 @@
     "conflict_policy": "UNKNOWN",
     "provenance": [
      {
-      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
       "origin": "original_intent",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "reference_id": "answer_71f3525b474847a2925e443932e668cb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
       "origin": "customer_answer",
       "actor_id": "customer"
      }
@@ -623,87 +623,87 @@
     "conflict_policy": "UNKNOWN",
     "provenance": [
      {
-      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
       "origin": "original_intent",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "reference_id": "answer_71f3525b474847a2925e443932e668cb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
       "origin": "customer_answer",
       "actor_id": "customer"
      }
@@ -736,87 +736,87 @@
     "conflict_policy": "UNKNOWN",
     "provenance": [
      {
-      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
       "origin": "original_intent",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "reference_id": "answer_71f3525b474847a2925e443932e668cb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
       "origin": "customer_answer",
       "actor_id": "customer"
      }
@@ -849,87 +849,87 @@
     "conflict_policy": "UNKNOWN",
     "provenance": [
      {
-      "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+      "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
       "origin": "original_intent",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+      "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+      "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+      "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+      "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+      "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+      "reference_id": "answer_71f3525b474847a2925e443932e668cb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+      "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+      "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+      "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+      "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+      "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+      "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+      "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+      "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+      "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
       "origin": "customer_answer",
       "actor_id": "customer"
      },
      {
-      "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+      "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
       "origin": "customer_answer",
       "actor_id": "customer"
      }
@@ -948,162 +948,162 @@
  "questions": [],
  "messages": [
   {
-   "id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+   "id": "intent_3e8447aa03d24165b402c7458d982f0c",
    "actor_id": "customer",
    "text": "SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
-   "created_at": "2026-10-24T16:10:00.437906Z",
+   "created_at": "2026-10-24T16:58:54.013520Z",
    "field": null
   },
   {
-   "id": "answer_025fbe77013f4ad180138110e1ef91a3",
+   "id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
    "actor_id": "customer",
    "text": "\"San Francisco\"",
-   "created_at": "2026-10-24T16:10:00.452293Z",
+   "created_at": "2026-10-24T16:58:54.043056Z",
    "field": "geography"
   },
   {
-   "id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+   "id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
    "actor_id": "customer",
    "text": "\"2026-Q3\"",
-   "created_at": "2026-10-24T16:10:00.455146Z",
+   "created_at": "2026-10-24T16:58:54.049308Z",
    "field": "boundary_version"
   },
   {
-   "id": "answer_79de2aa0c71440e586b78165dad73aa8",
+   "id": "answer_5495a444dba0404d9e04eb5f13df9951",
    "actor_id": "customer",
    "text": "[\"94102\",\"94103\",\"94107\",\"94109\",\"94110\",\"94114\",\"94117\",\"94122\",\"94129\",\"94133\"]",
-   "created_at": "2026-10-24T16:10:00.457756Z",
+   "created_at": "2026-10-24T16:58:54.054587Z",
    "field": "region_ids"
   },
   {
-   "id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+   "id": "answer_0ebfcadb14fc438dad4486f23434356b",
    "actor_id": "customer",
    "text": "\"2026-Q3\"",
-   "created_at": "2026-10-24T16:10:00.460198Z",
+   "created_at": "2026-10-24T16:58:54.057950Z",
    "field": "reference_period"
   },
   {
-   "id": "answer_71d84b2f429041ccab07668153764fd1",
+   "id": "answer_42b64085e9474bbfb657157f9e66bd85",
    "actor_id": "customer",
    "text": "\"adults_25_34_interested_in_fitness\"",
-   "created_at": "2026-10-24T16:10:00.462847Z",
+   "created_at": "2026-10-24T16:58:54.061110Z",
    "field": "metric_name"
   },
   {
-   "id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+   "id": "answer_71f3525b474847a2925e443932e668cb",
    "actor_id": "customer",
    "text": "\"people\"",
-   "created_at": "2026-10-24T16:10:00.467027Z",
+   "created_at": "2026-10-24T16:58:54.064079Z",
    "field": "metric_unit"
   },
   {
-   "id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+   "id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
    "actor_id": "customer",
    "text": "\"region\"",
-   "created_at": "2026-10-24T16:10:00.469697Z",
+   "created_at": "2026-10-24T16:58:54.067547Z",
    "field": "entity_unit"
   },
   {
-   "id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+   "id": "answer_292ca14d1dea4282823a2f70d4c9677c",
    "actor_id": "customer",
    "text": "[\"94102\",\"94103\",\"94107\",\"94109\",\"94110\",\"94114\",\"94117\",\"94122\",\"94129\",\"94133\"]",
-   "created_at": "2026-10-24T16:10:00.472060Z",
+   "created_at": "2026-10-24T16:58:54.071820Z",
    "field": "coverage_ids"
   },
   {
-   "id": "answer_e3432d3fd1414b648e36336e49262e10",
+   "id": "answer_4a5bca5033e540cb8f282a4297d89678",
    "actor_id": "customer",
    "text": "0",
-   "created_at": "2026-10-24T16:10:00.474445Z",
+   "created_at": "2026-10-24T16:58:54.075016Z",
    "field": "max_missing_records"
   },
   {
-   "id": "answer_dd500438943f471eaa4e1417a9a480f7",
+   "id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
    "actor_id": "customer",
    "text": "\"exact_accepted_versions\"",
-   "created_at": "2026-10-24T16:10:00.476931Z",
+   "created_at": "2026-10-24T16:58:54.078631Z",
    "field": "revision_policy"
   },
   {
-   "id": "answer_d7c061e97993499c98394c34f30ea7d4",
+   "id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
    "actor_id": "customer",
    "text": "\"UNKNOWN\"",
-   "created_at": "2026-10-24T16:10:00.479508Z",
+   "created_at": "2026-10-24T16:58:54.081729Z",
    "field": "conflict_policy"
   },
   {
-   "id": "answer_28dd6c3788004e0b87db09fd93945bac",
+   "id": "answer_1cda1e5840184f29bc6abafa82128535",
    "actor_id": "customer",
    "text": "\"market-v1\"",
-   "created_at": "2026-10-24T16:10:00.483150Z",
+   "created_at": "2026-10-24T16:58:54.084703Z",
    "field": "output_schema"
   },
   {
-   "id": "answer_b77d893d80474dba822d2ab42f7f1232",
+   "id": "answer_2b3a553deaf441688737b89af831a2a8",
    "actor_id": "customer",
    "text": "\"json\"",
-   "created_at": "2026-10-24T16:10:00.486135Z",
+   "created_at": "2026-10-24T16:58:54.087551Z",
    "field": "output_format"
   },
   {
-   "id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+   "id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
    "actor_id": "customer",
    "text": "\"observed_at\"",
-   "created_at": "2026-10-24T16:10:00.491849Z",
+   "created_at": "2026-10-24T16:58:54.093735Z",
    "field": "freshness_basis"
   },
   {
-   "id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+   "id": "answer_e787bed8238a45239cf0f061519fbf3d",
    "actor_id": "customer",
    "text": "90",
-   "created_at": "2026-10-24T16:10:00.498815Z",
+   "created_at": "2026-10-24T16:58:54.099134Z",
    "field": "max_age_days"
   },
   {
-   "id": "answer_805b384ebfe6498fb33b4e0de024b494",
+   "id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
    "actor_id": "customer",
-   "text": "\"2026-10-24T16:10:00.434880+00:00\"",
-   "created_at": "2026-10-24T16:10:00.504344Z",
+   "text": "\"2026-10-24T16:58:54.010878+00:00\"",
+   "created_at": "2026-10-24T16:58:54.105698Z",
    "field": "as_of"
   }
  ],
  "human_tasks": [],
  "source_artifact_ids": [
-  "artifact_1f4a9568f5234d158a6220b76a81509f"
+  "artifact_b7041b28624e431db8a39dc1aab7304d"
  ],
  "delivery_artifact_ids": [
-  "artifact_635d1e6db3ac4c31827c4cb487f185af",
-  "artifact_3747a8387af1436e9e73fccee8b67dc1",
-  "artifact_48a06ed5f6fe449daa45347d83541c27"
+  "artifact_17bedfcae0144a818a2eb5c028c2ef8c",
+  "artifact_7d2819777d5243d5ad5456328443d6bd",
+  "artifact_94ef6399fc0949f8b9efebb0670a1902"
  ],
  "issue_id": null,
  "question_count": 0,
- "overall_case_deadline": "2026-10-24T16:40:00.513986Z",
+ "overall_case_deadline": "2026-10-24T17:28:54.113313Z",
  "resolution": null,
  "parent_order_id": null,
  "base_order": {
   "order": {
    "snapshot": {
     "job_type": "regional_market_intelligence",
-    "order_id": "broker_33490e0c35a744afa892e3f08d683e67",
-    "snapshot_id": "broker_33490e0c35a744afa892e3f08d683e67:accepted:bc0689e06229e6cb1c2068a1d4be9a0db5e0b1b14d50dae73448413efc79220c",
-    "accepted_at": "2026-10-24T16:10:00.512313Z",
+    "order_id": "broker_e4367266321b4d9c9043ad65de4da0df",
+    "snapshot_id": "broker_e4367266321b4d9c9043ad65de4da0df:accepted:90766fea1cb3d4cdd0ed54c09c09ef73ce54f89b574137e12a57d3654c6f3df0",
+    "accepted_at": "2026-10-24T16:58:54.112377Z",
     "accepted_brief": "SF adults 25-34 interested in fitness, counts by ZIP, for an ad campaign.",
     "input_versions": [
      {
-      "evidence_id": "artifact_db812b0af23749fdbd0433b685f92959",
+      "evidence_id": "artifact_41a65bf2186f4968a2baace7ac0cda8b",
       "version": 1,
-      "sha256": "82651b5355d78ba96b82cc30516065cda7eca3d321b8f18fed38583f1920b533",
-      "storage_key": "jobflow/artifact_db812b0af23749fdbd0433b685f92959",
+      "sha256": "fdca7cf90a76ef38cc6288c2f05eb6545d8a9006f61ef42498e268b9a569f276",
+      "storage_key": "jobflow/artifact_41a65bf2186f4968a2baace7ac0cda8b",
       "media_type": "application/json",
       "kind": "accepted_input",
       "derived_from": []
      },
      {
-      "evidence_id": "artifact_1f4a9568f5234d158a6220b76a81509f",
+      "evidence_id": "artifact_b7041b28624e431db8a39dc1aab7304d",
       "version": 1,
       "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
-      "storage_key": "jobflow/artifact_1f4a9568f5234d158a6220b76a81509f",
+      "storage_key": "jobflow/artifact_b7041b28624e431db8a39dc1aab7304d",
       "media_type": "application/json",
       "kind": "accepted_input",
       "derived_from": []
@@ -1138,7 +1138,7 @@
        "parameters": {
         "freshness_basis": "observed_at",
         "max_age_days": 90,
-        "as_of": "2026-10-24T16:10:00.434880Z",
+        "as_of": "2026-10-24T16:58:54.010878Z",
         "geography": null,
         "boundary_version": null,
         "region_ids": [],
@@ -1157,87 +1157,87 @@
        "conflict_policy": "UNKNOWN",
        "provenance": [
         {
-         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
          "origin": "original_intent",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "reference_id": "answer_71f3525b474847a2925e443932e668cb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
          "origin": "customer_answer",
          "actor_id": "customer"
         }
@@ -1281,87 +1281,87 @@
        "conflict_policy": "UNKNOWN",
        "provenance": [
         {
-         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
          "origin": "original_intent",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "reference_id": "answer_71f3525b474847a2925e443932e668cb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
          "origin": "customer_answer",
          "actor_id": "customer"
         }
@@ -1394,87 +1394,87 @@
        "conflict_policy": "UNKNOWN",
        "provenance": [
         {
-         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
          "origin": "original_intent",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "reference_id": "answer_71f3525b474847a2925e443932e668cb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
          "origin": "customer_answer",
          "actor_id": "customer"
         }
@@ -1507,87 +1507,87 @@
        "conflict_policy": "UNKNOWN",
        "provenance": [
         {
-         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
          "origin": "original_intent",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "reference_id": "answer_71f3525b474847a2925e443932e668cb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
          "origin": "customer_answer",
          "actor_id": "customer"
         }
@@ -1620,87 +1620,87 @@
        "conflict_policy": "UNKNOWN",
        "provenance": [
         {
-         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
          "origin": "original_intent",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "reference_id": "answer_71f3525b474847a2925e443932e668cb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
          "origin": "customer_answer",
          "actor_id": "customer"
         }
@@ -1744,87 +1744,87 @@
        "conflict_policy": "UNKNOWN",
        "provenance": [
         {
-         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
          "origin": "original_intent",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "reference_id": "answer_71f3525b474847a2925e443932e668cb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
          "origin": "customer_answer",
          "actor_id": "customer"
         }
@@ -1857,87 +1857,87 @@
        "conflict_policy": "UNKNOWN",
        "provenance": [
         {
-         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
          "origin": "original_intent",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "reference_id": "answer_71f3525b474847a2925e443932e668cb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
          "origin": "customer_answer",
          "actor_id": "customer"
         }
@@ -1970,87 +1970,87 @@
        "conflict_policy": "UNKNOWN",
        "provenance": [
         {
-         "reference_id": "intent_660dd99a36b5498eb7a8beaf75722ed4",
+         "reference_id": "intent_3e8447aa03d24165b402c7458d982f0c",
          "origin": "original_intent",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_025fbe77013f4ad180138110e1ef91a3",
+         "reference_id": "answer_e206fafd0ba14a5cb43c8a91e65fc0b5",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_4fdb62eff4b4477fb041bcb9c3481db8",
+         "reference_id": "answer_4ba958c3c44c4ec5bff320e8cf410cba",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_79de2aa0c71440e586b78165dad73aa8",
+         "reference_id": "answer_5495a444dba0404d9e04eb5f13df9951",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e54a7069ea194e84aaaefeea9f1936f6",
+         "reference_id": "answer_0ebfcadb14fc438dad4486f23434356b",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71d84b2f429041ccab07668153764fd1",
+         "reference_id": "answer_42b64085e9474bbfb657157f9e66bd85",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_edfc435d9ca1405e9a98a3e8478d5aaf",
+         "reference_id": "answer_71f3525b474847a2925e443932e668cb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e0747ba52cc6405a8d5a5dd73d6ee39b",
+         "reference_id": "answer_b2b6d8b584e145cba063b6f6aea0edcb",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_71b13f3a97e74edd994e4a22e5e8863e",
+         "reference_id": "answer_292ca14d1dea4282823a2f70d4c9677c",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_e3432d3fd1414b648e36336e49262e10",
+         "reference_id": "answer_4a5bca5033e540cb8f282a4297d89678",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_dd500438943f471eaa4e1417a9a480f7",
+         "reference_id": "answer_40ffb39e0a0f4d8dab9705c327fbfecf",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_d7c061e97993499c98394c34f30ea7d4",
+         "reference_id": "answer_47c4fdeac9c745be920ca0abf39a8b42",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_28dd6c3788004e0b87db09fd93945bac",
+         "reference_id": "answer_1cda1e5840184f29bc6abafa82128535",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_b77d893d80474dba822d2ab42f7f1232",
+         "reference_id": "answer_2b3a553deaf441688737b89af831a2a8",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_81a784e29ea94f2db81c12f48aa6e798",
+         "reference_id": "answer_3957c638d3164aa9a54e90b80c57bbc1",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_c92be3d90bfe4c09a90159d1765c698d",
+         "reference_id": "answer_e787bed8238a45239cf0f061519fbf3d",
          "origin": "customer_answer",
          "actor_id": "customer"
         },
         {
-         "reference_id": "answer_805b384ebfe6498fb33b4e0de024b494",
+         "reference_id": "answer_25dcd3401e4d4064b1df4a345f7a8831",
          "origin": "customer_answer",
          "actor_id": "customer"
         }
@@ -2072,11 +2072,11 @@
    "case_state": "none",
    "payment_state": "mock",
    "payment_phase": "booked",
-   "authorization_id": "mock_f804157472cb019699b409924a078a204b725090b8bcb69892ea5affbceb6356",
-   "authorization_expires_at": "2026-10-24T18:10:00.434880Z",
+   "authorization_id": "mock_6ab8e5ef6a6f5f65d32a1d396f0ae5da76a360d94ee8cad8a9c2492050c7ce8e",
+   "authorization_expires_at": "2026-10-24T18:58:54.010878Z",
    "authorization_receipt": {
-    "idempotency_key": "broker_33490e0c35a744afa892e3f08d683e67:base:authorize",
-    "operation_id": "mock_f804157472cb019699b409924a078a204b725090b8bcb69892ea5affbceb6356",
+    "idempotency_key": "broker_e4367266321b4d9c9043ad65de4da0df:base:authorize",
+    "operation_id": "mock_6ab8e5ef6a6f5f65d32a1d396f0ae5da76a360d94ee8cad8a9c2492050c7ce8e",
     "operation": "authorize",
     "mode": "mock",
     "status": "mock",
@@ -2084,25 +2084,25 @@
    },
    "deliveries": [
     {
-     "order_id": "broker_33490e0c35a744afa892e3f08d683e67",
-     "snapshot_id": "broker_33490e0c35a744afa892e3f08d683e67:accepted:bc0689e06229e6cb1c2068a1d4be9a0db5e0b1b14d50dae73448413efc79220c",
+     "order_id": "broker_e4367266321b4d9c9043ad65de4da0df",
+     "snapshot_id": "broker_e4367266321b4d9c9043ad65de4da0df:accepted:90766fea1cb3d4cdd0ed54c09c09ef73ce54f89b574137e12a57d3654c6f3df0",
      "version": 1,
-     "delivered_at": "2026-10-24T16:10:00.575874Z",
+     "delivered_at": "2026-10-24T16:58:54.181735Z",
      "artifacts": [
       {
-       "evidence_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+       "evidence_id": "artifact_17bedfcae0144a818a2eb5c028c2ef8c",
        "version": 1,
        "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
-       "storage_key": "jobflow/artifact_635d1e6db3ac4c31827c4cb487f185af",
+       "storage_key": "jobflow/artifact_17bedfcae0144a818a2eb5c028c2ef8c",
        "media_type": "application/json",
        "kind": "delivery_artifact",
        "derived_from": []
       },
       {
-       "evidence_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+       "evidence_id": "artifact_7d2819777d5243d5ad5456328443d6bd",
        "version": 1,
-       "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22",
-       "storage_key": "jobflow/artifact_3747a8387af1436e9e73fccee8b67dc1",
+       "sha256": "52572f8e28b189ead5a6986d487cfd0ab45778ab562f2df6973164c82ee33ec3",
+       "storage_key": "jobflow/artifact_7d2819777d5243d5ad5456328443d6bd",
        "media_type": "application/pdf",
        "kind": "delivery_artifact",
        "derived_from": []
@@ -2110,22 +2110,22 @@
      ],
      "structured_data": [
       {
-       "evidence_id": "artifact_48a06ed5f6fe449daa45347d83541c27",
+       "evidence_id": "artifact_94ef6399fc0949f8b9efebb0670a1902",
        "version": 1,
        "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
-       "storage_key": "jobflow/artifact_48a06ed5f6fe449daa45347d83541c27",
+       "storage_key": "jobflow/artifact_94ef6399fc0949f8b9efebb0670a1902",
        "media_type": "application/json",
        "kind": "structured_data",
        "derived_from": [
         {
-         "evidence_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+         "evidence_id": "artifact_17bedfcae0144a818a2eb5c028c2ef8c",
          "version": 1,
          "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606"
         },
         {
-         "evidence_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+         "evidence_id": "artifact_7d2819777d5243d5ad5456328443d6bd",
          "version": 1,
-         "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22"
+         "sha256": "52572f8e28b189ead5a6986d487cfd0ab45778ab562f2df6973164c82ee33ec3"
         }
        ]
       }
@@ -2133,72 +2133,72 @@
     }
    ],
    "binding": {
-    "order_id": "broker_33490e0c35a744afa892e3f08d683e67",
-    "snapshot_id": "broker_33490e0c35a744afa892e3f08d683e67:accepted:bc0689e06229e6cb1c2068a1d4be9a0db5e0b1b14d50dae73448413efc79220c",
+    "order_id": "broker_e4367266321b4d9c9043ad65de4da0df",
+    "snapshot_id": "broker_e4367266321b4d9c9043ad65de4da0df:accepted:90766fea1cb3d4cdd0ed54c09c09ef73ce54f89b574137e12a57d3654c6f3df0",
     "delivery_version": 1,
     "evidence_version": 1,
     "proposal_version": 1
    },
    "evidence": [
     {
-     "evidence_id": "artifact_db812b0af23749fdbd0433b685f92959",
+     "evidence_id": "artifact_41a65bf2186f4968a2baace7ac0cda8b",
      "version": 1,
-     "sha256": "82651b5355d78ba96b82cc30516065cda7eca3d321b8f18fed38583f1920b533",
-     "storage_key": "jobflow/artifact_db812b0af23749fdbd0433b685f92959",
+     "sha256": "fdca7cf90a76ef38cc6288c2f05eb6545d8a9006f61ef42498e268b9a569f276",
+     "storage_key": "jobflow/artifact_41a65bf2186f4968a2baace7ac0cda8b",
      "media_type": "application/json",
      "kind": "accepted_input",
      "derived_from": []
     },
     {
-     "evidence_id": "artifact_1f4a9568f5234d158a6220b76a81509f",
+     "evidence_id": "artifact_b7041b28624e431db8a39dc1aab7304d",
      "version": 1,
      "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
-     "storage_key": "jobflow/artifact_1f4a9568f5234d158a6220b76a81509f",
+     "storage_key": "jobflow/artifact_b7041b28624e431db8a39dc1aab7304d",
      "media_type": "application/json",
      "kind": "accepted_input",
      "derived_from": []
     },
     {
-     "evidence_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+     "evidence_id": "artifact_17bedfcae0144a818a2eb5c028c2ef8c",
      "version": 1,
      "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
-     "storage_key": "jobflow/artifact_635d1e6db3ac4c31827c4cb487f185af",
+     "storage_key": "jobflow/artifact_17bedfcae0144a818a2eb5c028c2ef8c",
      "media_type": "application/json",
      "kind": "delivery_artifact",
      "derived_from": []
     },
     {
-     "evidence_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+     "evidence_id": "artifact_7d2819777d5243d5ad5456328443d6bd",
      "version": 1,
-     "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22",
-     "storage_key": "jobflow/artifact_3747a8387af1436e9e73fccee8b67dc1",
+     "sha256": "52572f8e28b189ead5a6986d487cfd0ab45778ab562f2df6973164c82ee33ec3",
+     "storage_key": "jobflow/artifact_7d2819777d5243d5ad5456328443d6bd",
      "media_type": "application/pdf",
      "kind": "delivery_artifact",
      "derived_from": []
     },
     {
-     "evidence_id": "artifact_48a06ed5f6fe449daa45347d83541c27",
+     "evidence_id": "artifact_94ef6399fc0949f8b9efebb0670a1902",
      "version": 1,
      "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
-     "storage_key": "jobflow/artifact_48a06ed5f6fe449daa45347d83541c27",
+     "storage_key": "jobflow/artifact_94ef6399fc0949f8b9efebb0670a1902",
      "media_type": "application/json",
      "kind": "structured_data",
      "derived_from": [
       {
-       "evidence_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+       "evidence_id": "artifact_17bedfcae0144a818a2eb5c028c2ef8c",
        "version": 1,
        "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606"
       },
       {
-       "evidence_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+       "evidence_id": "artifact_7d2819777d5243d5ad5456328443d6bd",
        "version": 1,
-       "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22"
+       "sha256": "52572f8e28b189ead5a6986d487cfd0ab45778ab562f2df6973164c82ee33ec3"
       }
      ]
     }
    ],
-   "review_deadline": "2026-10-24T16:20:00.575874Z",
-   "case_id": "broker_33490e0c35a744afa892e3f08d683e67:delivery:1",
+   "review_deadline": "2026-10-24T17:08:54.181735Z",
+   "case_id": "broker_e4367266321b4d9c9043ad65de4da0df:delivery:1",
    "complaint": null,
    "refund_requested": false,
    "questions": [],
@@ -2209,15 +2209,15 @@
    "result": null,
    "data_verification": {
     "proposal": {
-     "order_id": "broker_33490e0c35a744afa892e3f08d683e67",
-     "snapshot_id": "broker_33490e0c35a744afa892e3f08d683e67:accepted:bc0689e06229e6cb1c2068a1d4be9a0db5e0b1b14d50dae73448413efc79220c",
+     "order_id": "broker_e4367266321b4d9c9043ad65de4da0df",
+     "snapshot_id": "broker_e4367266321b4d9c9043ad65de4da0df:accepted:90766fea1cb3d4cdd0ed54c09c09ef73ce54f89b574137e12a57d3654c6f3df0",
      "delivery_version": 1,
      "evidence_version": 1,
      "proposal_version": 1
     },
-    "specification_sha256": "046c78ea2a8063c345b9b810e87689d76275f1b14ade04840bef68c680e78998",
-    "evidence_sha256": "435f7dc626daf6ecb7d7541f1bda6d5d8e1133eeaccf7aef9b742000068ab8d4",
-    "verified_at": "2026-10-24T16:10:00.603512Z",
+    "specification_sha256": "f8deac9a7641747dda60ea623b9bf03200fb28e036eb0c054abb01584eae1043",
+    "evidence_sha256": "176359a7cc6d13f58faa4ccf1a53f899e24684802c6b161f6150a9f6a6201988",
+    "verified_at": "2026-10-24T16:58:54.219823Z",
     "checks": [
      {
       "requirement_id": "req-freshness",
@@ -2231,7 +2231,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/0/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2239,7 +2239,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/1/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2247,7 +2247,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/2/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2255,7 +2255,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/3/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2263,7 +2263,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/4/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2271,7 +2271,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/5/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2279,7 +2279,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/6/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2287,7 +2287,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/7/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2295,7 +2295,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/8/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2303,7 +2303,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/9/observed_at",
         "value": "2026-10-10T00:00:00+00:00",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        }
       ]
      },
@@ -2319,7 +2319,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/geography",
         "value": "San Francisco",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2327,7 +2327,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/boundary_version",
         "value": "2026-Q3",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2335,7 +2335,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/0/region_id",
         "value": "94102",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2343,7 +2343,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/1/region_id",
         "value": "94103",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2351,7 +2351,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/2/region_id",
         "value": "94107",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2359,7 +2359,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/3/region_id",
         "value": "94109",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2367,7 +2367,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/4/region_id",
         "value": "94110",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2375,7 +2375,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/5/region_id",
         "value": "94114",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2383,7 +2383,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/6/region_id",
         "value": "94117",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2391,7 +2391,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/7/region_id",
         "value": "94122",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2399,7 +2399,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/8/region_id",
         "value": "94129",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2407,7 +2407,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/9/region_id",
         "value": "94133",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        }
       ]
      },
@@ -2423,7 +2423,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/reference_period",
         "value": "2026-Q3",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        }
       ]
      },
@@ -2439,7 +2439,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/metric_name",
         "value": "adults_25_34_interested_in_fitness",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2447,7 +2447,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/metric_unit",
         "value": "people",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        }
       ]
      },
@@ -2463,7 +2463,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/entity_unit",
         "value": "region",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2471,7 +2471,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/*/entity_id",
         "value": "['94102', '94103', '94107', '94109', '94110', '94114', '94117', '94122', '94129', '94133']",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        }
       ]
      },
@@ -2487,7 +2487,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows/*/entity_id",
         "value": "['94102', '94103', '94107', '94109', '94110', '94114', '94117', '94122', '94129', '94133']",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        }
       ]
      },
@@ -2503,7 +2503,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/source_id",
         "value": "vendor-fitness-panel",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        },
        {
         "source_id": "vendor-fitness-panel",
@@ -2511,7 +2511,7 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/version",
         "value": "1",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        }
       ]
      },
@@ -2527,55 +2527,55 @@
         "sha256": "51b7f2f3716901e47261db12da4a86fa325eeb0edd9abf5a50bd55d2c96abacc",
         "locator": "/rows",
         "value": "10 typed source records",
-        "artifact_id": "artifact_1f4a9568f5234d158a6220b76a81509f"
+        "artifact_id": "artifact_b7041b28624e431db8a39dc1aab7304d"
        }
       ]
      },
      {
-      "requirement_id": "delivery-artifact_635d1e6db3ac4c31827c4cb487f185af",
+      "requirement_id": "delivery-artifact_17bedfcae0144a818a2eb5c028c2ef8c",
       "verdict": "PASS",
       "cause": "NONE",
       "explanation": "Reopened and compared actual market-data.json with exact accepted sources and report content.",
       "citations": [
        {
-        "source_id": "artifact_635d1e6db3ac4c31827c4cb487f185af",
+        "source_id": "artifact_17bedfcae0144a818a2eb5c028c2ef8c",
         "version": 1,
         "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
         "locator": "document",
         "value": "market-data.json",
-        "artifact_id": "artifact_635d1e6db3ac4c31827c4cb487f185af"
+        "artifact_id": "artifact_17bedfcae0144a818a2eb5c028c2ef8c"
        }
       ]
      },
      {
-      "requirement_id": "delivery-artifact_3747a8387af1436e9e73fccee8b67dc1",
+      "requirement_id": "delivery-artifact_7d2819777d5243d5ad5456328443d6bd",
       "verdict": "PASS",
       "cause": "NONE",
       "explanation": "Reopened and compared actual source-methodology.pdf with exact accepted sources and report content.",
       "citations": [
        {
-        "source_id": "artifact_3747a8387af1436e9e73fccee8b67dc1",
+        "source_id": "artifact_7d2819777d5243d5ad5456328443d6bd",
         "version": 1,
-        "sha256": "ce7d01c27e3020403cab91ff4a8742bbddba6ab47e8b83a68700c1a528626d22",
+        "sha256": "52572f8e28b189ead5a6986d487cfd0ab45778ab562f2df6973164c82ee33ec3",
         "locator": "document",
         "value": "source-methodology.pdf",
-        "artifact_id": "artifact_3747a8387af1436e9e73fccee8b67dc1"
+        "artifact_id": "artifact_7d2819777d5243d5ad5456328443d6bd"
        }
       ]
      },
      {
-      "requirement_id": "delivery-artifact_48a06ed5f6fe449daa45347d83541c27",
+      "requirement_id": "delivery-artifact_94ef6399fc0949f8b9efebb0670a1902",
       "verdict": "PASS",
       "cause": "NONE",
       "explanation": "Reopened and compared actual market-sidecar.json with exact accepted sources and report content.",
       "citations": [
        {
-        "source_id": "artifact_48a06ed5f6fe449daa45347d83541c27",
+        "source_id": "artifact_94ef6399fc0949f8b9efebb0670a1902",
         "version": 1,
         "sha256": "aeb5ecbf01225a10461ca97f41fbb87533d1d27b30df36a37df06ac7f46d2606",
         "locator": "document",
         "value": "market-sidecar.json",
-        "artifact_id": "artifact_48a06ed5f6fe449daa45347d83541c27"
+        "artifact_id": "artifact_94ef6399fc0949f8b9efebb0670a1902"
        }
       ]
      }
@@ -2590,18 +2590,18 @@
    "quote_authorization": null,
    "ledger": [
     {
-     "entry_id": "broker_33490e0c35a744afa892e3f08d683e67:base:capture",
+     "entry_id": "broker_e4367266321b4d9c9043ad65de4da0df:base:capture",
      "kind": "base",
      "amount": {
       "amount_minor": 12000,
       "currency": "USDSIM",
       "decimals": 2
      },
-     "recorded_at": "2026-10-24T16:10:00.614933Z",
+     "recorded_at": "2026-10-24T16:58:54.233769Z",
      "reason": "customer_acceptance",
      "receipt": {
-      "idempotency_key": "broker_33490e0c35a744afa892e3f08d683e67:base:capture",
-      "operation_id": "mock_b7f0960552aacc2e67e2a0401fcaab1dd4a6f8663562d957a08a386a9da67641",
+      "idempotency_key": "broker_e4367266321b4d9c9043ad65de4da0df:base:capture",
+      "operation_id": "mock_fef8d98f576d7420c348097428d46140f3b420eeac0b46492ff34af9fdf02af0",
       "operation": "capture",
       "mode": "mock",
       "status": "mock",
@@ -2611,7 +2611,7 @@
    ],
    "scope_obligations": []
   },
-  "server_time": "2026-10-24T16:10:00.615714Z",
+  "server_time": "2026-10-24T16:58:54.234506Z",
   "poll_after_ms": 2000,
   "available_actions": [
    "dispute"

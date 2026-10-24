@@ -8,7 +8,7 @@ import { captionFor, chipFor, type Case, type Ending } from "./scenario";
 import type { PaymentStateChanged } from "../runs.generated";
 
 export type NS = "idle" | "running" | "done" | "waiting" | "fail" | "grey";
-export type OrbMode = "float" | "carry" | "look" | "wait" | "happy";
+export type OrbMode = "float" | "carry" | "look" | "inspect" | "wait" | "happy";
 export interface Check { passed: boolean; reason?: string; fix?: string; detail?: string }
 export interface NodeState {
   step: Step;
@@ -98,6 +98,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     for (const s of e.steps) { v.nodes[s.id] ??= blankNode(s); v.nodes[s.id].step = s; if (!v.order.includes(s.id)) v.order.push(s.id); }
     return v;
   }
+  if (e.type === "caption") { v.caption = e.text; return v; }
   if (e.type === "payment_authorized") { v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment]; v.coin = coinFor(v); return v; }
   if (e.type === "payment_captured") { v.captured[e.paymentId] = e.captureTx; v.coin = coinFor(v); return v; }
   if (e.type === "payment_state_changed") {
@@ -122,7 +123,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       n.status = "running"; n.waitingOn = undefined; v.started += 1;
       if (attempt > 1 && n.step.kind === "produce" && v.lastLane) v.loops = [...v.loops, v.lastLane];
       if (LANE_KINDS.has(n.step.kind)) v.lastLane = e.step;
-      v.orb = { step: e.step, mode: n.step.kind === "clarify" || n.step.kind === "investigate" ? "look" : n.step.kind === "produce" ? "carry" : "float" };
+      v.orb = { step: e.step, mode: n.step.kind === "investigate" ? "inspect" : n.step.kind === "clarify" ? "look" : n.step.kind === "produce" ? "carry" : "float" };
       if (n.step.kind === "review" && attempt === 1 && v.nodes.produce) v.nodes.produce.status = "done";
       break;
     case "step_waiting": n.status = "waiting"; n.waitingOn = e.waitingOn; if (n.step.kind === "decide") v.orb = { step: e.step, mode: "wait" }; break;
@@ -154,7 +155,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   n.chip = ctx.live ? (n.waitingOn ?? n.status) : chipFor(n.step, {
     status: n.status, attempt: n.attempt, checks: Object.values(n.checks).filter((c) => c.passed).length, lines: v.contract.lines.length, sources: n.evidence.length,
     verdictKind: n.verdict?.kind ?? laneVerdict(v)?.kind, verdictBy: n.verdict?.decidedBy, amendmentPrice: n.amendment?.price ?? laneAmendment(v)?.price,
-    waitingOn: n.waitingOn, learned: ctx.learned, disputed: !!v.dispute,
+    waitingOn: n.waitingOn, learned: ctx.learned, disputed: !!v.dispute, decided: n.decision?.action, ruled: !!n.rule,
   });
   if (caption) v.caption = caption;
   return v;

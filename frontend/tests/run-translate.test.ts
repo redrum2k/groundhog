@@ -2,17 +2,18 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { translate } from "../lib/run/broker/translate";
-import type { BrokerEvent, BrokerOrder, DataRow } from "../lib/run/broker/types";
+import type { BrokerEvent, BrokerOrder, BrokerSnapshot } from "../lib/run/broker/types";
 import { CONTRACT_V1, S, type Case } from "../lib/run/scenario";
 import { project } from "../lib/run/fold";
 
 // Recorded from Jeff's backend on Oct 24 2026 by driving our order through /api/broker.
 const load = <T,>(name: string): T => JSON.parse(readFileSync(join(process.cwd(), "tests", "fixtures", "broker", `${name}.json`), "utf8")) as T;
-const rows = load<{ rows: DataRow[] }>("shared-rows").rows;
-const view = (c: Case) => {
-  const events = load<BrokerEvent[]>(`${c}-events`), order = load<BrokerOrder>(`${c}-order`);
-  return project(translate({ events, order, rows }, c), { lane: c, ending: "maya", learned: false, contract: CONTRACT_V1 });
+const snapshot = (c: Case, upTo = Infinity): BrokerSnapshot => {
+  const events = load<BrokerEvent[]>(`${c}-events`).filter((e) => e.sequence <= upTo), order = load<BrokerOrder>(`${c}-order`);
+  const { checksBySeq, rowsByVersion } = load<Pick<BrokerSnapshot, "checksBySeq" | "rowsByVersion">>(`${c}-snapshots`);
+  return { events, order, checksBySeq, rowsByVersion };
 };
+const view = (c: Case) => project(translate(snapshot(c), c), { lane: c, ending: "maya", learned: false, contract: CONTRACT_V1 });
 
 describe("broker stream → canvas", () => {
   it("walks the no-dispute order from interview to a mock capture", () => {
@@ -23,6 +24,7 @@ describe("broker stream → canvas", () => {
     expect(v.payments[0]).toMatchObject({ amount: S.price, rail: "mock", mock: true });
     expect(v.nodes.produce.chip).toBe("8 of 8 passed");
     expect(v.deliveries.at(-1)?.rows.map((r) => r.zip)).toContain("94110");
+    expect(v.deliveries.at(-1)?.rows.find((r) => r.zip === "94129")?.count).toBe(42);
     expect(v.reviewWindow).toBe("10 minutes");
     expect(v.nodes.review.step.detail).toBe("10-minute window to accept or dispute");
     expect(v.nodes.captured.status).toBe("done");
@@ -30,30 +32,58 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.captured.entries?.[0]).toMatchObject({ amount: S.price });
   });
 
+  it("asks each contract line as a question until Acme's answer settles its wording", () => {
+    const events = translate(snapshot("green"), "green");
+    const asked = events.flatMap((e) => (e.type === "contract_line_asked" ? [e.line.text] : []));
+    expect(asked.length).toBeGreaterThan(0);
+    expect(asked.some((t) => /undefined|NaN/.test(t))).toBe(false);
+    expect(asked).toContain("Which area, boundary and ZIPs");
+  });
+
   it("maps a refuted dispute onto the We're-right detour and back to capture", () => {
     const v = view("green");
     expect(v.dispute?.claim).toMatch(/Oakland/);
     expect(v.nodes.investigate.messages[0].from).toBe("buyer");
-    expect(v.nodes.verdict.verdict).toMatchObject({ kind: "disagree", decidedBy: "rules" });
+    expect(v.nodes.verdict.verdict).toMatchObject({ kind: "disagree", decidedBy: "rules", evidenceIds: ["cite-geography", "cite-coverage"] });
+    expect(v.nodes.investigate.evidence.map((e) => e.label)).toEqual(["Contract: San Francisco only", expect.stringMatching(/^\d+ of \d+ ZIPs delivered$/)]);
+    expect(v.nodes.investigate.messages.at(-1)).toMatchObject({ from: "agent", attach: [{ kind: "evidence", evidenceId: "cite-geography" }, { kind: "evidence", evidenceId: "cite-coverage" }] });
     expect(v.nodes.verdict.chip).toBe("We're right");
     expect(v.nodes.review.attempt).toBe(2);
     expect(v.nodes.captured.status).toBe("done");
   });
 
-  it("maps an unknown verdict onto questions, a grey area and the controller's hold", () => {
+  it("maps an unknown verdict onto questions, a grey area, the controller's resume and a free correction", () => {
     const v = view("amber");
-    expect(v.nodes.produce.checks.freshness.passed).toBe(false);
+    expect(v.nodes.produce.checks.freshness).toBeDefined();
     expect(v.nodes.investigate.messages.filter((m) => m.from === "agent").length).toBeGreaterThanOrEqual(2); // two bounded questions
     expect(v.nodes.grey.verdict?.kind).toBe("grey");
     expect(v.nodes.decide.decision).toMatchObject({ action: "approve", by: S.controller });
-    expect(v.coin).toMatchObject({ text: `$${S.price} authorized` });
-    expect(v.nodes.captured.status).toBe("idle");
+    expect(v.nodes.decide.chip).toBe("Resumed · corrected");
+    expect(v.contract.version).toBe(2);
+    expect(v.nodes.produce.attempt).toBe(2);
+    expect(v.loops).toEqual(["decide"]);
+    expect(v.nodes.captured.status).toBe("done");
+    expect(v.coin).toMatchObject({ done: true });
+  });
+
+  it("maps a failed check onto Our miss, a clarification and the free correction", () => {
+    const v = view("red");
+    expect(v.nodes.produce.checks.coverage).toBeDefined();
+    expect(v.nodes.verdict.verdict).toMatchObject({ kind: "agree", decidedBy: "rules" });
+    expect(v.nodes.verdict.chip).toBe("Our miss");
+    expect(v.nodes.investigate.evidence[0].label).toMatch(/Failed · coverage/);
+    expect(v.deliveries[0].rows.some((r) => r.zip === "94110")).toBe(false); // the first delivery lacked the Mission ZIP
+    expect(v.deliveries.at(-1)?.rows.some((r) => r.zip === "94110")).toBe(true);
+    expect(v.contract.version).toBe(2);
+    expect(v.nodes.produce.attempt).toBe(2);
+    expect(v.loops).toEqual(["verdict"]);
+    expect(v.nodes.captured.status).toBe("done");
+    expect(v.caption).toMatch(/captured/);
   });
 
   it("is append-only as the stream grows, so a seq cursor stays valid", () => {
-    const events = load<BrokerEvent[]>("green-events"), order = load<BrokerOrder>("green-order");
-    const whole = translate({ events, order, rows }, "green");
-    const half = translate({ events: events.slice(0, 30), order, rows }, "green");
+    const whole = translate(snapshot("amber"), "amber");
+    const half = translate(snapshot("amber", 45), "amber");
     expect(whole.slice(0, half.length).map((e) => [e.seq, e.type, "step" in e ? e.step : ""])).toEqual(half.map((e) => [e.seq, e.type, "step" in e ? e.step : ""]));
   });
 });

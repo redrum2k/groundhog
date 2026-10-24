@@ -28,7 +28,7 @@ function fakeServer(released: RunEvent[]) {
 
 const liveFeed = (): Feed => {
   const { events, start } = timeline("amber", "maya");
-  return { kind: "fixture", api: "/api/broker-run", body: { case: "amber" }, before: events.slice(0, start), ctx };
+  return { kind: "live", api: "/api/broker-run", body: { case: "amber" }, before: events.slice(0, start), ctx };
 };
 
 beforeEach(() => vi.useFakeTimers());

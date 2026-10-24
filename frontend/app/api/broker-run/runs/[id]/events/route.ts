@@ -5,6 +5,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const after = Number(new URL(request.url).searchParams.get("after") ?? 0);
   const result = await eventsAfter(id, Number.isFinite(after) ? after : 0);
-  if ("error" in result) return NextResponse.json({ detail: result.error }, { status: result.status });
+  if ("status" in result) return NextResponse.json({ detail: result.error }, { status: result.status });
   return NextResponse.json(result, { headers: { "Cache-Control": "no-store" } });
 }

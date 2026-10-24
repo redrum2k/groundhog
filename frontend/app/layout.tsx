@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Datum Co. run",
+  title: "DataPact run",
   description: "Order-to-cash agent for a data broker.",
 };
 export default function RootLayout({

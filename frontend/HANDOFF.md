@@ -29,7 +29,7 @@ Tracks: Hyphenate (order-to-cash finance seat), Coinbase (x402 payments, visible
 
 ## The demo story
 
-- Us: **Datum Co.**, a data broker. Builds custom datasets from rented vendor data, so every rerun
+- Us: **DataPact**, a data broker. Builds custom datasets from rented vendor data, so every rerun
   costs us a license fee plus compute.
 - Customer: **Acme Fitness's buying agent** (an agent, not a person).
 - Controller: **Maya**.
@@ -236,3 +236,27 @@ The canvas moves into frontend/; Next.js stays as a thin shell that only proxies
 ### Asks
 Nikita: events endpoint with a seq cursor; Maya and acceptance mutations with version binding and 409; x402 sign-and-settle on Base Sepolia; Pydantic models for the RunEvent shapes.
 Jeff: amber investigator that asks one question and returns agree, disagree or grey with citations to message IDs and dataset cells; saved rules are checked before any model call.
+
+## Decisions (grill with Lucas, Oct 24 2026, afternoon)
+
+### Demo
+One order is the demo, not three cases. Redrum's flow: interview, contract, produce, deliver, Acme objects, the agent proves by contract with cited evidence, Acme accepts, captured.
+Escalation is act two: a second order where a check the sources can't settle goes through two questions, Maya, a clarification and the free correction. Shown if time allows or a judge asks.
+The moment the video opens with is the agent defending the decision: the objection answered with the interview line and the contract line, the citation jumping to the message, then capture.
+"Improves" is the recorded "Next time" replay after Maya's clarification; the backend's incident record for its improvement loop is explained in words.
+The presenter advances Acme's three moves (approve the contract, object or accept, accept) by clicking on the customer view; everything between runs on its own.
+A judge can type their own objection; the backend investigates it against the accepted spec and the model answers with code-checked evidence.
+The All-cases map and the grey-area ending switch leave the screen; recorded mode stays as the fallback if the backend dies.
+
+### Backend facts behind it
+Jeff's broker profile on main is the backend: the UNKNOWN verdict, two bounded questions and the controller task already exist, and a source revision accepted by both sides as a clarification lets the free correction pass.
+Jeff agreed to a bounded model verdict with the existing money controls; its event will be mapped when it lands.
+Measured live with scripted parties: redrum's flow 28 seconds unattended, the escalation flow about 75 seconds.
+
+## Merge with main, Oct 24 evening
+
+Main brought Nikita's aggregate brokerage: generated wire types (`lib/runs.generated.ts`, `lib/run/contract.ts` now re-exports them), a form-based intake `components/run/live-run.tsx` against `/api/live` (server-only bridge, needs `BROKER_LOCAL_DEMO=1` and distinct `INTERNAL_API_TOKEN` / `REVIEWER_API_TOKEN`), and payment-state folding.
+Resolution, per the demo decision above: the canvas stays at `/` and is the demo; Nikita's intake is mounted at `/live`.
+The feed that polls Jeff's broker is still called `live` (main had renamed it `fixture`), and the header toggle still says Live.
+`caption` is a canvas-only event the translator narrates with; it is not on the wire, so `contract.ts` adds it to the generated union.
+`npm run generate:check` reports drift in `docs/openapi.json` on Python 3.13 only because the 422 reason phrase changed ("Unprocessable Content"); it is not a contract change.

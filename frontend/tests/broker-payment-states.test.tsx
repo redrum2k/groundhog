@@ -22,13 +22,15 @@ it.each(Object.entries(fixtures))("displays %s without invented completion or ex
 });
 
 const labels:Record<string,string>={funded:"held",void_pending:"return pending",voided:"returned",uncertain:"outcome uncertain",expired_not_returned:"expired · not returned",captured:"captured",reorg_hold:"reorg hold"};
+// The coin renders "a · b" as "a b" (Label), so match what is on screen
+const coin=(text:string)=>{const [head,...rest]=text.split(" · ");const shown=rest.length?`${head} ${rest.join(", ")}`:text;return screen.getAllByText((_,el)=>el?.classList.contains("coin-t")===true && el.textContent===shown);};
 it.each(transitions.frames)("projects persisted $state events consistently across canvas, panel and reload",frame=>{
  mock.payment=Object.values(fixtures).find(p=>p.payment.state===frame.state)!;
  mock.events=frame.events as RunEvent[];
  const {unmount}=render(<LiveRun recorded={()=>{}}/>);
  fireEvent.click(screen.getByRole("button",{name:"Funding"}));
  expect(screen.getByRole("heading",{name:`Funding · ${frame.state}`})).toBeTruthy();
- expect(screen.getByText(`$120 ${labels[frame.state]} · mock`)).toBeTruthy();
+ expect(coin(`$120 ${labels[frame.state]} · mock`).length).toBeGreaterThan(0);
  expect(screen.queryByRole("link",{name:/basescan/i})).toBeNull();
  if(frame.state==="reorg_hold") {
    const view=project(mock.events,{lane:"shared",ending:"maya",learned:false,live:true,contract:{version:0,buyer:"",title:"",price:0,lines:[]}});
@@ -38,7 +40,7 @@ it.each(transitions.frames)("projects persisted $state events consistently acros
  }
  unmount();
  render(<LiveRun recorded={()=>{}}/>);
- expect(screen.getByText(`$120 ${labels[frame.state]} · mock`)).toBeTruthy();
+ expect(coin(`$120 ${labels[frame.state]} · mock`).length).toBeGreaterThan(0);
 });
 
 it("replays held to returned through the whole canvas and funding panel",()=>{
@@ -53,6 +55,6 @@ it("replays held to returned through the whole canvas and funding panel",()=>{
  render(<LiveRun recorded={()=>{}}/>);
  fireEvent.click(screen.getAllByRole("button",{name:"Funding"})[0]);
  expect(screen.getByRole("heading",{name:"Funding · voided"})).toBeTruthy();
- expect(screen.getByText("$120 returned · mock")).toBeTruthy();
- expect(screen.queryByText("$120 held · mock")).toBeNull();
+ expect(coin("$120 returned · mock").length).toBeGreaterThan(0);
+ expect(screen.queryByText("$120 held mock")).toBeNull();
 });

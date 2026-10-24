@@ -4,7 +4,7 @@ import {useLiveRun, mergeEvents} from "../lib/run/live";
 import {bridge} from "../lib/live-bridge";
 import {signFunding} from "../lib/run/wallet";
 import type {FundingPreparation} from "../lib/runs.generated";
-import RunApp from "../components/run/run-app";
+import LiveRun from "../components/run/live-run";
 
 const plan = {seq:1,at:"2026-10-24T12:00:00Z",type:"steps_planned" as const,steps:[]};
 const page = {events:[plan],next_after:1,high_watermark:1,caught_up:true,poll_after_ms:1000,server_time:"now",binding:null,available_actions:[],request:{status:"compiling"},quote:null,payment:null};
@@ -13,7 +13,7 @@ beforeEach(()=>{localStorage.clear();});
 afterEach(()=>{cleanup();vi.useRealTimers();vi.unstubAllGlobals();vi.unstubAllEnvs();});
 
 it("opens live intake without a recorded prefix",()=>{
- render(<RunApp/>);
+ render(<LiveRun recorded={()=>{}}/>);
  expect(screen.getByRole("button",{name:"Create request"})).toBeTruthy();
  expect(screen.queryByRole("button",{name:"Play"})).toBeNull();
 });

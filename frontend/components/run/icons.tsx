@@ -21,6 +21,8 @@ export const IcChevronRight = icon("m6 3.5 4.5 4.5L6 12.5");
 export const IcLock = icon("M4.5 7h7a1.25 1.25 0 0 1 1.25 1.25v4.5A1.25 1.25 0 0 1 11.5 14h-7a1.25 1.25 0 0 1-1.25-1.25v-4.5A1.25 1.25 0 0 1 4.5 7ZM5.5 7V5a2.5 2.5 0 0 1 5 0v2");
 /** A sheet the orb carries */
 export const IcScroll = icon("M4 1.75h5.25L12.5 5v8.25a1 1 0 0 1-1 1h-7.5a1 1 0 0 1-1-1V2.75a1 1 0 0 1 1-1ZM9 1.75V5.25h3.5M5.5 8h5M5.5 10.25h5");
+/** A magnifier, held while the agent inspects evidence */
+export const IcLens = ({ size, strokeWidth, ...p }: IconProps) => <svg {...base(size, strokeWidth)} {...p}><circle cx="7" cy="7" r="4.5" /><path d="m10.25 10.25 3.25 3.25" /></svg>;
 /** A list, for the checklist header */
 export const IcList = icon("M2.25 4h1.5M6 4h7.75M2.25 8h1.5M6 8h7.75M2.25 12h1.5M6 12h7.75");
 /** Replay: an arrow curling back */
@@ -29,6 +31,8 @@ export const IcReplay = icon("M2.75 8a5.25 5.25 0 1 0 1.55-3.72M2.75 2.5v2.75H5.
 export const IcPlay = ({ size, strokeWidth, ...p }: IconProps) => <svg {...base(size, strokeWidth)} {...p}><path d="M4.5 2.75v10.5L13 8Z" /></svg>;
 /** Pause */
 export const IcPause = icon("M5 3v10M11 3v10");
+/** A wallet: the customer's money, flat like the rest of the set */
+export const IcWallet = icon("M2.25 4.5A1.25 1.25 0 0 1 3.5 3.25h8.25a1 1 0 0 1 1 1v1M2.25 4.5v7.25a1.25 1.25 0 0 0 1.25 1.25h9.25a1 1 0 0 0 1-1V6.25a1 1 0 0 0-1-1H3.5a1.25 1.25 0 0 1-1.25-.75ZM10 9.5h.01");
 /** A small gold coin for the money pill */
 export const IcCoin = ({ size = 12 }: { size?: number }) => (
   <svg viewBox="0 0 16 16" width={size} height={size} aria-hidden>
@@ -36,7 +40,7 @@ export const IcCoin = ({ size = 12 }: { size?: number }) => (
     <rect x="6.4" y="4" width="3.2" height="8" rx="1.6" fill="#b8892a" />
   </svg>
 );
-/** The Datum mark: the orb between two tiles. The ring and eyes are cut out, so it sits on any background. */
+/** The DataPact mark: the orb between two tiles. The ring and eyes are cut out, so it sits on any background. */
 export const IcLogo = ({ size = 24, ...p }: { size?: number } & SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 36 24" width={size * 1.5} height={size} aria-hidden {...p}>
     <path fill="#111111" d="M2.5 0H12.5A2.5 2.5 0 0 1 15 2.5V4.05A8.5 8.5 0 0 0 15 19.95V21.5A2.5 2.5 0 0 1 12.5 24H2.5A2.5 2.5 0 0 1 0 21.5V2.5A2.5 2.5 0 0 1 2.5 0Z" />
