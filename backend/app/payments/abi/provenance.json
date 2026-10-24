@@ -1,0 +1,22 @@
+{
+  "repository": "https://github.com/base/commerce-payments",
+  "commit": "b748fdd7a830a655a19a530edcf2a94b9dc7d25f",
+  "deployment_version": "v1.1.0",
+  "abi_kind": "minimal interface transcription checked against pinned Solidity; not a compiler artifact",
+  "chain_id": 84532,
+  "escrow_address": "0xf96815976523E00e65Be8f34cA5e64b4f41EB19c",
+  "collector_address": "0x8612dfdc421f80336cd14E8EF9cb1E765dB5ab88",
+  "usdc_address": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "source_sha256": {
+    "source/AuthCaptureEscrow.sol": "31c6a0c3efec3acacb351e9cefe72b23a56d734474f1785dbf3e4ab45ef1477d",
+    "source/ERC3009PaymentCollector.sol": "6e9ff47d2fb4ebee3029845183202cb3ff643a9d675c5260cb9d6423657c9c8f",
+    "source/ERC6492SignatureHandler.sol": "848ade29ab7b7defa03ef176d3999af54c08bff9687f54e78f69ce6d9f70303a",
+    "source/TokenCollector.sol": "0dadc5b9129d1e56fffb70b22fb9532c1736827a7ec7734dc0dbc0b3c1e8b9df"
+  },
+  "abi_sha256": {
+    "ERC3009PaymentCollector.json": "7f32a847c128274d3cc376c58a779edf50dfe15a88a8a18e4b66003ae17f4341",
+    "USDC.json": "a33bb7fbf8fb145895166ecd0085e521f9d183fd13780644d605a77027bb6a05",
+    "AuthCaptureEscrow.json": "8d4f7400ccceb1590417cd513c9ce83d039d78ba90e30b4c440a962c6c7db108"
+  },
+  "runtime_status": "No RPC preflight, transaction or deployment observed by this implementation task."
+}

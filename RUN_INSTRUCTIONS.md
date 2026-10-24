@@ -1,3 +1,7 @@
+> This document describes the preserved `/api/jobflow` invoice workbench.
+> Catalog/payment handoff status is in [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md);
+> catalog policy is HACK.md, and invoice policy is [archived separately](docs/jobflow/INVOICE_POLICY.md).
+
 # Run the integrated MVP
 
 Python 3.12+, uv, Node 24 and npm. From the repository root in PowerShell:

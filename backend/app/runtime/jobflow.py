@@ -9,8 +9,8 @@ import secrets
 from datetime import timedelta
 
 from app.contracts.jobflow import Actor, OrderView
+from app.orders.invoice_compat import OrderService
 from app.orders.jobflow import create_order, prepare_intake
-from app.orders.service import OrderService
 from app.payments.jobflow import project
 from app.provider.jobflow import store_evidence
 from app.runtime.jobflow_policy import invalidate, refresh_quotes, require, utcnow

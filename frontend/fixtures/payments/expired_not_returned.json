@@ -1,0 +1,88 @@
+{
+  "payment": {
+    "payment_id": "fixture-payment-expired_not_returned",
+    "order_id": "fixture-order-expired_not_returned",
+    "snapshot_id": "fixture-snapshot-expired_not_returned",
+    "terms": {
+      "policy_version": "catalog-payments-v1",
+      "payment_id": "fixture-payment-expired_not_returned",
+      "mode": "mock",
+      "chain_id": 84532,
+      "asset_address": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "symbol": "USDC",
+      "decimals": 6,
+      "amount_atomic": "15000000",
+      "payment_info": {
+        "operator": "0x1111111111111111111111111111111111111111",
+        "payer": "0x2222222222222222222222222222222222222222",
+        "receiver": "0x3333333333333333333333333333333333333333",
+        "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "max_amount": "15000000",
+        "pre_approval_expiry": "1792781700",
+        "authorization_expiry": "1792781999",
+        "refund_expiry": "1792785600",
+        "min_fee_bps": 0,
+        "max_fee_bps": 0,
+        "fee_receiver": "0x3333333333333333333333333333333333333333",
+        "salt": "11"
+      },
+      "escrow_address": "0xf96815976523E00e65Be8f34cA5e64b4f41EB19c",
+      "collector_address": "0x8612dfdc421f80336cd14E8EF9cb1E765dB5ab88",
+      "deployment_version": "v1.1.0",
+      "source_commit": "b748fdd7a830a655a19a530edcf2a94b9dc7d25f",
+      "payment_hash": "0xaedb428bc324745c830bf1e6415f1a63f42d2e3875e81b3d5caa704dc0ae7a00",
+      "authorization_nonce": "0x75162aeb50fd2471801c78d9b0ee23f0f225d7a2a3dce9114e2f792ac37c7e64",
+      "pricing_rule": "catalog-usd-usdc-1to1-v1",
+      "display_amount": {
+        "amount_minor": 1500,
+        "currency": "USD",
+        "decimals": 2
+      },
+      "settlement_terms": "Synthetic UI fixture only. Demo 1 USD : 1 USDC; 15 USD equals 15000000 atomic test USDC. Mock simulation, no on-chain funds.",
+      "confirmations": 2
+    },
+    "state": "expired_not_returned",
+    "blocked_by_payment_id": null,
+    "latest_observation": null,
+    "last_error": null,
+    "created_at": "2026-10-23T19:00:00Z",
+    "updated_at": "2026-10-23T19:00:00Z"
+  },
+  "operations": [
+    {
+      "operation_id": "fixture-operation-expired_not_returned",
+      "intent": {
+        "operation_id": "fixture-operation-expired_not_returned",
+        "payment_id": "fixture-payment-expired_not_returned",
+        "order_id": "fixture-order-expired_not_returned",
+        "snapshot_id": "fixture-snapshot-expired_not_returned",
+        "binding": {
+          "snapshot_id": "fixture-snapshot-expired_not_returned",
+          "evidence_revision": 1,
+          "delivery_version": 0
+        },
+        "action": "fund",
+        "amount_atomic": "15000000",
+        "chain_id": 84532,
+        "payment_hash": "0xaedb428bc324745c830bf1e6415f1a63f42d2e3875e81b3d5caa704dc0ae7a00",
+        "idempotency_key": "fixture-key-expired_not_returned",
+        "reason": "Synthetic frontend state demonstration; no wallet action authority.",
+        "mode": "mock"
+      },
+      "fingerprint": "a3fd740dfa47556ffbe64b36282dab1b05093d83dddd46cb45ec9833920a9080",
+      "state": "confirmed",
+      "created_at": "2026-10-23T19:00:00Z",
+      "updated_at": "2026-10-23T19:00:00Z",
+      "nonce": null,
+      "transaction_hash": null,
+      "block_evidence": null,
+      "observation": null,
+      "error": null,
+      "reconciliation_status": "confirmed",
+      "attempts": 1
+    }
+  ],
+  "explorer_links": [],
+  "simulated": true,
+  "finality_note": "Receipt confirmation threshold is not Ethereum/L1 finality."
+}

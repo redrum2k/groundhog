@@ -1,3 +1,9 @@
+"""v0.2 historical DTOs and shared primitives. Invoice records are read-only in v0.3.
+
+Old policy fields are retained only to deserialize historical records without rewriting them.
+Use contracts.catalog for every new request, order, assessment and commercial decision.
+"""
+
 from __future__ import annotations
 
 from enum import StrEnum

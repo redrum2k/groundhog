@@ -1,3 +1,7 @@
+> This document describes the preserved `/api/jobflow` invoice workbench.
+> Catalog/payment handoff status is in [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md);
+> catalog policy is HACK.md, and invoice policy is [archived separately](docs/jobflow/INVOICE_POLICY.md).
+
 # Integrated v0.2 verification
 
 Date: 2026-10-23 local. Base: origin/main 06112e2. These are fresh branch results,

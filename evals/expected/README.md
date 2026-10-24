@@ -1,9 +1,10 @@
-# Independent answer keys — evaluation only
+# Independent expected outcomes — evaluator only
 
-Owner: Rehan. This directory is reserved for independently reviewed expected answers.
-No keys are present yet. It must be unavailable to the investigator and runtime:
-exclude it from runtime workspaces, containers, tools, prompts and frontend assets.
+Owner: Rehan. No independently reviewed gold labels are supplied yet. Engineering fixture tests
+are not independent outcome validation. Rehan's first deliverable is labeled clean, defective,
+repaired, substantively amended and unresolved catalog cases.
 
-The future offline evaluator may load keys after investigation to score results.
-Running an investigator with arbitrary repository filesystem access is not isolation.
-No schema check or directory name substitutes for that access boundary.
+Keep this directory unavailable to runtime workspaces, tools, prompts, frontend assets and
+production packages. Only the offline evaluator may compare runtime outcomes with these labels.
+Measure false passes, missed contradictions, useful abstention and failure analysis. Optional
+semantic-provider comparisons also need latency and cost. No confidence cutoff is adopted.

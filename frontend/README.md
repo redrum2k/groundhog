@@ -1,7 +1,14 @@
 # OBJECTION — job-level workbench
 
+This existing UI uses `/api/jobflow`. The merged catalog/payment handoff is a
+separate API contract: [Lucas handoff](../docs/handoffs/lucas.md),
+[generated catalog types](api.generated.ts), [helpers](contracts.ts), and
+[all-state payment mock](fixtures/README.md). No catalog screens or wallet UI were
+added during the merge. Catalog policy does not replace the invoice workbench policy.
+
+
 Lucas owns presentation and PDF highlight display; Jeff supplies source coordinates.
-Base-order financial policy follows [HACK.md v0.2](../HACK.md): server-driven
+Base-order financial policy follows [invoice policy v0.2](../docs/jobflow/INVOICE_POLICY.md): server-driven
 ten-minute review, independent authorization expiry, held unresolved disputes and
 bounded free regeneration. Additional work requires its own accepted scope and
 payment authorization. Follow the [shared checkpoint](../docs/INTEGRATION_CHECKPOINT.md).

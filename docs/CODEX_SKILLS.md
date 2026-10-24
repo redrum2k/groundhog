@@ -22,7 +22,7 @@ or `$` selects a skill; ChatGPT supports `@` selection. See the
 | `hack-pitch` | Turn the working demo into a short pitch and prepare judge questions. | Rehan |
 | `openai-docs` | Answer Codex setup, skills, and configuration questions using official documentation. | Anyone |
 
-Start with `pdf:pdf` for an actual PDF fixture, `nextjs-developer` for Lucas's UI,
+Start with `pdf:pdf` for catalog PDF fixture checks, `nextjs-developer` for Lucas's complete UI,
 and `verify-this` for a concrete policy/retry claim. Use one appropriate skill for
 the task instead of loading the entire list. The PDF skill is for artifact work;
 it does not replace building the application's PDF viewer or evidence resolver.
@@ -31,3 +31,7 @@ OpenAI Docs does not supply Anthropic/CDP/LangGraph API documentation.
 After a repeated workflow stabilizes, `skill-creator` can package it as a shared
 skill. `skill-installer` can install a missing skill when explicitly requested.
 There is no need to install anything to run the current backend checks.
+
+Current product and ownership are catalog v0.3 in HACK.md and responsibilities.md. Jeff owns
+requirements/fulfillment intelligence; Nikita owns durable runtime/gateway/financial execution;
+Lucas owns the complete frontend; Rehan owns independent evaluation and demo validation.

@@ -1,4 +1,4 @@
-"""Polling API v0.2. Customer commands and trusted worker commands are separate."""
+"""Invoice v0.2 compatibility DTOs. Only /api/jobflow owns active invoice mutations."""
 
 from typing import Annotated, Literal
 

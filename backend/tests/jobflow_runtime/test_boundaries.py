@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import hashlib
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
@@ -128,10 +129,12 @@ def test_investigation_http_202_and_background_worker_lifecycle(h):
         )
         assert response.status_code == 202
         assert response.json()["run_id"]
-        for _ in range(100):
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
             state = client.get(f"/api/jobflow/orders/{order.id}", headers=headers).json()
             if state["investigations"][0]["status"] == "COMPLETE":
                 break
+            time.sleep(0.01)
         else:
             pytest.fail("Application-owned worker did not consume durable queue")
 

@@ -17,7 +17,7 @@ from app.contracts.jobflow import (
 )
 from app.storage.jobflow import DomainError
 
-router = APIRouter(prefix="/api/jobflow", tags=["jobflow"])
+router = APIRouter(tags=["jobflow"])
 
 
 def runtime(request: Request):
