@@ -179,11 +179,9 @@ class CatalogService(DatasetLifecycle):
                 self.repository.put(db, "prepared_sources", request_id, prepared_sources)
                 sources = prepared_sources.sources
             else:
-                # Ordinary recompilation must not retain an old prepared selection.
-                db.execute(
-                    "DELETE FROM catalog_records WHERE kind='prepared_sources' AND id=?",
-                    (request_id,),
-                )
+                # Worker recompilation after clarification keeps draft-local
+                # evidence, but genuine source changes/expiry still fail closed.
+                sources = request_sources(self, draft, db)
             draft.compiler_calls += 1
             draft.revision += 1
             reserved_revision = draft.revision

@@ -25,7 +25,13 @@ from tools.brokerage_acceptance import Clock, fund
 
 from app.agents.source_knowledge import InstitutionalMemory, SourceKnowledge
 from app.agents.source_preparation import compile_prepared_source
-from app.contracts.catalog import AcceptQuoteCommand, QuoteRequest
+from app.contracts.catalog import (
+    AcceptQuoteCommand,
+    ClarifyCommand,
+    QuoteRequest,
+    RequestCommand,
+    RevisionCommand,
+)
 from app.datasets import canonical, parse_csv
 from app.orders.catalog import CatalogService
 from app.orders.service import DomainError
@@ -383,6 +389,57 @@ def test_preparation_key_rejects_changed_encounter(service):
     compile_prepared_source(learner, ready["encounter_id"], idempotency_key="same")
     with pytest.raises(DomainError, match="changed request"):
         compile_prepared_source(learner, other["encounter_id"], idempotency_key="same")
+
+
+@pytest.mark.parametrize("revoked", [False, True])
+def test_worker_recompilation_preserves_preparation_after_clarification(service, revoked):
+    learner, original, _, _, _ = learn(service, setup_source(service))
+    draft = service.create_request(
+        RequestCommand(
+            prompt="SF adults 25-34 interested in fitness, counts by ZIP.",
+            corpus_id=original.source.corpus_id,
+            idempotency_key="ambiguous-intake",
+        )
+    )
+    case = original.model_copy(update={"request_id": draft.request_id, "case_id": "ambiguous"})
+    ready = learner.assess(case)
+    draft = compile_prepared_source(learner, ready["encounter_id"], idempotency_key="prepare")
+    assert draft.status == "clarification"
+    draft = service.clarify(
+        draft.request_id,
+        ClarifyCommand(
+            expected_revision=draft.revision,
+            idempotency_key="answer",
+            question_id=draft.question.question_id,
+            text="Gym membership or fitness app use, excluding standalone yoga.",
+        ),
+    )
+    command = RevisionCommand(expected_revision=draft.revision, idempotency_key="worker")
+    if revoked:
+        setup_source(service, head_version=2, status="revoked")
+        with pytest.raises(DomainError, match="changed or expired"):
+            service.compile_request(draft.request_id, command)
+        return
+    draft = service.compile_request(draft.request_id, command)
+    assert draft.status == "ready"
+    quote = service.issue_quote(
+        draft.request_id,
+        QuoteRequest(
+            expected_revision=draft.revision,
+            idempotency_key="quote",
+        ),
+    )
+    order = service.accept_quote(
+        AcceptQuoteCommand(
+            quote_id=quote.quote_id,
+            customer_actor=CUSTOMER,
+            idempotency_key="accept",
+        )
+    )
+    order = fund(service, order)
+    assert order.verification.passed
+    rows = parse_csv(service.store.read(order.deliveries[-1].csv))
+    assert next(row.count for row in rows if row.zip == "94110") == 179
 
 
 @pytest.mark.parametrize("stage", ["publish", "quote", "accept"])

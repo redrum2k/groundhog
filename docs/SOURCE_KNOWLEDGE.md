@@ -77,7 +77,7 @@ experimental code, datasets, labels, database, or generated delivery is included
   ordinary compiler/quote flow. Acceptance and funding remain separate.
 - `backend/app/catalog/preparation.py` and narrow `orders/catalog.py` hooks:
   request-local sources, durable retries, and current authority checks at quote/acceptance.
-- `evals/source_learning/`: explicitly simulated fixtures, comparison and 38 tests.
+- `evals/source_learning/`: explicitly simulated fixtures, comparison and 40 tests.
 
 Both engine and memory constructors require sandbox opt-in. Production active-version
 pointers remain empty. Source reasoning is checked against commercial-action tripwires
@@ -113,12 +113,29 @@ quote and acceptance; draft-local evidence does not bypass genuine revocation.
 No new infrastructure or external dependency was introduced. Existing repository
 transactions, command responses, artifacts and compiler are reused.
 
-Verification: 38 focused tests pass; Ruff lint/format passes for changed Python
+- [Clarification drops prepared counts](https://github.com/redrum2k/order-to-cash/pull/24#discussion_r4368888101):
+  the ordinary worker recompile after a clarification originally discarded the
+  request-local selection, yielding 170 instead of the prepared 179. It now reuses
+  the selection after checking current registry/authority. Regressions exercise
+  actual quote, acceptance, mock funding and delivered CSV, plus rejection of an
+  authority revoked between clarification and worker compilation.
+
+Verification: 40 focused tests pass; Ruff lint/format passes for all backend
 files. The post-fix offline comparison still reports 9/9 correct for both arms,
 8 versus 6 reviews, zero paid calls and production activation false. Its immutable
-capsule is `761f4b2349fb8aa04d007d6df656fc38f22c703803760ae24ab8b76c8f7178d8`.
+capsule is `4e80b29b514b811afad91ab59ea843dfc36d4e5bf03a47ee40a6512407ebf4e7`.
 The original 109-case results and earlier experiment artifacts were not modified
-or used for training. Full backend verification is in progress; no merge is authorized.
+or used for training.
+
+The full backend plus then-current 38 focused tests ran on Windows: **1,025 passed,
+16 failed** (397 seconds). All 16 failed again against a clean archive of base
+commit `3445e19`, using the same interpreter and verifying imports came from that
+archive. They concern evaluator text encoding/subprocess behavior (3), isolated
+payment HTTP subprocesses (11), a POSIX mode-bit assertion (1), and a hardcoded
+`.venv/bin/python` path (1). This is not a green full-suite claim. No unrelated
+payment/evaluator code or tests were changed to hide these failures. The final
+clarification fix passes all **345 tests** in the complete catalog/dataset and
+40 focused test suites (112 seconds); no merge is authorized.
 
 ## Local verification
 
