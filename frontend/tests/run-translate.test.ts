@@ -61,6 +61,33 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.captured.status).toBe("done");
   });
 
+  // Jeff's dispute.assessed (PR #12, flag off by default), spliced into the recorded refuted dispute after case.opened
+  const assessed = (payload: Record<string, unknown>) => {
+    const s = snapshot("green");
+    const opened = s.events.findIndex((e) => e.type === "case.opened");
+    const event: BrokerEvent = { ...s.events[opened], id: "event_assessed", type: "dispute.assessed", payload };
+    const events = translate({ ...s, events: [...s.events.slice(0, opened + 1), event, ...s.events.slice(opened + 1)] }, "green");
+    return { events, v: project(events, { lane: "green", ending: "human", learned: false, contract: CONTRACT_V1 }) };
+  };
+
+  it("shows a model-decided dispute as decided by model, verified by code, with its quoted references as evidence", () => {
+    const { v } = assessed({ kind: "not_justified", reason: "The contract names San Francisco only; Oakland was never in scope.", decided_by: "model", evidence_ids: [], references: [{ artifact_id: "spec-v1", version: 1, locator: "/requirements/geography", value: "San Francisco only, 10 ZIPs, boundary 2026-Q3" }] });
+    expect(v.nodes.verdict.step.detail).toBe("Decided by model, verified by code");
+    expect(v.nodes.verdict.verdict?.reason).toMatch(/^Decided by the model, verified by code: The contract names San Francisco only/);
+    expect(v.nodes.verdict.verdict?.evidenceIds).toContain("assessed-43-0");
+    expect(v.nodes.investigate.evidence.some((e) => e.kind === "claim" && "quote" in e && /San Francisco only, 10 ZIPs/.test(e.quote))).toBe(true);
+    expect(v.nodes.investigate.messages.some((m) => m.from === "agent" && /The model read the objection/.test(m.text))).toBe(true);
+    expect(v.nodes.verdict.chip).toBe("We're right");
+  });
+
+  it("never reads as model-decided on a fallback: an unresolved assessment opens the grey area", () => {
+    const { events, v } = assessed({ kind: "unclear", reason: "The complaint may mean a cohort the contract does not define.", decided_by: "unresolved", evidence_ids: [], references: [] });
+    expect(v.order).toContain("grey");
+    expect(v.nodes.verdict?.step.detail ?? "").not.toMatch(/model/);
+    const words = events.flatMap((e) => (e.type === "caption" ? [e.text] : e.type === "message" ? [e.message.text] : []));
+    expect(words.some((t) => /decided by the model/i.test(t))).toBe(false);
+  });
+
   it("maps an unknown verdict onto questions, a grey area, the controller's resume and a free correction", () => {
     const v = view("amber");
     expect(v.nodes.produce.checks.freshness).toBeDefined();

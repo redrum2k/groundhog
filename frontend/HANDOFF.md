@@ -264,3 +264,10 @@ Resolution, per the demo decision above: the canvas stays at `/` and is the demo
 The feed that polls Jeff's broker is still called `live` (main had renamed it `fixture`), and the header toggle still says Live.
 `caption` is a canvas-only event the translator narrates with; it is not on the wire, so `contract.ts` adds it to the generated union.
 `npm run generate:check` reports drift in `docs/openapi.json` on Python 3.13 only because the 422 reason phrase changed ("Unprocessable Content"); it is not a contract change.
+
+## Jeff's dispute assessment (PR #12, flag `ENABLE_BROKER_DISPUTE_ASSESSMENT`, off by default)
+
+The translator maps `dispute.assessed` from his published contract: justified → agree, not_justified → disagree, unclear → the grey-area detour.
+The verdict step reads "Decided by model, verified by code" only when `decided_by` is `model`; rules or unresolved never read as model-decided.
+Each quoted reference becomes an evidence card on Investigate, attached to the agent's message; the verdict carries the reason and the reference ids.
+Until his branch regenerates the wire types with `model` in `decidedBy`, the words carry the provenance and the typed field stays `rules`.

@@ -7,6 +7,9 @@ import { AREA_BY_ZIP, MAIN, S } from "../scenario";
 import type { BrokerCheck, BrokerEvent, BrokerOrder, BrokerSnapshot, DataRow } from "./types";
 
 type Detour = "dispute" | "unknown" | "failed";
+/** Who settled a dispute, per Jeff's `dispute.assessed`: the model (validated by code), the rules alone, or nobody yet. */
+type DecidedBy = "model" | "rules" | "unresolved";
+type Assessed = { kind: "justified" | "not_justified" | "unclear"; reason: string; decided_by: DecidedBy; references?: { artifact_id: string; version: number; locator: string; value: string }[] };
 
 /** The eight accepted requirements, in the order the backend checks them, with our wording. */
 const DIMENSIONS: [string, string[], (p: Record<string, unknown>) => string, string][] = [
@@ -45,10 +48,10 @@ function rowsToSheet(rows: DataRow[]): ZipCount[] {
 }
 
 /** The steps a detour takes, in the backend's own terms. */
-function detourSteps(kind: Detour, resolution: BrokerOrder["resolution"]): Step[] {
+function detourSteps(kind: Detour, resolution: BrokerOrder["resolution"], decidedBy?: DecidedBy): Step[] {
   if (kind === "dispute") return [
     { id: "investigate", kind: "investigate", title: "Investigate", detail: "The accepted spec against the delivery", panel: true },
-    { id: "verdict", kind: "verdict", title: resolution === "CORRECTED" ? "They're right" : "We're right", detail: resolution === "CORRECTED" ? "A requirement failed" : "Delivered as accepted" },
+    { id: "verdict", kind: "verdict", title: resolution === "CORRECTED" ? "They're right" : "We're right", detail: decidedBy === "model" ? "Decided by model, verified by code" : decidedBy === "rules" ? "Decided by rules" : resolution === "CORRECTED" ? "A requirement failed" : "Delivered as accepted" },
   ];
   if (kind === "failed") return [
     { id: "investigate", kind: "investigate", title: "Check failed", detail: "A requirement did not pass", panel: true },
@@ -83,6 +86,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
   let contractVersion = 0;
   let delivery = 0, reviews = 0, verifications = 0;
   let detour: Detour | null = null, detourDelivery = 0, detourStep = "investigate", resumed = false, verdictDone = false, controllerOpen = false;
+  let assessment: { reason: string; decidedBy: DecidedBy; evidenceIds: string[] } | null = null; // the bounded assessment, when the backend flag is on
   // A message on the decide step reads as activity; while the controller's task is open the gate is re-asserted after it
   const holdForController = () => { if (controllerOpen && detourStep === "decide") emit({ type: "step_waiting", step: "decide", waitingOn: S.controller }); };
   const lines = (): ContractLine[] => [...drafted].map((d) => lineFor(d, answered)); // in the order the interview settled them, so approval and review list the same thing
@@ -105,7 +109,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
       }
       complete("investigate");
       emit({ type: "step_started", step: "verdict" });
-      emit({ type: "verdict", step: "verdict", verdict: { kind, decidedBy: "rules", evidenceIds: cites, reason: kind === "agree" ? "A requirement failed and was corrected." : "Every accepted requirement passed; nothing was missing from what was agreed." }, allowedBy: POLICY.checks });
+      emit({ type: "verdict", step: "verdict", verdict: { kind, decidedBy: "rules", evidenceIds: [...cites, ...(assessment?.evidenceIds ?? [])], reason: assessment ? `${assessment.decidedBy === "model" ? "Decided by the model, verified by code: " : ""}${assessment.reason}` : kind === "agree" ? "A requirement failed and was corrected." : "Every accepted requirement passed; nothing was missing from what was agreed." }, allowedBy: POLICY.checks });
       verdictDone = true;
     }
     for (const s of detourSteps(detour, order.resolution)) complete(s.id);
@@ -251,6 +255,25 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         emit({ type: "step_started", step: "investigate" });
         say("investigate", { id: `claim-${e.sequence}`, from: "buyer", text: base?.complaint ?? "Disputed." });
         caption(`Acme disputes: “${base?.complaint ?? "the delivery"}”. The payment stays held until it's resolved.`);
+        break;
+      }
+      case "dispute.assessed": {
+        // Jeff's bounded assessment: the model proposes, code validates, the server owns the effective outcome.
+        // A fallback never reads as model-decided.
+        const a = p as unknown as Assessed;
+        const refs = (a.references ?? []).slice(0, 4);
+        const ids = refs.map((_, i) => `assessed-${e.sequence}-${i}`);
+        refs.forEach((r, i) => emit({ type: "evidence_found", step: "investigate", evidence: { id: ids[i], kind: "claim", label: r.value.length > 48 ? `${r.value.slice(0, 45)}…` : r.value, note: `${r.artifact_id} v${r.version}, ${r.locator}`, speaker: r.artifact_id, quote: r.value, source: { kind: "none", reason: `${r.artifact_id} v${r.version}, ${r.locator}` } } }));
+        const who = a.decided_by === "model" ? "The model read the objection against the contract; code verified each fact it cited." : a.decided_by === "rules" ? "The rules settle this without the model." : "Neither the model nor the rules settle this.";
+        say("investigate", { id: `assessed-${e.sequence}`, from: "agent", text: `${who} ${a.reason}`, attach: ids.map((evidenceId) => ({ kind: "evidence" as const, evidenceId })) });
+        assessment = { reason: a.reason, decidedBy: a.decided_by, evidenceIds: ids };
+        if (a.kind === "unclear") {
+          if (detour !== "unknown") { detour = "unknown"; detourDelivery = delivery; emit({ type: "steps_planned", steps: detourSteps("unknown", order.resolution) }); }
+          caption("Not settled by the model or the rules. The agent can ask up to two questions before a person decides.");
+        } else {
+          emit({ type: "steps_planned", steps: detourSteps("dispute", order.resolution, a.decided_by) });
+          caption(a.decided_by === "model" ? "Decided by the model, verified by code." : "Decided by rules.");
+        }
         break;
       }
       case "question.requested": {
