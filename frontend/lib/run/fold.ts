@@ -64,20 +64,15 @@ export interface FoldContext { lane: Case; ending: Ending; learned: boolean; con
 const blankNode = (step: Step): NodeState => ({ step, status: "idle", attempt: 1, messages: [], asked: [], drafted: [], pending: {}, checks: {}, evidence: [], allowedBy: [] });
 const LANE_KINDS = new Set(["investigate", "verdict", "amend", "grey", "decide"]);
 
-// The recorded demo narrates the groundhog's visit to the database itself (source_checked). The live backend only
-// reports the investigation as evidence events, so the same three lines are derived here: each cited cell ticks the
-// next line and the last one waits for the finding. An evidence id carries the obligation it answers
-// (job:dataset:geography:0), which names the contract line being read.
+// The recorded demo narrates the groundhog's visit to the database itself (source_checked). The live backend never
+// says so, it only reports the finding, so the live route opens the same three lines when Investigate starts and
+// reads them all once the finding is in. The reading in between is paced on screen (reveal.ts), not by events: the
+// backend's cited cells arrive after its verdict.
 const sourceVisit = (lines: number): SourceLine[] => [
   { id: "src-pin", text: "Accepted sources · as pinned at acceptance", checked: false },
   { id: "src-lines", text: `${lines || "The"} contract lines · against the source`, checked: false },
   { id: "src-rows", text: "Delivered rows · against the source", checked: false },
 ];
-function readAtSource(lines: SourceLine[], evidenceId: string): SourceLine[] {
-  const obligation = evidenceId.split(":").slice(1, -1).pop();
-  const next = lines.findIndex((l) => !l.checked && l.id !== "src-rows");
-  return lines.map((l, i) => i !== next ? l : { ...l, checked: true, text: l.id === "src-lines" && obligation ? `${obligation[0].toUpperCase()}${obligation.slice(1)} line · against the source` : l.text });
-}
 const allRead = (lines: SourceLine[]): SourceLine[] => lines.map((l) => ({ ...l, checked: true }));
 
 export function emptyView(contract: DataContract): View {
@@ -233,7 +228,6 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     case "evidence_found":
       n.evidence.push(e.evidence); v.evidence[e.evidence.id] = e.evidence;
       v.cards = [...v.cards, { id: e.evidence.id, node: e.step, text: e.evidence.label, tone: e.evidence.kind === "claim" ? "claim" : "ev" }];
-      if (ctx.live && n.source) n.source = readAtSource(n.source, e.evidence.id);
       break;
     case "dispute_opened": v.dispute = e.dispute; v.coin = coinFor(v); break;
     case "verdict":
