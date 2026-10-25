@@ -58,7 +58,7 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
   const finished=settled;
   const nodes:CNode[]=view.order.map(key=>({id:key,row:MAIN.has(key)?0:1,col:view.order.filter(k=>MAIN.has(k)===MAIN.has(key)).indexOf(key),title:view.nodes[key].step.title,desc:key==="captured" && view.nodes[key].status==="running"?"Awaiting confirmation":DETAILS[key] ?? view.nodes[key].step.detail,keepChip:["verdict","grey"].includes(view.nodes[key].step.kind)}));
   const source=Object.values(view.nodes).find(n=>n.source && n.status!=="idle");
-  const canvas:CanvasView={status:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,reviewComplete && k==="review"?"done":n.status])),chip:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,k==="captured" && n.status==="running"?"Confirming payment":CHIPS[n.status]])),orb:{node:finished?"captured":view.orb.step,mode:view.orb.mode},coin:view.coin,loops:view.loops,cards:view.cards,source:source?.source?{node:source.step.id,lines:source.source}:null};
+  const canvas:CanvasView={status:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,reviewComplete && k==="review"?"done":n.status])),chip:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,k==="captured" && n.status==="running"?"Confirming payment":CHIPS[n.status]])),orb:{node:finished?"captured":view.orb.step,mode:view.orb.mode},coin:view.coin,loops:view.loops,cards:view.cards,source:source?.source?{node:source.step.id,lines:source.source.map((l,i)=>({...l,checked:l.checked || i<order.read}))}:null};
   if(paymentProcessing) {
     const paymentNode=nodes.find(node=>node.id===paymentProcessing);
     if(paymentNode) {
