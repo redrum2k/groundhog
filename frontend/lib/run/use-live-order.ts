@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import type { Quote, RunDecision } from "../runs.generated";
+import type { Quote, RunDecision, RunPage } from "../runs.generated";
 import type { Binding as DeliveryBinding, OrderView } from "../catalog.generated";
 import type { Source } from "./contract";
 import { project } from "./fold";
@@ -13,6 +13,11 @@ import { currentAssessment } from "./assessment";
 
 const EMPTY = {version:0,buyer:"",title:"",price:0,lines:[]};
 const REVIEW_REASONS={approve:"Approve the return of uncaptured funds for this unresolved case.",reject:"Reject the proposed return and retain human review.",ask:"Request additional evidence within the existing deadline.",escalate:"Escalate the unresolved case for further human review."};
+
+function humanReviewNeeded(page?:RunPage) {
+  if(["void_pending","voided"].includes(page?.payment?.payment.state ?? ""))return false;
+  return !!page?.available_actions.some(a=>["approve","reject","ask","escalate"].includes(a.action) && a.enabled);
+}
 
 export function useLiveOrder() {
   const live = useLiveRun();
@@ -34,7 +39,7 @@ export function useLiveOrder() {
   const assessment = currentAssessment(shown.events,binding); // the rejection path waits for the finding like the canvas does
   const busy = live.busy || !!checkout.stage;
   const enabled = (action:string) => !busy && !!page?.available_actions.some(a=>a.action===action && a.enabled);
-  const needsHumanReview = !!page?.available_actions.some(a=>["approve","reject","ask","escalate"].includes(a.action) && a.enabled);
+  const needsHumanReview = humanReviewNeeded(page);
   const hasHumanReview = needsHumanReview || !!view.nodes.decide?.decision;
   const command = binding ? {expected_revision:binding.revision,expected_binding:{snapshot_id:binding.snapshotId,delivery_version:binding.deliveryVersion,evidence_revision:binding.evidenceVersion}} : {};
   const current = <T=unknown,>(action:string,body:Record<string,unknown>={}) => live.command<T>(`/orders/${binding?.orderId}/${action}`,{...command,...body},true);

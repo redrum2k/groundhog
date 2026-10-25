@@ -118,6 +118,10 @@ function settlementProgress(v: View, state: PaymentStateChanged["state"]) {
     const human = v.nodes.decide;
     if (human?.decision?.action === "approve") {
       human.status = "done"; human.waitingOn = undefined; human.chip = "Return approved";
+      const finding = v.nodes.verdict;
+      if (finding?.verdict?.kind === "grey") {
+        finding.status = "done"; finding.waitingOn = undefined; finding.chip = "Reviewed";
+      }
     }
     capture.status = state === "voided" ? "done" : "running";
     capture.step = {...capture.step, title:state === "voided" ? "Funds returned" : "Return pending",
@@ -194,6 +198,10 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
         for (const key of ["review", "investigate", "decide"]) {
           const node = v.nodes[key];
           if (node) { node.status = "waiting"; node.waitingOn = "Human review required"; }
+        }
+        const finding = v.nodes.verdict;
+        if (finding?.verdict?.kind === "grey") {
+          finding.status = "grey"; finding.chip = "Needs review";
         }
         v.orb = {step:"decide",mode:"wait"};
       }
