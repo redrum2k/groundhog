@@ -229,10 +229,13 @@ def audit(root):
                 for op in operations
             )
             terminals = [op for op in operations if op["intent"]["action"] != "fund"]
-            if label in ("training", "missing-zip", "excluded-population"):
+            expected_result = next(
+                (r["expected"] for r in plan["recipes"] if r["id"] == label), None
+            )
+            if label == "training" or expected_result == "FAIL":
                 assert len(terminals) == len(order["ledger"]) == 1
                 assert order["ledger"][0]["kind"] == "capture"
-            elif plan["attempt"] == "semantic-v1":
+            elif plan.get("complete_settlement") or plan["attempt"] == "semantic-v1":
                 assert len(terminals) == len(order["ledger"]) == 1
                 assert order["ledger"][0]["kind"] == "release"
                 assert len(order["decisions"]) == 1

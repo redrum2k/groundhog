@@ -94,6 +94,36 @@ SEMANTIC_CASES = (
     },
 )
 
+FINAL_CASES = (
+    {
+        "id": "misread-scope",
+        "text": (
+            "You sold us an audience that includes yoga-only members. "
+            "Removing them fails the agreed specification."
+        ),
+        "expected": "FAIL",
+        "basis": "Both assertions conflict with the accepted exclusion; no extra-scope consent.",
+    },
+    {
+        "id": "scope-boundary",
+        "text": (
+            "A customer enrolled only in a yoga studio is outside the gym-or-app audience "
+            "we bought; excluding that customer does not break our scope."
+        ),
+        "expected": "PASS",
+        "basis": "Accepted source/category supports the exclusion and its scope consequence.",
+    },
+    {
+        "id": "unverified-identity",
+        "text": (
+            "I believe some residents were counted in more than one ZIP. The terms assume "
+            "disjoint groups, but I need identity-level evidence to settle that concern."
+        ),
+        "expected": "UNKNOWN",
+        "basis": "No person-level linkage evidence exists in the accepted aggregate artifacts.",
+    },
+)
+
 
 def load(path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -360,11 +390,14 @@ def application(root):
 def child(root, recover=False, recovery_id=0):
     budget = configure()
     before_hash = source_hash()
-    recipes = SEMANTIC_CASES if root.name == "semantic-v1" else RECIPES
+    recipes = {"semantic-v1": SEMANTIC_CASES, "semantic-v2": FINAL_CASES}.get(root.name, RECIPES)
+    complete_settlement = root.name.startswith("semantic-")
+    training_batch = {"semantic-v1": 401, "semantic-v2": 501}.get(root.name, 301)
     plan = {
         "lane": "LOCAL",
         "attempt": root.name,
         "recipes": recipes,
+        "complete_settlement": complete_settlement,
         "authorization_sha256": hashlib.sha256(AUTH.read_bytes()).hexdigest(),
         "source_sha256": before_hash,
         "git_commit": subprocess.check_output(
@@ -403,7 +436,7 @@ def child(root, recover=False, recovery_id=0):
                 "cause": (
                     "Harness observed finding replacement incorrectly; "
                     "reuse completed assessments and retained question rounds"
-                    if root.name == "semantic-v1"
+                    if complete_settlement
                     else "Harness compared Money object to string"
                 ),
             },
@@ -451,9 +484,7 @@ def child(root, recover=False, recovery_id=0):
                     }
                 version = journey.learning()["active_version"]
             else:
-                run, oid = journey.intake(
-                    "training", 401 if root.name == "semantic-v1" else 301, ambiguous=True
-                )
+                run, oid = journey.intake("training", training_batch, ambiguous=True)
                 journey.settle_review("training", oid)
                 candidate = journey.command(
                     "/source-learning/propose",
@@ -466,7 +497,7 @@ def child(root, recover=False, recovery_id=0):
                 )["record_id"]
                 journey.command("/source-learning/activate", {"target_id": version}, "activate")
             journey.report["learning_version"] = version
-            for batch, recipe in enumerate(recipes, 402 if root.name == "semantic-v1" else 302):
+            for batch, recipe in enumerate(recipes, training_batch + 1):
                 if recipe["id"] in journey.report["orders"]:
                     info = journey.report["orders"][recipe["id"]]
                     run, oid = info["run_id"], info["order_id"]
@@ -474,7 +505,7 @@ def child(root, recover=False, recovery_id=0):
                     run, oid = journey.intake(recipe["id"], batch)
                 assert journey.report["orders"][recipe["id"]]["initial_internal_reviews"] == 0
                 results.append(journey.assess(recipe, run, oid))
-                if root.name == "semantic-v1":
+                if complete_settlement:
                     journey.finish_held(recipe["id"], run, oid)
                 save(root / "results.json", {"cases": results, "journey": journey.report})
             saved_orders = {
