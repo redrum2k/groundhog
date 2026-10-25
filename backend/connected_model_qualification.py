@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tools.judge_journey import Journey, save  # noqa: E402
+from tools.local_learning_process import model_environment  # noqa: E402
 
 AUTH = ROOT / ".local/llm-authorization.json"
 ACCESS = ROOT / ".local/llm-access.json"
@@ -250,28 +251,11 @@ def authorize():
 def configure():
     access = load(ACCESS)
     auth = access["authorization"]
-    # Load only the API key from the existing private file; never echo its values
-    # or copy the file into an artifact, worktree, child command line or PR.
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        private = Path("C:/Users/sajee/order-to-cash/backend/.env")
-        for line in private.read_text(encoding="utf-8").splitlines():
-            key, separator, value = line.partition("=")
-            if separator and key.strip() == "ANTHROPIC_API_KEY":
-                os.environ[key.strip()] = value.strip().strip("\"'")
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        raise RuntimeError("Existing Anthropic credential unavailable")
+    os.environ.update(model_environment(ACCESS))
     os.environ.update(
         {
-            "CLAUDE_MODEL": auth["model"],
-            "ENABLE_PAID_MODELS": "true",
-            "ENABLE_DATASET_MODEL_ASSESSMENT": "true",
             "PAYMENT_ADAPTER": "mock",
             "ENABLE_TESTNET_BROADCAST": "false",
-            "ENABLE_BROKER_DISPUTE_ASSESSMENT": "false",
-            "APPLICATION_MODEL_BUDGET_PATH": auth["ledger"],
-            "APPLICATION_MODEL_WINDOW_ID": auth.get("window") or auth["authorization_id"],
-            "APPLICATION_MODEL_BUDGET_USD": str(access["maximum_usd"]),
-            "APPLICATION_MODEL_CONCURRENCY": "1",
         }
     )
     if auth["cutoff"] is None:

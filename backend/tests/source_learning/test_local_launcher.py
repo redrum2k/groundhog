@@ -78,6 +78,54 @@ def test_local_model_factory_requires_explicit_safe_environment(tmp_path, monkey
         factory.application()
 
 
+@pytest.mark.parametrize("route", ["environment", "checkout", "explicit", "missing"])
+def test_provider_credential_route_is_portable_and_never_reads_another_checkout(
+    tmp_path, monkeypatch, route
+):
+    from tools import local_learning_process as launcher
+
+    monkeypatch.setattr(launcher, "ROOT", tmp_path)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    access = {
+        "authorization": {
+            "payments": "mock",
+            "production_activation": False,
+            "model": "claude-opus-5-5",
+            "ledger": str(tmp_path / "budget.db"),
+            "authorization_id": "registered",
+            "concurrency": 1,
+            "cutoff": None,
+        },
+        "maximum_usd": 3,
+    }
+    if route == "environment":
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "synthetic-env-key")
+    elif route in ("checkout", "explicit"):
+        private = tmp_path / ("private/provider.env" if route == "explicit" else "backend/.env")
+        private.parent.mkdir(parents=True)
+        private.write_text("ANTHROPIC_API_KEY='synthetic-file-key'\nUNRELATED_SECRET=not-loaded\n")
+        if route == "explicit":
+            access["credential_file"] = "private/provider.env"
+    access_path = tmp_path / "access.json"
+    access_path.write_text(json.dumps(access))
+    original_read = Path.read_text
+
+    def guarded_read(path, *args, **kwargs):
+        assert path.resolve().is_relative_to(tmp_path.resolve()), "Unexpected private path"
+        return original_read(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", guarded_read)
+    if route == "missing":
+        with pytest.raises(RuntimeError, match="credential"):
+            launcher.model_environment(access_path)
+    else:
+        result = launcher.model_environment(access_path)
+        assert result["ANTHROPIC_API_KEY"] == (
+            "synthetic-env-key" if route == "environment" else "synthetic-file-key"
+        )
+        assert "UNRELATED_SECRET" not in result
+
+
 @pytest.mark.skipif(os.name != "nt", reason="Windows task process-tree regression")
 def test_task_parent_shutdown_reaps_children_and_grandchildren():
     import win32api

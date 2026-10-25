@@ -153,6 +153,9 @@ def test_harness_registers_exact_cap_without_refill_and_clears_expired_env(tmp_p
         "cutoff": None,
         "ledger": str(ledger.path),
         "model": "claude-opus-5-5",
+        "payments": "mock",
+        "production_activation": False,
+        "concurrency": 1,
     }
     auth_path, access_path = tmp_path / "authorization.json", tmp_path / "access.json"
     auth_path.write_text(json.dumps(auth), encoding="utf-8")

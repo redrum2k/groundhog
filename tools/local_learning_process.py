@@ -72,11 +72,23 @@ def model_environment(access_path):
     }
     # Read only the existing application credential. Never copy it to launch.json,
     # the frontend, a command line, the access artifact, or logs.
-    private = Path("C:/Users/sajee/order-to-cash/backend/.env")
-    for line in private.read_text(encoding="utf-8").splitlines():
-        key, separator, value = line.partition("=")
-        if separator and key.strip() == "ANTHROPIC_API_KEY":
-            result["ANTHROPIC_API_KEY"] = value.strip().strip("\"'")
+    provider_key = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    if provider_key:
+        result["ANTHROPIC_API_KEY"] = provider_key
+    else:
+        private = Path(access.get("credential_file") or ROOT / "backend/.env")
+        if not private.is_absolute():
+            private = Path(access_path).resolve().parent / private
+        try:
+            lines = private.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            raise RuntimeError(
+                "Provider credential unavailable; configure ANTHROPIC_API_KEY or credential_file"
+            ) from None
+        for line in lines:
+            key, separator, value = line.partition("=")
+            if separator and key.strip() == "ANTHROPIC_API_KEY":
+                result["ANTHROPIC_API_KEY"] = value.strip().strip("\"'")
     if not result.get("ANTHROPIC_API_KEY"):
         raise RuntimeError("Existing Anthropic credential unavailable")
     return result
