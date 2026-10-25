@@ -427,7 +427,9 @@ class Case(Contract):
     complaint: Complaint
     opened_at: AwareDatetime
     deadline: AwareDatetime
-    status: Literal["open", "supported", "unsupported", "scope_change", "human_review"] = "open"
+    status: Literal[
+        "open", "supported", "unsupported", "answered", "scope_change", "human_review"
+    ] = "open"
     questions_asked: Nonnegative = 0
     question: Text | None = None
     answers: tuple[Text, ...] = ()

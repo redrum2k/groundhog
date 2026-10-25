@@ -24,6 +24,7 @@ from app.contracts.catalog import (
     Source,
     UploadCommand,
 )
+from app.contracts.payment_justification import PaymentJustification
 from app.contracts.payments import (
     FundingAuthorization,
     FundingPreparation,
@@ -31,6 +32,7 @@ from app.contracts.payments import (
     PaymentWorkResult,
 )
 from app.orders.catalog import CatalogService
+from app.orders.payment_justification import payment_justification
 from app.orders.service import DomainError
 
 router = APIRouter()
@@ -125,6 +127,14 @@ def get_payment(order_id: str, orders: Service, response: Response):
         raise DomainError(404, "historical order has no catalog payment")
     response.headers["Cache-Control"] = "no-store"
     return payment
+
+
+@router.get("/orders/{order_id}/payment-justification", response_model=PaymentJustification)
+def explain_payment(order_id: str, orders: Service, response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    record = payment_justification(orders, order_id)
+    response.headers["ETag"] = f'"{record.revision}"'
+    return record
 
 
 @router.post("/orders/{order_id}/funding-preparation", response_model=FundingPreparation)

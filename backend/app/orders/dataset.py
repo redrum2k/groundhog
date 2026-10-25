@@ -7,6 +7,7 @@ from app.contracts.dataset import DatasetComplaintTarget
 from app.datasets import is_dataset, produce_dataset, verify_dataset
 from app.investigation.dataset import (
     guarded_dataset_assessment,
+    scope_inquiry,
     semantic_attempt,
     stale_semantic_attempt,
     unclear,
@@ -255,6 +256,14 @@ class DatasetLifecycle:
                 "complaint fee."
             )
             kind = "disagree"
+        elif semantic and semantic.result in {"PASS", "FAIL"} and scope_inquiry(case.complaint):
+            # Answered contract questions are neither breaches nor purchases.
+            # All original review, acceptance and payment gates still apply.
+            updated = case.model_copy(update={"status": "answered", "question": None})
+            reason, kind = (
+                semantic.explanation,
+                "disagree" if semantic.result == "FAIL" else "agree",
+            )
         elif semantic and semantic.result == "FAIL":
             updated = case.model_copy(update={"status": "unsupported"})
             reason, kind = semantic.explanation, "disagree"

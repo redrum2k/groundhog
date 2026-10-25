@@ -14,7 +14,10 @@ from tests.dataset.test_semantic_review import wire
 @pytest.mark.parametrize(
     "zip_key,field", [("94105", "artifact"), ("94129", "suppression"), ("94110", "suppression")]
 )
-def test_named_zip_count_and_status_reach_model_with_frozen_source(dataset_service, zip_key, field):
+@pytest.mark.parametrize("whole_artifact", [False, True])
+def test_named_zip_count_and_status_reach_model_with_frozen_source(
+    dataset_service, zip_key, field, whole_artifact
+):
     service, _ = dataset_service
     text = (
         f"Examine the count and status for ZIP {zip_key}; do not assume a present row is correct."
@@ -22,7 +25,9 @@ def test_named_zip_count_and_status_reach_model_with_frozen_source(dataset_servi
     ready = delivered(service)
     report = ready.verification
     assert report.passed
-    order = dispute(service, ready, text=text, field=field, product=zip_key)
+    order = dispute(
+        service, ready, text=text, field=field, product="dataset" if whole_artifact else zip_key
+    )
     packet = {}
 
     class Captured(Exception):

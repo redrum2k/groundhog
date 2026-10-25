@@ -1,4 +1,12 @@
-# DatumCo — aggregate data brokerage
+# Groundhog — aggregate order-to-cash
+
+Current bounded qualification: [final evidence and reproduction](docs/HYPHENATE_FINAL_QUALIFICATION.md)
+and [judge defense / three-minute demonstration](docs/HYPHENATE_JUDGE_DEFENSE.md).
+Real Claude investigation, approved persistent source knowledge, verified artifacts and mock
+settlement have run together. The qualified local launcher uses an explicitly registered
+budget-only model grant; default startup remains offline. Synthetic sources and simulated
+roles are disclosed. This is not production readiness or a newly verified on-chain trial.
+Historical offline/catalog statements below describe their earlier milestones, not the newer live trials.
 
 Turn AcmeFitness's request into a frozen data contract, fund it explicitly, deliver
 independently checked synthetic aggregate CSV/JSON, then settle under the review rules.

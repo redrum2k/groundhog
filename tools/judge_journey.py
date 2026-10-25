@@ -7,6 +7,7 @@ Evidence is private, append-only per run; the independent audit is a separate to
 import argparse
 import hashlib
 import json
+import sqlite3
 import subprocess
 import sys
 import time
@@ -23,14 +24,46 @@ from tools.local_learning_process import instance_state
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def budget_snapshot(config):
+    """Read the existing ledger, never register/refill a grant or load a key."""
+    if not config.get("model_access"):
+        return None
+    path = Path(config["model_access"])
+    if hashlib.sha256(path.read_bytes()).hexdigest() != config["model_access_sha256"]:
+        raise ValueError("Model access artifact changed after instance installation")
+    access = json.loads(path.read_text(encoding="utf-8"))
+    auth = access["authorization"]
+    uri = Path(auth["ledger"]).resolve().as_uri() + "?mode=ro"
+    with sqlite3.connect(uri, uri=True) as db:
+        count, active, cost, committed = db.execute(
+            "SELECT count(*),coalesce(sum(status='RESERVED'),0),"
+            "coalesce(sum(actual_micro_usd),0),"
+            "coalesce(sum(coalesce(actual_micro_usd,reserved_micro_usd)),0) FROM calls"
+        ).fetchone()
+        reserve = db.execute("SELECT final_reserve_micro FROM allocation WHERE id=1").fetchone()[0]
+    return {
+        "requests": count,
+        "active": active,
+        "known_cost_usd": cost / 1e6,
+        "committed_usd": committed / 1e6,
+        "reserve_usd": reserve / 1e6,
+        "maximum_usd": access["maximum_usd"],
+        "model": auth["model"],
+        "remaining_usd": float(access["maximum_usd"]) - (committed + reserve) / 1e6,
+    }
+
+
 def save(path, value):
     path.write_text(json.dumps(value, indent=2, ensure_ascii=True), encoding="utf-8")
 
 
 class Journey:
-    def __init__(self, instance, objection, owner_walkthroughs):
+    def __init__(self, instance, objection, owner_walkthroughs, after_restart_objection=None):
         self.state_dir = instance_state(instance)
         self.config = json.loads((self.state_dir / "launch.json").read_text(encoding="utf-8"))
+        self.budget_before = budget_snapshot(self.config)
+        if self.budget_before and self.budget_before["active"]:
+            raise RuntimeError("Another model request is active; preserve its ownership")
         self.backend = httpx.Client(
             base_url=f"http://127.0.0.1:{self.config['backend_port']}", timeout=70
         )
@@ -58,9 +91,12 @@ class Journey:
                 ).strip()
             ),
             "origin": "synthetic_sources_simulated_local_roles_mock_funding",
-            "paid_calls": 0,
+            "paid_calls": None if self.budget_before else 0,
+            "model_mode": "real_provider" if self.budget_before else "offline",
+            "budget_before": self.budget_before,
             "real_broadcasts": 0,
             "objection": objection,
+            "after_restart_objection": after_restart_objection,
             "database": str(self.state_dir / "orders.sqlite3"),
             "orders": {},
             "profile": "aggregate-brokerage-v1",
@@ -291,24 +327,32 @@ class Journey:
         )
         final = self.wait(lambda: self.order(oid), lambda v: bool(v["order"]["ledger"]))
         save(self.output / (label + "-final.json"), final)
+        save(
+            self.output / (label + "-payment-justification.json"),
+            self.request("GET", f"/orders/{oid}/payment-justification"),
+        )
 
-    def dispute(self, label, run, oid, text, *, field="cohort", intent="dispute_fact"):
+    def dispute(self, label, run, oid, text, *, field=None, intent="dispute_fact"):
         page, view = self.page(run), self.order(oid)
-        target = next(t for t in page["complaint_targets"] if t["field"] == field)
+        target = next((t for t in page["complaint_targets"] if t["field"] == field), None)
         stale = page["binding"]
         self.command(
-            f"/orders/{oid}/disputes",
-            {
-                **self.bound(view),
-                "complaint": {
-                    "text": text,
-                    "field": field,
-                    "intent": intent,
-                    "requirement_id": target["requirement_id"],
-                    "product_id": "dataset",
-                    "artifact_id": view["order"]["deliveries"][-1]["csv"]["artifact_id"],
-                },
-            },
+            f"/orders/{oid}/{'disputes' if target else 'complaints'}",
+            (
+                {
+                    **self.bound(view),
+                    "complaint": {
+                        "text": text,
+                        "field": field,
+                        "intent": intent,
+                        "requirement_id": target["requirement_id"],
+                        "product_id": "dataset",
+                        "artifact_id": view["order"]["deliveries"][-1]["csv"]["artifact_id"],
+                    },
+                }
+                if target
+                else {**self.bound(view), "text": text}
+            ),
             label + ":dispute",
             repeat=True,
         )
@@ -328,11 +372,11 @@ class Journey:
                         a["action"] == "approve" and a["enabled"]
                         for a in p["page"]["available_actions"]
                     )
-                    or p["view"]["order"]["cases"][-1]["status"] == "unsupported"
+                    or p["view"]["order"]["cases"][-1]["status"] in {"unsupported", "answered"}
                 ),
             )
             page = observed["page"]
-            if observed["view"]["order"]["cases"][-1]["status"] == "unsupported":
+            if observed["view"]["order"]["cases"][-1]["status"] in {"unsupported", "answered"}:
                 save(self.output / (label + "-disposition.json"), observed["view"])
                 self.settle_review(label, oid)
                 return
@@ -442,6 +486,11 @@ class Journey:
                 str(self.config["backend_port"]),
                 "-FrontendPort",
                 str(self.config["frontend_port"]),
+                *(
+                    ["-ModelAccess", self.config["model_access"]]
+                    if self.config.get("model_access")
+                    else []
+                ),
             ],
             cwd=ROOT,
             check=True,
@@ -474,7 +523,10 @@ class Journey:
                 raise RuntimeError("saved response did not survive restart")
         self.report["retries_after_restart"] = len(self.retries)
         run, oid = self.intake("after-restart", 103)
-        self.settle_review("after-restart", oid)
+        if self.report.get("after_restart_objection"):
+            self.dispute("after-restart", run, oid, self.report["after_restart_objection"])
+        else:
+            self.settle_review("after-restart", oid)
         run, oid = self.intake("scope-change", 104)
         self.dispute(
             "scope-change",
@@ -491,6 +543,10 @@ class Journey:
             save(self.output / (label + "-events.json"), self.page(info["run_id"]))
             if info.get("order_id"):
                 save(self.output / (label + "-current.json"), self.order(info["order_id"]))
+                save(
+                    self.output / (label + "-payment-justification.json"),
+                    self.request("GET", f"/orders/{info['order_id']}/payment-justification"),
+                )
         save(self.output / "final-learning.json", self.learning())
         self.report["completed_at"] = datetime.now(UTC).isoformat()
         self.report["completed"] = True
@@ -511,14 +567,31 @@ def main():
             "show cross-ZIP deduplication evidence."
         ),
     )
+    parser.add_argument(
+        "--after-restart-objection",
+        help="Optional fresh complaint on the independent post-restart order",
+    )
     args = parser.parse_args()
-    journey = Journey(args.instance, args.objection, args.owner_walkthroughs)
+    journey = Journey(
+        args.instance, args.objection, args.owner_walkthroughs, args.after_restart_objection
+    )
     try:
         journey.run()
     except Exception as error:
         journey.report.update(completed=False, failure=f"{type(error).__name__}: {error}")
         raise
     finally:
+        if journey.budget_before:
+            after = budget_snapshot(journey.config)
+            journey.report["budget_after"] = after
+            journey.report["paid_calls"] = after["requests"] - journey.budget_before["requests"]
+            journey.report["new_known_cost_usd"] = (
+                after["known_cost_usd"] - journey.budget_before["known_cost_usd"]
+            )
+            journey.report["accounting_note"] = (
+                "Shared-ledger delta; verify per-request traces "
+                "before attributing all calls to this journey."
+            )
         save(journey.output / "report.json", journey.report)
         print(
             json.dumps(

@@ -266,7 +266,13 @@ def audit(directory, *, output=None):
             assert all(a["accepted_specification_sha256"] == spec_hash for a in attempts)
             verdicts = [e["verdict"] for e in events if e["type"] == "verdict"]
             assert verdicts and all(
-                v["decidedBy"] == "unresolved"
+                v["decidedBy"]
+                == (
+                    "model"
+                    if v["finding"]["validation"] == "VALIDATED"
+                    and v["finding"]["effective"]["provenance"]["kind"] == "model"
+                    else "unresolved"
+                )
                 and v["finding"]["attempt_id"] in {a["attempt_id"] for a in attempts}
                 for v in verdicts
             )
@@ -352,8 +358,9 @@ def audit(directory, *, output=None):
         "restart_and_retries": True,
         "repeated_commands_verified": len(repeated),
         "disclosure": (
-            "Synthetic identities/data; mock settlement; deterministic or unresolved findings; "
-            "no live LLM or human-time savings claim."
+            "Synthetic identities/data; mock settlement. This audit verifies source learning "
+            "and financial records; live-model provenance requires the separate model audit. "
+            "No human-time savings claim."
         ),
     }
     (output or directory / "independent-audit.json").write_text(

@@ -40,7 +40,7 @@ class DataContract(Frozen):
     version: int
     buyer: str
     title: str
-    price: int
+    price: float  # Display major units only; financial amounts remain integer minor units.
     lines: list[ContractLine]
 
 
@@ -190,7 +190,7 @@ class Verdict(Frozen):
 
 class CanvasPayment(Frozen):
     id: str
-    amount: int
+    amount: float
     rail: Literal["commerce-payments", "mock"] = "commerce-payments"
     network: Literal["base-sepolia"] = "base-sepolia"
     mock: bool
@@ -199,7 +199,7 @@ class CanvasPayment(Frozen):
 class CanvasAmendment(Frozen):
     id: str
     summary: str
-    price: int
+    price: float
     line: ContractLine
 
 
@@ -219,12 +219,12 @@ class JournalEntry(Frozen):
     memo: str
     debit: str
     credit: str
-    amount: int
+    amount: float
 
 
 class Margin(Frozen):
-    revenue: int
-    cost: int | None
+    revenue: float
+    cost: float | None
 
 
 class BaseEvent(Frozen):

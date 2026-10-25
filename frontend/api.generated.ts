@@ -327,6 +327,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orders/{order_id}/payment-justification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Explain Payment */
+        get: operations["explain_payment_orders__order_id__payment_justification_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/quote-acceptance": {
         parameters: {
             query?: never;
@@ -1381,7 +1398,7 @@ export interface components {
              * @default open
              * @enum {string}
              */
-            status?: "open" | "supported" | "unsupported" | "scope_change" | "human_review";
+            status?: "open" | "supported" | "unsupported" | "answered" | "scope_change" | "human_review";
         };
         /** CatalogOrder */
         CatalogOrder: {
@@ -2840,6 +2857,74 @@ export interface components {
             salt: string;
             /** Token */
             token: string;
+        };
+        /** PaymentJustification */
+        PaymentJustification: {
+            agreement: components["schemas"]["Snapshot"];
+            /** Amount Atomic */
+            amount_atomic: string | null;
+            authorization: components["schemas"]["Authorization"];
+            binding: components["schemas"]["Binding"];
+            /** Blockers */
+            blockers: string[];
+            /** Bookings */
+            bookings: components["schemas"]["Booking"][];
+            /** Bytes Revalidated */
+            bytes_revalidated: boolean;
+            /** Capture Eligible Now */
+            capture_eligible_now: boolean;
+            /** Cases */
+            cases: components["schemas"]["Case"][];
+            /** Checks */
+            checks: components["schemas"]["Assessment"][];
+            customer_acceptance: components["schemas"]["Binding"] | null;
+            /** Decisions */
+            decisions: components["schemas"]["ReviewerDecision"][];
+            /** Delivery Hashes */
+            delivery_hashes: {
+                [key: string]: string;
+            };
+            /** Exact Price */
+            exact_price: string;
+            /**
+             * Kind
+             * @default payment_justification_v1
+             * @constant
+             */
+            kind?: "payment_justification_v1";
+            /**
+             * Latest Safe Capture At
+             * Format: date-time
+             */
+            latest_safe_capture_at: string;
+            /**
+             * Limitations
+             * @default [
+             *       "Read-only observation, not approval or a reusable payment capability. Gates are rechecked at execution.",
+             *       "Bookings and operations are original persisted records, not reconstructed receipts or a general ledger.",
+             *       "Current eligibility is not a replay of historical eligibility; terminal receipts describe prior outcomes.",
+             *       "Mock settlement is not an on-chain transaction. Evidence judgments do not authorize money movement."
+             *     ]
+             */
+            limitations?: string[];
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Order Id */
+            order_id: string;
+            payment: components["schemas"]["PaymentView"] | null;
+            /** Review Deadline */
+            review_deadline: string | null;
+            /** Revision */
+            revision: number;
+            /** Source Hashes */
+            source_hashes: {
+                [key: string]: string;
+            };
+            /** State */
+            state: string;
         };
         /** PaymentOperation */
         PaymentOperation: {
@@ -5462,6 +5547,73 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaymentView"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    explain_payment_orders__order_id__payment_justification_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentJustification"];
                 };
             };
             /** @description Forbidden */

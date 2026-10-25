@@ -1,0 +1,35 @@
+{
+  "lane": "LOCAL",
+  "trial": "groundhog-final-main-20261024",
+  "git_commit": "d754c25eb4ae92913ab5651b4737acec95c40f5a",
+  "integrated_main": "99a5bfe",
+  "instance": "groundhog-final-main-20261024",
+  "backend_port": 8054,
+  "frontend_port": 3054,
+  "model": "claude-opus-5-5",
+  "authorization": "Existing hyphenate-budget-only-20261024; budget-only continuation, no new money",
+  "cumulative_maximum_usd": 17.129304,
+  "preserved_reserve_usd": 10,
+  "available_at_freeze_usd": 1.92162,
+  "concurrency": 1,
+  "payments": "mock",
+  "production_activation": false,
+  "objection": "Do these totals establish each person's present paid-membership status, or do they only give aggregate counts?",
+  "after_restart_objection": "For ZIP 94111, the adult count in the delivered CSV is zero.",
+  "count_zip": "94111",
+  "evaluation_only_not_runtime_input": {
+    "later": "UNKNOWN: no present individual payment-status records are available",
+    "after_restart": "FAIL: independent auditor must confirm nonzero source and delivered count at ZIP 94111"
+  },
+  "artifact_contract": [
+    "report.json",
+    "http-trace.jsonl",
+    "source-owner approvals, fresh-order learning, actual model responses and citations",
+    "CSV/JSON downloads",
+    "payment justification records",
+    "restart and command replay evidence",
+    "independent audits"
+  ],
+  "retry_policy": "Fresh post-integration cases; never resample outcomes. Preserve first cohort unchanged.",
+  "supervisor": "Existing hidden Task Scheduler services with persistent cumulative model-budget guard"
+}

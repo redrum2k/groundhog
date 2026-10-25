@@ -1,0 +1,329 @@
+{
+  "tested_commit": "d754c25eb4ae92913ab5651b4737acec95c40f5a",
+  "integrated_main": "99a5bfe",
+  "backend": {
+    "tests": 1202,
+    "failed": 16,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": "596.480",
+    "failure_ids": [
+      "tests.evals.test_runner::test_leakage_stable_report_additive_runs_and_no_gold_claim",
+      "tests.evals.test_runner::test_real_child_timeout_then_unrelated_case_continues",
+      "tests.evals.test_runner::test_step_limit_preserves_partial_state_and_reports",
+      "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[stream]",
+      "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[headers]",
+      "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[success]",
+      "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[rpc_error]",
+      "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[redirect]",
+      "tests.payments.test_http_boundary::test_cancellation_kills_http_before_return_and_cannot_deliver_late_result",
+      "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[budget]",
+      "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[financial]",
+      "tests.payments.test_http_boundary::test_process_interruption_also_reaps_request",
+      "tests.payments.test_http_boundary::test_actual_http_allowance_is_reserved_before_launch[inspection]",
+      "tests.payments.test_http_boundary::test_ambiguous_http_send_retains_durable_identity_and_only_reconciles",
+      "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline",
+      "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments"
+    ],
+    "changed_baseline_failures": 0,
+    "xml": ".local/full-integrated.xml",
+    "sha256": "93a3880a1dcb27ef520f749a3df743ce6266f0ac58ba1aac9e27abf9b28cfe67"
+  },
+  "frontend": {
+    "passed": 229,
+    "files": 35,
+    "typecheck": "PASS",
+    "build": "PASS",
+    "generated_contracts": "PASS"
+  },
+  "cohorts": [
+    {
+      "directory": ".local/live-learning/groundhog-final-20261024/evidence/8255bfefa7444fed97de594b1e19b3b4",
+      "commit": "f80bc3aafeae73b8bc0dd91b0ce6b6871abbc507",
+      "source_tree_dirty": false,
+      "completed": true,
+      "model_audit": {
+        "status": "VERIFIED",
+        "tested_commit": "f80bc3aafeae73b8bc0dd91b0ce6b6871abbc507",
+        "capsule_sha256": "447d916d8d4286bc26d178d9f9af4a5921336ef9d535dc7b865658a569d959f7",
+        "actual_completed_provider_requests": 10,
+        "raw_dispute_responses_verified": 5,
+        "other_completed_calls": [
+          {
+            "purpose": "catalog",
+            "request_sha256": "98846b1f409ad3e436c85e8ff0c080b68040ea2532c07de949edc1a0e6479701",
+            "usage_recorded": true
+          },
+          {
+            "purpose": "catalog",
+            "request_sha256": "07dc737c82d2bc0a67ea30c7c1048f188c75be14c629f6b49cfb4f0059019dd5",
+            "usage_recorded": true
+          },
+          {
+            "purpose": "catalog",
+            "request_sha256": "39cbf44849abecd2c4c3fd1ce7217aab82d80eb7b56b92433cbc0499afc77f38",
+            "usage_recorded": true
+          },
+          {
+            "purpose": "catalog",
+            "request_sha256": "214c503b562c0caf4edb7edf05ecac477ebffaf86b1502eb93c90e8962973c8d",
+            "usage_recorded": true
+          },
+          {
+            "purpose": "catalog",
+            "request_sha256": "7cfd880923577eba353d98cb684aab27948b0485e5e590472f0469dfe7da4394",
+            "usage_recorded": true
+          }
+        ],
+        "estimated_usd": 0.33446,
+        "cases": [
+          {
+            "case": "later",
+            "expected": "UNKNOWN",
+            "raw": "UNKNOWN",
+            "effective": "UNKNOWN",
+            "attempts": 3,
+            "blind_reviews": 0,
+            "references_verified": 24
+          },
+          {
+            "case": "after-restart",
+            "expected": "FAIL",
+            "raw": "FAIL",
+            "effective": "FAIL",
+            "attempts": 1,
+            "blind_reviews": 1,
+            "references_verified": 8
+          }
+        ],
+        "limitations": [
+          "Engineering scenarios, not an independent human holdout or accuracy estimate.",
+          "Raw intake responses are not retained by this application driver; completed budget usage and proposals are retained.",
+          "No live payment, production activation, or human-time savings claim."
+        ]
+      },
+      "remaining_usd": 1.9216200000000008,
+      "audit_sha256": "243c0b8d5413851b34bb7f9a7fc8984a0711ee6849332665f2a9cf8e78bda259",
+      "source_audit_sha256": "c7b2ede8b12ef2b24c1cc5ef043a9935569a3cfc7461010700aef7ce2fe61f80",
+      "learning_version": "institutional-269327f93e6479c9724bfe52dbfca3095883e33e4d3d0b9d606f94e0b049f539",
+      "orders": {
+        "training": {
+          "run_id": "request-42d279ac1a9147429750ff8a70a41f89",
+          "source_bundle_id": "institutional-c7200fbbc3f0748322459a286f0b1b28dd2e651457c5104b0c052940ce96e5d9",
+          "initial_internal_reviews": 2,
+          "order_id": "order-quote-9a774a86e19542b3902aef0434abf409",
+          "snapshot_id": "snapshot-8fa5ff74dbe446a9a467f0084246b06f"
+        },
+        "later": {
+          "run_id": "request-7dd86a6aea1846d7812bb5fa33c49ffe",
+          "source_bundle_id": "institutional-93d1c40eb2f827f1f27fa888d77959df4f6242a8d172eb41441d1cf3e07ddda6",
+          "initial_internal_reviews": 0,
+          "order_id": "order-quote-93c8762c1a5c420fb274f7d8cbaf2458",
+          "snapshot_id": "snapshot-50569298a2534c449a82beb8b70a8c88"
+        },
+        "after-restart": {
+          "run_id": "request-dfb547bde08349ecbf58e268ed8c4536",
+          "source_bundle_id": "institutional-15c0eca0d20a996b8b8bb4f598367c60337728dcaf8f173be08a683a579626f3",
+          "initial_internal_reviews": 0,
+          "order_id": "order-quote-33482108034e48a587a916ad3e3c0177",
+          "snapshot_id": "snapshot-a57fc0225cee49b88734eff04481bcba"
+        },
+        "scope-change": {
+          "run_id": "request-c7e85bbb384c463ea895212f2331a71a",
+          "source_bundle_id": "institutional-e90135c3981437a8f48c74b7e1ef1f7b2a35deac3c71c545e0bbe1bf866488ff",
+          "initial_internal_reviews": 0,
+          "order_id": "order-quote-530e172bce7b43689417d44f35eb11c9",
+          "snapshot_id": "snapshot-640a76d00eb44e37847dc5c6ed621074"
+        },
+        "conflict": {
+          "run_id": "request-2796af3985d7461eb84d1d4d1c23ff83",
+          "source_bundle_id": "institutional-2ce34dbfa1b6c19639571aa8c0393f6269134d706b3616f140a4a036a5b12f6d",
+          "initial_internal_reviews": 2,
+          "held_status": "human_review"
+        },
+        "revoked": {
+          "run_id": "request-e55a745bc45f4acfa7aa8ce9e847d6df",
+          "source_bundle_id": "institutional-4a7360120b6a5ec6b15e2048cb71ea59fae896a1251f7cb5f0c7ac8e0b47dc5a",
+          "initial_internal_reviews": 2,
+          "held_status": "human_review"
+        },
+        "expired": {
+          "run_id": "request-090f09b30c1e4b4cb6e61d0d8f702c00",
+          "source_bundle_id": "institutional-e6d542cc940aec5c77b965d500c3fdf9b79f7dd9c9b06410616295d8ff35c104",
+          "initial_internal_reviews": 2,
+          "held_status": "human_review"
+        }
+      },
+      "retries_after_restart": 20
+    },
+    {
+      "directory": ".local/live-learning/groundhog-final-main-20261024/evidence/7521441d90024e11b364009c9f3acb22",
+      "commit": "d754c25eb4ae92913ab5651b4737acec95c40f5a",
+      "source_tree_dirty": false,
+      "completed": true,
+      "model_audit": {
+        "status": "VERIFIED",
+        "tested_commit": "d754c25eb4ae92913ab5651b4737acec95c40f5a",
+        "capsule_sha256": "9d95c9685bcbc823db22ca11f46e3b3bb627a3262f876aae2431bda7c1112aa4",
+        "actual_completed_provider_requests": 10,
+        "raw_dispute_responses_verified": 5,
+        "other_completed_calls": [
+          {
+            "purpose": "catalog",
+            "request_sha256": "c50ab792fb938926b3e01662cbd67abba1863409309678f4d5784866c38cd728",
+            "usage_recorded": true
+          },
+          {
+            "purpose": "catalog",
+            "request_sha256": "e578449b27a8f2612a21a125d3c01551aade8bccbb2dd30619181106dc02b36d",
+            "usage_recorded": true
+          },
+          {
+            "purpose": "catalog",
+            "request_sha256": "e5e127f53eafc194ec1c3cad7b7e4c26af348d6bc6c8507e3b3d4bfbf47e4945",
+            "usage_recorded": true
+          },
+          {
+            "purpose": "catalog",
+            "request_sha256": "6fc0f30349f130a2a39473fe9c9b8abeaf66e974f6b8109d262ecda4d930e091",
+            "usage_recorded": true
+          },
+          {
+            "purpose": "catalog",
+            "request_sha256": "2bef657afe796e9aa2125c8b17e26cde85b9b05d4d7625c27234ca469823d80a",
+            "usage_recorded": true
+          }
+        ],
+        "estimated_usd": 0.331604,
+        "cases": [
+          {
+            "case": "later",
+            "expected": "UNKNOWN",
+            "raw": "UNKNOWN",
+            "effective": "UNKNOWN",
+            "attempts": 3,
+            "blind_reviews": 0,
+            "references_verified": 12
+          },
+          {
+            "case": "after-restart",
+            "expected": "FAIL",
+            "raw": "FAIL",
+            "effective": "FAIL",
+            "attempts": 1,
+            "blind_reviews": 1,
+            "references_verified": 8
+          }
+        ],
+        "limitations": [
+          "Engineering scenarios, not an independent human holdout or accuracy estimate.",
+          "Raw intake responses are not retained by this application driver; completed budget usage and proposals are retained.",
+          "No live payment, production activation, or human-time savings claim."
+        ]
+      },
+      "remaining_usd": 1.5900160000000003,
+      "audit_sha256": "5af58b7d6a3e77341a49f3d72eb0d39ca762698b47b46ee775ff57bfdaacdac7",
+      "source_audit_sha256": "28e45269763cf17853753cf7a6a287c17fe6697da2a00a8755c12f90ffd927d2",
+      "learning_version": "institutional-0fe0bf22704f62f4306bcda15537159eb9ebe51609b1cca026497f7d53748182",
+      "orders": {
+        "training": {
+          "run_id": "request-581df6b87e004a0e82bdcd522e85f085",
+          "source_bundle_id": "institutional-8fa03b3687096e0a4240cff7e7478f9a8985cb8713bd671fb5d8d172931b15cd",
+          "initial_internal_reviews": 2,
+          "order_id": "order-quote-894901e08b444a478eadbfc0dd02fae4",
+          "snapshot_id": "snapshot-2b6d8572f69c4883ad7f9539b617941d"
+        },
+        "later": {
+          "run_id": "request-4fce6ba1ce8540f485badad344d59a23",
+          "source_bundle_id": "institutional-6f66fb98d4a7aa7089e0d8b000f822e3dff5135cbaa02bed7e8a6eda7d2a9f84",
+          "initial_internal_reviews": 0,
+          "order_id": "order-quote-08861915ab304b33b65a93e883b691f2",
+          "snapshot_id": "snapshot-fdda54e97ec8440f8907db35b3449f9b"
+        },
+        "after-restart": {
+          "run_id": "request-547f514f05e048878d4571b08a46f0d2",
+          "source_bundle_id": "institutional-4e3712306a34b34735e2b083e9d9a9d7f12f285677b0f9a7264e8ef5d23dbcd2",
+          "initial_internal_reviews": 0,
+          "order_id": "order-quote-9d4cfa19a6b3478eaf597411d6856348",
+          "snapshot_id": "snapshot-c1869c74f33f4cb98b253c082b54d9b3"
+        },
+        "scope-change": {
+          "run_id": "request-3b5307db7fbb4e4cb2f5ae748f45de01",
+          "source_bundle_id": "institutional-41d929d76b8bccf83627d791193a1c843ddd4c9d4dd607349327708118969205",
+          "initial_internal_reviews": 0,
+          "order_id": "order-quote-c5fde8c5a1774948a14e1bc9de4b18de",
+          "snapshot_id": "snapshot-eb9d3c6077604a27acb456abb274063a"
+        },
+        "conflict": {
+          "run_id": "request-d32de0d79dd94c8f870ed98e74cbba18",
+          "source_bundle_id": "institutional-7da5e8832f53c6869f1820846715b276e6dd7744ab7b339a464a202afa050283",
+          "initial_internal_reviews": 2,
+          "held_status": "human_review"
+        },
+        "revoked": {
+          "run_id": "request-49a1cf29a9a54e6a9db38451c6327e8b",
+          "source_bundle_id": "institutional-6e9faa779c0e806815ad6d6f85712c385359bb369a41398076e023884b538b33",
+          "initial_internal_reviews": 2,
+          "held_status": "human_review"
+        },
+        "expired": {
+          "run_id": "request-c55878ad69b4449eb8bc4638cfa193d2",
+          "source_bundle_id": "institutional-ebd06e9f68ac657a5fedd3356ab23ea6d3a7563b182f50a4eed908b1b1f47bf2",
+          "initial_internal_reviews": 2,
+          "held_status": "human_review"
+        }
+      },
+      "retries_after_restart": 20
+    }
+  ],
+  "kind": "groundhog_final_qualification_20261024",
+  "review_followup": {
+    "pr": 53,
+    "original_greptile_score": "4/5 at c2ce32b",
+    "audit_regressions_passed": 5,
+    "additional_frontend_regressions_passed": 2,
+    "changes": ["Exact dispatched request hash/model/purpose matching before usage validation", "Preserve grey unresolved findings after assessment completion"],
+    "re_audit_file": "independent-model-request-audit.json alongside each original audit",
+    "first_cohort_re_audit_sha256": "37ef30e2cf329baa572180ee838582709096774a5d566210166b29d533e7e660",
+    "integrated_cohort_re_audit_sha256": "44942fd31680f7e804d70dcbeec54f53966c9922831530487161b5d18e32b030",
+    "both_re_audits": "VERIFIED: five exact request-bound responses per ten-call cohort; zero new model calls"
+  },
+  "disclosure": {
+    "settlement": "mock",
+    "source_owner_and_controller_roles": "explicitly_simulated",
+    "new_chain_broadcasts": 0,
+    "production_activation": false,
+    "model_weight_training": false,
+    "independent_human_holdout": false
+  },
+  "offline_acceptance": {
+    "directory": ".local/acceptance-integrated/broker-dyabosdj",
+    "cases": [
+      "A successful capture",
+      "B explicitly injected output fault, withheld and corrected once without extra charge",
+      "C separately accepted/funded/captured 50-cent Oakland child",
+      "D UNKNOWN with funded hold",
+      "Answered scope question"
+    ],
+    "restart": true
+  },
+  "browser": {
+    "actual_production_frontend": true,
+    "intercepted_model_responses": false,
+    "paths": [
+      ".local/browser/integrated-false-count-pan",
+      ".local/browser/integrated-uncertain-pan",
+      ".local/browser/fresh-customer-held",
+      ".local/browser/fresh-customer-expansion-fixed",
+      ".local/browser/final-fractional-display"
+    ],
+    "scope": "First two inspect real-model records without mutations; next two exercise real customer UI with explicitly offline reasoning and mock funding; final entry is read-only final-build inspection of the same captured fractional child."
+  },
+  "remaining_limitations": [
+    "16 unchanged Windows baseline failures",
+    "Earlier contextual-clause over-escalation remains a documented miss",
+    "New live cohorts are engineering scenarios, not a general accuracy estimate",
+    "No new on-chain qualification; upstream historical capture reports not independently reverified here",
+    "Full adversarial learning journey ends with invalid authority; new clean demonstrations use a fresh instance"
+  ]
+}
