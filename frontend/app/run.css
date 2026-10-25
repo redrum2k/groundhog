@@ -34,6 +34,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .btn:hover:not(:disabled) { background: var(--sunk); }
 .btn.solid { background: #000; border-color: #000; color: #fff; }
 .btn.solid:hover:not(:disabled) { background: #000; }
+.btn.new-request-ready { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn.new-request-ready:hover:not(:disabled) { background: color-mix(in srgb, var(--blue) 88%, #000); border-color: color-mix(in srgb, var(--blue) 88%, #000); }
 .btn:active:not(:disabled) { transform: scale(0.97); }
 .btn:disabled { opacity: 0.55; cursor: default; }
 .btn.solid:disabled { background: var(--ink-2); border-color: var(--ink-2); }
@@ -81,6 +83,25 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 
 .stage { position: relative; overflow: hidden; min-height: 0; }
 
+/* The chat slides away as one composited snapshot, revealing the measured canvas. */
+:root:has(.live-shell) { view-transition-name: none; }
+.live-shell > .customer, .live-shell > .stage { view-transition-name: run-workspace; outline: none; }
+::view-transition-group(run-workspace) { animation-duration: 280ms; animation-timing-function: var(--ease-out); }
+::view-transition-old(run-workspace), ::view-transition-new(run-workspace) { mix-blend-mode: normal; }
+:root[data-run-transition="run"]::view-transition-old(run-workspace),
+:root[data-run-transition="handoff"]::view-transition-old(run-workspace) { z-index: 2; animation: chat-depart 280ms var(--ease-out) both; }
+:root[data-run-transition="run"]::view-transition-new(run-workspace),
+:root[data-run-transition="handoff"]::view-transition-new(run-workspace) { animation: canvas-arrive 280ms var(--ease-out) both; }
+:root[data-run-transition="handoff"]::view-transition-group(run-workspace),
+:root[data-run-transition="handoff"]::view-transition-old(run-workspace),
+:root[data-run-transition="handoff"]::view-transition-new(run-workspace) { animation-duration: 720ms; animation-timing-function: var(--ease-in-out); }
+:root[data-run-transition="customer"]::view-transition-old(run-workspace) { animation: canvas-leave 280ms var(--ease-out) both; }
+:root[data-run-transition="customer"]::view-transition-new(run-workspace) { animation: chat-return 280ms var(--ease-out) both; }
+@keyframes chat-depart { to { transform: translateX(100%); opacity: 0.35; } }
+@keyframes canvas-arrive { from { transform: translateX(-36px); opacity: 0; } }
+@keyframes chat-return { from { transform: translateX(48px); opacity: 0; } }
+@keyframes canvas-leave { to { opacity: 0; } }
+
 /* ---------- canvas ---------- */
 /* the side fades say "more this way" where the camera crops the path */
 .cv { position: absolute; inset: 0; overflow: hidden; background: var(--bg); mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent); }
@@ -117,7 +138,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 
 .nd {
   position: absolute; left: 0; top: 0; width: 200px; height: 54px; padding: 8px 12px;
-  display: flex; flex-direction: column; justify-content: center; gap: 1px;
+  display: flex; flex-direction: column; justify-content: center; gap: 1px; text-align: left;
   background: var(--bg); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
   transition: border-color 200ms ease, opacity 400ms ease, scale 160ms var(--ease-out);
 }
@@ -128,13 +149,18 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .nd:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 .nd-t { font-size: 13.5px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .nd-d { font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.live-shell .nd-t, .live-shell .nd-d { white-space: normal; overflow: visible; text-overflow: clip; }
 .n-idle .nd-t { color: var(--ink-3); }
 .n-idle { background: color-mix(in srgb, var(--bg) 70%, transparent); }
 .n-running { border-color: var(--blue); }
+.live-shell .nd[data-step="captured"].n-done { border-color: var(--green); background: var(--green-t); }
+.live-shell .nd[data-step="captured"].n-done .nd-t { color: var(--green); }
 .n-fail { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); }
 .n-grey, .n-waiting { border-color: color-mix(in srgb, var(--amber) 45%, var(--line)); }
 
-.chip { position: absolute; right: 0; bottom: calc(100% + 6px); display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 8px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
+.chip { position: absolute; right: 0; bottom: calc(100% + 6px); display: inline-flex; align-items: center; gap: 5px; height: 20px; max-width: 100%; box-sizing: border-box; padding: 0 8px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
+.chip-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.chip > svg, .chip > i { flex: none; }
 .chip.c-running { color: var(--blue); background: color-mix(in srgb, var(--blue) 9%, var(--bg)); }
 .chip.c-done { color: var(--green); background: var(--green-t); }
 .chip.c-fail { color: var(--red); background: var(--red-t); }
@@ -146,12 +172,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* evidence that pops onto the canvas */
-.ev-stack { position: absolute; left: 0; top: calc(100% + 42px); display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none; }
+.ev-stack { position: absolute; left: 0; top: calc(100% + 42px); width: 200px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .ev {
-  display: inline-flex; align-items: center; gap: 7px; height: 23px; padding: 0 10px; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 7px; height: 23px; max-width: 100%; box-sizing: border-box; padding: 0 10px; white-space: nowrap;
   background: var(--bg); border: 1px solid var(--line); border-radius: 999px; font-size: 12px; color: var(--ink);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
 }
+.ev-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ev-count { flex: none; color: var(--ink-3); }
+.ev-more { font-size: 11px; line-height: 16px; color: var(--ink-2); }
 .ev::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); flex: none; }
 .ev-rule { color: var(--green); } .ev-rule::before { background: var(--green); }
 .ev-claim::before { background: var(--amber); }
@@ -190,6 +219,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .tunnel-back :is(.gh-hole-rim, .gh-hole, .gh-lip) { transform: scale(0); transition: transform 200ms ease-in; }
 :is(.tunnel-down, .tunnel-under, .tunnel-back) :is(.orb-sheet, .orb-lens, .gh-badge, .coin) { opacity: 0; } /* props and the coin go under with it and come back at the new place */
 :root[data-anim] .orb-wrap .coin { transition: opacity 200ms var(--ease-out); }
+.canvas-agent { display: inline-flex; opacity: 1; transform: translateY(0) scale(1); transition: opacity 320ms ease, transform 400ms var(--ease-out), visibility 0s; }
+.canvas-agent.departed { opacity: 0; transform: translateY(6px) scale(0.9); visibility: hidden; transition-delay: 300ms, 300ms, 700ms; }
 .orb { position: relative; display: block; width: 34px; height: 34px; }
 .orb svg { display: block; overflow: visible; }
 /* the groundhog and its burrow */
@@ -276,6 +307,22 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .cap-step { font-family: var(--mono); font-size: 12px; color: var(--ink-3); flex: none; }
 :root[data-anim] .cap-text { transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out); }
 @starting-style { :root[data-anim] .cap-text { opacity: 0; transform: translateY(3px); } }
+
+.agent-note {
+  display: block; width: 440px; max-width: calc(100% - 40px); padding: 14px 16px;
+  bottom: 26px; border: 1px solid var(--line); border-radius: 16px 16px 16px 5px;
+  background: color-mix(in srgb, var(--bg) 96%, transparent);
+  box-shadow: 0 3px 16px rgb(0 0 0 / 0.04); font-size: 14px; line-height: 1.55;
+}
+.agent-note::before, .agent-note::after { content: ""; position: absolute; background: var(--bg); border: 1px solid var(--line); border-radius: 50%; pointer-events: none; }
+.agent-note::before { width: 8px; height: 8px; left: 12px; bottom: -13px; }
+.agent-note::after { width: 4px; height: 4px; left: 5px; bottom: -20px; }
+.agent-note-head { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; font-size: 12px; color: var(--ink-2); }
+.agent-note-head > svg { flex: none; }
+.agent-note-label { margin-left: auto; color: var(--ink-3); font-size: 11px; }
+.agent-note-body { max-height: min(28vh, 240px); overflow-y: auto; overscroll-behavior: contain; }
+.agent-note-body p { margin: 0; overflow-wrap: anywhere; }
+.agent-note.shifted { max-width: min(440px, calc(100% - 500px)); }
 
 /* ---------- step panel ---------- */
 .panel {
@@ -422,12 +469,15 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
   .seat { display: none; }
   .tools { padding: 10px 16px; }
   .caption { font-size: 13px; left: 12px; right: 12px; bottom: 12px; max-width: none; }
+  .caption.agent-note { width: auto; max-width: none; bottom: 26px; }
   .caption.shifted { display: none; }
   .ending > .faint { display: none; }
   .cust-h { flex-wrap: wrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(run-workspace), ::view-transition-old(run-workspace), ::view-transition-new(run-workspace) { animation: none !important; }
+  .canvas-agent, .canvas-agent.departed { transition: none; transform: none; }
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
   .orb, .gh-rise, .gh-tilt, .gh-gaze, .gh-breathe, .gh-nose, .gh-muzzle, .gh-badge, .orb-eyes, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
   :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: none; }
@@ -556,11 +606,32 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .live-details { font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
 .live-details summary { cursor: pointer; padding: 4px 0; }
 .live-details > :not(summary) { margin-top: 12px; }
+.live-evidence-list { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-height: 240px; overflow-y: auto; }
+.live-evidence-list .cite { max-width: 100%; white-space: normal; text-align: left; overflow-wrap: anywhere; }
+.live-agent-message { display: grid; gap: 10px; min-width: 0; padding: 14px 16px; border-radius: 14px 14px 14px 4px; background: color-mix(in srgb, var(--blue) 7%, var(--bg)); }
+.live-agent-message-header { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: 12px; color: var(--ink-2); }
+.live-agent-message-header > svg { flex: none; }
+.live-agent-message .live-agent-message-header h3 { margin: 0; font-size: 12px; font-weight: 400; }
+.live-agent-message .live-agent-message-text { margin: 0; font-size: 13.5px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.live-agent-message-meta { font-size: 12px; color: var(--ink-3); }
+.review-receipt { display: grid; gap: 16px; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.review-receipt-heading { display: flex; align-items: center; gap: 10px; }
+.review-receipt-heading .faint { font-size: 12px; }
+.review-receipt-icon { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; color: var(--green); background: var(--green-t); }
+.review-receipt-payment { display: grid; gap: 4px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; }
+.review-receipt-payment strong { font-weight: 500; }
+.review-receipt-payment p { color: var(--ink-2); overflow-wrap: anywhere; }
+.live-request-detail { margin: 0; padding: 0 0 0 12px; border-left: 2px solid color-mix(in srgb, var(--blue) 25%, var(--bg)); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; white-space: pre-wrap; }
+.required-evidence { min-width: 0; margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.required-evidence label { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; overflow-wrap: anywhere; }
+.required-evidence input[type="checkbox"] { flex: none; width: auto; margin: 3px 0 0; }
+.live-assessment { scroll-margin-top: 80px; }
 .live-progress { font-size: 13.5px; color: var(--blue); }
 .live-conversation .review-grid { margin-top: 4px; }
 .live-conversation .mock-note { padding: 0; line-height: 1.5; }
 .live-content .review-grid { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 760px) {
+  .live-assessment { scroll-margin-top: 120px; }
   .live-shell .top-r { display: flex; flex-wrap: wrap; width: 100%; gap: 10px; }
   .live-shell .top-r .tag { width: 100%; font-size: 12px; }
 }

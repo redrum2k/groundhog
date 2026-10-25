@@ -23,7 +23,7 @@ export interface CanvasView {
   cards: Card[];
   source?: { node: string; lines: SourceLine[] } | null; // what the agent reads at the source during a dispute
 }
-export type Focus = { kind: "overview" } | { kind: "follow" };
+export type Focus = { kind: "overview" } | { kind: "follow" } | { kind: "node"; node: string };
 
 export const COL_X = (c: number) => 40 + c * 240;
 export const ROW_Y = [40, 220, 390, 560];
@@ -40,8 +40,8 @@ type Cam = { tx: number; ty: number; s: number };
 type Range = readonly [number, number];
 const T = (c: Cam) => `translate(${c.tx}px, ${c.ty}px) scale(${c.s})`;
 
-export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay, quiet, recenter, midRun }: {
-  nodes: CNode[]; view: CanvasView; focus: Focus; panelOpen: boolean; onNode: (id: string) => void; overlay?: ReactNode; quiet?: boolean; midRun?: boolean;
+export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay, quiet, recenter, midRun, hideAgent = false }: {
+  nodes: CNode[]; view: CanvasView; focus: Focus; panelOpen: boolean; onNode: (id: string) => void; overlay?: ReactNode; quiet?: boolean; midRun?: boolean; hideAgent?: boolean;
   recenter?: number; // a new value hands the camera back to the orb
 }) {
   const box = useRef<HTMLDivElement>(null);
@@ -59,7 +59,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     const settle = requestAnimationFrame(() => setStill(false));
     return () => { ro.disconnect(); cancelAnimationFrame(settle); };
   }, []);
-  useEffect(() => setFree(null), [recenter, focus.kind]);
+  const focusNode = focus.kind === "node" ? focus.node : undefined;
+  useEffect(() => setFree(null), [recenter, focus.kind, focusNode]);
   // Wheel is native so it can preventDefault: a two-finger swipe pans instead of going back a page
   useEffect(() => {
     const el = box.current!;
@@ -109,8 +110,13 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
 
   // camera
   let s: number, tx: number, ty: number;
-  const vw = panelOpen ? size.w - 460 : size.w;
-  if (focus.kind === "overview") {
+  const vw = panelOpen && size.w > 760 ? size.w - 460 : size.w;
+  const target = focusNode ? byId[focusNode] : undefined;
+  if (target) {
+    s = clamp(Math.min((vw - 48) / (W + 64), (size.h - 140) / (H + 100)), 1, 1.8);
+    tx = vw / 2 - cx(target) * s;
+    ty = (size.h - 90) / 2 - (ROW_Y[target.row] + H / 2) * s;
+  } else if (focus.kind === "overview") {
     s = Math.min((size.w - 40) / WW, (size.h - 90) / WH, 1.1);
     tx = (size.w - WW * s) / 2; ty = Math.max(10, (size.h - 70 - WH * s) / 2);
   } else {
@@ -128,7 +134,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   // A world wider than the view slides edge to edge; one that fits only gives a little, then springs back
   const range = (t: number, world: number, view: number, pad: number): Range => (world > view - 2 * pad ? [view - pad - world, pad] : [t, t]);
   const bx = range(tx, WW * cam.s, vw, 24), by = range(ty, WH * cam.s, size.h - 70, 20);
-  const pannable = focus.kind === "follow";
+  const pannable = focus.kind !== "overview";
   useLayoutEffect(() => { pan.current = { follow: { tx, ty, s }, bx, by, on: pannable }; });
 
   const onDown = (e: PointerEvent<HTMLDivElement>) => {
@@ -216,15 +222,15 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             const chip = view.chip[n.id] ?? CHIP[ns];
             const vis = revealed.has(n.id) ? "" : next.has(n.id) ? " n-next" : " n-hidden";
             return (
-              <div key={n.id} className={`nd n-${ns}${vis}`} style={{ transform: `translate(${COL_X(n.col)}px, ${ROW_Y[n.row]}px)` }} aria-hidden={vis === " n-hidden" || undefined}
-                role="button" tabIndex={vis ? -1 : 0} onClick={() => onNode(n.id)} onKeyDown={(e) => { if (e.key === "Enter") onNode(n.id); }} aria-label={`${n.title}, ${ns}`}>
-                {showChip && <span key={ns + chip} className={`chip c-${ns}`}>{ns === "done" ? <IcCheck size={11} strokeWidth={2.4} /> : ns === "running" ? <i className="spin2" /> : <i className="sqd" />}<Label text={chip} quiet="tail" /></span>}
+              <button type="button" key={n.id} data-step={n.id} className={`nd n-${ns}${vis}`} style={{ transform: `translate(${COL_X(n.col)}px, ${ROW_Y[n.row]}px)` }} aria-hidden={vis === " n-hidden" || undefined}
+                tabIndex={vis ? -1 : 0} onClick={() => onNode(n.id)} aria-label={`${n.title}, ${ns}`}>
+                {showChip && <span key={ns + chip} className={`chip c-${ns}`} title={chip}>{ns === "done" ? <IcCheck size={11} strokeWidth={2.4} /> : ns === "running" ? <i className="spin2" /> : <i className="sqd" />}<span className="chip-text"><Label text={chip} quiet="tail" /></span></span>}
                 <span className="nd-t">{n.title}</span>
                 <span className="nd-d"><Label text={n.desc} quiet="tail" /></span>
                 {!quiet && cards.length > 0 && (here || cards.some((c) => c.tone === "rule")) && n.id !== source?.node.id && (
-                  <div className="ev-stack">{cards.filter((c) => here || c.tone === "rule").map((c, i) => <span key={c.id} className={`ev ev-${c.tone}`} style={{ transitionDelay: `${i * 90}ms` }}><Label text={c.text} /></span>)}</div>
+                  <EvidencePreview cards={cards.filter((c) => here || c.tone === "rule")} />
                 )}
-              </div>
+              </button>
             );
           })}
   
@@ -236,7 +242,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
           )}
           {!quiet && view.orb && (
             <div className={`orb-wrap${tunnel.phase ? ` tunnel-${tunnel.phase}` : ""}`} style={{ transform: `translate(${tunnel.x}px, ${tunnel.y}px)` }}>
-              <Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} />
+              <span className={`canvas-agent${hideAgent ? " departed" : ""}`}><Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} /></span>
               {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.done ? " done" : ""}`}>
                 <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : <IcCoin />}<Label text={view.coin.text} quiet="tail" /></span></span>}
             </div>
@@ -286,3 +292,17 @@ export function useTunnel(x: number, y: number, startUnder = false) {
   return state;
 }
 const reduced = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+
+function EvidencePreview({ cards }: { cards: Card[] }) {
+  const groups = new Map<string, { card: Card; count: number }>();
+  for (const card of cards) {
+    const key = JSON.stringify([card.tone, card.text]);
+    const group = groups.get(key);
+    if (group) group.count += 1;
+    else groups.set(key, { card, count: 1 });
+  }
+  return <span className="ev-stack">
+    {[...groups.values()].slice(0, 2).map(({ card, count }, i) => <span key={card.id} className={`ev ev-${card.tone}`} title={card.text} style={{ transitionDelay: `${i * 90}ms` }}><span className="ev-text"><Label text={card.text} /></span>{count > 1 && <span className="ev-count">×{count}</span>}</span>)}
+    {cards.length > 2 && <span className="ev-more">Inspect all {cards.length} references →</span>}
+  </span>;
+}

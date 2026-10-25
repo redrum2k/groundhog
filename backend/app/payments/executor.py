@@ -21,6 +21,7 @@ from app.payments.attempt import (
     checkpoint,
     current_attempt,
 )
+from app.payments.base_rpc import BaseTransportError
 from app.payments.journal import PaymentJournal
 
 
@@ -250,7 +251,11 @@ class PaymentExecutor:
                 operation_id,
                 state="failed",
                 reconciliation_status="failed",
-                error=f"{type(error).__name__}: transaction preparation failed before submission",
+                error=(
+                    f"BaseTransportError: transaction preparation failed before submission: {error}"
+                    if type(error) is BaseTransportError
+                    else f"{type(error).__name__}: transaction preparation failed before submission"
+                ),
             )
             return self._changed(db, operation)
 

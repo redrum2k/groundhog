@@ -68,7 +68,7 @@ def test_executor_transitions_persist_current_state_and_keep_history(dataset_ser
     elif ending == "uncertain":
         op = journey.operation(order, "fund")
         journey.chain.observations[op.transaction_hash] = ChainObservation("pending")
-        s.payments.work()
+        s.payments.executor.run_one(op.operation_id)
     elif ending == "expired_not_returned":
         clock.advance(3601)
         s.expire_due()
@@ -83,7 +83,7 @@ def test_executor_transitions_persist_current_state_and_keep_history(dataset_ser
             observed(op, journey.view(order).payment.payment),
             canonical=False,
         )
-        s.payments.work()
+        s.payments.executor.run_one(op.operation_id)
     final = assert_projection(s, order, ending)
     assert final.events[: len(before.events)] == before.events
     current = s.get(order.snapshot.order_id)

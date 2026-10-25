@@ -89,6 +89,54 @@ function coinFor(v: View): Coin | null {
   return { text: `${parts} held`, locked: !!v.dispute };
 }
 
+function settlementProgress(v: View, state: PaymentStateChanged["state"]) {
+  const capture = v.nodes.captured;
+  if (!capture) return;
+  if (state === "void_pending" || state === "voided") {
+    for (const key of ["review", "investigate"]) {
+      const node = v.nodes[key];
+      if (node) { node.status = "done"; node.waitingOn = undefined; node.chip = "Review ended"; }
+    }
+    const human = v.nodes.decide;
+    if (human?.decision?.action === "approve") {
+      human.status = "done"; human.waitingOn = undefined; human.chip = "Return approved";
+    }
+    capture.status = state === "voided" ? "done" : "running";
+    capture.step = {...capture.step, title:state === "voided" ? "Funds returned" : "Return pending",
+      detail:state === "voided" ? "Confirmed return of uncaptured funds" : "Return approved; waiting for payment confirmation"};
+    capture.waitingOn = state === "voided" ? undefined : "Waiting for return confirmation";
+    capture.chip = capture.waitingOn ?? "Returned";
+    v.orb = {step:"captured",mode:state === "voided" ? "happy" : "wait"};
+    v.caption = state === "voided" ? "The return is confirmed. Funds have been returned to the buyer." : "The return is approved. Waiting for confirmation; funds are not yet returned.";
+  } else if (state === "capture_pending" || state === "captured") {
+    const review = v.nodes.review;
+    if (review) { review.status = "done"; review.waitingOn = undefined; review.chip = "Review complete"; }
+    capture.status = state === "captured" ? "done" : "running";
+    capture.step = {...capture.step,
+      title: state === "captured" ? "Captured" : "Release pending",
+      detail: state === "captured" ? "Confirmed settlement and recorded booking" : "Review complete; waiting for payment confirmation",
+    };
+    capture.waitingOn = state === "captured" ? undefined : "Waiting for payment confirmation";
+    capture.chip = capture.waitingOn ?? "Confirmed";
+    v.orb = {step: "captured", mode: state === "captured" ? "happy" : "wait"};
+  } else if (capture.status !== "idle") {
+    if (state === "funded") {
+      capture.status = "idle";
+      capture.step = {...capture.step, title: "Captured", detail: "Confirmed settlement and recorded booking"};
+      capture.waitingOn = undefined;
+      capture.chip = undefined;
+      if (v.nodes.review) { v.nodes.review.status = "running"; v.nodes.review.chip = "Review required"; }
+      v.orb = {step: "review", mode: "wait"};
+    } else {
+      capture.status = "waiting";
+      capture.step = {...capture.step, title: "Payment review", detail: "Check the current payment status"};
+      capture.waitingOn = "Payment is not confirmed; check its current status";
+      capture.chip = capture.waitingOn;
+      v.orb = {step: "captured", mode: "wait"};
+    }
+  }
+}
+
 /** Applies one event; mutates and returns the same view so callers can fold incrementally. */
 export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   if (e.seq <= v.lastSeq) return v;
@@ -107,6 +155,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment];
     v.paymentStates[e.payment.id] = e.state;
     v.coin = coinFor(v);
+    if (ctx.live) settlementProgress(v, e.state);
     return v;
   }
   // Historical run effects already carried a state, before the explicit payment effect.
@@ -120,7 +169,17 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   if (attempt > n.attempt) { Object.assign(n, blankNode(n.step), { attempt }); v.cards = v.cards.filter(c => c.node !== e.step); }
   if ("allowedBy" in e && !n.allowedBy.includes(e.allowedBy)) n.allowedBy.push(e.allowedBy);
   switch (e.type) {
-    case "state_changed": v.binding = e.binding; n.waitingOn = e.reason ?? undefined; break;
+    case "state_changed":
+      v.binding = e.binding; n.waitingOn = e.reason ?? undefined;
+      if (ctx.live && e.state === "human_review") {
+        for (const key of ["review", "investigate", "decide"]) {
+          const node = v.nodes[key];
+          if (node) { node.status = "waiting"; node.waitingOn = "Human review required"; }
+        }
+        v.orb = {step:"decide",mode:"wait"};
+      }
+      if (ctx.live && e.paymentState) settlementProgress(v, e.paymentState);
+      break;
     case "step_started":
       n.status = "running"; n.waitingOn = undefined; v.started += 1;
       if (attempt > 1 && n.step.kind === "produce" && v.lastLane) v.loops = [...v.loops, v.lastLane];
@@ -148,7 +207,19 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       v.cards = [...v.cards, { id: e.evidence.id, node: e.step, text: e.evidence.label, tone: e.evidence.kind === "claim" ? "claim" : "ev" }];
       break;
     case "dispute_opened": v.dispute = e.dispute; v.coin = coinFor(v); break;
-    case "verdict": n.verdict = e.verdict; break;
+    case "verdict":
+      n.verdict = e.verdict;
+      if (ctx.live) {
+        n.status = e.verdict.kind === "grey" ? "grey" : "done";
+        const investigation = v.nodes.investigate;
+        if (investigation) {
+          investigation.status = e.verdict.kind === "grey" ? "waiting" : "done";
+          investigation.waitingOn = e.verdict.kind === "grey" ? investigation.waitingOn ?? "Waiting for evidence or human review" : undefined;
+          investigation.chip = investigation.waitingOn ?? "Assessment complete";
+        }
+        v.orb = {step: e.step, mode: "wait"};
+      }
+      break;
     case "controller_decided": n.decision = { action: e.action, by: e.by, note: e.note }; break;
     case "amendment_signed": n.amendment = e.amendment; break;
     case "rule_updated": n.rule = e.rule; v.cards = [...v.cards, { id: e.rule.id, node: e.step, text: e.rule.label, tone: "rule" }]; break;
@@ -160,6 +231,10 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     waitingOn: n.waitingOn, learned: ctx.learned, disputed: !!v.dispute, decided: n.decision?.action, ruled: !!n.rule, window: v.reviewWindow,
   });
   if (caption) v.caption = caption;
+  if (ctx.live && e.type === "state_changed" && e.paymentState === "capture_pending") v.caption = "Review complete. Waiting for payment confirmation.";
+  const paymentState = v.payments.length === 1 ? v.paymentStates[v.payments[0].id] : undefined;
+  // Repeated human-review effects during reconciliation must not erase an approved return.
+  if (ctx.live && (paymentState === "void_pending" || paymentState === "voided")) settlementProgress(v, paymentState);
   return v;
 }
 

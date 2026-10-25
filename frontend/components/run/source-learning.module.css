@@ -1,5 +1,5 @@
-.root { position: fixed; left: 20px; bottom: 20px; z-index: 80; }
-.panel { position: absolute; bottom: 45px; left: 0; width: min(480px, calc(100vw - 40px)); max-height: calc(100vh - 140px); overflow: auto; padding: 22px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 12px 40px #0002; }
+.root { position: relative; z-index: 80; }
+.panel { position: fixed; bottom: 20px; left: 20px; width: min(480px, calc(100vw - 40px)); max-height: calc(100dvh - 140px); overflow: auto; padding: 22px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 12px 40px #0002; }
 .panel header { display: flex; gap: 12px; justify-content: space-between; align-items: start; }
 .panel h2 { font-size: 20px; margin: 4px 0 12px; }
 .panel h3 { font-size: 15px; margin: 22px 0 10px; }

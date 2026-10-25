@@ -436,7 +436,8 @@ def test_reorg_preserves_financial_history_and_stops_work(journey, phase):
         observed(operation, j.view(order).payment.payment),
         canonical=False,
     )
-    j.service.payments.work()
+    # Explicit inspection bypasses the routine audit cadence.
+    j.service.payments.executor.run_one(operation.operation_id)
     current = j.current(order)
     assert current.ledger == ledger and current.order_state == "human_review"
     assert j.view(order).payment.payment.state == "reorg_hold"
@@ -783,7 +784,7 @@ def test_uncertain_capture_recovers_exact_operation_and_preserves_booking(journe
     assert len(confirmed.ledger) == 1
     ledger = confirmed.ledger
     j.chain.observations[operation.transaction_hash] = ChainObservation("pending")
-    j.service.payments.work()
+    j.service.payments.executor.run_one(operation.operation_id)
     assert j.current(order).ledger == ledger
     assert j.view(order).payment.payment.state == "uncertain"
     j.confirm(order, "capture")

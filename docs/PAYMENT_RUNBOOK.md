@@ -90,6 +90,21 @@ SQLite transactions never span payment RPC/signing. One application worker owns 
 graceful shutdown stops selection and drains calls before releasing it. Hard restart recovers
 persisted leases (catalog 45 seconds; payment operation 120 seconds).
 
+Payment selection prioritizes reserved/signed/submitted/uncertain operations, ordered by
+last attempt so unresolved payments cannot monopolize the lane. Routine audits of the
+latest confirmed non-mock receipt become due 60 seconds after its last update. Under
+continuous active work, one due audit gets a turn after at most eight active claims;
+idle capacity also serves due audits. A durable scheduling counter preserves this share
+across restart. This is a minimum audit interval and a bounded share of attempts, not
+a promise to audit every receipt within 60 seconds. Explicit operation inspection remains
+available immediately. The scheduler does not interrupt an in-flight RPC attempt.
+
+Current explicit delivery acceptance satisfies the review gate immediately and queues
+eligible capture without waiting for the original 60-second deadline. Accepted deadlines,
+other settlement checks and confirmation requirements remain unchanged. The UI shows
+review complete / release pending until confirmed capture, including historical event
+replay. See [payment scheduling validation](reviews/payment-scheduling-20261024.md).
+
 No normal browser work call is required. Provider offers/approvals, failed-job retry and reviewer
 decisions still require the respective trusted server caller; manual compile/work/payment-work
 routes remain protected and compatible. [Lucas handoff](handoffs/lucas.md) has exact paths,

@@ -102,9 +102,10 @@ activation/revoke loop. None is reinterpreted as a newly funded aggregate order.
 The primary app at `/` and `/live` consumes persisted aggregate backend events from
 intake onward. Customer view and Run share one order, with real funding consent and
 server-gated admin controls. The retained broker demo/recorded rehearsal is at `/demo`.
-The Next bridge requires trusted loopback demo
-mode and distinct server-only worker/reviewer tokens. Hosted access requires a
-separate authentication/deployment design; no tenant isolation is claimed.
+The Next bridge requires trusted loopback demo mode or explicitly enabled,
+password-protected hosted demo mode, with distinct server-only worker/reviewer
+tokens. Hosted setup keeps the backend private; access is shared operator access,
+not customer authentication or tenant isolation. See [Railway setup](docs/RAILWAY.md).
 See [workstream 06](docs/workstreams/06-data-broker.md) for implementation and evidence.
 
 ## Historical competitive demo checkpoint — October 24, 13:22 Pacific
