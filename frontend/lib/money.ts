@@ -11,3 +11,8 @@ export function formatMinor(minor: number, decimals = 2): string {
 export function formatMajor(major: number): string {
   return formatMinor(Math.round(major * 100));
 }
+
+/** Keep legacy whole-dollar canvas labels, but never drop a fractional trailing cent. */
+export function formatCanvasMajor(major: number): string {
+  return formatMajor(major).replace(/\.00$/, "");
+}

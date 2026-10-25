@@ -27,7 +27,19 @@ async function main() {
     await page.screenshot({path:path.join(output,'customer.png'),fullPage:true,animations:'disabled'});
     await page.getByRole('button',{name:'Run',exact:true}).click();
     const finding = page.getByRole('button',{name:/^Finding,/});
-    if(await finding.count()) await finding.click();
+    if(await finding.count()) {
+      // Upstream's settled camera follows the terminal step. Pan using its real
+      // wheel interaction before selecting an earlier finding; never force-click
+      // an offscreen node or replace the canvas camera behavior.
+      const box=await finding.boundingBox();
+      if(box && (box.x<0 || box.y<110 || box.x+box.width>1550 || box.y+box.height>1000)) {
+        await page.locator('.cv').hover({position:{x:300,y:250}});
+        await page.mouse.wheel(box.x-300,box.y-400);
+        await expect.poll(async()=>{const b=await finding.boundingBox();return b && b.x>=0 && b.y>=110 && b.x+b.width<=1550 && b.y+b.height<=1050;}).toBeTruthy();
+        observed.canvasPanned=true;
+      }
+      await finding.click();
+    }
     else await page.getByRole('button',{name:'Funding',exact:true}).click();
     await page.locator('.panel-b').evaluate(el=>{el.scrollTop=0;});
     await page.screenshot({path:path.join(output,'finding.png'),fullPage:true,animations:'disabled'});

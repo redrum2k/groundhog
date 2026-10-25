@@ -6,6 +6,7 @@ import type { SourceLine,
 } from "./contract";
 import { captionFor, chipFor, type Case, type Ending } from "./scenario";
 import type { PaymentStateChanged } from "../runs.generated";
+import { formatCanvasMajor } from "../money";
 
 export type NS = "idle" | "running" | "done" | "waiting" | "fail" | "grey";
 export type OrbMode = "float" | "carry" | "look" | "inspect" | "wait" | "happy";
@@ -78,13 +79,13 @@ function coinFor(v: View): Coin | null {
   if (v.payments.some(p => v.paymentStates[p.id])) {
     const states = v.payments.map(p => v.paymentStates[p.id] ?? (p.id in v.captured ? "captured" : "funded"));
     return {
-      text:v.payments.map((p,i)=>`$${p.amount} ${labels[states[i]]}`).join(" + "),
+      text:v.payments.map((p,i)=>`$${formatCanvasMajor(p.amount)} ${labels[states[i]]}`).join(" + "),
       done:states.every(s=>s==="captured" || s==="voided"),
       locked:states.some(s=>!["captured","voided","awaiting_signature","blocked_parent"].includes(s)),
     };
   }
-  const parts = v.payments.map((p) => `$${p.amount}`).join(" + ");
-  if (v.payments.every((p) => p.id in v.captured)) return { text: `$${money(v)} captured`, done: true };
+  const parts = v.payments.map((p) => `$${formatCanvasMajor(p.amount)}`).join(" + ");
+  if (v.payments.every((p) => p.id in v.captured)) return { text: `$${formatCanvasMajor(money(v))} captured`, done: true };
   if (v.payments.every((p) => p.rail === "mock")) return { text: `${parts} authorized`, locked: !!v.dispute };
   return { text: `${parts} held`, locked: !!v.dispute };
 }
