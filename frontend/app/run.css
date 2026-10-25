@@ -72,6 +72,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .seat { font-size: 12.5px; line-height: 1.35; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .title { font-size: 15px; white-space: nowrap; }
 .top-r { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+/* the tabs read on the same line as the brand's last line, not floating between its two lines */
+.top > .brand, .top > .tabs { align-self: last baseline; }
 .account { display: flex; align-items: center; gap: 10px; }
 .avatar { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--hover); font-size: 12px; color: var(--ink); }
 .avatar svg { color: var(--ink-2); }
@@ -384,6 +386,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .sheet .rn { width: 34px; padding-right: 0; color: var(--ink-3); font-size: 12px; }
 .sheet td:nth-child(2) { width: 84px; }
 .sheet td:nth-child(4) { width: 100px; }
+/* /live's delivered CSV as a plain table, Notion-style: one hairline frame, quiet header, single-line rows */
+.live-conversation .sheet { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.live-conversation .sheet-h { align-items: center; padding: 6px 6px 6px 12px; font-size: 13px; }
+.live-conversation .sheet th { padding: 7px 12px; }
+.live-conversation .sheet td { padding: 7px 12px; white-space: nowrap; }
+.live-conversation .sheet td:nth-child(2) { width: 100%; }
+.live-conversation .sheet td:nth-child(4) { width: auto; color: var(--ink-2); }
+.live-conversation .sheet tbody tr { transition: background-color 120ms ease; }
+.live-conversation .sheet tbody tr:hover { background: var(--sunk); }
+.sheet-dl { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; color: var(--ink-2); font-size: 12.5px; text-decoration: none; transition: background-color 150ms ease, color 150ms ease; }
+.sheet-dl:hover { background: var(--hover); color: var(--ink); }
 .f-withheld td { color: var(--ink-3); }
 .f-missing td { color: var(--red); background: var(--red-t); }
 .f-missing td.num { font-size: 12px; }
@@ -541,7 +554,6 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 @starting-style { :root[data-anim] .ghost { opacity: 0; transform: translateY(4px); } }
 .wallet-t { display: inline-block; }
 .wallet { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
-.wallet-sep { width: 1px; height: 12px; background: var(--line); }
 .wallet.w-held { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
 .wallet.w-paid { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
 .decision { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
@@ -599,7 +611,8 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .wallet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
 .live-shell .top { flex-wrap: wrap; }
 .live-shell:has(> .tools-err) { grid-template-rows: auto auto auto minmax(0, 1fr); }
-.live-shell > .tools-err { padding: 8px 20px; }
+.live-shell > .tools-err { display: flex; align-items: center; gap: 12px; padding: 8px 20px; }
+.live-shell > .tools-err .btn { height: 28px; padding: 0 12px; color: var(--ink); font-size: 13px; }
 .live-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; max-width: 580px; padding: 60px 32px; margin: 0 auto; }
 .live-empty h2, .live-empty p, .live-welcome h1, .live-welcome p { margin: 0; }
 .live-welcome { display: grid; gap: 12px; padding: 16px 0 4px; }

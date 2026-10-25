@@ -5,9 +5,9 @@ import { S } from "../../lib/run/scenario";
 import { Chat, Decision, Transcript } from "./conversation";
 import { GuideProvider, OrbSlot, useOrbFlight } from "./guide";
 import { IcSummit } from "./icons";
-import { LiveAgreement, LiveDelivery, LiveEvidence, LiveFunding, LiveIntake, LiveOffers, LiveVerdict, PaymentStatus } from "./live-order";
+import { LiveAgreement, LiveDelivery, LiveEvidence, LiveFunding, LiveIntake, LiveVerdict, PaymentStatus } from "./live-order";
 
-export default function LiveCustomer({order,pay,working,customer,admin}:{order:LiveOrder;pay:()=>void;working:()=>void;customer:()=>void;admin:()=>void}) {
+export default function LiveCustomer({order,pay,working,admin}:{order:LiveOrder;pay:()=>void;working:()=>void;admin:()=>void}) {
   const {col,decision,assessment,at,funding,quote}=useConversationGuide(order);
   return <main className="customer live-conversation" aria-label="Customer view" tabIndex={-1}>
     <GuideProvider value={{at,mood:{home:order.view.orb.mode,decision:"wait"}}}>
@@ -24,8 +24,6 @@ export default function LiveCustomer({order,pay,working,customer,admin}:{order:L
         </div>
         {order.hasHumanReview && <div className="callout">{order.page?.payment?.payment.state==="voided"?"Funds returned after human review.":order.page?.payment?.payment.state==="void_pending"?"Return approved; waiting for confirmation.":order.needsHumanReview?"This order needs human review.":"A human review decision is recorded."} <button type="button" className="btn" onClick={admin}>Open admin review</button></div>}
         <LiveEvidence order={order}/>
-        {order.delivery && <LiveOffers order={order} customer={customer}/>}
-        <p className="mock-note">Synthetic aggregate data. The dataset is produced and checked against the accepted sources; the operator applies the agreed payment rules.</p>
       </div>
     </GuideProvider>
   </main>;
@@ -35,10 +33,10 @@ function OrderDecisions({order,pay,working,funding}:{order:LiveOrder;pay:()=>voi
   const quote=order.page?.quote;
   const payment=order.page?.payment?.payment;
   return <>
-          {(quote || order.lines.length>0) && <Decision title="Data contract" open={!order.binding} taken={order.binding?"Agreement accepted":undefined}>
+          {(quote || order.lines.length>0) && <Decision title="Data contract" open={!order.binding} taken={order.binding?"Accepted":undefined}>
             <LiveAgreement order={order} pay={pay}/>
           </Decision>}
-          {(payment || order.stage) && <Decision title="Payment" open={funding || !!order.stage} taken={payment?.state==="funded"?"Funds held in escrow":payment?.state==="captured"?"Payment captured":payment?.state==="voided"?"Funds returned":undefined}>
+          {(payment || order.stage) && <Decision title="Payment" open={funding || !!order.stage} taken={payment?.state==="funded"?"Held in escrow":payment?.state==="captured"?"Captured":payment?.state==="voided"?"Returned":undefined}>
             <LiveFunding order={order} pay={pay}/>
           </Decision>}
           {order.delivery && <Decision title={`Your dataset${order.delivery.version>1?` · version ${order.delivery.version}`:""}`} open={order.enabled("accept") || order.enabled("dispute")}>

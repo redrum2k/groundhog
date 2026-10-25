@@ -36,6 +36,8 @@ export const IcPlay = ({ size, strokeWidth, ...p }: IconProps) => <svg {...base(
 export const IcPause = icon("M5 3v10M11 3v10");
 /** A wallet: the customer's money, flat like the rest of the set */
 export const IcWallet = icon("M2.25 4.5A1.25 1.25 0 0 1 3.5 3.25h8.25a1 1 0 0 1 1 1v1M2.25 4.5v7.25a1.25 1.25 0 0 0 1.25 1.25h9.25a1 1 0 0 0 1-1V6.25a1 1 0 0 0-1-1H3.5a1.25 1.25 0 0 1-1.25-.75ZM10 9.5h.01");
+/** Download: an arrow into a tray */
+export const IcDownload = icon("M8 2.5v8M4.75 7.5 8 10.75l3.25-3.25M3 13.25h10");
 /** Return: an arrow turning back, for money sent back to the buyer */
 export const IcReturn = icon("M6 4 3 7l3 3M3 7h6.5a3.5 3.5 0 0 1 0 7H8");
 /** The Groundhog mark: the detective groundhog between two tiles. */

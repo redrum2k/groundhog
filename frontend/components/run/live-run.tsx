@@ -39,7 +39,7 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
   const nodes:CNode[]=view.order.map(key=>({id:key,row:MAIN.has(key)?0:1,col:view.order.filter(k=>MAIN.has(k)===MAIN.has(key)).indexOf(key),title:key==="captured" && reviewComplete?completionTitle:view.nodes[key].step.title,desc:key==="captured" && reviewComplete?"Payment processing":key==="captured" && view.nodes[key].status==="running"?"Awaiting confirmation":DETAILS[key] ?? view.nodes[key].step.detail,keepChip:["verdict","grey"].includes(view.nodes[key].step.kind)}));
   const source=Object.values(view.nodes).find(n=>n.source && n.status!=="idle");
   const canvas:CanvasView={status:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,reviewComplete && ["review","captured"].includes(k)?"done":n.status])),chip:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,k==="captured" && reviewComplete?order.deliveryAccepted?"Accepted":"Reviewed":k==="captured" && n.status==="running"?"Confirming payment":CHIPS[n.status]])),orb:{node:finished?"captured":view.orb.step,mode:view.orb.mode},coin:reviewComplete?null:view.coin,loops:view.loops,cards:view.cards,source:source?.source?{node:source.step.id,lines:source.source}:null};
-  const note=returned?"The return is confirmed. Funds have been returned to the buyer.":settled?"Payment is confirmed and recorded.":reviewComplete?`${completionTitle}. Payment is processing in the background.`:view.caption;
+  const note=returned?"The return is confirmed. Funds have been returned to the buyer.":settled?"Payment is confirmed and recorded.":reviewComplete?`${completionTitle}. Payment is processing in the background.`:order.needsHumanReview?"Waiting for an admin to review the case.":view.caption;
   const working=()=>{setPanel(undefined);navigate("run",true);setRecenter(n=>n+1);};
   const customer=()=>navigate("customer");
   const admin=()=>{navigate("run");setPanel("decide");};
@@ -63,19 +63,19 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
     <div className="tools">
       <SourceLearning openRun={live.resume}/>
       {live.id && <button type="button" className={`btn${tab==="run" && finished?" solid":""}`} disabled={busy} onClick={()=>{order.newRun();setPanel(undefined);customer();}}>New request</button>}
-      <span className="faint">Synthetic data{paymentMode==="mock"?", mock payments":paymentMode==="base_sepolia"?", Base Sepolia test USDC":""}</span><div className="spacer"/>
+      <span className="faint">Synthetic data{paymentMode==="mock"?", simulated payments":paymentMode==="base_sepolia"?", Base Sepolia test USDC":""}</span><div className="spacer"/>
       {tab==="run" && <>
+        {/* each step on the canvas opens its own panel, so there are no per-step buttons here */}
         {turn && <button type="button" className="btn turn" onClick={customer}><span className="turn-dot" aria-hidden/>{turn}</button>}
-        <button type="button" className="btn" onClick={working}>Follow agent</button>
-        <button type="button" className="btn" onClick={()=>setPanel("clarify")}>Agreement</button>
-        <button type="button" className="btn" onClick={()=>setPanel("paid")}>Funding</button>
-        <button type="button" className="btn" onClick={()=>setPanel("review")}>Delivery & review</button>
-        {order.hasHumanReview && <button type="button" className="btn" onClick={admin}>Admin review</button>}
+        {/* when a person has to decide, say so the same way the buyer's turn does */}
+        {order.hasHumanReview && (order.needsHumanReview
+          ? <button type="button" className="btn turn" onClick={admin}><span className="turn-dot" aria-hidden/>Admin&apos;s turn: review the case</button>
+          : <button type="button" className="btn" onClick={admin}>Admin review</button>)}
       </>}
-      <button type="button" className="btn" disabled={busy} onClick={live.retry}>Refresh</button>
     </div>
-    {order.error && <div className="tools-err" role="alert">{order.error}</div>}
-    {tab==="customer"?<LiveCustomer order={order} pay={()=>void pay()} working={working} customer={customer} admin={admin}/>:<main className="stage" aria-label="Run view" tabIndex={-1}>
+    {/* polling keeps the order current, so a manual reload is only offered when something went wrong */}
+    {order.error && <div className="tools-err" role="alert">{order.error}<button type="button" className="btn" onClick={live.retry}>Try again</button></div>}
+    {tab==="customer"?<LiveCustomer order={order} pay={()=>void pay()} working={working} admin={admin}/>:<main className="stage" aria-label="Run view" tabIndex={-1}>
       {nodes.length>0?<Canvas nodes={nodes} view={canvas} focus={finished?{kind:"node",node:"captured"}:{kind:"follow"}} hideAgent={finished} panelOpen={!!panel} onNode={setPanel} recenter={recenter} overlay={<AgentNote text={note} settled={settled} shifted={!!panel}/>}/>:<div className="live-empty"><h2>{live.id?"Loading the order…":"The agent’s work will appear here"}</h2><p>Start the conversation and agree on a dataset to follow its progress.</p><button type="button" className="btn solid" onClick={customer}>Open customer view</button>{recorded && <button type="button" className="btn" onClick={recorded}>Open rehearsal</button>}</div>}
       {panel && <aside className="panel" aria-label={panelTitle}><div className="panel-h"><div><div className="panel-t">{panelTitle}</div><div className="faint">{node?.step.detail ?? "Current order and evidence"}</div></div><button type="button" className="sq" aria-label="Close panel" onClick={()=>setPanel(undefined)}><IcX/></button></div><div className="panel-b live-content"><LiveStep order={order} step={panel} pay={()=>void pay()} working={working} customer={customer}/></div></aside>}
     </main>}

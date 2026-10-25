@@ -22,7 +22,7 @@ async function main() {
   const observed={run,origin,errors,mutations};
   try {
     await page.goto(origin+'/live',{waitUntil:'networkidle'});
-    await expect(page.getByText('Synthetic data, mock payments',{exact:true})).toBeVisible();
+    await expect(page.getByText('Synthetic data, simulated payments',{exact:true})).toBeVisible();
     observed.customer = await page.locator('body').innerText();
     await page.screenshot({path:path.join(output,'customer.png'),fullPage:true,animations:'disabled'});
     await page.getByRole('button',{name:'Run',exact:true}).click();
@@ -40,7 +40,7 @@ async function main() {
       }
       await finding.click();
     }
-    else await page.getByRole('button',{name:'Funding',exact:true}).click();
+    else await page.getByRole('button',{name:/^Funds held,/}).click();
     await page.locator('.panel-b').evaluate(el=>{el.scrollTop=0;});
     await page.screenshot({path:path.join(output,'finding.png'),fullPage:true,animations:'disabled'});
     await page.getByText('Why may money move?',{exact:true}).click();

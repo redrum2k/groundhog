@@ -86,8 +86,8 @@ Follow these steps:
 1. Create a request with `SF adults 25–34, gym members or fitness-app users,
    grouped by ZIP.` This unambiguous input skips the optional clarification.
 2. Prepare the quote, inspect its $120 terms, then explicitly accept it.
-3. Open **Funding**, choose **Prepare funding**, then **Simulate mock funding**.
-4. Open **Delivery & review**. Wait for the worker, inspect the eight checks and
+3. Open the **Funds held** step on the Run canvas, choose **Prepare funding**, then **Simulate mock funding**.
+4. Open the **Customer review** step on the Run canvas. Wait for the worker, inspect the eight checks and
    download the CSV. Expect 27 unique ZIPs, 94110 count 170, and 94129 suppressed
    with no exact count.
 5. Reload: the same run and delivery should return. Accept the verified delivery
@@ -133,7 +133,7 @@ persistence applies to `/live`, not to a new claim about this compatibility driv
 Use **New request** and repeat the normal quote/funding steps for each scenario.
 A delivery review lasts 60 seconds, so prepare complaint text before funding.
 
-**Unsupported factual complaint:** In **Delivery & review**, select:
+**Unsupported factual complaint:** In the **Customer review** step on the Run canvas, select:
 
 - Accepted requirement: `R-COVERAGE`.
 - Dataset row: `94110`.

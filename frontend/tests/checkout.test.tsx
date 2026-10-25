@@ -154,7 +154,7 @@ it("offers one payment button and reports pending funds without claiming fulfill
   render(<LiveRun recorded={()=>{}}/>);
   fireEvent.click(await screen.findByRole("button",{name:"Accept & pay $1.00"}));
   await screen.findByRole("main",{name:"Run view"});
-  fireEvent.click(screen.getByRole("button",{name:"Funding"}));
+  fireEvent.click(screen.getByRole("button",{name:"Customer view"}));
   await screen.findByText("Payment submitted. Waiting for confirmed funds before starting work.");
   expect(screen.queryByRole("button",{name:"Prepare funding"})).toBeNull();
   expect(screen.queryByRole("link",{name:"Download CSV"})).toBeNull();
@@ -168,9 +168,9 @@ it("switches customer/admin views on the same run and honors current reviewer pe
   localStorage.setItem("datumco.live-run.v1",JSON.stringify({id:"run-1"}));
   render(<LiveRun recorded={()=>{}}/>);
   await screen.findByText("Awaiting payment");
-  expect(screen.queryByRole("button",{name:"Admin review"})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
-  fireEvent.click(screen.getByRole("button",{name:"Admin review"}));
+  fireEvent.click(screen.getByRole("button",{name:/^Admin's turn/}));
   await waitFor(()=>expect((screen.getByRole("button",{name:"reject"}) as HTMLButtonElement).disabled).toBe(false));
   expect((screen.getByRole("button",{name:"approve"}) as HTMLButtonElement).disabled).toBe(true);
   expect(posts(fetcher)).toHaveLength(0);
@@ -217,7 +217,7 @@ it("shows drafted terms as agreed without marking the delivery checks as passed"
   await screen.findByText("Which area should the dataset cover?");
   expect(within(screen.getByRole("region",{name:"Data contract"})).getByText("Completed:")).toBeTruthy();
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
-  fireEvent.click(screen.getByRole("button",{name:"Delivery & review"}));
+  fireEvent.click(screen.getByRole("button",{name:/^Produce,/}));
   expect(within(screen.getByRole("region",{name:"Delivery checks"})).getByText("Pending:")).toBeTruthy();
   expect(screen.queryByRole("link",{name:"Download CSV"})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Customer view"}));
@@ -242,7 +242,7 @@ it("shows a pending evidence question without presenting human approval controls
   expect(within(screen.getByRole("complementary",{name:"Investigate"})).getAllByText("Which frozen source supports this complaint?")).toHaveLength(1);
   expect(screen.queryByText("Human review · current order")).toBeNull();
   expect(screen.queryByLabelText("Reason or evidence answer")).toBeNull();
-  expect(screen.queryByRole("button",{name:"Admin review"})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
 });
 
 it("shows the persisted scope explanation and buyer acceptance without stale human-review prompts", async()=>{
@@ -262,7 +262,7 @@ it("shows the persisted scope explanation and buyer acceptance without stale hum
   expect(screen.getByRole("button",{name:"Accept verified delivery"})).toBeTruthy();
   expect(screen.queryByRole("button",{name:"Open admin review"})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
-  expect(screen.queryByRole("button",{name:"Admin review"})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Assessment, done"}));
   expect(screen.getByText(reason)).toBeTruthy();
   expect(screen.queryByText("Human review · current order")).toBeNull();
@@ -270,12 +270,15 @@ it("shows the persisted scope explanation and buyer acceptance without stale hum
 
 it("keeps every repeated-label source cell inspectable by its persisted evidence ID", async()=>{
   const {state,fetcher}=setup();
+  vi.stubGlobal("ResizeObserver",class {observe(){} disconnect(){}});
   const at="2026-10-24T12:00:00Z";
   const events:RunPage["events"]=[{seq:1,at,type:"steps_planned",steps:[{id:"investigate",kind:"investigate",title:"Investigate",detail:"Read evidence"}]}];
   for(let i=0;i<60;i++)events.push({seq:i+2,at,type:"evidence_found",step:"investigate",evidence:{id:`ref-${i}`,kind:"sheet_cell",label:"coverage.csv",file:"coverage.csv",row:String(i),column:"city",value:"San Francisco",note:"Frozen geography",source:{kind:"cell",row:String(i),column:"city",version:1}}});
   state.page={...state.page,events,next_after:61,high_watermark:61};
   localStorage.setItem("datumco.live-run.v1",JSON.stringify({id:"run-1"}));
   render(<LiveRun/>);
+  fireEvent.click(await screen.findByRole("button",{name:"Run"}));
+  fireEvent.click(await screen.findByRole("button",{name:/^Investigate,/}));
   fireEvent.click(await screen.findByText("Inspect persisted evidence"));
   fireEvent.click(screen.getByText("coverage.csv · 60 references"));
   expect(document.querySelectorAll(".live-evidence-list .cite")).toHaveLength(60);
