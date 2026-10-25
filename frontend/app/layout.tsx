@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { S } from "../lib/run/scenario";
 
 export const metadata: Metadata = {
   title: "Groundhog run",
-  description: "Order-to-cash agent for a data broker.",
+  description: `${S.seat}.`,
 };
 export default function RootLayout({
   children,
