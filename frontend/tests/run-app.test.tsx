@@ -39,7 +39,7 @@ describe("The order", () => {
     render(<RunApp />);
     await act(async () => { button("The order").click(); });
     await until(() => panel() === "Investigate");
-    expect(caption()).toMatch(/pulls what Acme agreed to/);
+    expect(caption()).toMatch(/pulls what Summit agreed to/);
     expect(disabled("Pause")).toBe(false);
 
     await until(() => !!document.querySelector(".loop"));
@@ -62,7 +62,7 @@ describe("Grey area", () => {
     expect(disabled("Waiting on Human")).toBe(true);
     expect(panel()).toBe("Human decides");
     expect(screen.getByText(/Should yoga studio members count as fitness/)).toBeTruthy();
-    for (const name of ["Yoga counts, rerun free", "No, offer $30", "Ask Acme for more", "Send to CFO"]) expect(disabled(name)).toBe(false);
+    for (const name of ["Yoga counts, rerun free", "No, offer $30", "Ask Summit for more", "Send to CFO"]) expect(disabled(name)).toBe(false);
 
     await act(async () => { button("Yoga counts, rerun free").click(); });
     await until(() => !!screen.queryByRole("button", { name: "Replay yoga with the new rule" }));
@@ -78,7 +78,7 @@ describe("Grey area", () => {
 });
 
 describe("Customer view", () => {
-  it("shows Acme's decisions as taken on a recorded run", async () => {
+  it("shows Summit's decisions as taken on a recorded run", async () => {
     render(<RunApp />);
     await act(async () => { button("The order").click(); });
     await until(() => /captured in total/.test(caption()));

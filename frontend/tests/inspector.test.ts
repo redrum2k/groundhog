@@ -6,7 +6,7 @@ import type { ContractLine, Evidence, ZipCount } from "../lib/run/contract";
 
 const line = (id: string): ContractLine => ({ id, text: id, check: "code" });
 const LIVE = ["freshness", "geography", "coverage"].map(line), RECORDED = ["city", "coverage"].map(line);
-const quote = (id: string) => ({ id, kind: "interview_quote", label: id, note: "", quote: "", speaker: "Acme", source: { kind: "none", reason: "" } }) as Evidence;
+const quote = (id: string) => ({ id, kind: "interview_quote", label: id, note: "", quote: "", speaker: "Summit", source: { kind: "none", reason: "" } }) as Evidence;
 const cell = (id: string, row = "") => ({ id, kind: "sheet_cell", label: id, note: "", file: "sheet.csv", row, column: "", value: null, source: { kind: "none", reason: "" } }) as Evidence;
 const rows: ZipCount[] = [{ zip: "94102", area: "Tenderloin", count: 1820 }];
 
