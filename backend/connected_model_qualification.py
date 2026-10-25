@@ -62,6 +62,38 @@ RECIPES = (
     },
 )
 
+SEMANTIC_CASES = (
+    {
+        "id": "excluded-population",
+        "text": (
+            "Leaving out people whose only activity is yoga violates our agreement; "
+            "those people belonged in the deliverable."
+        ),
+        "expected": "FAIL",
+        "basis": "Accepted exclusion contradicts both clauses; real model interpretation required.",
+    },
+    {
+        "id": "scope-confirmation",
+        "text": (
+            "The purchased population was gym members or fitness-app users, not people who "
+            "only attend yoga. Their exclusion is consistent with what we accepted."
+        ),
+        "expected": "PASS",
+        "basis": (
+            "Both clauses describe the frozen agreed category without alleging an output fault."
+        ),
+    },
+    {
+        "id": "identity-evidence",
+        "text": (
+            "A person with homes in two ZIPs could be in both totals. Show the underlying "
+            "identity matching evidence that rules this out, beyond the contract's assumption."
+        ),
+        "expected": "UNKNOWN",
+        "basis": "Person-level matching evidence is absent; do not infer it from aggregate rows.",
+    },
+)
+
 
 def load(path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -236,6 +268,68 @@ class ConnectedJourney(Journey):
         save(self.output / (recipe["id"] + "-events.json"), self.page(run))
         return result
 
+    def finish_held(self, label, run, oid):
+        """Follow actual questions/controller actions; never insert a model disposition."""
+        for index in range(3):
+            page = self.page(run)
+            view = self.order(oid)
+            if view["order"]["ledger"]:
+                break
+            if view["order"]["cases"][-1]["status"] == "unsupported":
+                self.settle_review(label, oid)
+                break
+            if page["evidence_request"]:
+                prior = len(view["order"]["semantic_findings"])
+                self.command(
+                    f"/runs/{run}/answers",
+                    {
+                        "binding": page["binding"],
+                        "request_id": page["evidence_request"]["request_id"],
+                        "text": (
+                            "I have no additional independent source records "
+                            "or identity matching evidence."
+                        ),
+                        "references": [],
+                    },
+                    label + f":evidence-{index}",
+                    repeat=True,
+                )
+                self.wait(
+                    lambda: self.order(oid),
+                    lambda v, previous=prior: len(v["order"]["semantic_findings"]) > previous,
+                )
+                continue
+            assert any(a["action"] == "approve" and a["enabled"] for a in page["available_actions"])
+            self.command(
+                f"/runs/{run}/decisions",
+                {
+                    "binding": page["binding"],
+                    "action": "approve",
+                    "reason": (
+                        "Simulated controller explicitly authorizes return of "
+                        "uncaptured mock funds; no factual override."
+                    ),
+                    "evidence_ids": [],
+                },
+                label + ":controller-return",
+                repeat=True,
+            )
+            self.wait(lambda: self.order(oid), lambda v: bool(v["order"]["ledger"]))
+            break
+        final = self.order(oid)
+        assert len(final["order"]["ledger"]) == 1
+        save(self.output / (label + "-final.json"), final)
+        save(self.output / (label + "-events.json"), self.page(run))
+        with sqlite3.connect(self.backend.app.state.orders.repository.path) as db:
+            attempts = [
+                json.loads(r[0])
+                for r in db.execute(
+                    "SELECT data FROM catalog_records WHERE kind='dataset_assessment'"
+                )
+                if json.loads(r[0])["order_id"] == oid
+            ]
+        save(self.output / (label + "-attempts.json"), attempts)
+
 
 def application(root):
     return create_app(
@@ -253,10 +347,11 @@ def application(root):
 def child(root, recover=False):
     budget = configure()
     before_hash = source_hash()
+    recipes = SEMANTIC_CASES if root.name == "semantic-v1" else RECIPES
     plan = {
         "lane": "LOCAL",
         "attempt": root.name,
-        "recipes": RECIPES,
+        "recipes": recipes,
         "authorization_sha256": hashlib.sha256(AUTH.read_bytes()).hexdigest(),
         "source_sha256": before_hash,
         "git_commit": subprocess.check_output(
@@ -281,7 +376,7 @@ def child(root, recover=False):
     }
     if recover:
         frozen = load(root / "frozen-plan.json")
-        assert frozen["source_sha256"] == before_hash and frozen["recipes"] == list(RECIPES)
+        assert frozen["source_sha256"] == before_hash and frozen["recipes"] == list(recipes)
         save(
             root / "technical-recovery.json",
             {
@@ -314,7 +409,7 @@ def child(root, recover=False):
                 journey.anchor = datetime.fromisoformat(
                     source["partitions"][0]["authority"]["valid_until"]
                 ) - timedelta(hours=24)
-                for label in ("training", *(r["id"] for r in RECIPES)):
+                for label in ("training", *(r["id"] for r in recipes)):
                     delivered = root / (label + "-delivered.json")
                     if not delivered.exists():
                         continue
@@ -329,7 +424,9 @@ def child(root, recover=False):
                     }
                 version = journey.learning()["active_version"]
             else:
-                run, oid = journey.intake("training", 301, ambiguous=True)
+                run, oid = journey.intake(
+                    "training", 401 if root.name == "semantic-v1" else 301, ambiguous=True
+                )
                 journey.settle_review("training", oid)
                 candidate = journey.command(
                     "/source-learning/propose",
@@ -342,7 +439,7 @@ def child(root, recover=False):
                 )["record_id"]
                 journey.command("/source-learning/activate", {"target_id": version}, "activate")
             journey.report["learning_version"] = version
-            for batch, recipe in enumerate(RECIPES, 302):
+            for batch, recipe in enumerate(recipes, 402 if root.name == "semantic-v1" else 302):
                 if recipe["id"] in journey.report["orders"]:
                     info = journey.report["orders"][recipe["id"]]
                     run, oid = info["run_id"], info["order_id"]
@@ -350,6 +447,8 @@ def child(root, recover=False):
                     run, oid = journey.intake(recipe["id"], batch)
                 assert journey.report["orders"][recipe["id"]]["initial_internal_reviews"] == 0
                 results.append(journey.assess(recipe, run, oid))
+                if root.name == "semantic-v1":
+                    journey.finish_held(recipe["id"], run, oid)
                 save(root / "results.json", {"cases": results, "journey": journey.report})
             saved_orders = {
                 label: journey.order(info["order_id"])["order"]
