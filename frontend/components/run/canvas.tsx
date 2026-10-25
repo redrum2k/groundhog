@@ -244,27 +244,34 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   );
 }
 
-// The groundhog doesn't slide between steps: it ducks into its hole, the hole closes, and it pops
-// up out of a new hole at the next step: an unhurried dive and climb, about 1.7 s in all.
+// The groundhog doesn't walk between steps: it sinks into its burrow, the burrow closes to a mound, the
+// mound slides under the cards to the next step, a burrow opens there and it climbs out. If the next
+// step starts while it is underground, it tunnels on to that one instead of surfacing in between.
 // Reduced motion just moves it.
-const DIVE_MS = 820; // dive 600ms, then the hole closes by ~800ms
-function useTunnel(x: number, y: number) {
-  const [state, setState] = useState<{ x: number; y: number; phase: "" | "down" | "hidden" }>({ x, y, phase: "" });
+export const TUNNEL = { dive: 450, slide: 1000, rise: 720 } as const; // ms; the slide is as long as the camera's pan
+type Phase = "" | "down" | "travel" | "up";
+export function useTunnel(x: number, y: number) {
+  const [state, setState] = useState<{ x: number; y: number; phase: Phase }>({ x, y, phase: "" });
   const target = useRef({ x, y });
+  const phase = useRef<Phase>("");
+  const timer = useRef(0);
   useEffect(() => {
     if (target.current.x === x && target.current.y === y) return;
     target.current = { x, y };
-    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      setState({ x, y, phase: "" });
-      return;
-    }
-    setState((s) => ({ ...s, phase: "down" }));
-    let raf = 0;
-    const dive = window.setTimeout(() => {
-      setState({ x, y, phase: "hidden" });
-      raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => setState({ x, y, phase: "" }))));
-    }, DIVE_MS);
-    return () => { window.clearTimeout(dive); cancelAnimationFrame(raf); };
+    window.clearTimeout(timer.current);
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) { phase.current = ""; setState({ x, y, phase: "" }); return; }
+    const enter = (p: Phase) => {
+      phase.current = p;
+      // it only changes position once it is underground, so the slide is the move
+      setState((s) => (p === "travel" ? { ...target.current, phase: p } : { ...s, phase: p }));
+    };
+    const after = (ms: number, fn: () => void) => { timer.current = window.setTimeout(fn, ms); };
+    const surface = () => { enter("up"); after(TUNNEL.rise, () => enter("")); };
+    const slide = () => { enter("travel"); after(TUNNEL.slide, surface); };
+    if (phase.current === "travel") slide(); // already underground: on to the newest step
+    else if (phase.current === "down") after(TUNNEL.dive, slide); // mid-dive: the slide goes to the newest target when the dive ends
+    else { enter("down"); after(TUNNEL.dive, slide); }
   }, [x, y]);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
   return state;
 }
