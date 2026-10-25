@@ -124,6 +124,37 @@ FINAL_CASES = (
     },
 )
 
+CONTEXT_CASES = (
+    {
+        "id": "contract-promise",
+        "text": (
+            "Under the deal we accepted, people with only a yoga membership were part of "
+            "what I purchased; leaving that group out breaches that deal."
+        ),
+        "expected": "FAIL",
+        "basis": "The agreed exclusion contradicts contractual inclusion and the breach assertion.",
+    },
+    {
+        "id": "agreed-limit",
+        "text": (
+            "The package I bought was the union of gym members and fitness-app users. "
+            "Someone whose sole membership is a yoga studio was not part of that agreed audience."
+        ),
+        "expected": "PASS",
+        "basis": "Both contractual assertions are supported by accepted terms and category evidence.",
+    },
+    {
+        "id": "source-dedup",
+        "text": (
+            "The signed specification says the ZIP groups are disjoint. However, I am alleging "
+            "that the actual source counts include the same person in two ZIPs, and I need "
+            "record-level matching evidence."
+        ),
+        "expected": "UNKNOWN",
+        "basis": "The empirical allegation remains unproved despite the contract's disjointness rule.",
+    },
+)
+
 
 def load(path):
     return json.loads(path.read_text(encoding="utf-8"))
@@ -390,9 +421,15 @@ def application(root):
 def child(root, recover=False, recovery_id=0):
     budget = configure()
     before_hash = source_hash()
-    recipes = {"semantic-v1": SEMANTIC_CASES, "semantic-v2": FINAL_CASES}.get(root.name, RECIPES)
+    recipes = {
+        "semantic-v1": SEMANTIC_CASES,
+        "semantic-v2": FINAL_CASES,
+        "semantic-v3": CONTEXT_CASES,
+    }.get(root.name, RECIPES)
     complete_settlement = root.name.startswith("semantic-")
-    training_batch = {"semantic-v1": 401, "semantic-v2": 501}.get(root.name, 301)
+    training_batch = {"semantic-v1": 401, "semantic-v2": 501, "semantic-v3": 601}.get(
+        root.name, 301
+    )
     plan = {
         "lane": "LOCAL",
         "attempt": root.name,
