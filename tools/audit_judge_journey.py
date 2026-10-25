@@ -20,7 +20,32 @@ def digest(value):
     return sha(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode())
 
 
-def audit(directory):
+def verify_frozen_source(order, terms, expected, artifact):
+    """Reconcile accepted derived bytes, not merely the learning bundle's values."""
+    source = next(s for s in order["sources"] if s["source_id"].endswith(":" + terms["category"]))
+    frozen = json.loads(artifact(source["artifact"]))
+    assert frozen["source_id"] == source["source_id"] and frozen["version"] == source["version"]
+    for field in (
+        "category",
+        "geography",
+        "age_min",
+        "age_max",
+        "population",
+        "count_unit",
+        "groups_disjoint",
+    ):
+        assert frozen[field] == terms[field], ("accepted source scope differs", field)
+    assert len(frozen["rows"]) == len(expected)
+    assert {r["zip"]: (r["area"], r["count"], r["status"]) for r in frozen["rows"]} == expected
+
+
+def verify_download(path, stored_bytes):
+    downloaded = path.read_bytes()
+    assert downloaded == stored_bytes, "downloaded artifact differs from immutable stored bytes"
+    return downloaded
+
+
+def audit(directory, *, output=None):
     directory = directory.resolve()
     report = load(directory / "report.json")
     assert report["completed"]
@@ -137,6 +162,7 @@ def audit(directory):
                     row["status"],
                 )
         assert set(expected) == set(terms["coverage"]["expected_keys"])
+        verify_frozen_source(order, terms, expected, artifact)
         assert len(order["deliveries"]) == 1 and order["free_corrections_used"] == 0
         delivery = order["deliveries"][0]
         raw_csv = artifact(delivery["csv"])
@@ -147,7 +173,9 @@ def audit(directory):
             r["zip"]: (r["area"], int(r["count"]) if r["count"] else None, r["status"])
             for r in rows
         } == expected
-        preview = json.loads(artifact(delivery["preview"]))
+        preview = json.loads(
+            verify_download(directory / (label + "-delivery.json"), artifact(delivery["preview"]))
+        )
         assert preview["csv_sha256"] == sha(raw_csv)
         assert {r["zip"]: (r["area"], r["count"], r["status"]) for r in preview["rows"]} == expected
         assert all(
@@ -328,7 +356,7 @@ def audit(directory):
             "no live LLM or human-time savings claim."
         ),
     }
-    (directory / "independent-audit.json").write_text(
+    (output or directory / "independent-audit.json").write_text(
         json.dumps(result, indent=2), encoding="utf-8"
     )
     return result
@@ -337,5 +365,6 @@ def audit(directory):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", type=Path)
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    print(json.dumps(audit(args.directory), indent=2))
+    print(json.dumps(audit(args.directory, output=args.output), indent=2))
