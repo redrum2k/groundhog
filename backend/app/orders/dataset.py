@@ -356,3 +356,37 @@ class DatasetLifecycle:
                 "finding grants no payment permission"
             ),
         )
+        # The existing Customer and Finding views render persisted messages.
+        # Publish only the effective finding, never promote a rejected candidate.
+        result = semantic.result if semantic else "Not assessed (scope request)"
+        explanation = semantic.explanation if semantic else reason
+        assessor = (
+            f"Assessor: {semantic.provenance.assessor} ({semantic.provenance.version}).\n"
+            if semantic
+            else ""
+        )
+        self.effects.message(
+            db,
+            order.snapshot.quote.request_id,
+            f"{case.case_id}:finding-message:{order.binding.evidence_revision}",
+            f"Buyer complaint: {case.complaint.text}\n"
+            f"Finding: {result}. Provenance: {decided_by}.\n"
+            f"{assessor}{explanation}\nThis finding does not authorize payment.",
+            step="verdict",
+            attach=[{"kind": "evidence", "evidenceId": item} for item in evidence_ids],
+        )
+        self.effects.emit(
+            db,
+            order,
+            f"{case.case_id}:finding-complete:{order.binding.evidence_revision}",
+            type="step_completed",
+            step="verdict",
+        )
+        if updated.status != "open" or not updated.question:
+            self.effects.emit(
+                db,
+                order,
+                f"{case.case_id}:investigation-complete:{order.binding.evidence_revision}",
+                type="step_completed",
+                step="investigate",
+            )
