@@ -179,12 +179,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 
 /* orb + coin */
 .orb-wrap { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 2; }
-/* travel: straight down into the burrow, the burrow slides under the cards to the next step (across; a row change goes down or up first, never diagonal), straight back out (see useTunnel) */
-:root[data-anim] .orb-wrap { transition: transform 1000ms var(--ease-in-out), translate 400ms var(--ease-in-out); } /* TUNNEL.slide across, TUNNEL.turn between rows */
-:root[data-anim] .orb-wrap.tunnel-turn { transition-delay: 400ms, 0ms; }
-.orb-wrap .gh-rise { transition: transform 600ms cubic-bezier(0.22, 0.8, 0.3, 1) 120ms; }
-.orb-wrap:is(.tunnel-down, .tunnel-travel) .gh-rise { transform: translateY(17px); transition: transform 450ms cubic-bezier(0.5, 0, 0.75, 0.6); } /* down to the crown of the hat, so the character never vanishes */
-.orb-wrap:is(.tunnel-down, .tunnel-travel) :is(.orb-sheet, .orb-lens, .gh-badge) { opacity: 0; }
+/* travel, on the canvas and in the customer view: it ducks all the way into its burrow, the burrow closes, a beat under, then a burrow opens at the next place and it climbs out; the burrow never moves (see useTunnel and tunnelTo; TUNNEL in orb.tsx has the timings) */
+.gh-rise { transition: transform 650ms cubic-bezier(0.22, 0.8, 0.3, 1) 240ms; } /* the climb, once the burrow has opened */
+.gh-hole-rim, .gh-hole, .gh-lip { transform-box: fill-box; transform-origin: center; transition: transform 240ms var(--ease-out); }
+.tunnel-down .gh-rise { transform: translateY(28px); transition: transform 450ms cubic-bezier(0.5, 0, 0.75, 0.6); }
+.tunnel-down :is(.gh-hole-rim, .gh-hole, .gh-lip) { transform: scale(0); transition: transform 200ms ease-in 420ms; } /* closes once it is all the way in */
+.tunnel-under .gh-rise { transform: translateY(28px); transition: none; }
+.tunnel-under :is(.gh-hole-rim, .gh-hole, .gh-lip) { transform: scale(0); transition: none; }
+:is(.tunnel-down, .tunnel-under) :is(.orb-sheet, .orb-lens, .gh-badge, .coin) { opacity: 0; } /* props and the coin go under with it and come back at the new place */
+:root[data-anim] .orb-wrap .coin { transition: opacity 200ms var(--ease-out); }
 .orb { position: relative; display: block; width: 34px; height: 34px; }
 .orb svg { display: block; overflow: visible; }
 /* the groundhog and its burrow */
