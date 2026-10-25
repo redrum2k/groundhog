@@ -90,7 +90,7 @@ export default function RunApp() {
     const e = opts.ending ?? ending, l = opts.learned ?? false, m = opts.mode ?? mode;
     setRun(c); setZoom(true); setPanel({ id: MAIN[0].id, auto: true }); setLearned(l); setEnding(e); follow();
     const ctx = ctxFor(c, e, l);
-    if (m === "live" && !l) setFeed({ kind: "live", api: LIVE_API, body: { case: c }, before: [], ctx });
+    if (m === "live" && !l) setFeed({ kind: "live", api: LIVE_API, body: { case: c }, before: [], ctx: { ...ctx, narrated: true } });
     else setFeed({ kind: "recorded", ...timeline(c, e, l), start: 0, autoplay: opts.autoplay ?? true, ctx });
   };
   const onNode = (id: string) => { playback.pause(); setPanel({ id, auto: false }); };

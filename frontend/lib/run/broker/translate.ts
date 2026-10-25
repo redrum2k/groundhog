@@ -223,10 +223,10 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
           verdictDone = true;
           caption("Our miss: the vendor's revision didn't meet the contract. The rerun is on us.");
         } else if (detour === "unknown" && resumed) {
-          emit({ type: "verdict", step: "decide", verdict: { kind: "agree", decidedBy: "controller", evidenceIds: [], reason: `${S.controller} resumed with the clarified contract; the old delivery fails it, so the correction is free.` }, allowedBy: POLICY.freeCorrection });
+          emit({ type: "verdict", step: "decide", verdict: { kind: "agree", decidedBy: "controller", evidenceIds: [], reason: "The controller resumed with the clarified contract; the old delivery fails it, so the correction is free." }, allowedBy: POLICY.freeCorrection });
           complete("decide");
           verdictDone = true;
-          caption(`${S.controller} resumed the case. The old delivery fails the clarified contract, so the correction is free.`);
+          caption("The controller resumed the case. The old delivery fails the clarified contract, so the correction is free.");
         }
         break;
       }
@@ -310,7 +310,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         say("decide", { id: task.id, from: "agent", text: `${task.reason} Missing: ${task.missing_facts.join("; ")}` });
         emit({ type: "step_waiting", step: "decide", waitingOn: S.controller });
         controllerOpen = true;
-        caption(`The rules can't decide, so it goes to ${S.controller}, our controller, with the evidence.`);
+        caption("The rules can't decide, so it goes to a person, our controller, with the evidence.");
         break;
       }
       case "human.decision": {
@@ -318,8 +318,8 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         emit({ type: "controller_decided", step: "decide", action: decision === "RESUME" ? "approve" : "reject", by: S.controller, note: String(p.explanation ?? ""), binding: { deliveryVersion: base?.binding?.delivery_version ?? delivery, evidenceVersion: base?.binding?.evidence_version ?? 0 } });
         say("decide", { id: `decision-${e.sequence}`, from: "controller", text: String(p.explanation ?? decision) });
         controllerOpen = decision !== "RESUME";
-        if (decision === "RESUME") { resumed = true; caption(`${S.controller} resumes the case: the backend rechecks the delivery against the current contract.`); }
-        else { emit({ type: "step_waiting", step: "decide", waitingOn: S.controller }); caption(`${S.controller} keeps the hold. Nothing moves until new evidence or an accepted clarification.`); }
+        if (decision === "RESUME") { resumed = true; caption("The controller resumes the case: the backend rechecks the delivery against the current contract."); }
+        else { emit({ type: "step_waiting", step: "decide", waitingOn: S.controller }); caption("The controller keeps the hold. Nothing moves until new evidence or an accepted clarification."); }
         break;
       }
       case "review.accepted": {
