@@ -114,10 +114,15 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     s = Math.min((size.w - 40) / WW, (size.h - 90) / WH, 1.1);
     tx = (size.w - WW * s) / 2; ty = Math.max(10, (size.h - 70 - WH * s) / 2);
   } else {
-    // never below 1.15: cards, chips and the orb stay easy to read from the back of a room; the camera pans instead
-    s = clamp(Math.min((vw - 48) / WW, (size.h - 110) / WH), 1.15, 1.3);
-    tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp(vw / 2 - (orbX + 14) * s, vw - WW * s - 24, 24);
-    ty = WH * s <= size.h - 90 ? (size.h - 70 - WH * s) / 2 : clamp(size.h / 2 - (ROW_Y[orbNode.row] + 40) * s, size.h - WH * s - 70, 20);
+    // the camera closes in on the step the groundhog is on and its neighbours, not on every step so far: the rest
+    // waits off to the side, a drag away. Never below 1.15, so cards and chips read from the back of a room.
+    const near = shown.filter((n) => n.row === orbNode.row && Math.abs(n.col - orbNode.col) <= 1);
+    const x0 = Math.min(...near.map((n) => COL_X(n.col))), x1 = Math.max(...near.map((n) => COL_X(n.col) + W), atSource && source ? COL_X(source.col) + 330 : 0);
+    const y0 = ROW_Y[orbNode.row] - 44, y1 = ROW_Y[orbNode.row] + H + 72; // the chip above, the groundhog below
+    s = clamp(Math.min((vw - 48) / (x1 - x0), (size.h - 110) / (y1 - y0)), 1.15, 1.45);
+    // centred on that window, but never past the edge of what is drawn
+    tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp((vw - (x1 - x0) * s) / 2 - x0 * s, vw - WW * s - 24, 24);
+    ty = WH * s <= size.h - 90 ? (size.h - 70 - WH * s) / 2 : clamp((size.h - 70 - (y1 - y0) * s) / 2 - y0 * s, size.h - WH * s - 70, 20);
   }
   const cam = free ?? { tx, ty, s };
   // A world wider than the view slides edge to edge; one that fits only gives a little, then springs back
@@ -245,15 +250,17 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
 }
 
 // The groundhog doesn't walk between steps: it ducks all the way into its burrow, the burrow closes, it
-// stays under for a beat, then a burrow opens at the next step and it climbs out. The burrow never moves.
-// If the next step starts while it is under, it stays under and surfaces at the newest one.
+// stays under until the run has been quiet for a while, then a burrow opens at the step it is on now and
+// it climbs out. The burrow never moves. A burst of quick steps is one trip: it surfaces at the last one.
 // Reduced motion just moves it.
-type Phase = "" | "down" | "under" | "up";
+type Phase = "" | "down" | "under" | "back" | "up";
+const EMERGING = 240; // ms into the climb before any of it shows (the burrow opens first); until then it can slip back under
 export function useTunnel(x: number, y: number) {
   const [state, setState] = useState<{ x: number; y: number; phase: Phase }>({ x, y, phase: "" });
   const target = useRef({ x, y });
   const phase = useRef<Phase>("");
   const timer = useRef(0);
+  const upAt = useRef(0);
   useEffect(() => {
     if (target.current.x === x && target.current.y === y) return;
     target.current = { x, y };
@@ -261,10 +268,11 @@ export function useTunnel(x: number, y: number) {
     // it changes position while under, when nothing of it shows
     const enter = (p: Phase) => { phase.current = p; setState((s) => ({ ...(p === "under" ? target.current : s), phase: p })); };
     const after = (ms: number, fn: () => void) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(fn, ms); };
-    const surface = () => { enter("up"); after(TUNNEL.rise, () => enter("")); };
+    const surface = () => { upAt.current = Date.now(); enter("up"); after(TUNNEL.rise, () => enter("")); };
     const under = () => { enter("under"); after(TUNNEL.under, surface); };
-    if (phase.current === "down") return; // the dive under way goes under with the newest target
-    if (phase.current === "under") under(); // stays under; the beat restarts for the newest step
+    if (phase.current === "down" || phase.current === "back") return; // on its way under already; it goes under with the newest target
+    if (phase.current === "under") under(); // stays under; the quiet period restarts for the newest step
+    else if (phase.current === "up" && Date.now() - upAt.current < EMERGING) { enter("back"); after(TUNNEL.back, under); } // the burrow had only begun to open: it shuts again
     else { enter("down"); after(TUNNEL.dive, under); } // standing, or climbing out: ducks back in
   }, [x, y]);
   useEffect(() => () => window.clearTimeout(timer.current), []);

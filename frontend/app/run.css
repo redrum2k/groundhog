@@ -186,7 +186,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .tunnel-down :is(.gh-hole-rim, .gh-hole, .gh-lip) { transform: scale(0); transition: transform 200ms ease-in 420ms; } /* closes once it is all the way in */
 .tunnel-under .gh-rise { transform: translateY(28px); transition: none; }
 .tunnel-under :is(.gh-hole-rim, .gh-hole, .gh-lip) { transform: scale(0); transition: none; }
-:is(.tunnel-down, .tunnel-under) :is(.orb-sheet, .orb-lens, .gh-badge, .coin) { opacity: 0; } /* props and the coin go under with it and come back at the new place */
+.tunnel-back .gh-rise { transform: translateY(28px); transition: none; } /* the burrow had only begun to open: it shuts again, nothing of it showed yet */
+.tunnel-back :is(.gh-hole-rim, .gh-hole, .gh-lip) { transform: scale(0); transition: transform 200ms ease-in; }
+:is(.tunnel-down, .tunnel-under, .tunnel-back) :is(.orb-sheet, .orb-lens, .gh-badge, .coin) { opacity: 0; } /* props and the coin go under with it and come back at the new place */
 :root[data-anim] .orb-wrap .coin { transition: opacity 200ms var(--ease-out); }
 .orb { position: relative; display: block; width: 34px; height: 34px; }
 .orb svg { display: block; overflow: visible; }

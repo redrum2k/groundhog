@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useTunnel } from "../components/run/canvas";
 import { TUNNEL } from "../components/run/orb";
 
-// The groundhog's travel between steps: it ducks into its burrow where it is, waits under for a beat, then climbs
-// out of a burrow at the step. The burrow never moves. Steps that start while it is under share the tunnel.
+// The groundhog's travel between steps: it ducks into its burrow where it is, waits under until the run is quiet,
+// then climbs out of a burrow at the step. The burrow never moves. A burst of steps is one trip to the last one.
 
 const hook = () => renderHook(({ x, y }: { x: number; y: number }) => useTunnel(x, y), { initialProps: { x: 0, y: 0 } });
 const tick = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
@@ -47,10 +47,21 @@ describe("useTunnel", () => {
     expect(result.current).toEqual({ x: 600, y: 0, phase: "under" });
   });
 
+  it("shuts the burrow again if a step starts while it has only begun to open", () => {
+    const { result, rerender } = hook();
+    rerender({ x: 300, y: 0 });
+    tick(TUNNEL.dive + TUNNEL.under + 100);
+    expect(result.current.phase).toBe("up");
+    rerender({ x: 600, y: 0 });
+    expect(result.current).toEqual({ x: 300, y: 0, phase: "back" }); // nothing of it showed yet, so no second dive
+    tick(TUNNEL.back);
+    expect(result.current).toEqual({ x: 600, y: 0, phase: "under" });
+  });
+
   it("ducks back in if a step starts while it is climbing out", () => {
     const { result, rerender } = hook();
     rerender({ x: 300, y: 0 });
-    tick(TUNNEL.dive + TUNNEL.under);
+    tick(TUNNEL.dive + TUNNEL.under + 400); // out far enough to be seen
     expect(result.current.phase).toBe("up");
     rerender({ x: 600, y: 0 });
     expect(result.current).toEqual({ x: 300, y: 0, phase: "down" });
