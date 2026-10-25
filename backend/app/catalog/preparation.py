@@ -22,12 +22,15 @@ class PreparedSources(Frozen):
     learning_version: str | None = None
     compile_fingerprint: str | None = None
 
-    def validate_active(self, db):
+    def validate_active(self, db, learning):
         if self.learning_version is not None:
-            active = db.execute(
-                "SELECT 1 FROM im_active WHERE version_id=?", (self.learning_version,)
-            ).fetchone()
-            if not active:
+            if learning is None:
+                raise DomainError(409, "prepared source learning is disabled")
+            # A durable pointer alone is insufficient after a code upgrade or
+            # profile change. Reuse the same implementation/scope guard as new
+            # learning operations at compile, quote and acceptance boundaries.
+            active = learning.active(db)
+            if active is None or active["id"] != self.learning_version:
                 raise DomainError(409, "prepared learning version is no longer active")
 
     def validate_current(self, registry_sources, now):
@@ -45,5 +48,5 @@ def request_sources(service, draft, db):
         return current
     prepared = PreparedSources.model_validate_json(row[0])
     prepared.validate_current(current, service.clock())
-    prepared.validate_active(db)
+    prepared.validate_active(db, service.source_learning)
     return prepared.sources

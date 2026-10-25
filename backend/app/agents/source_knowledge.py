@@ -157,9 +157,11 @@ class InstitutionalMemory:
         self.product_id = PRODUCT + ":" + experience_scope
         improvement.migrate(self.store)
 
-    def records(self, kind):
-        with self.store.connect() as db:
-            return improvement.records(db, kind, self.customer_id, self.product_id)
+    def records(self, kind, *, db=None):
+        if db is None:
+            with self.store.connect() as connection:
+                return self.records(kind, db=connection)
+        return improvement.records(db, kind, self.customer_id, self.product_id)
 
     def put(self, kind, body, *, db=None):
         if db is None:
@@ -173,8 +175,8 @@ class InstitutionalMemory:
             improvement.put(db, kind, body)
         return body
 
-    def get(self, kind, identifier):
-        result = next((r for r in self.records(kind) if r["id"] == identifier), None)
+    def get(self, kind, identifier, *, db=None):
+        result = next((r for r in self.records(kind, db=db) if r["id"] == identifier), None)
         if result is None:
             raise ValueError("experience unavailable in this customer/book scope")
         body = {k: v for k, v in result.items() if k != "id"}
@@ -210,12 +212,14 @@ class SourceKnowledge:
         # Trusted server configuration, never taken from customer text or an evidence file.
         self.authorized_resolvers = dict(authorized_resolvers)  # actor -> publisher
 
-    def current(self, case, operations):
+    def current(self, case, operations, *, db=None):
+        if db is None:
+            with self.service.repository.transaction() as connection:
+                return self.current(case, operations, db=connection)
         if case.customer_id != self.memory.customer_id:
             raise ValueError("customer scope mismatch")
         operations.append("load_current_request")
-        with self.memory.store.connect() as db:
-            draft = self.service.repository.load(db, "request", case.request_id, RequestDraft)
+        draft = self.service.repository.load(db, "request", case.request_id, RequestDraft)
         resolving = (
             self.controlled_local
             and draft.status == "human_review"
@@ -228,7 +232,7 @@ class SourceKnowledge:
         if case.source.corpus_id != draft.corpus_id or case.authority.corpus_id != draft.corpus_id:
             raise ValueError("source corpus differs from selected request")
         operations.append("read_current_registry")
-        manifest = self.service.registry.manifest(draft.corpus_id)
+        manifest = self.service.registry.manifest(draft.corpus_id, db)
         if case.source not in manifest or case.authority not in manifest:
             raise ValueError("source or authority pin is no longer current")
         if any(s.authority == "unverified" for s in (case.source, case.authority)):
@@ -443,12 +447,17 @@ class SourceKnowledge:
                 "resolution does not establish this source, scope and semantic mapping"
             )
 
-    def resolve(self, encounter_id, evidence, *, trusted_actor):
-        encounter = self.memory.get("source_encounter", encounter_id)
+    def resolve(self, encounter_id, evidence, *, trusted_actor, db=None):
+        if db is None:
+            with self.service.repository.transaction() as connection:
+                return self.resolve(
+                    encounter_id, evidence, trusted_actor=trusted_actor, db=connection
+                )
+        encounter = self.memory.get("source_encounter", encounter_id, db=db)
         if encounter["result"]["reason"] != "ambiguous_source_definition":
             raise ValueError("only an observed unresolved source ambiguity can be resolved")
         case = SourceCase.model_validate(encounter["case"])
-        raw, head = self.current(case, [])
+        raw, head = self.current(case, [], db=db)
         if head.status != "active" or self.service.clock() >= head.valid_until:
             raise ValueError("resolution authority is not currently valid")
         evidence = Artifact.model_validate(evidence)
@@ -465,10 +474,11 @@ class SourceKnowledge:
                 "applicability": proof.applicability,
                 "origin": proof.origin,
             },
+            db=db,
         )
 
-    def induce(self, resolution_id):
-        resolution = self.memory.get("source_resolution", resolution_id)
+    def induce(self, resolution_id, *, db=None):
+        resolution = self.memory.get("source_resolution", resolution_id, db=db)
         if resolution["applicability"] != "source_edition":
             raise ValueError("an order-specific answer cannot become a cross-order procedure")
         # Parameters are obtained exclusively from the authorized resolution, not
@@ -490,4 +500,5 @@ class SourceKnowledge:
                 "version": 1,
                 "activation": "approval_required" if self.controlled_local else "sandbox_only",
             },
+            db=db,
         )

@@ -5,6 +5,16 @@ Branch: `feature/live-source-learning-20261024`, based on GitHub main `af1a0e8`
 an unrestricted production deployment. The historical sandbox report remains in
 [SOURCE_KNOWLEDGE.md](SOURCE_KNOWLEDGE.md).
 
+Review integration: `feature/live-source-learning-review-20261024` / PR #29
+includes main `557bfba` and keeps the original running demo in its separate
+worktree. Review regressions reproduced two additional boundary failures: stale
+prepared learning could reach consent after a code upgrade, and a failed owner
+command could leave committed training knowledge. Quote/acceptance now recheck
+the enabled current implementation; owner evidence, procedure, intake update,
+event and retry receipt now commit atomically. These changes require fresh
+qualification before replacing the running demo; the historical live evidence
+below is not relabeled as a run of the revised implementation.
+
 ## Running application and observed result
 
 - Frontend: **http://127.0.0.1:3026/live**. Open **Learning active** at bottom left.

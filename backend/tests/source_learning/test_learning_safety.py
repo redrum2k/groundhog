@@ -232,3 +232,62 @@ def test_qualification_preserves_registered_authority_version(live):
         LearningCommand(idempotency_key="qualify-v2", target_id=candidate.record_id), "controller"
     )
     assert report.status == "QUALIFIED"
+
+
+@pytest.mark.parametrize("stage", ["quote", "accept"])
+def test_code_upgrade_blocks_previously_prepared_learning_at_consent(live, monkeypatch, stage):
+    from app.learning import service as module
+
+    service, learning = live
+    _, candidate = trained(live)
+    activate(learning, candidate)
+    request = create(service, "prepared-before-upgrade")
+    draft = compile(service, request, "prepare")
+    if stage == "accept":
+        quote = service.issue_quote(
+            request, QuoteRequest(expected_revision=draft.revision, idempotency_key="quote")
+        )
+    monkeypatch.setattr(module, "implementation_digest", lambda: "f" * 64)
+    service.source_learning = module.SourceLearning(service, enabled=True)
+    assert not service.source_learning.state().active_current
+    with pytest.raises(DomainError, match="implementation"):
+        if stage == "quote":
+            service.issue_quote(
+                request, QuoteRequest(expected_revision=draft.revision, idempotency_key="quote")
+            )
+        else:
+            service.accept_quote(
+                AcceptQuoteCommand(
+                    quote_id=quote.quote_id, customer_actor="buyer", idempotency_key="accept"
+                )
+            )
+
+
+def test_failed_owner_command_does_not_commit_training_evidence(live, monkeypatch):
+    service, learning = live
+    learning.publish(example_bundle(service.clock()), "worker")
+    request = create(service, "atomic-owner-command")
+    before = compile(service, request, "hold")
+    review = learning.state().reviews[0]
+    command = ResolveSource(
+        idempotency_key="atomic-resolution",
+        encounter_id=review.encounter_id,
+        column="v_count",
+        explanation="Simulated owner correction; commit only with the whole command.",
+    )
+    real_event = learning._event
+
+    def fail_event(*args, **kwargs):
+        raise RuntimeError("injected event persistence failure")
+
+    monkeypatch.setattr(learning, "_event", fail_event)
+    with pytest.raises(RuntimeError, match="injected"):
+        learning.resolve(command, OWNER)
+    assert learning.memory.records("source_resolution") == []
+    assert learning.memory.records("source_procedure") == []
+    assert service.get_request(request) == before
+    monkeypatch.setattr(learning, "_event", real_event)
+    result = learning.resolve(command, OWNER)
+    assert learning.resolve(command, OWNER) == result
+    assert len(learning.memory.records("source_resolution")) == 1
+    assert len(learning.memory.records("source_procedure")) == 1

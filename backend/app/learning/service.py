@@ -424,37 +424,36 @@ class SourceLearning:
     def resolve(self, command, actor):
         if actor != OWNER:
             raise DomainError(403, "source-owner authority required")
+        engine = self.engine()
+        # Serialize source validation, evidence, derived procedure, intake resume,
+        # event and command receipt as one mutation. A failed/rejected command
+        # must not leave usable training knowledge behind.
         with self.service.repository.transaction() as db:
             fingerprint, replay = self._replay(db, "resolve", command, actor)
             if replay:
                 return replay
-        engine = self.engine()
-        encounter = self.memory.get("source_encounter", command.encounter_id)
-        case = SourceCase.model_validate(encounter["case"])
-        raw, _ = engine.current(case, [])
-        proof = ResolutionEvidence(
-            actor_id=actor,
-            origin="explicitly_simulated_provider_resolution",
-            publisher=raw.publisher,
-            source_family=raw.source_family,
-            schema_version=raw.schema_version,
-            source_pin=source_pin(case.source).model_dump(mode="json"),
-            authority_pin=source_pin(case.authority).model_dump(mode="json"),
-            schema_hash=raw.schema_hash,
-            scope=case.scope,
-            applicability=command.applicability,
-            definition={"column": command.column, "unit": case.desired_unit},
-            explanation=command.explanation,
-        )
-        artifact = self.service.store.put(
-            canonical(proof.model_dump(mode="json")), "application/json"
-        )
-        resolution = engine.resolve(command.encounter_id, artifact, trusted_actor=actor)
-        procedure = engine.induce(resolution["id"])
-        with self.service.repository.transaction() as db:
-            _, replay = self._replay(db, "resolve", command, actor)
-            if replay:
-                return replay
+            encounter = self.memory.get("source_encounter", command.encounter_id, db=db)
+            case = SourceCase.model_validate(encounter["case"])
+            raw, _ = engine.current(case, [], db=db)
+            proof = ResolutionEvidence(
+                actor_id=actor,
+                origin="explicitly_simulated_provider_resolution",
+                publisher=raw.publisher,
+                source_family=raw.source_family,
+                schema_version=raw.schema_version,
+                source_pin=source_pin(case.source).model_dump(mode="json"),
+                authority_pin=source_pin(case.authority).model_dump(mode="json"),
+                schema_hash=raw.schema_hash,
+                scope=case.scope,
+                applicability=command.applicability,
+                definition={"column": command.column, "unit": case.desired_unit},
+                explanation=command.explanation,
+            )
+            artifact = self.service.store.put(
+                canonical(proof.model_dump(mode="json")), "application/json"
+            )
+            resolution = engine.resolve(command.encounter_id, artifact, trusted_actor=actor, db=db)
+            procedure = engine.induce(resolution["id"], db=db)
             draft = self.service.repository.load(db, "request", case.request_id, RequestDraft)
             if (
                 draft.status not in ("compiling", "human_review")

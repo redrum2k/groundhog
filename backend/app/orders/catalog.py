@@ -184,7 +184,7 @@ class CatalogService(DatasetLifecycle):
             sources = self.registry.manifest(draft.corpus_id, db)
             if prepared_sources is not None:
                 prepared_sources.validate_current(sources, self.clock())
-                prepared_sources.validate_active(db)
+                prepared_sources.validate_active(db, self.source_learning)
                 self.repository.put(db, "prepared_sources", request_id, prepared_sources)
                 sources = prepared_sources.sources
             else:
