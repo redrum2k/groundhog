@@ -42,8 +42,8 @@ describe("recorded API fixture", () => {
     const feed = liveFeed(); // one object: a new feed each render would restart the poll
     const { result } = renderHook(() => usePlayback(feed));
 
-    // waitFor polls with the (faked) timers, so advance them and assert directly
-    await act(async () => { await vi.advanceTimersByTimeAsync(20); });
+    // waitFor polls with the (faked) timers, so advance them and assert directly; a burst drips in one event at a time
+    await act(async () => { await vi.advanceTimersByTimeAsync(900); });
     expect(result.current.view.nodes.investigate?.status).toBe("running");
     expect(result.current.view.nodes.review.status).toBe("waiting");
     expect(result.current.view.coin).toMatchObject({ locked: true });
@@ -75,7 +75,7 @@ describe("recorded API fixture at the controller gate", () => {
     const feed = liveFeed();
     const { result } = renderHook(() => usePlayback(feed));
 
-    await act(async () => { await vi.advanceTimersByTimeAsync(30); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
     expect(result.current.status).toBe("waiting");
     expect(result.current.view.nodes.decide.status).toBe("waiting");
     expect(result.current.view.orb).toEqual({ step: "decide", mode: "wait" });
@@ -88,7 +88,7 @@ describe("recorded API fixture at the controller gate", () => {
 
     await act(async () => { detail = await result.current.decide("approve", binding); });
     expect(detail).toBeNull();
-    await act(async () => { await vi.advanceTimersByTimeAsync(30); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
     expect(result.current.status).toBe("done");
     expect(result.current.view.contract.version).toBe(2);
     expect(result.current.view.coin).toMatchObject({ done: true });
