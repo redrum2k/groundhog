@@ -545,6 +545,16 @@ class CatalogPayments:
             # never recreate the effect or reopen an order previously put in human review.
             if action == "fund" and self.journal.terminal(db, payment.payment_id):
                 return payment
+            if action == "fund":
+                settlements = [
+                    op
+                    for op in self.journal.operations(db, payment.payment_id)
+                    if op.intent.action != "fund"
+                ]
+                if settlements and settlements[-1].state == "failed":
+                    # Confirming the earlier deposit does not repair a later failed return
+                    # or capture. Keep that failure visible until an explicit new operation.
+                    return self._state(db, payment, "failed", last_error=settlements[-1].error)
             desired = {"fund": "funded", "capture": "captured", "void": "voided"}[action]
             if action == "fund" and self.owner.clock() >= order.authorization.expires_at:
                 desired = "expired_not_returned"

@@ -1,4 +1,6 @@
-// Server-only local demo boundary. These routes deliberately have no public-host mode.
+import { authorizeHostedDemo, hostedDemoEnabled } from "./hosted-demo";
+
+// Server-only bridge for a trusted local demo or an authenticated hosted demo.
 export async function bridge(request: Request, path: string[]) {
   const fail = (status: number, detail: string) => Response.json({detail}, {status, headers: {"Cache-Control":"no-store"}});
   let url: URL, requestOrigin: URL, backend: URL;
@@ -8,8 +10,16 @@ export async function bridge(request: Request, path: string[]) {
     backend = new URL(process.env.BACKEND_URL ?? "http://127.0.0.1:8000");
   } catch { return fail(400, "Invalid local bridge address."); }
   const loopback = (host: string) => host === "127.0.0.1" || host === "localhost" || host === "[::1]";
-  if (process.env.BROKER_LOCAL_DEMO !== "1" || !loopback(url.hostname) || !loopback(requestOrigin.hostname) || !loopback(backend.hostname) || backend.protocol !== "http:") return fail(403, "Broker bridge requires trusted loopback local-demo mode.");
-  if (request.method !== "GET" && request.headers.get("origin") !== requestOrigin.origin) return fail(403, "Same-origin local-demo command required.");
+  if (hostedDemoEnabled()) {
+    const denied = authorizeHostedDemo(request);
+    if (denied) return denied;
+    const privateBackend = backend.protocol === "http:" && backend.hostname.endsWith(".railway.internal");
+    if ((!privateBackend && backend.protocol !== "https:") || backend.username || backend.password || backend.pathname !== "/" || backend.search || backend.hash) return fail(503, "Hosted backend must use HTTPS or Railway private networking.");
+    if (path[0] === "source-learning") return fail(403, "Controlled source learning remains local-only.");
+  } else {
+    if (process.env.BROKER_LOCAL_DEMO !== "1" || !loopback(url.hostname) || !loopback(requestOrigin.hostname) || !loopback(backend.hostname) || backend.protocol !== "http:") return fail(403, "Broker bridge requires trusted loopback local-demo mode.");
+    if (request.method !== "GET" && request.headers.get("origin") !== requestOrigin.origin) return fail(403, "Same-origin local-demo command required.");
+  }
   const internal = process.env.INTERNAL_API_TOKEN;
   const reviewer = process.env.REVIEWER_API_TOKEN;
   if (!internal || !reviewer || internal === reviewer) return fail(503, "Distinct server-side worker and reviewer credentials are required.");

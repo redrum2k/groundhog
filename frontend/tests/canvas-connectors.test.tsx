@@ -1,4 +1,5 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import Canvas, { type CNode, type CanvasView } from "../components/run/canvas";
 
@@ -52,4 +53,33 @@ it("does not invent connectors when a partial plan has no review or production s
   draw(view({ clarify: "waiting", decide: "waiting" }), nodes.filter(n => ["clarify", "decide"].includes(n.id)));
   expect(detours()).toHaveLength(0);
   expect(screen.queryByText("back to Produce")).toBeNull();
+});
+
+it("bounds repeated source-cell previews and keeps the evidence panel keyboard-accessible", async () => {
+  const state = view({ produce: "done", review: "waiting", investigate: "running" });
+  state.orb = {node:"investigate",mode:"inspect"};
+  state.cards = Array.from({length:80}, (_,i)=>({id:`ref-${i}`,node:"investigate",text:i%2?"geography.csv":"coverage.csv",tone:"ev" as const}));
+  const onNode=vi.fn();
+  render(<Canvas nodes={nodes} view={state} focus={{kind:"overview"}} panelOpen={false} onNode={onNode}/>);
+  expect(document.querySelectorAll(".ev")).toHaveLength(2);
+  expect(screen.getAllByText("×40")).toHaveLength(2);
+  expect(screen.getByText("Inspect all 80 references →")).toBeTruthy();
+  fireEvent.click(screen.getByText("Inspect all 80 references →"));
+  expect(onNode).toHaveBeenCalledWith("investigate");
+  onNode.mockClear();
+  screen.getByRole("button",{name:"investigate, running"}).focus();
+  await userEvent.keyboard(" ");
+  expect(onNode).toHaveBeenCalledWith("investigate");
+  expect(state.cards).toHaveLength(80);
+});
+
+it("caps previews across distinct labels and preserves the full waiting reason in the chip title", () => {
+  const state=view({investigate:"running",review:"waiting"});
+  state.orb={node:"investigate",mode:"inspect"};
+  state.chip.review="Waiting for an actual evidence answer; accepted scope and funding authority are unchanged.";
+  state.cards=Array.from({length:40},(_,i)=>({id:`ref-${i}`,node:"investigate",text:`Source ${i} with a long label`,tone:"ev" as const}));
+  draw(state);
+  expect(document.querySelectorAll(".ev")).toHaveLength(2);
+  expect(screen.getByTitle(state.chip.review!)).toBeTruthy();
+  expect(screen.getByText("Inspect all 40 references →")).toBeTruthy();
 });

@@ -17,7 +17,11 @@ from app.contracts.models import Money
 from app.contracts.runs import ActionAvailability, DecisionAcknowledgement, RunCreated, RunPage
 from app.datasets import make_terms, seed_registry
 from app.orders.catalog import identifier
-from app.orders.dataset_evidence import evidence_request, resolve_current_reference
+from app.orders.dataset_evidence import (
+    evidence_request,
+    evidence_unavailable,
+    resolve_current_reference,
+)
 from app.orders.run_events import binding
 from app.orders.service import DomainError
 from app.runtime.catalog_policy import authorization_ready
@@ -367,13 +371,24 @@ class Runs:
             self.service._invalidate(order)
             # Earlier semantic effects remain in append-only events, not current findings.
             order.semantic_findings = ()
-            order.order_state = "processing"
-            self.service._enqueue(order, "reverify")
+            if (
+                not request.references_required
+                and not command.references
+                and evidence_unavailable(command.text)
+            ):
+                self.service._human(
+                    order,
+                    "You have no further evidence to provide. A human reviewer will review "
+                    "the unresolved concern; funds remain held pending an authorized decision.",
+                )
+            else:
+                order.order_state = "processing"
+                self.service._enqueue(order, "reverify")
             order.revision += 1
-            self.service._save(db, order)
             self.service.effects.message(
                 db, run_id, f"answer:{key}", command.text, speaker="buyer", step="investigate"
             )
+            self.service._save(db, order)
             ack = DecisionAcknowledgement(decision_id=f"answer:{key}")
             self.repository.remember(db, scope, key, fingerprint, ack)
             return ack

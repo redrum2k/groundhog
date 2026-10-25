@@ -10,7 +10,7 @@ import hashlib
 import json
 import sqlite3
 from contextlib import contextmanager
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
@@ -19,6 +19,8 @@ from app.orders.service import DomainError
 
 TERMINAL_ACTIONS = ("capture", "void", "reclaim")
 FINISHED_STATES = ("confirmed", "failed", "invalidated", "orphaned")
+AUDIT_INTERVAL_SECONDS = 60
+ACTIVE_TURNS_PER_AUDIT = 8
 
 
 def _json(value):
@@ -58,6 +60,9 @@ class PaymentJournal:
             "CREATE TABLE IF NOT EXISTS payment_nonce_heads (chain_id INTEGER NOT NULL, "
             "operator_address TEXT NOT NULL, next_nonce TEXT NOT NULL, "
             "PRIMARY KEY(chain_id,operator_address))",
+            "CREATE TABLE IF NOT EXISTS payment_worker_schedule ("
+            "singleton INTEGER PRIMARY KEY CHECK(singleton=1), active_turns INTEGER NOT NULL)",
+            "INSERT OR IGNORE INTO payment_worker_schedule VALUES (1,0)",
         )
         for statement in statements:
             db.execute(statement)
@@ -236,23 +241,44 @@ class PaymentJournal:
         return PaymentOperation.model_validate_json(row[0]) if row else None
 
     @staticmethod
-    def pending(db, limit=20, include_confirmed=False):
-        states = "('reserved','signed','submitted','uncertain')"
-        audit = ""
-        if include_confirmed:
-            # Audit only the latest operation: an old funding receipt must not reopen paid work.
-            audit = (
-                " OR (p.state='confirmed' AND json_extract(p.data,'$.intent.mode')!='mock' "
-                "AND NOT EXISTS (SELECT 1 FROM payment_operations n "
-                "WHERE n.payment_id=p.payment_id AND n.rowid>p.rowid "
-                "AND n.state NOT IN ('failed','invalidated')))"
-            )
-        rows = db.execute(
-            f"SELECT p.data FROM payment_operations p WHERE (p.state IN {states}{audit}) "
+    def pending(db, limit=20, include_confirmed=False, *, now=None):
+        now = now or datetime.now(UTC)
+        active = db.execute(
+            "SELECT p.data FROM payment_operations p "
+            "WHERE p.state IN ('reserved','signed','submitted','uncertain') "
             "AND (p.lease_until IS NULL OR p.lease_until<=?) "
             "ORDER BY p.updated_at,p.operation_id LIMIT ?",
-            (datetime.now(UTC).timestamp(), limit),
+            (now.timestamp(), limit),
         ).fetchall()
+        audits = []
+        if include_confirmed:
+            # Only the latest receipt is audited, no more than once per minute.
+            # Active submissions/observations share a fair queue ahead of routine audits.
+            audits = db.execute(
+                "SELECT p.data FROM payment_operations p WHERE p.state='confirmed' "
+                "AND json_extract(p.data,'$.intent.mode')!='mock' AND p.updated_at<=? "
+                "AND (p.lease_until IS NULL OR p.lease_until<=?) "
+                "AND NOT EXISTS (SELECT 1 FROM payment_operations n "
+                "WHERE n.payment_id=p.payment_id AND n.rowid>p.rowid "
+                "AND n.state NOT IN ('failed','invalidated')) "
+                "ORDER BY p.updated_at,p.operation_id LIMIT ?",
+                (
+                    (now - timedelta(seconds=AUDIT_INTERVAL_SECONDS)).isoformat(),
+                    now.timestamp(),
+                    limit,
+                ),
+            ).fetchall()
+        turns = db.execute(
+            "SELECT active_turns FROM payment_worker_schedule WHERE singleton=1"
+        ).fetchone()[0]
+        rows = []
+        while len(rows) < limit and (active or audits):
+            if audits and (not active or turns >= ACTIVE_TURNS_PER_AUDIT):
+                rows.append(audits.pop(0))
+                turns = 0
+            else:
+                rows.append(active.pop(0))
+                turns += 1
         return tuple(PaymentOperation.model_validate_json(row[0]) for row in rows)
 
     @classmethod
@@ -330,6 +356,15 @@ class PaymentJournal:
             "AND (lease_until IS NULL OR lease_until<=?)",
             (token, now + lease_seconds, operation_id, now),
         ).rowcount
+        if changed:
+            # Charge successful claims, not advisory selections. Persist the fair share
+            # across restarts; this counter carries no financial authority or bookings.
+            db.execute(
+                "UPDATE payment_worker_schedule SET active_turns=CASE "
+                "WHEN (SELECT state FROM payment_operations WHERE operation_id=?)='confirmed' "
+                "THEN 0 ELSE MIN(active_turns+1,?) END WHERE singleton=1",
+                (operation_id, ACTIVE_TURNS_PER_AUDIT),
+            )
         return token if changed else None
 
     @staticmethod

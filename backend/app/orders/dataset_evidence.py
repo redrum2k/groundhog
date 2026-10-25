@@ -1,11 +1,34 @@
 """Request-bound transport of frozen, public-safe evidence; no assessment semantics."""
 
 import json
+import re
 
 from app.contracts.runs import RunEvidenceRequest
 from app.datasets import public_bytes, reference
 from app.orders.service import DomainError
 from app.runtime.dataset_policy import cutoff
+
+
+def evidence_unavailable(text):
+    """Route an explicit inability to answer to a human; never decide the complaint.
+
+    Match a whole first-person statement, not quotations, conditions or mixed claims.
+    This is an early end to questioning, with no change to factual or payment authority.
+    """
+    words = " ".join(text.lower().replace("’", "'").strip().rstrip(".! ").split())
+    evidence = r"(?:source )?(?:documentation or evidence|documentation|evidence|documents)"
+    return bool(
+        re.fullmatch(
+            r"(?:i have no|i (?:do not|don't) have (?:any|any more|additional|more)) "
+            r"(?:(?:additional|more|further) )?"
+            + evidence
+            + r"(?: to resolve this (?:authenticity )?concern)?",
+            words,
+        )
+        or re.fullmatch(
+            r"i (?:cannot|can't) provide (?:(?:this|the requested|any more) )?" + evidence, words
+        )
+    )
 
 
 def resolve_current_reference(order, ref, store):

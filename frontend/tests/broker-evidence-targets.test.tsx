@@ -14,6 +14,21 @@ it("submits the request identity, current binding and selected resolving evidenc
  fireEvent.click(screen.getByRole("button"));
  expect(submit).toHaveBeenCalledWith({request_id:request.request_id,binding,text:"See the cited taxonomy cell.",references:request.allowed_references});
 });
+it("removes optional reference selectors and sends a text reply bound to the current request",()=>{
+ const submit=vi.fn();render(<EvidenceAnswer request={{...request,references_required:false}} binding={binding} busy={false} submit={submit}/>);
+ expect(screen.queryByRole("checkbox")).toBeNull();
+ expect(screen.queryByRole("group")).toBeNull();
+ expect(screen.getByText(request.prompt).closest(".live-agent-message")).not.toBeNull();
+ expect(document.querySelector("time")?.dateTime).toBe(request.deadline);
+ fireEvent.change(screen.getByLabelText("Evidence answer"),{target:{value:"I have no additional source documentation."}});
+ fireEvent.click(screen.getByRole("button",{name:"Send reply"}));
+ expect(submit).toHaveBeenCalledWith({request_id:request.request_id,binding,text:"I have no additional source documentation.",references:[]});
+});
+it("offers an explicit no-evidence reply without selecting references",()=>{
+ const submit=vi.fn();render(<EvidenceAnswer request={{...request,references_required:false}} binding={binding} busy={false} submit={submit}/>);
+ fireEvent.click(screen.getByRole("button",{name:"I don’t have this evidence"}));
+ expect(submit).toHaveBeenCalledWith({request_id:request.request_id,binding,text:"I cannot provide this evidence.",references:[]});
+});
 it("submits a complaint using only a prompt field, without target selectors",()=>{
  const submit=vi.fn();render(<ComplaintForm disabled={false} submit={submit}/>);
  expect(screen.queryAllByRole("combobox")).toHaveLength(0);

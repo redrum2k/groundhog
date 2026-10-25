@@ -19,8 +19,9 @@ it("shows the persisted complaint, exact amount and blocked state without invent
 });
 
 it("does not present settled funds as an active human-review task", ()=>{
-  const order={page:{payment:{payment:{state:"voided"},simulated:true}}} as LiveOrder;
+  const order={view:{nodes:{decide:{decision:{action:"approve",note:"Return held funds"}}}},needsHumanReview:false,page:{payment:{payment:{state:"voided"},simulated:true}}} as unknown as LiveOrder;
   render(<LiveReview order={order}/>);
-  expect(screen.getByText(/This does not resolve any factual uncertainty/)).toBeTruthy();
+  expect(screen.getByText(/does not resolve any factual uncertainty/)).toBeTruthy();
+  expect(screen.getByText("Return approved")).toBeTruthy();
   expect(screen.queryByRole("button",{name:"approve"})).toBeNull();
 });

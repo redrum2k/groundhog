@@ -20,10 +20,13 @@ export function useLiveRun() {
   const [events, setEvents] = useState<RunEvent[]>([]);
   const [page, setPage] = useState<RunPage>();
   const [error, setError] = useState<string>();
+  const [pollError, setPollError] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const generation = useRef(0);
   const identity = useRef(0);
+  const displayedRun = useRef<string | undefined>(undefined);
   const pending = useRef<{fingerprint:string;key:string} | undefined>(undefined);
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +48,12 @@ export function useLiveRun() {
   useEffect(() => {
     const turn = ++generation.current;
     const abort = new AbortController();
-    setEvents([]); setPage(undefined);
+    if (displayedRun.current !== id) {
+      displayedRun.current = id;
+      setEvents([]); setPage(undefined);
+    }
+    setRefreshing(!!id);
+    setPollError(undefined);
     if (!id) return () => abort.abort();
     let cursor = 0;
     let timer: ReturnType<typeof setTimeout>;
@@ -56,12 +64,17 @@ export function useLiveRun() {
         if (result.next_after < cursor || result.events.some(e => e.seq <= cursor)) throw new Error("Invalid event cursor; reload the run.");
         cursor = result.next_after;
         setEvents(prev => mergeEvents(prev, result.events));
-        setPage(result.caught_up ? result : undefined);
+        if (result.caught_up) setPage(result);
+        setRefreshing(!result.caught_up);
+        setPollError(undefined);
         timer = setTimeout(poll, result.caught_up ? result.poll_after_ms ?? 1000 : 0);
       } catch (err) {
         if (turn !== generation.current || abort.signal.aborted) return;
-        setPage(undefined);
-        setError(err instanceof Error ? err.message : "Backend unavailable");
+        // Keep the last confirmed review and decision visible, but disable mutations
+        // until current permissions are available again.
+        setRefreshing(true);
+        setPollError(err instanceof Error ? err.message : "Backend unavailable");
+        timer = setTimeout(poll, 1000);
       }
     };
     void poll();
@@ -71,7 +84,8 @@ export function useLiveRun() {
     identity.current++;
     generation.current++;
     localStorage.setItem(SESSION, JSON.stringify({id:run}));
-    setError(undefined); setBusy(false); setId(run); setRefresh(n=>n+1);
+    if (displayedRun.current !== run) {setEvents([]);setPage(undefined);}
+    setError(undefined); setBusy(false); setRefreshing(true); setId(run); setRefresh(n=>n+1);
   }, []);
   const start = async (prompt: string) => {
     setBusy(true); setError(undefined);
@@ -86,7 +100,7 @@ export function useLiveRun() {
     finally { if (turn === identity.current) setBusy(false); }
   };
   const command = async <T,>(path: string, payload: Record<string, unknown>, legacy = false): Promise<T | undefined> => {
-    if (busy) return;
+    if (busy || refreshing) return;
     const turn = generation.current;
     const fingerprint = JSON.stringify([id,path,payload]);
     if (pending.current?.fingerprint !== fingerprint) pending.current = {fingerprint,key:crypto.randomUUID()};
@@ -95,15 +109,15 @@ export function useLiveRun() {
     try {
       const result = await jsonRequest<T>(path, legacy ? {...payload,idempotency_key:key} : payload, key);
       if (turn !== generation.current) return;
-      pending.current = undefined; setPage(undefined); setRefresh(n=>n+1);
+      pending.current = undefined; setRefreshing(true); setRefresh(n=>n+1);
       return result;
     } catch (err) {
       if (turn !== generation.current) return;
       if (err instanceof RunError && err.status === 409) {
-        pending.current = undefined; setPage(undefined); setRefresh(n=>n+1);
+        pending.current = undefined; setRefreshing(true); setRefresh(n=>n+1);
         setError("The run changed. Refreshed evidence and permissions; review them and click again. " + err.message);
       } else setError(err instanceof Error ? err.message : "Command failed");
     } finally { if (turn === generation.current) setBusy(false); }
   };
-  return {id,events,page,error,busy,start,resume,command, newRun:()=>{identity.current++;generation.current++;localStorage.removeItem(SESSION);pending.current=undefined;setId(undefined);setPage(undefined);setEvents([]);setBusy(false);setError(undefined);}, retry:()=>{setError(undefined);setRefresh(n=>n+1);}};
+  return {id,events,page,error:pollError ?? error,busy:busy || refreshing,start,resume,command, newRun:()=>{identity.current++;generation.current++;localStorage.removeItem(SESSION);pending.current=undefined;setId(undefined);setPage(undefined);setEvents([]);setBusy(false);setRefreshing(false);setError(undefined);}, retry:()=>{setError(undefined);setRefreshing(!!id);setRefresh(n=>n+1);}};
 }

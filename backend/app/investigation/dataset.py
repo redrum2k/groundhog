@@ -5,11 +5,12 @@ import json
 import os
 import re
 from time import monotonic
+from typing import get_args
 
 from app.agents.bounded_client import BoundedClient
 from app.agents.gateway import ClaudeGateway, EvidencePassage, OfflineAssessor
 from app.contracts.catalog import Assessment, Obligation, Provenance
-from app.contracts.dataset import DatasetReference
+from app.contracts.dataset import DatasetReference, DatasetSpecification
 from app.contracts.semantic import DatasetClaimReview, DatasetSemanticAttempt
 from app.datasets import parse_csv, reference
 from app.orders.dataset_evidence import answer_references
@@ -192,6 +193,12 @@ def investigate_dataset(order, report, store, assessor, *, audit=None, candidate
         "not false; return UNKNOWN rather than infer taxonomy from the accepted product label "
         "or its exclusion wording. Explicit inclusion/exclusion claims can instead be checked "
         "against accepted scope and the verified category. Never invent a missing value. "
+        "For a geographic-scope claim, compare the claimed location to the accepted "
+        "geography and the frozen coverage/source geography cells. These establish "
+        "what geographic product was owed; a source for an unpurchased geography is "
+        "not required to establish that scope. Do not infer real city boundaries "
+        "from synthetic ZIPs, or confuse contractual scope with an empirical claim "
+        "about where individual people live. Preserve every qualifier and assertion. "
         + json.dumps(
             {
                 "binding": order.binding.model_dump(mode="json"),
@@ -364,6 +371,43 @@ def independent_claim(order, report, store):
     """Establish a typed predicate using frozen terms AND resolving source bytes."""
     case = order.cases[-1]
     terms = order.snapshot.quote.specification.terms
+    geography = geographic_scope_claim(case.complaint)
+    if report.passed and geography:
+        location, asserted = geography
+        # Both cells must resolve against this order's immutable source pins. A
+        # recognized place name or the routing hint alone establishes nothing.
+        sources = (
+            next(s for s in order.sources if s.source_id == terms.coverage.pin.source_id),
+            next(s for s in order.sources if s.source_id.endswith(":" + terms.category)),
+        )
+        refs = tuple(
+            reference(
+                source.artifact,
+                source.source_id,
+                column="geography",
+                value=terms.geography,
+                version=source.version,
+            )
+            for source in sources
+        )
+        for ref in refs:
+            store.resolve(ref, order.artifacts)
+        included = location == terms.geography
+        explanation = (
+            f"The accepted geography is {terms.geography}, matching both the frozen "
+            f"coverage registry and source geography. {location} is "
+            + ("within" if included else "outside")
+            + " that agreed scope. The current delivery passes all mandatory checks. "
+        )
+        if not included and asserted:
+            explanation += (
+                f"Including {location} requires a separate accepted offer; this complaint "
+                "does not establish a delivery defect or authorize regeneration. "
+                "There is no complaint fee."
+            )
+        else:
+            explanation += "This scope finding alone establishes no provider-output defect."
+        return "PASS" if included == asserted else "FAIL", refs, explanation
     predicate = interpret_claim(case.complaint)
     if not report.passed or predicate is None:
         return None
@@ -429,6 +473,47 @@ def independent_claim(order, report, store):
             (ref,),
             "The complained-of ZIP resolves in the independently verified delivery.",
         )
+    return None
+
+
+def geographic_scope_claim(complaint):
+    """Recognize complete scope assertions about supported geographic products.
+
+    This grammar supplies a predicate, never a verdict. Truth comes from the
+    frozen agreement and independently verified bytes. Extra allegations,
+    unknown places and empirical residency claims remain unresolved.
+    """
+    if complaint.field != "geography":
+        return None
+    text = " ".join(complaint.text.lower().replace("’", "'").split()).rstrip(".?!")
+    scope = r"(?:our|the) (?:accepted|agreed) (?:geographic )?(?:scope|geography|contract)"
+    delivery = r"(?:the |our )?(?:delivered )?(?:dataset|delivery|csv)"
+    for location in get_args(DatasetSpecification.model_fields["geography"].annotation):
+        name = re.escape(location.lower())
+        if location == "San Francisco":
+            name = r"(?:san francisco|sf)"
+        for asserted, verbs in (
+            (True, r"should (?:also )?be|must be"),
+            (False, r"should not be|shouldn't be|must not be"),
+        ):
+            if re.fullmatch(
+                name + " (?:" + verbs + r") (?:in there|there|included|covered|"
+                r"(?:included |covered )?(?:in|by|under) (?:" + scope + "|" + delivery + "))",
+                text,
+            ):
+                return location, asserted
+        for asserted, verbs in ((True, "is"), (False, r"is not|isn't")):
+            if re.fullmatch(
+                name + " (?:" + verbs + r") (?:included|covered) (?:in|by|under) " + scope,
+                text,
+            ):
+                return location, asserted
+        for asserted, verbs in (
+            (True, r"includes|covers"),
+            (False, r"does not include|doesn't include|does not cover|doesn't cover"),
+        ):
+            if re.fullmatch(scope + " (?:" + verbs + ") " + name, text):
+                return location, asserted
     return None
 
 
