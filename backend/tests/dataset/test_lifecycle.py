@@ -59,7 +59,8 @@ def test_yoga_uses_evidence_and_separate_price(dataset_service):
         "yoga",
         "provider:test",
     )
-    assert quote.amount.amount_minor == 3000
+    assert quote.amount.amount_minor == 25
+    assert quote.payment_terms.amount_atomic == 250000
     assert len(order.children) == 0
     child = s.accept_quote(
         AcceptQuoteCommand(quote_id=quote.quote_id, customer_actor="buyer", idempotency_key="child")
@@ -81,7 +82,8 @@ def test_oakland_is_separate_authorization(dataset_service):
         "oakland",
         "provider:test",
     )
-    assert quote.amount.amount_minor == 6000
+    assert quote.amount.amount_minor == 50
+    assert quote.payment_terms.amount_atomic == 500000
     assert quote.specification.terms.geography == "Oakland"
     child = s.accept_quote(
         AcceptQuoteCommand(quote_id=quote.quote_id, customer_actor="buyer", idempotency_key="child")

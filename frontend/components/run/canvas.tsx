@@ -22,7 +22,6 @@ export interface CanvasView {
   loops: string[]; // lane node ids whose work was carried back to Produce
   cards: Card[];
   source?: { node: string; lines: SourceLine[] } | null; // what the agent reads at the source during a dispute
-  aside?: { node: string; text: string } | null; // the orb's thought at a step
 }
 export type Focus = { kind: "overview" } | { kind: "follow" };
 
@@ -161,6 +160,9 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const straight = (a: CNode, b: CNode) => `M${COL_X(a.col) + W} ${ROW_Y[a.row] + H / 2} H${COL_X(b.col)}`;
   const on = (a: string, b: string) => !["idle", "running", "waiting"].includes(st(a)) && st(b) !== "idle";
   const review = byId.review, produce = byId.produce;
+  // Detours follow the same reveal rules as straight edges: never point into empty space.
+  // Human review can appear before customer review (for example, after failed funding).
+  const branches = review ? rows.filter((r) => shownPair(review, byRow(r)[0])) : [];
   // The branch runs under the detour row and comes up into its first step, so it never crosses the return arrow
   const branch = (row: number) => `M${cx(review)} ${ROW_Y[0] + H} V${ROW_Y[row] + H + 50} H20 V${ROW_Y[row] + H / 2} H40`;
   const back = (n: CNode) => {
@@ -168,7 +170,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     return x1 === x2 ? `M${x1} ${y1} V${ROW_Y[0] + H + 4}` : `M${COL_X(n.col) + W} ${y1 + H / 2} H${x2} V${ROW_Y[0] + H + 4}`;
   };
   const single = rows.length === 1 ? byRow(rows[0]) : null;
-  const last = single ? single[single.length - 1] : null;
+  const end = single?.[single.length - 1];
+  const last = end && produce && revealed.has(end.id) && revealed.has(produce.id) ? end : null;
 
   return (
     <>
@@ -186,7 +189,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
                 <path d="M1 1 L7 4 L1 7" fill="none" stroke="var(--blue)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </marker>
             </defs>
-            {rows.map((r) => {
+            {branches.map((r) => {
               const d = branch(r); const live = st(byRow(r)[0].id) !== "idle";
               return <g key={r}><path d={d} className="edge" /><path d={d} pathLength={1} className={`edge-on${live ? " on" : ""}`} /></g>;
             })}
@@ -209,7 +212,6 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             return (
               <div key={n.id} className={`nd n-${ns}${vis}`} style={{ transform: `translate(${COL_X(n.col)}px, ${ROW_Y[n.row]}px)` }} aria-hidden={vis === " n-hidden" || undefined}
                 role="button" tabIndex={vis ? -1 : 0} onClick={() => onNode(n.id)} onKeyDown={(e) => { if (e.key === "Enter") onNode(n.id); }} aria-label={`${n.title}, ${ns}`}>
-                {view.aside?.node === n.id && <span className="thought">{view.aside.text}</span>}
                 {showChip && <span key={ns + chip} className={`chip c-${ns}`}>{ns === "done" ? <IcCheck size={11} strokeWidth={2.4} /> : ns === "running" ? <i className="spin2" /> : <i className="sqd" />}<Label text={chip} quiet="tail" /></span>}
                 <span className="nd-t">{n.title}</span>
                 <span className="nd-d"><Label text={n.desc} quiet="tail" /></span>
@@ -228,7 +230,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
           )}
           {!quiet && view.orb && (
             <div className="orb-wrap" style={{ transform: `translate(${orbX}px, ${orbY}px)` }}>
-              <Orb mode={view.aside && view.aside.node === view.orb.node ? "happy" : view.orb.mode} />
+              <Orb mode={view.orb.mode} />
               {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.done ? " done" : ""}`}>
                 <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : <IcCoin />}<Label text={view.coin.text} quiet="tail" /></span></span>}
             </div>

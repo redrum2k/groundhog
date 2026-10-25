@@ -12,7 +12,7 @@ from app.contracts.catalog import (
     RequestDraft,
     ReviewerDecision,
 )
-from app.contracts.dataset import BrokeragePolicy
+from app.contracts.dataset import DATASET_PRICES_MINOR, DATASET_PRICING, BrokeragePolicy
 from app.contracts.models import Money
 from app.contracts.runs import ActionAvailability, DecisionAcknowledgement, RunCreated, RunPage
 from app.datasets import make_terms, seed_registry
@@ -418,7 +418,7 @@ class Runs:
                 order.revision += 1
                 self.service._save(db, order)
             amount = Money(
-                amount_minor={"oakland": 6000, "yoga": 3000, "replacement": 12000}[command.scope],
+                amount_minor=DATASET_PRICES_MINOR[command.scope],
                 currency="USD",
                 decimals=2,
             )
@@ -450,7 +450,7 @@ class Runs:
                 payment_terms=self.service.payments.terms(
                     amount, order.snapshot.quote.payment_terms.payment_info.payer, now
                 ),
-                policy=BrokeragePolicy(),
+                policy=BrokeragePolicy(pricing_version=DATASET_PRICING),
                 expires_at=min(now + timedelta(seconds=120), cutoff(order)),
                 purpose=purpose,
                 work_description=spec.summary,

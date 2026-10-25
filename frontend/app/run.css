@@ -180,15 +180,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 :root[data-anim] .src-l { transition: opacity 220ms var(--ease-out), translate 220ms var(--ease-out); }
 @starting-style { :root[data-anim] .src { opacity: 0; scale: 0.96; } :root[data-anim] .src-l { opacity: 0; translate: 0 2px; } }
 
-/* the orb's thought at a step: two dots and a pill */
-.thought { position: absolute; left: 8px; bottom: calc(100% + 30px); width: max-content; max-width: 230px; padding: 5px 9px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font-size: 11.5px; line-height: 1.35; color: var(--ink-2); white-space: normal; transform-origin: 0 100%; }
-.thought b { font-weight: 400; color: var(--ink); }
-.thought::before, .thought::after { content: ""; position: absolute; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); }
-.thought::before { width: 6px; height: 6px; left: -5px; bottom: -9px; }
-.thought::after { width: 4px; height: 4px; left: -12px; bottom: -15px; }
-:root[data-anim] .thought { transition: opacity 220ms var(--ease-out), scale 220ms var(--ease-out); }
-@starting-style { :root[data-anim] .thought { opacity: 0; scale: 0.96; } }
-
 /* orb + coin */
 .orb-wrap { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 2; }
 :root[data-anim] .orb-wrap { transition: transform 1000ms var(--ease-in-out); }
@@ -397,7 +388,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
   .orb, .orb-eyes, .orb-look .orb-face, .orb-inspect .orb-face, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
   :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: none; }
-  :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, :root[data-anim] .src, :root[data-anim] .src-l, :root[data-anim] .thought, .bub, .panel { transition: opacity 150ms ease; transform: none; scale: none; translate: none; }
+  :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, :root[data-anim] .src, :root[data-anim] .src-l, .bub, .panel { transition: opacity 150ms ease; transform: none; scale: none; translate: none; }
 }
 
 /* ---------- customer view: Summit's decisions ---------- */
@@ -487,3 +478,43 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .panel-b .btn { margin: 6px 6px 6px 0; }
 .live-data { max-height: 220px; overflow: auto; font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .panel-b p { overflow-wrap: anywhere; }
+
+/* Saved buyer account, shared by new live requests. */
+.wallet-overlay { position: fixed; inset: 0; z-index: 80; background: rgb(0 0 0 / 0.28); }
+.wallet-settings { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 81; width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; box-sizing: border-box; padding: 24px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg); color: var(--ink); box-shadow: 0 20px 60px rgb(0 0 0 / 0.14); }
+.wallet-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.wallet-heading h2 { margin: 0; font-size: 20px; font-weight: 500; }
+.wallet-settings p { font-size: 14px; line-height: 1.5; }
+.wallet-account { margin-top: 20px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
+.wallet-account p { margin: 4px 0 0; overflow-wrap: anywhere; }
+.wallet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.live-shell .top { flex-wrap: wrap; }
+.live-shell:has(> .tools-err) { grid-template-rows: auto auto auto minmax(0, 1fr); }
+.live-shell > .tools-err { padding: 8px 20px; }
+.live-mode { font-size: 12.5px; color: var(--ink-3); }
+.live-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; max-width: 580px; padding: 60px 32px; margin: 0 auto; }
+.live-empty h2, .live-empty p, .live-welcome h1, .live-welcome p { margin: 0; }
+.live-welcome { display: grid; gap: 12px; padding: 16px 0 4px; }
+.live-welcome h1 { font-size: 24px; font-weight: 500; letter-spacing: -0.03em; }
+.live-welcome p { color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+.live-form, .live-decisions { display: flex; flex-direction: column; gap: 14px; }
+.live-shell label { font-size: 13px; color: var(--ink-2); }
+.live-shell textarea, .live-shell select { width: 100%; box-sizing: border-box; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; }
+.live-shell textarea { min-height: 88px; resize: vertical; }
+.live-form .btn { align-self: flex-start; }
+.live-content p, .live-conversation .decision p { margin: 0; font-size: 13.5px; line-height: 1.5; }
+.live-content h3, .live-conversation h3 { margin: 0; font-size: 14px; font-weight: 500; }
+.live-shell .todo-title { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.5; }
+.live-shell .todo-item { flex-wrap: wrap; align-items: flex-start; }
+.live-shell .todo-detail { flex: 1 1 100%; padding-left: 36px; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+.live-details { font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+.live-details summary { cursor: pointer; padding: 4px 0; }
+.live-details > :not(summary) { margin-top: 12px; }
+.live-progress { font-size: 13.5px; color: var(--blue); }
+.live-conversation .review-grid { margin-top: 4px; }
+.live-conversation .mock-note { padding: 0; line-height: 1.5; }
+.live-content .review-grid { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 760px) {
+  .live-shell .top-r { display: flex; flex-wrap: wrap; width: 100%; gap: 10px; }
+  .live-shell .top-r .tag { width: 100%; font-size: 12px; }
+}

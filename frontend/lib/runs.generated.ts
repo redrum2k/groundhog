@@ -823,7 +823,7 @@ export interface BrokeragePolicy {
   free_corrections?: 1;
   fulfillment_seconds?: 135;
   max_questions?: 2;
-  pricing_version?: "datumco-demo-pricing-v1";
+  pricing_version?: "datumco-demo-pricing-v1" | "datumco-demo-pricing-v2";
   review_seconds?: 60;
   scheduling_version?: "broker-budget-v1";
   transaction_margin_seconds?: 120;

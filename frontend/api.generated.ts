@@ -242,6 +242,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/orders/{order_id}/complaints": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Complaint */
+        post: operations["complaint_orders__order_id__complaints_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/orders/{order_id}/disputes": {
         parameters: {
             query?: never;
@@ -1154,9 +1171,9 @@ export interface components {
             /**
              * Pricing Version
              * @default datumco-demo-pricing-v1
-             * @constant
+             * @enum {string}
              */
-            pricing_version?: "datumco-demo-pricing-v1";
+            pricing_version?: "datumco-demo-pricing-v1" | "datumco-demo-pricing-v2";
             /**
              * Review Seconds
              * @default 60
@@ -1737,6 +1754,16 @@ export interface components {
             product_id: string;
             /** Requirement Id */
             requirement_id: string;
+            /** Text */
+            text: string;
+        };
+        /** ComplaintTextCommand */
+        ComplaintTextCommand: {
+            expected_binding: components["schemas"]["Binding"];
+            /** Expected Revision */
+            expected_revision: number;
+            /** Idempotency Key */
+            idempotency_key: string;
             /** Text */
             text: string;
         };
@@ -5084,6 +5111,77 @@ export interface operations {
                 content: {
                     "application/json": unknown;
                     "application/pdf": string;
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    complaint_orders__order_id__complaints_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ComplaintTextCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderView"];
                 };
             };
             /** @description Forbidden */

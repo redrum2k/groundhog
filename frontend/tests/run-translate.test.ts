@@ -16,7 +16,7 @@ const snapshot = (c: Case, upTo = Infinity): BrokerSnapshot => {
 const view = (c: Case) => project(translate(snapshot(c), c), { lane: c, ending: "human", learned: false, contract: CONTRACT_V1 });
 
 describe("broker stream → canvas", () => {
-  it("walks the no-dispute order from interview to a mock capture", () => {
+  it("walks the no-dispute order from interview to a demo capture", () => {
     const v = view("shared");
     expect(v.nodes.clarify.messages[0].text).toMatch(/SF adults 25-34/);
     // in the order the interview settled them; freshness was answered last in this recording
@@ -29,7 +29,7 @@ describe("broker stream → canvas", () => {
     expect(v.reviewWindow).toBe("10 minutes");
     expect(v.nodes.review.step.detail).toBe("10-minute review window");
     expect(v.nodes.captured.status).toBe("done");
-    expect(v.coin).toEqual({ text: `$${S.price} captured · mock`, done: true });
+    expect(v.coin).toEqual({ text: `$${S.price} captured`, done: true });
     expect(v.nodes.captured.entries?.[0]).toMatchObject({ amount: S.price });
   });
 
@@ -57,10 +57,9 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.investigate.evidence.map((e) => e.label)).toEqual(["Contract: San Francisco only", expect.stringMatching(/^\d+ of \d+ ZIPs delivered$/)]);
     expect(v.nodes.investigate.messages.at(-1)).toMatchObject({ from: "agent", attach: [{ kind: "evidence", evidenceId: "cite-geography" }, { kind: "evidence", evidenceId: "cite-coverage" }] });
     expect(v.nodes.verdict.chip).toBe("We're right");
-    // what the agent read at the source, ticked once the re-verification landed, and the thought it had at the verdict
+    // what the agent read at the source, ticked once the re-verification landed
     expect(v.nodes.investigate.source?.map((l) => l.checked)).toEqual([true, true, true]);
     expect(v.nodes.investigate.source?.[0].text).toMatch(/^LOOKUP vendor panel v1/);
-    expect(v.aside).toEqual({ step: "verdict", text: "No human needed. Settled by the contract and the source." });
     expect(v.nodes.review.attempt).toBe(2);
     expect(v.nodes.captured.status).toBe("done");
   });

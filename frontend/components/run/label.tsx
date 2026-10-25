@@ -1,4 +1,4 @@
-// Run copy joins two parts with " · " ("Contract line 5 · every SF ZIP", "$120 captured · mock").
+// Run copy joins two parts with " · " ("Contract line 5 · every SF ZIP", "$120 captured · held").
 // On screen that becomes hierarchy instead of a dot: one part at full weight, the other quieter.
 export default function Label({ text, quiet = "head" }: { text: string; quiet?: "head" | "tail" }) {
   const [head, ...rest] = text.split(" · ");

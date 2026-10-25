@@ -75,7 +75,7 @@ describe("recorded API fixture at the controller gate", () => {
     const feed = liveFeed();
     const { result } = renderHook(() => usePlayback(feed));
 
-    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(6000); });
     expect(result.current.status).toBe("waiting");
     expect(result.current.view.nodes.decide.status).toBe("waiting");
     expect(result.current.view.orb).toEqual({ step: "decide", mode: "wait" });
@@ -88,7 +88,7 @@ describe("recorded API fixture at the controller gate", () => {
 
     await act(async () => { detail = await result.current.decide("approve", binding); });
     expect(detail).toBeNull();
-    await act(async () => { await vi.advanceTimersByTimeAsync(2500); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(6000); });
     expect(result.current.status).toBe("done");
     expect(result.current.view.contract.version).toBe(2);
     expect(result.current.view.coin).toMatchObject({ done: true });

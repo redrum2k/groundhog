@@ -1,6 +1,64 @@
 > Current route and validation update: see [frontend/payment integration](../reviews/frontend-payment-integration.md).
-> `/` is the retained-broker DataPact canvas; `/live` is funded aggregate intake.
+> `/` and `/live` are the funded aggregate app; `/demo` is the retained broker/rehearsal.
 > The checkpoint below retains its historical results and route descriptions.
+>
+> October 24 live setup update: new quotes use `datumco-demo-pricing-v2` ($1 base,
+> $0.50 Oakland, $0.25 yoga, $1 replacement), with exact 1 USD:1 test USDC conversion.
+> Prior quotes, accepted snapshots and recorded evidence keep their original prices.
+> On `/live`, open **Wallet settings** and connect the Buyer account on Base Sepolia
+> once. Only its public address is saved in this browser and supplied to new quotes;
+> payment signatures still require the account frozen into the accepted quote.
+> Mock runs can still prepare quotes and simulate funding without a browser wallet.
+> **Accept & pay $1.00** now accepts the agreement, prepares its exact authorization,
+> requests one MetaMask signature and submits funding. Connect/unlock the Buyer in
+> settings beforehand. Cancelling the signature leaves an accepted, unpaid order;
+> the Funding panel offers a retry. Stable operation keys and a current-state read
+> prevent a lost submission response from prompting another payment signature.
+> Fulfillment still waits for confirmed funding. Mock checkout explicitly says simulate.
+> **Customer view / Run** switch the same order. Customer view reuses the demo's chat,
+> decision cards and guide orb; Run shows its canvas, evidence and server-gated admin
+> controls. Successful payment submission or delivery acceptance hands off to Run.
+> New customer decisions are signaled by a toolbar action. Drafted contract terms are
+> separate from independent delivery checks; a completed agreement never fabricates PASS.
+> These are trusted local demo views, not a public authentication or deployment change.
+> Remote main through `baeedb3` merged at `1c736f8` without conflicts, preserving local
+> pricing and wallet work. Validation: full backend suite, 141 frontend tests, Ruff lint/format, generated
+> contracts, TypeScript and production build pass. The browser smoke connects a
+> synthetic buyer in an isolated context, verifies the 1 USDC quote, completes mock
+> checkout/settlement, switches views on the same order and checks saved-wallet recovery
+> after reload. Checkout tests cover rejected signatures, stale/changed terms, abandoned
+> signing, duplicate clicks and uncertain-response reconciliation. Desktop/mobile settings
+> screenshots were inspected. The browser objection path reaches a backend decision,
+> with no scripted verdict. React Doctor reports no new diagnostics; retained components
+> have existing findings. These regression/browser tests used no paid calls or testnet transfers.
+> A separately authorized local check through the primary `/` screen completed one real
+> Claude Opus 5.5 intake call (1,596 input / 255 output tokens, $0.011484), reached `ready`,
+> and opened the same request in Run without browser errors. The unchanged $10 ledger
+> then recorded three completed calls totaling $0.037708. The restarted Base Sepolia
+> adapter passed startup preflight. This check did not accept/fund an order or broadcast
+> a transaction; it does not establish observed testnet settlement.
+>
+> October 24 intake recovery: a grounded Claude proposal containing multiple questions
+> gets one separately reserved wording-repair call. Both calls count toward the existing
+> four-call draft limit and shared paid-model budget; stale revisions and the original
+> deadline are rechecked before repair. The repair can change only clarification wording,
+> not the proposed scope or evidence quote. Original and repaired proposals are retained;
+> invalid repair still stops without terms or consent. Expired/failed historical requests
+> are not reset. The live customer heading now shares the Summit identity with the chat.
+> A fresh primary-screen Claude check reached a single clarification in one call
+> (1,601 input / 404 output tokens, $0.014484); no quote acceptance or payment occurred.
+> The same budget ledger then held 14 completed calls totaling $0.211712 of $10.
+>
+> The live objection UI is one free-text complaint field. POST
+> `/orders/{order_id}/complaints` accepts `text` plus the existing revision, binding and
+> idempotency key. The server selects an accepted requirement/row as a routing hint;
+> unclear or multi-topic text uses the artifact target. It preserves the complete text,
+> records the dispute before investigation, and reuses the existing verification,
+> review deadlines and settlement gates. Routing never establishes complaint validity
+> or changed-scope consent. The explicit-target `/disputes` API remains compatible.
+> Browser validation used the production frontend and an isolated mock-payment backend:
+> one prompt submitted a missing-ZIP claim, and independent delivery checks rejected it
+> because that ZIP was present. No paid call or testnet transaction was used for this check.
 
 # 06 — Aggregate brokerage and live DatumCo canvas
 

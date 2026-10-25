@@ -17,7 +17,7 @@ export async function bridge(request: Request, path: string[]) {
   const target = "/" + path.join("/");
   const id = "[a-zA-Z0-9_:.-]+";
   const get = new RegExp(`^/(source-learning/state|runs/${id}/(events|evidence/${id})|orders/${id}/artifacts/${id})$`);
-  const post = new RegExp(`^/(source-learning/(sources|resolve|propose|qualify|approve|activate|revoke)|runs|runs/${id}/(decisions|offers|answers)|requests/${id}/(answers|quotes)|internal/requests/${id}/compile|quote-acceptance|orders/${id}/(funding-preparation|funding-authorizations|acceptance|disputes))$`);
+  const post = new RegExp(`^/(source-learning/(sources|resolve|propose|qualify|approve|activate|revoke)|runs|runs/${id}/(decisions|offers|answers)|requests/${id}/(answers|quotes)|internal/requests/${id}/compile|quote-acceptance|orders/${id}/(funding-preparation|funding-authorizations|acceptance|disputes|complaints))$`);
   if (!(request.method === "GET" ? get.test(target) : request.method === "POST" && post.test(target))) return fail(404, "Operation not supported.");
   const headers = new Headers({"Content-Type":"application/json"});
   const key = request.headers.get("idempotency-key");

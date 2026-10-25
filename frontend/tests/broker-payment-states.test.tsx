@@ -15,6 +15,7 @@ afterEach(()=>{cleanup();mock.events=[];});
 it.each(Object.entries(fixtures))("displays %s without invented completion or explorer links",(_path,payment)=>{
  mock.payment=payment;
  render(<LiveRun recorded={()=>{}}/>);
+ fireEvent.click(screen.getByRole("button",{name:"Run"}));
  fireEvent.click(screen.getByRole("button",{name:"Funding"}));
  expect(screen.getByRole("heading",{name:`Funding · ${payment.payment.state}`})).toBeTruthy();
  expect(screen.queryByRole("link",{name:/basescan/i})).toBeNull();
@@ -28,9 +29,10 @@ it.each(transitions.frames)("projects persisted $state events consistently acros
  mock.payment=Object.values(fixtures).find(p=>p.payment.state===frame.state)!;
  mock.events=frame.events as RunEvent[];
  const {unmount}=render(<LiveRun recorded={()=>{}}/>);
+ fireEvent.click(screen.getByRole("button",{name:"Run"}));
  fireEvent.click(screen.getByRole("button",{name:"Funding"}));
  expect(screen.getByRole("heading",{name:`Funding · ${frame.state}`})).toBeTruthy();
- expect(coin(`$120 ${labels[frame.state]} · mock`).length).toBeGreaterThan(0);
+ expect(coin(`$120 ${labels[frame.state]}`).length).toBeGreaterThan(0);
  expect(screen.queryByRole("link",{name:/basescan/i})).toBeNull();
  if(frame.state==="reorg_hold") {
    const view=project(mock.events,{lane:"shared",ending:"human",learned:false,live:true,contract:{version:0,buyer:"",title:"",price:0,lines:[]}});
@@ -40,7 +42,8 @@ it.each(transitions.frames)("projects persisted $state events consistently acros
  }
  unmount();
  render(<LiveRun recorded={()=>{}}/>);
- expect(coin(`$120 ${labels[frame.state]} · mock`).length).toBeGreaterThan(0);
+ fireEvent.click(screen.getByRole("button",{name:"Run"}));
+ expect(coin(`$120 ${labels[frame.state]}`).length).toBeGreaterThan(0);
 });
 
 it("replays held to returned through the whole canvas and funding panel",()=>{
@@ -53,8 +56,9 @@ it("replays held to returned through the whole canvas and funding panel",()=>{
   {seq:3,at,type:"state_changed",step:"paid",state:"closed",paymentState:"voided",binding:{deliveryVersion:1,evidenceVersion:1}},
  ];
  render(<LiveRun recorded={()=>{}}/>);
+ fireEvent.click(screen.getByRole("button",{name:"Run"}));
  fireEvent.click(screen.getAllByRole("button",{name:"Funding"})[0]);
  expect(screen.getByRole("heading",{name:"Funding · voided"})).toBeTruthy();
- expect(coin("$120 returned · mock").length).toBeGreaterThan(0);
- expect(screen.queryByText("$120 held mock")).toBeNull();
+ expect(coin("$120 returned").length).toBeGreaterThan(0);
+ expect(screen.queryByText("$120 held")).toBeNull();
 });

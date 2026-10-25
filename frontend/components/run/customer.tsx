@@ -1,14 +1,15 @@
 "use client";
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Step, ZipCount } from "../../lib/run/contract";
 import type { View } from "../../lib/run/fold";
 import { AREA_BY_ZIP, OAKLAND, S, type Case } from "../../lib/run/scenario";
 import type { BuyerGate, BuyerMove } from "../../lib/run/source";
-import { IcCheck, IcChevronRight, IcWallet } from "./icons";
+import { IcCheck, IcWallet } from "./icons";
 import TodoList from "./checklist";
 import { GuideProvider, OrbSlot, useOrbFlight, type Stop } from "./guide";
 import Inspector, { lookFor, type Found } from "./inspector";
 import Label from "./label";
+import { Decision, Transcript } from "./conversation";
 import { PanelBody, checkItems, type BodyProps } from "./panel";
 
 // What Acme's buying agent sees: the same conversation, plus the three decisions that are
@@ -35,41 +36,6 @@ function Wallet({ view }: { view: View }) {
       <IcWallet size={14} />
       <span key={`${state}-${amount}`} className="wallet-t"><Label text={state === "paid" && view.payments.some((p) => p.mock) ? `${text} · mock` : text} quiet="tail" /></span>
     </span>
-  );
-}
-
-/** One of Acme's decisions: the thing to decide on, the buttons while it's open, the choice once made. */
-/** `done` is the move just made here: the card keeps its place and its height, the receipt where the buttons were. */
-function Decision({ title, open, taken, done, slot = "decision", orb, children, actions }: { title: string; open: boolean; taken?: ReactNode; done?: string; slot?: Stop; orb?: ReactNode; children: ReactNode; actions?: ReactNode }) {
-  if (!open && !done && taken) return (
-    <details className="decision taken">
-      <summary className="decision-h"><IcChevronRight size={12} strokeWidth={2} className="chev" /><span className="decision-taken"><IcCheck size={12} strokeWidth={2.2} /> {taken}</span><span className="decision-t">{title}</span></summary>
-      <div className="decision-body">{children}</div>
-    </details>
-  );
-  return (
-    <section className={`decision${open || done ? " open" : ""}`}>
-      <div className="decision-h"><span className="decision-t">{title}</span>{(open || done) && <OrbSlot name={slot} orb={orb} />}</div>
-      {children}
-      {done ? <div className="decision-actions"><span className="decision-taken decision-done"><IcCheck size={12} strokeWidth={2.2} /> {done}</span></div>
-        : open && actions && <div className="decision-actions">{actions}</div>}
-    </section>
-  );
-}
-
-/** A stretch of the conversation: open and scrolling in its own box while it is the live thing, folded once the decision it fed is taken. */
-/** `compact`: it stays open but short, pinned to the latest turn, so the decision it fed stays in view. */
-function Transcript({ title, count, open, compact, children }: { title: string; count?: number; open: boolean; compact?: boolean; children: ReactNode }) {
-  const body = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => { if (compact && body.current) body.current.scrollTop = body.current.scrollHeight; }, [compact]);
-  const [pinned, setPinned] = useState<boolean | null>(null); // the viewer's own toggle wins until the section changes state
-  useEffect(() => { setPinned(null); }, [open]);
-  const isOpen = pinned ?? open;
-  return (
-    <details className="cust-sec" open={isOpen} onToggle={(e) => { const o = e.currentTarget.open; if (o !== isOpen) setPinned(o); }}>
-      <summary className="cust-step"><IcChevronRight size={12} strokeWidth={2} className="chev" />{title}{count ? <span className="faint">{count} {count === 1 ? "turn" : "turns"}</span> : null}</summary>
-      <div className={`cust-body${compact ? " short" : ""}`} ref={body}>{children}</div>
-    </details>
   );
 }
 

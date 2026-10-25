@@ -2,11 +2,10 @@
 import type * as Wire from "../runs.generated";
 /** What the agent reads at the source while it investigates: one line per check, ticked when the check is done. */
 export interface SourceLine { id: string; text: string; checked: boolean }
-/** Plus three canvas-only events the narration adds; never on the wire: a caption, the source checks, and a thought the orb has at a step. */
+/** Plus two canvas-only events the narration adds; never on the wire: a caption and the source checks. */
 export type RunEvent = Wire.RunContractExport["event"]
   | { seq: number; at: string; track: Track; type: "caption"; text: string }
-  | { seq: number; at: string; track: Track; type: "source_checked"; step: string; lines: SourceLine[] }
-  | { seq: number; at: string; track: Track; type: "aside"; step: string; text: string };
+  | { seq: number; at: string; track: Track; type: "source_checked"; step: string; lines: SourceLine[] };
 export type RunEventType = RunEvent["type"];
 export type Track = NonNullable<Wire.RunContractExport["event"]["track"]>;
 export type LaneId = Exclude<Track, "shared">;

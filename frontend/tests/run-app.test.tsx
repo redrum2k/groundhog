@@ -35,10 +35,11 @@ describe("run screen", () => {
 });
 
 describe("The order", () => {
-  it("investigates with the panel open, carries the job back to Produce, and captures with the books posted", async () => {
+  it("investigates on the canvas with the panel closed, carries the job back to Produce, and captures with the books posted", async () => {
     render(<RunApp />);
     await act(async () => { button("The order").click(); });
-    await until(() => panel() === "Investigate");
+    await until(() => !!document.querySelector(".src")); // the orb reads the source on the canvas; no panel slides over it
+    expect(panel()).toBeUndefined();
     expect(caption()).toMatch(/pulls what Summit agreed to/);
     expect(disabled("Pause")).toBe(false);
 

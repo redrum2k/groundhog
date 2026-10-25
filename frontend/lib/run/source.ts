@@ -8,6 +8,8 @@ import { controllerContinuation, holdFor, stamp, type Draft } from "./scenario";
 
 export const LIVE_API = "/api/broker-run";
 const DRIP = 110; // ms between events the canvas takes from one poll's burst
+/** The verdict gets a beat before the next event lands, so the orb arrives before the run moves on. */
+const holdLive = (e: RunEvent) => (e.type === "verdict" ? 600 : DRIP);
 
 export type Feed =
   | { kind: "still"; events: RunEvent[]; ctx: FoldContext } // the whole timeline at once, not playing
@@ -66,7 +68,7 @@ export function usePlayback(feed: Feed): Playback {
       if (cancelled || !e) return;
       setEvents((prev) => [...prev, { ...e, seq: prev.length + 1 }]);
       setCursor((c) => c + 1);
-      if (queue.length) drip = setTimeout(release, DRIP);
+      if (queue.length) drip = setTimeout(release, holdLive(e));
       else setAwaiting(gate);
     };
     const poll = async () => {

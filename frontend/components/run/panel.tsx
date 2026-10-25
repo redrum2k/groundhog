@@ -1,12 +1,12 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import type { Binding, ContractLine, ControllerAction, Delivery, Evidence, Message, Source, Step, ZipCount } from "../../lib/run/contract";
+import type { Binding, ContractLine, ControllerAction, Delivery, Evidence, Source, Step, ZipCount } from "../../lib/run/contract";
 import { bindingFor, type NodeState, type View } from "../../lib/run/fold";
 import type { CellEvidence } from "../../lib/runs.generated";
 import { CONTRACT, CONTRACT_V2, S, type Case, type Ending } from "../../lib/run/scenario";
 import TodoList, { type ChecklistItem } from "./checklist";
 import { IcCheck, IcChevronRight, IcLock, IcX } from "./icons";
-import { OrbSlot } from "./guide";
+import { Chat, CiteChip } from "./conversation";
 import Label from "./label";
 
 // One right-side panel holds every step's detail. It renders whatever the event stream attached
@@ -14,46 +14,6 @@ import Label from "./label";
 
 export type Decide = (action: ControllerAction, binding: Binding) => Promise<string | null>;
 type Hl = { msg?: string; row?: string; tab?: "interview" };
-
-function CiteChip({ e, onCite }: { e: Evidence; onCite: (s: Source) => void }) {
-  return <button className="cite" onClick={() => onCite(e.source)}><Label text={e.label} /><IcChevronRight size={11} strokeWidth={1.8} /></button>;
-}
-
-/** `guide`: the customer view's orb sits beside our agent's newest message (outside that view the slot renders nothing). */
-function Chat({ items, view, highlight, onCite, guide }: { items: Message[]; view: View; highlight?: string; onCite: (s: Source) => void; guide?: boolean }) {
-  const box = useRef<HTMLDivElement>(null);
-  const seen = useRef(items.length);
-  const height = useRef(0); // the pane's scroll height before the latest messages landed
-  // New messages glide into view unless the viewer had scrolled up to reread earlier ones.
-  // Judged against the height before this batch, so a burst of bubbles never reads as the viewer scrolling away.
-  useEffect(() => {
-    const added = items.length > seen.current;
-    seen.current = items.length;
-    const last = box.current?.lastElementChild as HTMLElement | null | undefined;
-    const pane = box.current?.closest(".cust-body, .panel-b, .customer");
-    if (!last || !pane) return;
-    const following = height.current - pane.scrollTop - pane.clientHeight < 160;
-    height.current = pane.scrollHeight;
-    if (!added || !following) return;
-    const below = last.getBoundingClientRect().bottom - pane.getBoundingClientRect().bottom;
-    if (below > 0) pane.scrollBy?.({ top: below + 12, behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-  }, [items.length]);
-  const newest = guide ? items.findLast((m) => m.from === "agent")?.id : undefined;
-  return (
-    <div className="chat" ref={box}>
-      {items.map((m) => (
-        <div key={m.id} id={`msg-${m.id}`} className={`bub b-${m.from}${highlight === m.id ? " flash" : ""}`}>
-          {m.id === newest && <OrbSlot name="transcript" />}
-          <span className="bub-who">{m.from === "buyer" ? S.buyerAgent : m.from === "controller" ? <Label text={`${S.controller} · ${S.controllerRole}`} quiet="tail" /> : S.agent}</span>
-          <div className="bub-text">
-            {m.text}
-            {m.attach?.map((a, i) => a.kind === "evidence" && view.evidence[a.evidenceId] ? <span key={i}> <CiteChip e={view.evidence[a.evidenceId]} onCite={onCite} /></span> : null)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 function Sheet({ rows, highlight, note }: { rows: ZipCount[]; highlight?: string; note?: string }) {
   return (
@@ -105,7 +65,7 @@ function Books({ node }: { node: NodeState }) {
         <tbody>{entries.map((e) => <tr key={e.id}><td>{e.memo}</td><td>{e.debit}</td><td>{e.credit}</td><td className="num">${e.amount.toFixed(2)}</td></tr>)}</tbody>
       </table>
       {margin && margin.cost !== null && <div className="margin">Margin <b>${(margin.revenue - margin.cost).toFixed(2)}</b> <span className="faint">after ${margin.cost.toFixed(2)} of data and compute</span></div>}
-      <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Capture is a mock until the observed Commerce Payments transaction lands on Base Sepolia. The Basescan link appears then.</div>
+      <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Demo payment: no funds move. On Base Sepolia this capture is a Commerce Payments transaction, and its Basescan link shows here.</div>
     </div>
   );
 }

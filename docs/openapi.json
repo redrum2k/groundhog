@@ -1087,8 +1087,11 @@
             "type": "integer"
           },
           "pricing_version": {
-            "const": "datumco-demo-pricing-v1",
             "default": "datumco-demo-pricing-v1",
+            "enum": [
+              "datumco-demo-pricing-v1",
+              "datumco-demo-pricing-v2"
+            ],
             "title": "Pricing Version",
             "type": "string"
           },
@@ -2407,6 +2410,38 @@
           "artifact_id"
         ],
         "title": "Complaint",
+        "type": "object"
+      },
+      "ComplaintTextCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_binding": {
+            "$ref": "#/components/schemas/Binding"
+          },
+          "expected_revision": {
+            "minimum": 1.0,
+            "title": "Expected Revision",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "expected_revision",
+          "idempotency_key",
+          "expected_binding",
+          "text"
+        ],
+        "title": "ComplaintTextCommand",
         "type": "object"
       },
       "ContractApproved": {
@@ -9543,6 +9578,95 @@
           }
         },
         "summary": "Artifact"
+      }
+    },
+    "/orders/{order_id}/complaints": {
+      "post": {
+        "operationId": "complaint_orders__order_id__complaints_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComplaintTextCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Complaint"
       }
     },
     "/orders/{order_id}/disputes": {
