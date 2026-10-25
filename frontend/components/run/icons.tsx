@@ -43,19 +43,11 @@ export const IcCoin = ({ size = 12 }: { size?: number }) => (
     <rect x="6.4" y="4" width="3.2" height="8" rx="1.6" fill="#b8892a" />
   </svg>
 );
-/** The Groundhog mark: the detective groundhog between two tiles. */
+/** The Groundhog mark: the orb between two tiles. The ring and eyes are cut out, so it sits on any background. */
 export const IcLogo = ({ size = 24, ...p }: { size?: number } & SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 36 24" width={size * 1.5} height={size} aria-hidden {...p}>
     <path fill="#111111" d="M2.5 0H12.5A2.5 2.5 0 0 1 15 2.5V4.05A8.5 8.5 0 0 0 15 19.95V21.5A2.5 2.5 0 0 1 12.5 24H2.5A2.5 2.5 0 0 1 0 21.5V2.5A2.5 2.5 0 0 1 2.5 0Z" />
     <path fill="#c4c4c4" d="M23.5 0H33.5A2.5 2.5 0 0 1 36 2.5V21.5A2.5 2.5 0 0 1 33.5 24H23.5A2.5 2.5 0 0 1 21 21.5V19.95A8.5 8.5 0 0 0 21 4.05V2.5A2.5 2.5 0 0 1 23.5 0Z" />
-    {/* the groundhog's face between the tiles */}
-    <circle cx="12.9" cy="7.6" r="1.6" fill="#c46a35" />
-    <circle cx="23.1" cy="7.6" r="1.6" fill="#c46a35" />
-    <path fill="#c46a35" d="M11.6 19V12.6C11.6 8.6 14.4 6 18 6S24.4 8.6 24.4 12.6V19Z" />
-    <ellipse cx="18" cy="14.2" rx="3" ry="2.2" fill="#f6c58a" />
-    <ellipse cx="18" cy="13.1" rx="1" ry="0.75" fill="#5b2f15" />
-    <circle cx="15.6" cy="11.2" r="0.85" fill="#2b1a10" />
-    <circle cx="20.4" cy="11.2" r="0.85" fill="#2b1a10" />
-    <path fill="#8c6239" d="M13 8.2C12.9 3.8 23.1 3.8 23 8.2C20.2 8.9 15.8 8.9 13 8.2Z" />
+    <path fill="#2161d6" fillRule="evenodd" d="M18 5.5a6.5 6.5 0 1 1 0 13a6.5 6.5 0 1 1 0-13ZM15.4 10.4a.8.8 0 0 1 1.6 0v2.6a.8.8 0 0 1-1.6 0ZM19 10.4a.8.8 0 0 1 1.6 0v2.6a.8.8 0 0 1-1.6 0Z" />
   </svg>
 );
