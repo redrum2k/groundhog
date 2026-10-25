@@ -99,6 +99,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const atSource = !!source && view.orb?.node === source.node.id && st(source.node.id) === "running";
   const orbX = atSource && source ? COL_X(source.col) + 6 : COL_X(orbNode.col) + 6;
   const orbY = ROW_Y[orbNode.row] + H + 6;
+  const tunnel = useTunnel(orbX, orbY);
   const WWfull = COL_X(4) + W + 40;
   const WHfull = ROW_Y[maxRow] + H + 110;
   // the camera frames what is shown, so the run opens close on the first step and widens as the path grows
@@ -229,8 +230,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             </div>
           )}
           {!quiet && view.orb && (
-            <div className="orb-wrap" style={{ transform: `translate(${orbX}px, ${orbY}px)` }}>
-              <Orb mode={view.orb.mode} />
+            <div className={`orb-wrap${tunnel.phase ? ` tunnel-${tunnel.phase}` : ""}`} style={{ transform: `translate(${tunnel.x}px, ${tunnel.y}px)` }}>
+              <Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} />
               {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.done ? " done" : ""}`}>
                 <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : <IcCoin />}<Label text={view.coin.text} quiet="tail" /></span></span>}
             </div>
@@ -241,4 +242,29 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
       {overlay}
     </>
   );
+}
+
+// The groundhog doesn't slide between steps: it ducks into its hole, the hole closes, and it pops
+// up out of a new hole at the next step: an unhurried dive and climb, about 1.7 s in all.
+// Reduced motion just moves it.
+const DIVE_MS = 820; // dive 600ms, then the hole closes by ~800ms
+function useTunnel(x: number, y: number) {
+  const [state, setState] = useState<{ x: number; y: number; phase: "" | "down" | "hidden" }>({ x, y, phase: "" });
+  const target = useRef({ x, y });
+  useEffect(() => {
+    if (target.current.x === x && target.current.y === y) return;
+    target.current = { x, y };
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setState({ x, y, phase: "" });
+      return;
+    }
+    setState((s) => ({ ...s, phase: "down" }));
+    let raf = 0;
+    const dive = window.setTimeout(() => {
+      setState({ x, y, phase: "hidden" });
+      raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => setState({ x, y, phase: "" }))));
+    }, DIVE_MS);
+    return () => { window.clearTimeout(dive); cancelAnimationFrame(raf); };
+  }, [x, y]);
+  return state;
 }
