@@ -6,7 +6,8 @@ import type { RunEvent } from "./contract";
 // groundhog's visit to the database would open and close in a single render. So the live route holds the finding
 // until the groundhog has walked over and read its three lines, the way the recorded feed drips a burst. Everything
 // else shows as it arrives, and an investigation that started a while ago (a reload) shows its history at once.
-export const VISIT = { walk: 2200, line: 500, finding: 700 } as const; // ms: the walk over, each line read, then the verdict
+// ms: the walk over (the burrow trip in orb.tsx: dive, under, rise, measured at about 3.0 s), each line read, then the verdict
+export const VISIT = { walk: 3100, line: 500, finding: 700 } as const;
 const FRESH = 30_000;
 const LINES = 3;
 

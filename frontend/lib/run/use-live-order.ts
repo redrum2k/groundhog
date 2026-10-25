@@ -29,7 +29,7 @@ export function useLiveOrder() {
   const view = useMemo(()=>project(shown.events,{lane:"shared",ending:"human",learned:false,contract:EMPTY,live:true}),[shown.events]);
   const page = live.page;
   const binding = page?.binding;
-  const assessment = currentAssessment(live.events,binding);
+  const assessment = currentAssessment(shown.events,binding); // the rejection path waits for the finding like the canvas does
   const busy = live.busy || !!checkout.stage;
   const enabled = (action:string) => !busy && !!page?.available_actions.some(a=>a.action===action && a.enabled);
   const needsHumanReview = !!page?.available_actions.some(a=>["approve","reject","ask","escalate"].includes(a.action) && a.enabled);
