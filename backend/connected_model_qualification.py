@@ -232,8 +232,11 @@ class ConnectedJourney(Journey):
                 )
                 if json.loads(row[0])["order_id"] == oid
             ]
-        assert len(attempts) == 1
-        attempt = attempts[0]
+        if saved.exists():
+            attempt = load(self.output / (recipe["id"] + "-attempt.json"))
+        else:
+            assert len(attempts) == 1
+            attempt = attempts[0]
         if not saved.exists():
             save(self.output / (recipe["id"] + "-attempt.json"), attempt)
             save(saved, current)
@@ -278,7 +281,10 @@ class ConnectedJourney(Journey):
             if view["order"]["cases"][-1]["status"] == "unsupported":
                 self.settle_review(label, oid)
                 break
-            if page["evidence_request"]:
+            controller_ready = any(
+                a["action"] == "approve" and a["enabled"] for a in page["available_actions"]
+            )
+            if page["evidence_request"] and not controller_ready:
                 prior = view["order"]["cases"][-1]["questions_asked"]
                 self.command(
                     f"/runs/{run}/answers",
@@ -351,7 +357,7 @@ def application(root):
     )
 
 
-def child(root, recover=False):
+def child(root, recover=False, recovery_id=0):
     budget = configure()
     before_hash = source_hash()
     recipes = SEMANTIC_CASES if root.name == "semantic-v1" else RECIPES
@@ -385,12 +391,18 @@ def child(root, recover=False):
         frozen = load(root / "frozen-plan.json")
         assert frozen["source_sha256"] == before_hash and frozen["recipes"] == list(recipes)
         save(
-            root / "technical-recovery.json",
+            root
+            / (
+                f"technical-recovery-{recovery_id}.json"
+                if recovery_id > 1
+                else "technical-recovery.json"
+            ),
             {
                 "runtime_unchanged": True,
                 "harness_commit": plan["git_commit"],
                 "cause": (
-                    "Harness waited for finding count to grow although answer invalidation replaces findings"
+                    "Harness observed finding replacement incorrectly; "
+                    "reuse completed assessments and retained question rounds"
                     if root.name == "semantic-v1"
                     else "Harness compared Money object to string"
                 ),
@@ -410,7 +422,11 @@ def child(root, recover=False):
         with TestClient(application(root)) as client:
             gateway = client.app.state.orders.dataset_compiler
             assert gateway.__class__.__name__ == "ClaudeGateway"
-            calls = root / "recovery-calls" if recover else root
+            calls = (
+                root / (f"recovery-calls-{recovery_id}" if recovery_id > 1 else "recovery-calls")
+                if recover
+                else root
+            )
             if recover:
                 calls.mkdir(exist_ok=False)
             observe(gateway, calls)
@@ -493,7 +509,14 @@ def child(root, recover=False):
         )
     except BaseException as error:
         save(
-            root / ("recovery-failure.json" if recover else "failure.json"),
+            root
+            / (
+                f"recovery-failure-{recovery_id}.json"
+                if recovery_id > 1
+                else "recovery-failure.json"
+                if recover
+                else "failure.json"
+            ),
             {
                 "type": type(error).__name__,
                 "message": str(error),
@@ -510,12 +533,13 @@ def main():
     parser.add_argument("--child", type=Path)
     parser.add_argument("--cohort", default="pilot")
     parser.add_argument("--recover", action="store_true")
+    parser.add_argument("--recovery-id", type=int, default=0)
     args = parser.parse_args()
     if args.authorize:
         print(json.dumps(authorize(), indent=2))
         return
     if args.child:
-        child(args.child, args.recover)
+        child(args.child, args.recover, args.recovery_id)
         return
     auth = load(AUTH)
     remaining = (datetime.fromisoformat(auth["cutoff"]) - datetime.now(UTC)).total_seconds()
@@ -527,12 +551,17 @@ def main():
     if not args.recover:
         root.mkdir(parents=True, exist_ok=False)
     started = datetime.now(UTC).isoformat()
-    prefix = "recovery-supervisor" if args.recover else "supervisor"
+    recovery_id = len(list(root.glob("recovery-supervisor*.json"))) + 1 if args.recover else 0
+    prefix = (
+        (f"recovery-supervisor-{recovery_id}" if recovery_id > 1 else "recovery-supervisor")
+        if args.recover
+        else "supervisor"
+    )
     with (root / (prefix + ".log")).open("x", encoding="utf-8") as log:
         try:
             process = subprocess.run(
                 [sys.executable, str(Path(__file__).resolve()), "--child", str(root)]
-                + (["--recover"] if args.recover else []),
+                + (["--recover", "--recovery-id", str(recovery_id)] if args.recover else []),
                 cwd=ROOT,
                 stdout=log,
                 stderr=log,

@@ -25,10 +25,10 @@ def audit(root):
     access = load(ROOT / ".local/llm-access.json")
     auth = access["authorization"]
     start = load(root / "supervisor.json")["started"]
-    final_supervisor = root / "recovery-supervisor.json"
-    if not final_supervisor.exists():
-        final_supervisor = root / "supervisor.json"
-    end = load(final_supervisor)["ended"]
+    end = max(
+        load(path)["ended"]
+        for path in (root / "supervisor.json", *root.glob("recovery-supervisor*.json"))
+    )
     with sqlite3.connect(Path(auth["ledger"]).as_uri() + "?mode=ro", uri=True) as ledger:
         ledger.row_factory = sqlite3.Row
         calls = [
