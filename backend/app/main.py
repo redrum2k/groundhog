@@ -84,6 +84,9 @@ def create_app(
             payment_mode=payments.mode,
             payment_config=payments.config,
             payment_transport=payments.transport,
+            mock_payment_delay_seconds=(
+                int(os.getenv("MOCK_PAYMENT_DELAY_SECONDS", "0")) if payments.mode == "mock" else 0
+            ),
         )
         app.state.internal_token = internal_token or os.getenv("INTERNAL_API_TOKEN")
         app.state.reviewer_token = reviewer_token or os.getenv("REVIEWER_API_TOKEN")

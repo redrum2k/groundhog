@@ -38,7 +38,7 @@ Literature frames mechanisms, never borrowed ROI effect sizes:
   [ACE](https://arxiv.org/abs/2510.04618), not claims that Groundhog implements either framework
   or inherits its benchmark improvements. See the method's explicit limits.
 
-Turn AcmeFitness's request into a frozen data contract, fund it explicitly, deliver
+Turn Summit Fitness's request into a frozen data contract, fund it explicitly, deliver
 independently checked synthetic aggregate CSV/JSON, then settle under the review rules.
 The primary app at `/` (also `/live`) shares a full-screen customer conversation and
 the agent's Run canvas, both driven by the same durable aggregate order. Claude calls

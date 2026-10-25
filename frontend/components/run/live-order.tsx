@@ -10,7 +10,7 @@ import LiveQuote from "./live-quote";
 import ComplaintForm from "./complaint-form";
 import EvidenceAnswer from "./evidence-answer";
 import { Chat } from "./conversation";
-import { IcCheck, IcLogo, IcWallet } from "./icons";
+import { IcCheck, IcDownload, IcLogo, IcWallet, IcX } from "./icons";
 
 const PAYMENT_LABELS:Record<string,string> = {
   blocked_parent:"Waiting for parent return",awaiting_signature:"Awaiting payment",funding_pending:"Payment submitted",
@@ -21,7 +21,7 @@ const PAYMENT_LABELS:Record<string,string> = {
 
 export function PaymentStatus({order}:{order:LiveOrder}) {
   const payment=order.page?.payment;
-  return <span className="wallet" role="status"><IcWallet size={14}/><span>{payment ? `${PAYMENT_LABELS[payment.payment.state]}${payment.simulated?" · mock":""}` : "No payment yet"}</span></span>;
+  return <span className="wallet" role="status"><IcWallet size={14}/><span>{payment ? PAYMENT_LABELS[payment.payment.state] : "No payment yet"}</span>{payment?.simulated && <><span className="wallet-sep" aria-hidden/><span className="faint"><span className="sr-only">, </span>Demo: no funds move</span></>}</span>;
 }
 
 export function LiveIntake({order}:{order:LiveOrder}) {
@@ -83,20 +83,30 @@ function DeliveryReviewStatus({page}:{page:LiveOrder["page"]}) {
   return remaining===undefined?null:<p className="faint">Review window: {remaining>0?`${remaining}s remaining`:"ended"}</p>;
 }
 
-export function LiveDelivery({order,working}:{order:LiveOrder;working:()=>void}) {
+function isLateComplaint(order:LiveOrder) {
+  const closesAt=order.page?.reviewClosesAt;
+  if(!order.delivery || order.deliveryAccepted || !closesAt)return false;
+  return !order.enabled("accept") && order.enabled("dispute")
+    && Date.parse(order.page!.server_time)>=Date.parse(closesAt);
+}
+
+/** `audit`: the Run panel also shows hashes and deadlines; the customer view keeps to the decision. */
+export function LiveDelivery({order,working,audit}:{order:LiveOrder;working:()=>void;audit?:boolean}) {
   const [objecting,setObjecting]=useState(false);
   const {page,delivery,binding}=order;
+  const late=isLateComplaint(order);
   return <>
     {delivery ? <>
-      <div className="review-grid"><div className="sheet"><div className="sheet-h"><span>{delivery.file}</span><span className="faint">Synthetic data</span></div><div className="sheet-rows"><table><thead><tr><th>ZIP</th><th>Area</th><th className="num">People</th><th>Status</th></tr></thead><tbody>{delivery.rows.map(row=><tr key={row.zip}><td className="mono">{row.zip}</td><td>{row.area}</td><td className="num">{row.count ?? "—"}</td><td>{row.status}</td></tr>)}</tbody></table></div></div><LiveChecks order={order}/></div>
-      <a className="btn" href={`${LIVE_API}/orders/${binding?.orderId}/artifacts/${delivery.artifactId}`} download={delivery.file}>Download CSV</a>
+      <div className="review-grid"><div className="sheet"><div className="sheet-h"><span>{delivery.file}</span><a className="sheet-dl" href={`${LIVE_API}/orders/${binding?.orderId}/artifacts/${delivery.artifactId}`} download={delivery.file}><IcDownload size={13} strokeWidth={1.8} aria-hidden/>Download CSV</a></div><div className="sheet-rows"><table><thead><tr><th>ZIP</th><th>Area</th><th className="num">People</th><th>Status</th></tr></thead><tbody>{delivery.rows.map(row=><tr key={row.zip}><td className="mono">{row.zip}</td><td>{row.area}</td><td className="num">{row.count ?? "—"}</td><td>{row.status}</td></tr>)}</tbody></table></div></div><LiveChecks order={order}/></div>
       <DeliveryReviewStatus page={page}/>
+      {/* the backend keeps a complaint open after the review window, but it goes to human review and can't stop payment */}
+      {late && <p className="faint">The review window closed without an objection, so this delivery counts as accepted. You can still file a late complaint for human review; it won&apos;t stop the payment.</p>}
       <div className="decision-actions">
         {order.enabled("accept") && <button type="button" className="btn solid" onClick={async()=>{if(await order.acceptDelivery())working();}}>Accept verified delivery</button>}
-        {order.enabled("dispute") && <button type="button" className="btn" onClick={()=>setObjecting(!objecting)}>{objecting?"Close objection":"Object"}</button>}
+        {order.enabled("dispute") && <button type="button" className="btn" onClick={()=>setObjecting(!objecting)}>{objecting?"Close":late?"File a late complaint":"Object"}</button>}
       </div>
       {objecting && <ComplaintForm key={`${binding?.orderId}:${delivery.version}`} disabled={!order.enabled("dispute")} submit={async text=>{if(await order.complain(text)){setObjecting(false);working();}}}/>}
-      <details className="live-details"><summary>Delivery and review details</summary><p>SHA-256: {delivery.sha256}</p><p>Review closes: {page?.reviewClosesAt}<br/>Dispute closes: {page?.disputeClosesAt ?? "Not opened"}<br/>Latest safe capture submission: {page?.latestSafeSubmissionAt}<br/>Authorization expires: {page?.captureClosesAt}</p></details>
+      {audit && <details className="live-details"><summary>Delivery and review details</summary><p>SHA-256: {delivery.sha256}</p><p>Review closes: {page?.reviewClosesAt}<br/>Dispute closes: {page?.disputeClosesAt ?? "Not opened"}<br/>Latest safe capture submission: {page?.latestSafeSubmissionAt}<br/>Authorization expires: {page?.captureClosesAt}</p></details>}
     </> : <><LiveChecks order={order}/><p className="faint">{order.binding?"The delivery will appear here after funded production and independent checks.":"Agree on a dataset first."}</p></>}
   </>;
 }
@@ -108,11 +118,11 @@ export function LiveOffers({order,customer}:{order:LiveOrder;customer:()=>void})
   </details>;
 }
 
-export function LiveEvidence({order}:{order:LiveOrder}) {
+export function LiveEvidence({order,audit}:{order:LiveOrder;audit?:boolean}) {
   return <>
     {order.binding && order.page?.evidence_request && <EvidenceAnswer key={`${order.page.evidence_request.request_id}:${order.binding.revision}`} request={order.page.evidence_request} binding={order.binding} busy={order.busy} submit={answer=>void order.evidenceAnswer({...answer})}/>}
-    {Object.keys(order.view.evidence).length>0 && <details className="live-details"><summary>Inspect persisted evidence</summary><EvidenceReferences evidence={Object.values(order.view.evidence)} inspect={order.inspect}/></details>}
-    {order.resolved && <details className="live-details" open><summary>Selected evidence</summary><pre className="live-data">{order.resolved}</pre></details>}
+    {audit && Object.keys(order.view.evidence).length>0 && <details className="live-details"><summary>Inspect persisted evidence</summary><EvidenceReferences evidence={Object.values(order.view.evidence)} inspect={order.inspect}/></details>}
+    {audit && order.resolved && <details className="live-details" open><summary>Selected evidence</summary><pre className="live-data">{order.resolved}</pre></details>}
   </>;
 }
 
@@ -126,10 +136,53 @@ function EvidenceReferences({evidence,inspect}:{evidence:Evidence[];inspect:(id:
   })}</div></details>)}</>;
 }
 
-export function LiveVerdict({order,verdict}:{order:LiveOrder;verdict?:Verdict}) {
+export function LiveVerdict({order,verdict,showEvidence=true,review,customer}:{order:LiveOrder;verdict?:Verdict;showEvidence?:boolean;review?:()=>void;customer?:()=>void}) {
   if(!verdict)return null;
+  if(verdict.kind==="disagree")return <ObjectionDecision order={order} verdict={verdict} review={review} customer={customer}/>;
   const evidence=verdict.evidenceIds.flatMap(id=>order.view.evidence[id]?[order.view.evidence[id]]:[]);
-  return <section className="live-verdict live-agent-message" aria-label="Complaint assessment"><div className="live-agent-message-header"><IcLogo size={16}/><span>Groundhog</span><h3 className="faint">Complaint assessment</h3></div><p className="live-agent-message-text">{verdict.reason}</p>{evidence.length>0 && <details className="live-details"><summary>Evidence for this assessment · {evidence.length} references</summary><EvidenceReferences evidence={evidence} inspect={order.inspect}/></details>}</section>;
+  return <section className="live-verdict live-agent-message" aria-label="Complaint assessment"><div className="live-agent-message-header"><IcLogo size={16}/><span>Groundhog</span><h3 className="faint">Complaint assessment</h3></div><p className="live-agent-message-text">{verdict.reason}</p>{showEvidence && evidence.length>0 && <details className="live-details"><summary>Evidence for this assessment · {evidence.length} references</summary><EvidenceReferences evidence={evidence} inspect={order.inspect}/></details>}</section>;
+}
+
+const assessmentSentences=new Intl.Segmenter("en",{granularity:"sentence"});
+
+function objectionDetails(order:LiveOrder,verdict:Verdict) {
+  const field=verdict.finding?.effective.obligation_id.replace(/^dataset:/,"");
+  const term=order.lines.find(line=>line.id===`R-${field?.toUpperCase()}`);
+  const terms=order.page?.quote?.specification.terms;
+  const geography=terms && "geography" in terms?terms.geography:undefined;
+  const evidence=verdict.evidenceIds.flatMap(id=>order.view.evidence[id]?[order.view.evidence[id]]:[]);
+  const oakland=geography==="San Francisco" && /\bOakland\b/i.test(order.view.dispute?.claim ?? "");
+  const outsideArea=oakland && field==="geography";
+  const summary=outsideArea?"Oakland falls outside the accepted San Francisco scope. This order does not include Oakland data.":Array.from(assessmentSentences.segment(verdict.reason),part=>part.segment).slice(0,2).join("").trim();
+  const canOffer=!!order.binding && !order.busy && !order.needsHumanReview && !!order.page?.latestSafeSubmissionAt && Date.parse(order.page.server_time)<Date.parse(order.page.latestSafeSubmissionAt);
+  const title=outsideArea?"Oakland wasn’t included in this order":field==="geography" && geography?`Your order covers ${geography}`:"The assessment did not support this objection";
+  const agreed=term?.text || order.view.contract.title || "The accepted contract below.";
+  return {title,agreed,summary,evidence,oakland,canOffer};
+}
+
+function ObjectionDecision({order,verdict,review,customer}:{order:LiveOrder;verdict:Verdict;review?:()=>void;customer?:()=>void}) {
+  const {title,agreed,summary,evidence,oakland,canOffer}=objectionDetails(order,verdict);
+  return <section className="objection-decision" aria-label="Complaint assessment">
+    <div className="objection-outcome"><IcX size={15}/><span>Objection not upheld</span></div>
+    <h3>{title}</h3>
+    <dl className="objection-facts">
+      {order.view.dispute && <><dt>You requested</dt><dd>{order.view.dispute.claim}</dd></>}
+      <dt>You agreed to</dt><dd>{agreed}</dd>
+      <dt>Reason</dt><dd>{summary}</dd>
+    </dl>
+    <div className="objection-payment"><PaymentStatus order={order}/><p>No fee is charged for this objection. The assessment alone does not release payment.</p></div>
+    <div className="objection-actions">
+      {review && <button type="button" className="btn solid" onClick={review}>Review delivery</button>}
+      {oakland && <button type="button" className="btn" disabled={!canOffer} onClick={()=>void order.requestOffer("oakland")}>Request an Oakland quote</button>}
+    </div>
+    {order.offer && <div className="callout"><p>Separate quote: ${formatMinor(order.offer.amount.amount_minor,order.offer.amount.decimals)}. Review and accept it before any additional work.</p><button type="button" className="btn" disabled={order.busy} onClick={()=>{order.reviewOffer();customer?.();}}>Review separate offer</button></div>}
+    <details className="live-details"><summary>View agreement and supporting evidence</summary>
+      <ul>{order.lines.map(line=><li key={line.id}>{line.text}</li>)}</ul>
+      {evidence.map(item=><blockquote key={item.id}><strong>{item.label}</strong><p>{"quote" in item?item.quote:"value" in item?item.value:item.note}</p><p className="faint">{item.note}</p></blockquote>)}
+      {!evidence.length && <p className="faint">No linked evidence references were supplied with this assessment.</p>}
+    </details>
+    {summary!==verdict.reason && <details className="live-details"><summary>Read full assessment</summary><p>{verdict.reason}</p></details>}
+  </section>;
 }
 
 function ReviewReceipt({order}:{order:LiveOrder}) {
@@ -161,7 +214,7 @@ export function LiveReview({order}:{order:LiveOrder}) {
   </div></>;
 }
 
-export function LiveStep({order,step,pay,working,customer}:{order:LiveOrder;step:string;pay:()=>void;working:()=>void;customer:()=>void}) {
+export function LiveStep({order,step,pay,working,customer,review}:{order:LiveOrder;step:string;pay:()=>void;working:()=>void;customer:()=>void;review?:()=>void}) {
   const node=order.view.nodes[step];
   const question=order.page?.evidence_request;
   const messages=node?.messages.filter(message=>message.from!=="agent" || message.text!==question?.prompt) ?? [];
@@ -172,11 +225,11 @@ export function LiveStep({order,step,pay,working,customer}:{order:LiveOrder;step
     {step==="clarify" && <LiveIntake order={order}/>}
     {step==="paid" && <LiveFunding order={order} pay={pay}/>}
     {step==="produce" && <LiveChecks order={order}/>}
-    {step==="review" && <><LiveDelivery order={order} working={working}/><LiveOffers order={order} customer={customer}/></>}
-    {node?.verdict && <LiveVerdict order={order} verdict={node.verdict}/>}
+    {step==="review" && <><LiveDelivery order={order} working={working} audit/><LiveOffers order={order} customer={customer}/></>}
+    {node?.verdict && <LiveVerdict order={order} verdict={step==="verdict"?order.assessment?.verdict:node.verdict} review={review} customer={customer}/>}
     {step==="decide" && <LiveReview order={order}/>}
     {step==="captured" && <><LiveFunding order={order} pay={pay}/><p>Settlement reflects confirmed payment evidence. No external accounting integration.</p></>}
-    <LiveEvidence order={order}/>
+    <LiveEvidence order={order} audit/>
     {order.binding && <PaymentJustification key={`${order.binding.orderId}:${order.binding.revision}`} orderId={order.binding.orderId}/>}
   </>;
 }

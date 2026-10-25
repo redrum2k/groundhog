@@ -32,13 +32,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .btn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); cursor: pointer; white-space: nowrap;
   transition: transform 160ms var(--ease-out), background-color 150ms ease; }
 .btn:hover:not(:disabled) { background: var(--sunk); }
-.btn.solid { background: #000; border-color: #000; color: #fff; }
-.btn.solid:hover:not(:disabled) { background: #000; }
-.btn.new-request-ready { background: var(--blue); border-color: var(--blue); color: #fff; }
-.btn.new-request-ready:hover:not(:disabled) { background: color-mix(in srgb, var(--blue) 88%, #000); border-color: color-mix(in srgb, var(--blue) 88%, #000); }
+.btn.solid { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 1px 2px color-mix(in srgb, var(--blue) 28%, transparent); }
+.btn.solid:hover:not(:disabled) { background: color-mix(in srgb, var(--blue) 88%, #000); border-color: color-mix(in srgb, var(--blue) 88%, #000); }
+/* "your turn" sends the buyer to act; it's a nudge, not the commit itself, and blue like the step waiting on them */
+.btn.turn { gap: 9px; padding-left: 13px; background: var(--blue-t); border-color: color-mix(in srgb, var(--blue) 22%, var(--bg)); color: var(--blue); }
+.btn.turn:hover:not(:disabled) { background: color-mix(in srgb, var(--blue) 12%, var(--bg)); }
+.turn-dot { position: relative; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+.turn-dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: ping 2s var(--ease-out) infinite; }
+@keyframes ping { from { opacity: 0.5; } to { transform: scale(2.6); opacity: 0; } }
 .btn:active:not(:disabled) { transform: scale(0.97); }
 .btn:disabled { opacity: 0.55; cursor: default; }
-.btn.solid:disabled { background: var(--ink-2); border-color: var(--ink-2); }
+.btn.solid:disabled { opacity: 0.4; box-shadow: none; }
 .sq { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--ink-2);
   transition: transform 160ms var(--ease-out), background-color 150ms ease; }
 .sq:hover { background: var(--hover); color: var(--ink); }
@@ -68,11 +72,19 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .seat { font-size: 12.5px; line-height: 1.35; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .title { font-size: 15px; white-space: nowrap; }
 .top-r { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+/* the tabs read on the same line as the brand's last line, not floating between its two lines */
+.top > .brand, .top > .tabs { align-self: last baseline; }
 .account { display: flex; align-items: center; gap: 10px; }
 .avatar { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--hover); font-size: 12px; color: var(--ink); }
 .avatar svg { color: var(--ink-2); }
 .account-n { font-size: 13.5px; line-height: 1.3; white-space: nowrap; }
 .account-r { font-size: 12px; line-height: 1.3; color: var(--ink-3); }
+.customer-payment { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-height: 32px; margin-bottom: 12px; }
+/* on /live the customer block also opens their wallet settings; the negative margin keeps it where /demo's sits */
+.account-btn { margin: -3px -10px -3px -3px; padding: 3px 10px 3px 3px; border: 0; border-radius: 999px; background: none; text-align: left; cursor: pointer; transition: background-color 150ms ease, transform 160ms var(--ease-out); }
+.account-btn:hover { background: var(--sunk); }
+.account-btn:active { transform: scale(0.97); }
+.account-btn :is(.account-n, .account-r) { display: block; }
 
 .tools { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; padding: 4px 20px 12px; border-bottom: 1px solid var(--line); }
 .tools .spacer { flex: 1; }
@@ -156,6 +168,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .live-shell .nd[data-step="captured"].n-done { border-color: var(--green); background: var(--green-t); }
 .live-shell .nd[data-step="captured"].n-done .nd-t { color: var(--green); }
 .n-fail { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); }
+.live-shell .nd.outcome-not-upheld { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); background: color-mix(in srgb, var(--red-t) 55%, var(--bg)); }
+.live-shell .nd.outcome-not-upheld .nd-t, .outcome-not-upheld .band-label { color: var(--red); }
+.live-shell .nd.outcome-not-upheld .chip { color: var(--red); background: var(--red-t); }
+.outcome-not-upheld .edge-on { stroke: var(--red); }
 .n-grey, .n-waiting { border-color: color-mix(in srgb, var(--amber) 45%, var(--line)); }
 
 .chip { position: absolute; right: 0; bottom: calc(100% + 6px); display: inline-flex; align-items: center; gap: 5px; height: 20px; max-width: 100%; box-sizing: border-box; padding: 0 8px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
@@ -198,6 +214,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .wh-body { fill: color-mix(in srgb, var(--blue) 6%, var(--bg)); stroke: var(--blue); stroke-width: 1.6; }
 .wh-top { fill: color-mix(in srgb, var(--blue) 14%, var(--bg)); stroke: var(--blue); stroke-width: 1.6; }
 .wh-band { fill: none; stroke: var(--blue); stroke-width: 1.6; opacity: 0.35; }
+.src.querying .wh-band { animation: query 1.1s ease-in-out infinite; } /* a query running: the band pulses until the last line ticks */
+@keyframes query { 50% { opacity: 0.95; } }
 .src-lines { display: flex; flex-direction: column; gap: 2px; }
 .src-l { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); white-space: nowrap; }
 .src-l svg { flex: none; color: var(--ink-3); }
@@ -292,7 +310,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 @starting-style { :root[data-anim] .coin-t, :root[data-anim] .wallet-t { opacity: 0; filter: blur(2px); } }
 :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: pop 300ms var(--ease-out); }
 @keyframes pop { 40% { scale: 1.06; } }
-.coin.locked { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
+/* held money is the expected state, so it stays neutral; amber is kept for a dispute or a payment problem */
+.coin:not(.alert):not(.done) .coin-t > svg { color: var(--ink-3); }
+.coin.alert { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
 .coin.done { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
 
 /* caption */
@@ -373,6 +393,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .sheet .rn { width: 34px; padding-right: 0; color: var(--ink-3); font-size: 12px; }
 .sheet td:nth-child(2) { width: 84px; }
 .sheet td:nth-child(4) { width: 100px; }
+/* /live's delivered CSV as a plain table, Notion-style: one hairline frame, quiet header, single-line rows */
+.live-conversation .sheet { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.live-conversation .sheet-h { align-items: center; padding: 6px 6px 6px 12px; font-size: 13px; }
+.live-conversation .sheet th { padding: 7px 12px; }
+.live-conversation .sheet td { padding: 7px 12px; white-space: nowrap; }
+.live-conversation .sheet td:nth-child(2) { width: 100%; }
+.live-conversation .sheet td:nth-child(4) { width: auto; color: var(--ink-2); }
+.live-conversation .sheet tbody tr { transition: background-color 120ms ease; }
+.live-conversation .sheet tbody tr:hover { background: var(--sunk); }
+.sheet-dl { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; color: var(--ink-2); font-size: 12.5px; text-decoration: none; transition: background-color 150ms ease, color 150ms ease; }
+.sheet-dl:hover { background: var(--hover); color: var(--ink); }
 .f-withheld td { color: var(--ink-3); }
 .f-missing td { color: var(--red); background: var(--red-t); }
 .f-missing td.num { font-size: 12px; }
@@ -478,8 +509,9 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(run-workspace), ::view-transition-old(run-workspace), ::view-transition-new(run-workspace) { animation: none !important; }
   .canvas-agent, .canvas-agent.departed { transition: none; transform: none; }
+  .turn-dot::after { animation: none; }
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
-  .orb, .gh-rise, .gh-tilt, .gh-gaze, .gh-breathe, .gh-nose, .gh-muzzle, .gh-badge, .orb-eyes, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
+  .orb, .gh-rise, .gh-tilt, .gh-gaze, .gh-breathe, .gh-nose, .gh-muzzle, .gh-badge, .orb-eyes, .orb-wait .orb-eyes, .orb-lens, .spin2, .src.querying .wh-band, .todo-arc.spin { animation: none; }
   :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: none; }
   :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, :root[data-anim] .src, :root[data-anim] .src-l, .bub, .panel { transition: opacity 150ms ease; transform: none; scale: none; translate: none; }
 }
@@ -529,6 +561,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 @starting-style { :root[data-anim] .ghost { opacity: 0; transform: translateY(4px); } }
 .wallet-t { display: inline-block; }
 .wallet { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+.wallet-sep { width: 1px; height: 12px; background: var(--line); }
 .wallet.w-held { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
 .wallet.w-paid { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
 .decision { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
@@ -584,10 +617,20 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .wallet-account { margin-top: 20px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
 .wallet-account p { margin: 4px 0 0; overflow-wrap: anywhere; }
 .wallet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-.live-shell .top { flex-wrap: wrap; }
+.live-shell .top { display: grid; grid-template-columns: minmax(0, max-content) auto minmax(0, 1fr); align-items: start; gap: 12px 28px; padding-block: 12px; }
+.live-shell .brand { align-items: flex-start; }
+.live-shell .brand > div { min-width: 0; }
+.live-shell .brand .logo { margin-top: 5px; display: block; }
+.live-shell .wordmark { line-height: 32px; }
+.live-shell .seat { line-height: 18px; }
+.live-shell .tabs button { height: 32px; }
+.live-shell .top-r { min-height: 32px; justify-self: end; align-items: flex-start; }
+.live-shell .account-btn { margin: 0; padding-block: 0; min-height: 32px; align-items: flex-start; }
+.live-shell .account-n { line-height: 32px; }
+.live-shell .account-r { line-height: 18px; }
 .live-shell:has(> .tools-err) { grid-template-rows: auto auto auto minmax(0, 1fr); }
-.live-shell > .tools-err { padding: 8px 20px; }
-.live-mode { font-size: 12.5px; color: var(--ink-3); }
+.live-shell > .tools-err { display: flex; align-items: center; gap: 12px; padding: 8px 20px; }
+.live-shell > .tools-err .btn { height: 28px; padding: 0 12px; color: var(--ink); font-size: 13px; }
 .live-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; max-width: 580px; padding: 60px 32px; margin: 0 auto; }
 .live-empty h2, .live-empty p, .live-welcome h1, .live-welcome p { margin: 0; }
 .live-welcome { display: grid; gap: 12px; padding: 16px 0 4px; }
@@ -626,12 +669,34 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .required-evidence label { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; overflow-wrap: anywhere; }
 .required-evidence input[type="checkbox"] { flex: none; width: auto; margin: 3px 0 0; }
 .live-assessment { scroll-margin-top: 80px; }
+.objection-decision { display: grid; gap: 18px; padding: 20px; border: 1px solid color-mix(in srgb, var(--red) 24%, var(--line)); border-radius: 14px; background: var(--bg); box-shadow: 0 2px 8px rgb(0 0 0 / 0.025); }
+.objection-outcome { display: flex; align-items: center; gap: 7px; width: fit-content; padding: 5px 9px; border-radius: 6px; background: var(--red-t); color: var(--red); font-size: 12px; font-weight: 500; }
+.live-shell .objection-decision h3 { font-size: 22px; line-height: 1.25; letter-spacing: -0.025em; font-weight: 500; text-wrap: balance; }
+.objection-facts { display: grid; gap: 5px; margin: 0; }
+.objection-facts dt { color: var(--ink-3); font-size: 12px; }
+.objection-facts dd { margin: 0 0 12px; font-size: 14px; line-height: 1.55; overflow-wrap: anywhere; }
+.objection-facts dd:last-child { margin-bottom: 0; }
+.objection-payment { padding-block: 14px; border-block: 1px solid var(--line); }
+.live-shell .objection-payment p { margin-top: 9px; color: var(--ink-3); font-size: 12px; }
+.objection-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.panel-b .objection-actions .btn { margin: 0; }
+.objection-decision details { font-size: 13px; }
+.objection-decision details summary { cursor: pointer; color: var(--ink-2); }
+.objection-decision details p, .objection-decision details li { line-height: 1.55; overflow-wrap: anywhere; }
+.objection-decision blockquote { margin: 12px 0 0; padding-left: 12px; border-left: 2px solid var(--line); }
+.objection-decision blockquote strong { display: block; margin-bottom: 4px; font-size: 12px; }
+.panel:focus { outline: none; }
 .live-progress { font-size: 13.5px; color: var(--blue); }
 .live-conversation .review-grid { margin-top: 4px; }
 .live-conversation .mock-note { padding: 0; line-height: 1.5; }
 .live-content .review-grid { grid-template-columns: minmax(0, 1fr); }
 @media (max-width: 760px) {
   .live-assessment { scroll-margin-top: 120px; }
-  .live-shell .top-r { display: flex; flex-wrap: wrap; width: 100%; gap: 10px; }
-  .live-shell .top-r .tag { width: 100%; font-size: 12px; }
+  .live-shell .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 12px; }
+  .live-shell .brand { grid-column: 1 / -1; }
+  .live-shell .wordmark { line-height: 28px; }
+  .live-shell .brand .logo { margin-top: 3px; }
+  .live-shell .seat { display: block; }
+  .live-shell .tabs { grid-column: 1 / -1; }
+  .live-shell .top-r { display: flex; grid-column: 1 / -1; justify-self: stretch; justify-content: space-between; margin-left: 0; }
 }

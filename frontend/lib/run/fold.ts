@@ -7,6 +7,7 @@ import type { SourceLine,
 import { captionFor, chipFor, type Case, type Ending } from "./scenario";
 import type { PaymentStateChanged } from "../runs.generated";
 import { formatCanvasMajor } from "../money";
+import { isAssessmentAudit } from "./customer-messages";
 
 export type NS = "idle" | "running" | "done" | "waiting" | "fail" | "grey";
 export type OrbMode = "float" | "carry" | "look" | "inspect" | "wait" | "happy";
@@ -35,7 +36,8 @@ export interface NodeState {
   source?: SourceLine[]; // what the agent read at the source while investigating
 }
 export interface Card { id: string; node: string; text: string; tone: "ev" | "rule" | "claim" }
-export interface Coin { text: string; locked?: boolean; done?: boolean }
+// locked: the funds are held, a calm state. alert: a dispute or a payment problem, the only time it turns amber.
+export interface Coin { text: string; locked?: boolean; alert?: boolean; done?: boolean; returned?: boolean }
 export interface View {
   nodes: Record<string, NodeState>;
   order: string[]; // step ids in plan order
@@ -62,6 +64,22 @@ export interface FoldContext { lane: Case; ending: Ending; learned: boolean; con
 const blankNode = (step: Step): NodeState => ({ step, status: "idle", attempt: 1, messages: [], asked: [], drafted: [], pending: {}, checks: {}, evidence: [], allowedBy: [] });
 const LANE_KINDS = new Set(["investigate", "verdict", "amend", "grey", "decide"]);
 
+// The recorded demo narrates the groundhog's visit to the database itself (source_checked). The live backend only
+// reports the investigation as evidence events, so the same three lines are derived here: each cited cell ticks the
+// next line and the last one waits for the finding. An evidence id carries the obligation it answers
+// (job:dataset:geography:0), which names the contract line being read.
+const sourceVisit = (lines: number): SourceLine[] => [
+  { id: "src-pin", text: "Accepted sources · as pinned at acceptance", checked: false },
+  { id: "src-lines", text: `${lines || "The"} contract lines · against the source`, checked: false },
+  { id: "src-rows", text: "Delivered rows · against the source", checked: false },
+];
+function readAtSource(lines: SourceLine[], evidenceId: string): SourceLine[] {
+  const obligation = evidenceId.split(":").slice(1, -1).pop();
+  const next = lines.findIndex((l) => !l.checked && l.id !== "src-rows");
+  return lines.map((l, i) => i !== next ? l : { ...l, checked: true, text: l.id === "src-lines" && obligation ? `${obligation[0].toUpperCase()}${obligation.slice(1)} line · against the source` : l.text });
+}
+const allRead = (lines: SourceLine[]): SourceLine[] => lines.map((l) => ({ ...l, checked: true }));
+
 export function emptyView(contract: DataContract): View {
   return { nodes: {}, order: [], orb: { step: "clarify", mode: "float" }, coin: null, loops: [], cards: [], contract, caption: "", evidence: {}, deliveries: [], payments: [], captured: {}, paymentStates: {}, started: 0, lastSeq: 0 };
 }
@@ -78,16 +96,20 @@ function coinFor(v: View): Coin | null {
   };
   if (v.payments.some(p => v.paymentStates[p.id])) {
     const states = v.payments.map(p => v.paymentStates[p.id] ?? (p.id in v.captured ? "captured" : "funded"));
+    const returned = states.every(s=>s==="voided");
     return {
       text:v.payments.map((p,i)=>`$${formatCanvasMajor(p.amount)} ${labels[states[i]]}`).join(" + "),
-      done:states.every(s=>s==="captured" || s==="voided"),
+      done:!returned && states.every(s=>s==="captured" || s==="voided"),
+      returned,
       locked:states.some(s=>!["captured","voided","awaiting_signature","blocked_parent"].includes(s)),
+      // there is no dispute-closed event, but a capture or return only starts once it's resolved, so its amber ends there
+      alert:(!!v.dispute && states.includes("funded")) || states.some(s=>["uncertain","failed","expired_not_returned","reorg_hold"].includes(s)),
     };
   }
   const parts = v.payments.map((p) => `$${formatCanvasMajor(p.amount)}`).join(" + ");
   if (v.payments.every((p) => p.id in v.captured)) return { text: `$${formatCanvasMajor(money(v))} captured`, done: true };
-  if (v.payments.every((p) => p.rail === "mock")) return { text: `${parts} authorized`, locked: !!v.dispute };
-  return { text: `${parts} held`, locked: !!v.dispute };
+  if (v.payments.every((p) => p.rail === "mock")) return { text: `${parts} authorized`, locked: true, alert: !!v.dispute };
+  return { text: `${parts} held`, locked: true, alert: !!v.dispute };
 }
 
 function settlementProgress(v: View, state: PaymentStateChanged["state"]) {
@@ -142,8 +164,9 @@ function settlementProgress(v: View, state: PaymentStateChanged["state"]) {
 export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   if (e.seq <= v.lastSeq) return v;
   v.lastSeq = e.seq;
+  if (ctx.live && isAssessmentAudit(e)) return v;
   if (e.type === "delivery_ready" && e.delivery.reviewClosesAt) v.reviewWindow = windowLabel(Date.parse(e.delivery.reviewClosesAt) - Date.parse(e.at));
-  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? e.state : "") : ctx.narrated ? "" : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
+  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? "" : "") : ctx.narrated ? "" : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
   if (e.type === "steps_planned") {
     for (const s of e.steps) { v.nodes[s.id] ??= blankNode(s); v.nodes[s.id].step = s; if (!v.order.includes(s.id)) v.order.push(s.id); }
     return v;
@@ -187,6 +210,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       if (LANE_KINDS.has(n.step.kind)) v.lastLane = e.step;
       v.orb = { step: e.step, mode: n.step.kind === "investigate" ? "inspect" : n.step.kind === "clarify" ? "look" : n.step.kind === "produce" ? "carry" : "float" };
       if (n.step.kind === "review" && attempt === 1 && v.nodes.produce) v.nodes.produce.status = "done";
+      if (ctx.live && n.step.kind === "investigate") n.source = sourceVisit(v.contract.lines.length);
       break;
     case "step_waiting": n.status = "waiting"; n.waitingOn = e.waitingOn; if (n.step.kind === "decide") v.orb = { step: e.step, mode: "wait" }; break;
     case "step_completed":
@@ -195,6 +219,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       n.status = n.verdict?.kind === "grey" ? "grey" : !ctx.live && n.verdict?.decidedBy === "rules" && n.verdict.kind === "agree" ? "fail" : "done";
       n.waitingOn = undefined;
       if (n.step.kind === "captured") v.orb = { step: e.step, mode: "happy" };
+      if (ctx.live && n.source) n.source = allRead(n.source);
       break;
     case "message": if (n.status === "waiting") n.status = "running"; n.messages.push(e.message); if (e.message.asks) n.asked.push(e.message.asks); break;
     case "contract_line_asked": if (!n.asked.includes(e.line.id)) n.asked.push(e.line.id); n.pending[e.line.id] = e.line; break;
@@ -208,6 +233,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     case "evidence_found":
       n.evidence.push(e.evidence); v.evidence[e.evidence.id] = e.evidence;
       v.cards = [...v.cards, { id: e.evidence.id, node: e.step, text: e.evidence.label, tone: e.evidence.kind === "claim" ? "claim" : "ev" }];
+      if (ctx.live && n.source) n.source = readAtSource(n.source, e.evidence.id);
       break;
     case "dispute_opened": v.dispute = e.dispute; v.coin = coinFor(v); break;
     case "verdict":
@@ -219,6 +245,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
           investigation.status = e.verdict.kind === "grey" ? "waiting" : "done";
           investigation.waitingOn = e.verdict.kind === "grey" ? investigation.waitingOn ?? "Waiting for evidence or human review" : undefined;
           investigation.chip = investigation.waitingOn ?? "Assessment complete";
+          if (investigation.source) investigation.source = allRead(investigation.source); // the finding is in: nothing left to read
         }
         v.orb = {step: e.step, mode: "wait"};
       }
