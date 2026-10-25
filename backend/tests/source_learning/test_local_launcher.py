@@ -7,6 +7,17 @@ from pathlib import Path
 import pytest
 
 
+def test_demo_instances_are_separate_and_cannot_escape_owned_state():
+    from tools.local_learning_process import STATE, instance_state
+
+    assert instance_state("legacy") == STATE
+    assert instance_state("judge-proof") == STATE / "judge-proof"
+    assert instance_state("judge-proof") != instance_state("other")
+    for invalid in ("../escape", "D:/outside", "", "a/b", "a\\b"):
+        with pytest.raises(ValueError):
+            instance_state(invalid)
+
+
 @pytest.mark.skipif(os.name != "nt", reason="Windows task process-tree regression")
 def test_task_parent_shutdown_reaps_children_and_grandchildren():
     import win32api

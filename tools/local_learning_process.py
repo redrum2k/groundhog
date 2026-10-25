@@ -7,6 +7,7 @@ configuration and waits for exactly one child, preserving its exit code.
 import argparse
 import json
 import os
+import re
 import secrets
 import shutil
 import subprocess
@@ -39,8 +40,14 @@ def bind_child_lifetime():
     return job.Detach()
 
 
-def credentials():
-    path = STATE / "demo-credentials.json"
+def instance_state(instance):
+    if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}", instance):
+        raise ValueError("instance must be a short local identifier, not a path")
+    return STATE if instance == "legacy" else STATE / instance
+
+
+def credentials(state=STATE):
+    path = state / "demo-credentials.json"
     if not path.is_file():
         raise RuntimeError("Run local_learning_process.py prepare before starting tasks")
     return json.loads(path.read_text(encoding="utf-8"))
@@ -49,10 +56,31 @@ def credentials():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("role", choices=("prepare", "backend", "frontend"))
-    role = parser.parse_args().role
-    STATE.mkdir(parents=True, exist_ok=True)
+    parser.add_argument("--instance", default="legacy")
+    parser.add_argument("--backend-port", type=int, default=8026)
+    parser.add_argument("--frontend-port", type=int, default=3026)
+    args = parser.parse_args()
+    role, state = args.role, instance_state(args.instance)
+    if (
+        any(not 1024 <= p <= 65535 for p in (args.backend_port, args.frontend_port))
+        or args.backend_port == args.frontend_port
+    ):
+        parser.error("use distinct unprivileged local ports")
+    state.mkdir(parents=True, exist_ok=True)
+    config = {
+        "instance": args.instance,
+        "backend_port": args.backend_port,
+        "frontend_port": args.frontend_port,
+        "root": str(ROOT),
+    }
+    config_path = state / "launch.json"
+    if config_path.exists() and json.loads(config_path.read_text(encoding="utf-8")) != config:
+        raise RuntimeError("instance configuration changed; use a new isolated instance")
     if role == "prepare":
-        path = STATE / "demo-credentials.json"
+        if not config_path.exists():
+            with config_path.open("x", encoding="utf-8") as stream:
+                json.dump(config, stream)
+        path = state / "demo-credentials.json"
         if not path.exists():
             values = {
                 name: secrets.token_urlsafe(32)
@@ -69,15 +97,17 @@ def main():
     bind_child_lifetime()
     env = {
         **os.environ,
-        **credentials(),
+        **credentials(state),
         "SOURCE_LEARNING_MODE": "controlled_local",
         "PAYMENT_ADAPTER": "mock",
         "ENABLE_PAID_MODELS": "false",
         "ENABLE_TESTNET_BROADCAST": "false",
+        "ENABLE_DATASET_MODEL_ASSESSMENT": "false",
+        "JOBFLOW_DEMO": "1",
         "BROKER_LOCAL_DEMO": "1",
-        "BACKEND_URL": "http://127.0.0.1:8026",
-        "ORDER_DB_PATH": str(STATE / "orders.sqlite3"),
-        "ARTIFACT_ROOT": str(STATE / "artifacts"),
+        "BACKEND_URL": f"http://127.0.0.1:{args.backend_port}",
+        "ORDER_DB_PATH": str(state / "orders.sqlite3"),
+        "ARTIFACT_ROOT": str(state / "artifacts"),
         "PYTHONUTF8": "1",
     }
     for name in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY"):
@@ -91,7 +121,7 @@ def main():
             "--host",
             "127.0.0.1",
             "--port",
-            "8026",
+            str(args.backend_port),
             "--no-proxy-headers",
             "--no-access-log",
         ]
@@ -108,9 +138,9 @@ def main():
         if (ROOT / "frontend/public").is_dir():
             shutil.copytree(ROOT / "frontend/public", standalone / "public", dirs_exist_ok=True)
         command = [node, str(standalone / "server.js")]
-        env.update(HOSTNAME="127.0.0.1", PORT="3026")
+        env.update(HOSTNAME="127.0.0.1", PORT=str(args.frontend_port))
         cwd = standalone
-    with (STATE / f"{role}.log").open("a", encoding="utf-8") as log:
+    with (state / f"{role}.log").open("a", encoding="utf-8") as log:
         child = subprocess.Popen(
             command,
             cwd=cwd,
@@ -121,7 +151,7 @@ def main():
             close_fds=True,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-        (STATE / f"{role}-process.json").write_text(
+        (state / f"{role}-process.json").write_text(
             json.dumps(
                 {
                     "role": role,
@@ -129,6 +159,8 @@ def main():
                     "child_pid": child.pid,
                     "root": str(ROOT),
                     "supervisor": "Windows Task Scheduler",
+                    "instance": args.instance,
+                    "port": args.backend_port if role == "backend" else args.frontend_port,
                 }
             ),
             encoding="utf-8",

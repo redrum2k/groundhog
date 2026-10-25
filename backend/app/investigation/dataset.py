@@ -17,6 +17,53 @@ from app.orders.dataset_evidence import answer_references
 def investigate_dataset(order, report, store, assessor, *, audit=None, candidate_sink=None):
     case = order.cases[-1]
     terms = order.snapshot.quote.specification.terms
+    if isinstance(assessor, OfflineAssessor):
+        # The default/mock path needs the same whole-claim evidence certificate
+        # as the optional model path. A keyword or a present row cannot disprove
+        # an unrelated/composite assertion about that row.
+        if audit:
+            audit(
+                {
+                    "mode": "deterministic",
+                    "complaint": case.complaint.model_dump(mode="json"),
+                    "accepted_terms": terms.model_dump(mode="json"),
+                    "verification": report.model_dump(mode="json"),
+                }
+            )
+        proof = independent_claim(order, report, store)
+        if proof:
+            return Assessment(
+                obligation_id=f"{case.case_id}:claim",
+                result=proof[0],
+                citations=proof[1],
+                reason_code="DATASET_INDEPENDENT_RULE",
+                explanation=proof[2],
+                provenance=Provenance(
+                    kind="deterministic", assessor="dataset-evidence-gate", version="2"
+                ),
+            )
+        relevant = {
+            o.obligation_id
+            for o in report.obligations
+            if o.requirement_id == case.complaint.requirement_id
+        }
+        refs = tuple(
+            dict.fromkeys(
+                r for a in report.assessments if a.obligation_id in relevant for r in a.citations
+            )
+        )
+        return unclear(
+            order, "The verified bytes and accepted terms do not establish the entire complaint."
+        ).model_copy(
+            update={
+                "citations": refs,
+                "requested_evidence": (
+                    "Which frozen source and exact cell establish the "
+                    f"{case.complaint.field} claim for {case.complaint.product_id}? "
+                    "Customer testimony alone is not source authority."
+                ),
+            }
+        )
     authority = next(s for s in order.sources if s.source_id.endswith(":authority"))
     raw = json.loads(store.read(authority.artifact))
     refs = (
@@ -46,77 +93,6 @@ def investigate_dataset(order, report, store, assessor, *, audit=None, candidate
         mandatory=False,
         decision_effect="remedy",
     )
-    result, explanation = (
-        "UNKNOWN",
-        "The accepted definition and source meaning do not establish this claim.",
-    )
-    if isinstance(assessor, OfflineAssessor):
-        if (
-            case.complaint.field in ("coverage", "completeness")
-            and case.complaint.product_id in terms.coverage.expected_keys
-            and report.passed
-        ):
-            result, explanation = (
-                "FAIL",
-                "The exact disputed ZIP is present in the independently checked delivery.",
-            )
-            refs = (
-                reference(
-                    order.deliveries[-1].csv,
-                    "delivery",
-                    row=case.complaint.product_id,
-                    column="zip",
-                    value=case.complaint.product_id,
-                    version=order.deliveries[-1].version,
-                ),
-            )
-        elif "yoga" in case.complaint.text.lower() and case.complaint.field == "category":
-            if terms.category == "gym_app_or_yoga" and report.passed:
-                result, explanation = (
-                    "FAIL",
-                    (
-                        "Yoga is already included in the accepted definition and verified "
-                        "source; no expansion fee is owed."
-                    ),
-                )
-            elif raw.get("yoga_is_gym") is False:
-                result, explanation = (
-                    "FAIL",
-                    (
-                        "Accepted fitness means gyms/apps; the frozen taxonomy excludes "
-                        "standalone yoga. Extra yoga work needs a separate offer and "
-                        "buyer acceptance."
-                    ),
-                )
-            elif raw.get("yoga_is_gym") is True:
-                result, explanation = (
-                    "PASS",
-                    (
-                        "The frozen authority states yoga satisfies gym membership; it is "
-                        "already owed, not billable expansion."
-                    ),
-                )
-        return Assessment(
-            obligation_id=obligation.obligation_id,
-            result=result,
-            citations=refs,
-            missing_facts=(
-                "Registered evidence establishing yoga's meaning under the accepted definition.",
-            )
-            if result == "UNKNOWN"
-            else (),
-            reason_code="DATASET_SEMANTIC_" + result,
-            explanation=explanation,
-            requested_evidence=(
-                "Which frozen authority record establishes whether yoga "
-                "membership satisfies the accepted gym/app definition?"
-            )
-            if result == "UNKNOWN"
-            else None,
-            provenance=Provenance(
-                kind="deterministic", assessor="offline-dataset-semantics", version="1"
-            ),
-        )
     refs = tuple(dict.fromkeys((*refs, *answer_references(order, store))))
     proof = independent_claim(order, report, store)
     if proof:
@@ -242,6 +218,10 @@ def interpret_claim(complaint):
         r"(?:(?:fitness|gym/app) )?(?:scope|definition|category|contract)"
     )
     if complaint.field == "category":
+        # Retain the existing narrow demo wording, but never ignore a suffix or
+        # combine its category assertion with an unproved second claim.
+        if re.fullmatch(yoga + r" should count as fitness", text):
+            return "contract_includes_yoga", True
         # Scope-first wording names the same bounded category predicate. Match the
         # whole clause so price promises, mixed scope and extra qualifiers stay unknown.
         population = r"(?:our|the) (?:accepted|agreed) (?:population|cohort)"
@@ -362,16 +342,9 @@ def guarded_dataset_assessment(service, order, job, report):
     """Use existing assessor and durable store. No call from polling; no uncertain retry."""
     assessor = service.investigator.assessor
     enabled = os.getenv("ENABLE_DATASET_MODEL_ASSESSMENT") == "true"
-    if not enabled:
+    if not enabled and isinstance(assessor, ClaudeGateway):
         # A global paid compiler opt-in is not activation of this optional feature.
-        return investigate_dataset(
-            order,
-            report,
-            service.store,
-            OfflineAssessor() if isinstance(assessor, ClaudeGateway) else assessor,
-        )
-    if isinstance(assessor, OfflineAssessor):
-        return investigate_dataset(order, report, service.store, assessor)
+        assessor = OfflineAssessor()
     key = semantic_key(order)
     attempt = DatasetSemanticAttempt(
         attempt_id=key,
