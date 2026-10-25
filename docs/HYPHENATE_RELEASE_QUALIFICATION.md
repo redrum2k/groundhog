@@ -1,5 +1,13 @@
 # Groundhog Hyphenate release qualification
 
+## Budget-only continuation (subsequent authorization)
+
+The user explicitly removed the model authorization's clock expiry: "stop authroizing against time, just the budget". The original qualification below remains historical evidence, not a claim that authorization is still missing. A new immutable budget-only grant references the original timed authorization without changing it, resetting usage, or adding money. Cumulative cap: $17.129304; preserved final-evaluation reserve: $10; conservative committed cost at registration: $4.064260; available continuation allowance: **$3.065044**. There were zero outstanding requests and no new provider calls during registration.
+
+The shared budget and synchronous/raw/asynchronous clients now support explicitly registered budget-only continuation. Request timeouts, concurrency, uncertain-request reservations, dollar limits, repeat-failure controls and financial deadlines still apply. Missing cutoff alone is not authorization. The normal app remains disabled by default. The existing loopback launcher can explicitly select an already registered access artifact with `-ModelAccess`; its separate local factory requires real investigator assessment, mock payments and disabled broadcasts. It never passes the provider credential to the frontend or registers/refills budgets at startup. Production activation remains disabled.
+
+Focused verification: **43 passed**, including budget persistence, expired legacy grants, exact cap/no refill, all SDK dispatch paths, default-off startup, local mock boundaries, frontend secret isolation and Windows child-process cleanup. Private evidence: `.local/budget-launcher-tests.xml`. Live qualification is the next gate; this authorization/configuration change alone does not establish model accuracy or resolve the separate UI-provenance gap.
+
 ## Decision
 
 **NO-GO for presenting the ordinary application as a newly qualified, combined live-LLM investigator and self-learning employee.** Approved source learning, funded fulfillment, byte verification, mock settlement and restart work together. The new unfamiliar objections were handled by the deterministic fallback, not Claude, and only one of three matched its independently frozen expected result. The fallback held funds safely; that is not evidence of strong AI investigation.

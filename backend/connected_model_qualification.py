@@ -196,33 +196,51 @@ def load(path):
 
 
 def authorize():
-    if ACCESS.exists():
-        return load(ACCESS)
     auth = load(AUTH)
+    if ACCESS.exists():
+        access = load(ACCESS)
+        if access["authorization"] != auth:
+            raise RuntimeError("Access artifact does not match the current authorization")
+        return access
     path = Path(auth["ledger"])
     if not path.is_file():
         raise RuntimeError("Existing cumulative ledger required")
-    budget = ModelBudget(path, cutoff=auth["cutoff"])
+    budget_only = auth.get("authorization_mode") == "budget_only"
+    if budget_only:
+        with sqlite3.connect(f"{path.as_uri()}?mode=ro", uri=True) as db:
+            prior_cutoff = db.execute("SELECT cutoff FROM budget_policy WHERE id=1").fetchone()[0]
+        budget = ModelBudget(path, cutoff=prior_cutoff, maximum_usd=auth["maximum_cumulative_usd"])
+    else:
+        budget = ModelBudget(path, cutoff=auth["cutoff"])
     before = budget.summary()
     if before["active"]:
         raise RuntimeError("Outstanding reservations must be reconciled before a new window")
-    budget.register_authorized_window(
-        auth["window"],
-        starts_at=auth["start"],
-        cutoff=auth["cutoff"],
-        authorization_sha256=hashlib.sha256(AUTH.read_bytes()).hexdigest(),
-    )
-    # The unchanged reserve remains unavailable. This process's total cap permits
-    # at most $5 beyond the cumulative conservative baseline, not another $45.
-    maximum = min(
-        before["maximum_usd"],
-        round(
-            before["conservative_committed_usd"]
-            + before["final_evaluation_reserve_usd"]
-            + auth["incremental_usd_cap"],
-            6,
-        ),
-    )
+    if budget_only:
+        budget.register_budget_authorization(
+            auth["authorization_id"],
+            replaces_window_id=auth["replaces_window_id"],
+            maximum_usd=auth["maximum_cumulative_usd"],
+            authorization_sha256=hashlib.sha256(AUTH.read_bytes()).hexdigest(),
+        )
+        maximum = auth["maximum_cumulative_usd"]
+    else:
+        budget.register_authorized_window(
+            auth["window"],
+            starts_at=auth["start"],
+            cutoff=auth["cutoff"],
+            authorization_sha256=hashlib.sha256(AUTH.read_bytes()).hexdigest(),
+        )
+        # The unchanged reserve remains unavailable. This process's total cap permits
+        # at most $5 beyond the cumulative conservative baseline, not another $45.
+        maximum = min(
+            before["maximum_usd"],
+            round(
+                before["conservative_committed_usd"]
+                + before["final_evaluation_reserve_usd"]
+                + auth["incremental_usd_cap"],
+                6,
+            ),
+        )
     result = {"authorization": auth, "before": before, "maximum_usd": maximum}
     with ACCESS.open("x", encoding="utf-8") as stream:
         json.dump(result, stream, indent=2)
@@ -251,12 +269,15 @@ def configure():
             "ENABLE_TESTNET_BROADCAST": "false",
             "ENABLE_BROKER_DISPUTE_ASSESSMENT": "false",
             "APPLICATION_MODEL_BUDGET_PATH": auth["ledger"],
-            "APPLICATION_MODEL_CUTOFF_AT": auth["cutoff"],
-            "APPLICATION_MODEL_WINDOW_ID": auth["window"],
+            "APPLICATION_MODEL_WINDOW_ID": auth.get("window") or auth["authorization_id"],
             "APPLICATION_MODEL_BUDGET_USD": str(access["maximum_usd"]),
             "APPLICATION_MODEL_CONCURRENCY": "1",
         }
     )
+    if auth["cutoff"] is None:
+        os.environ.pop("APPLICATION_MODEL_CUTOFF_AT", None)
+    else:
+        os.environ["APPLICATION_MODEL_CUTOFF_AT"] = auth["cutoff"]
     budget = ModelBudget.configured()
     budget.check_window()
     return budget
@@ -649,7 +670,11 @@ def main():
         child(args.child, args.recover, args.recovery_id)
         return
     auth = load(AUTH)
-    remaining = (datetime.fromisoformat(auth["cutoff"]) - datetime.now(UTC)).total_seconds()
+    remaining = (
+        (datetime.fromisoformat(auth["cutoff"]) - datetime.now(UTC)).total_seconds()
+        if auth["cutoff"] is not None
+        else 900  # Per-attempt hang watchdog, not an authorization expiry.
+    )
     if remaining < 300:
         raise RuntimeError("Insufficient authorized time")
     if not args.cohort.replace("-", "").isalnum():
@@ -677,7 +702,7 @@ def main():
             )
             result = {"exit_code": process.returncode}
         except subprocess.TimeoutExpired:
-            result = {"terminated": True, "reason": "Independent authorized cutoff"}
+            result = {"terminated": True, "reason": "Per-attempt watchdog or authorized cutoff"}
     save(
         root / (prefix + ".json"),
         {"started": started, "ended": datetime.now(UTC).isoformat(), **result},

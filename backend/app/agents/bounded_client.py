@@ -35,6 +35,8 @@ def remaining_timeout(budget):
     # This is a local pre-dispatch check, not a real-time scheduling guarantee.
     # An OS pause or SDK-internal work can delay network transmission afterward.
     now = budget.check_window()
+    if budget.cutoff is None:
+        return 60.0  # Budget-only authorization does not remove request timeouts.
     return min(60.0, (budget.cutoff - now).total_seconds())
 
 

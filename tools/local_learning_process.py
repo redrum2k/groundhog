@@ -53,12 +53,42 @@ def credentials(state=STATE):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def model_environment(access_path):
+    """Use an already registered operator authorization; never register or refill it."""
+    access = json.loads(Path(access_path).read_text(encoding="utf-8"))
+    auth = access["authorization"]
+    if auth.get("payments") != "mock" or auth.get("production_activation") is not False:
+        raise ValueError("Local model authorization must retain mock payments and no production")
+    result = {
+        "ENABLE_PAID_MODELS": "true",
+        "ENABLE_DATASET_MODEL_ASSESSMENT": "true",
+        "ENABLE_BROKER_DISPUTE_ASSESSMENT": "false",
+        "CLAUDE_MODEL": auth["model"],
+        "APPLICATION_MODEL_BUDGET_PATH": auth["ledger"],
+        "APPLICATION_MODEL_WINDOW_ID": auth.get("window") or auth["authorization_id"],
+        "APPLICATION_MODEL_BUDGET_USD": str(access["maximum_usd"]),
+        "APPLICATION_MODEL_CONCURRENCY": str(auth["concurrency"]),
+        "APPLICATION_MODEL_CUTOFF_AT": auth.get("cutoff") or "",
+    }
+    # Read only the existing application credential. Never copy it to launch.json,
+    # the frontend, a command line, the access artifact, or logs.
+    private = Path("C:/Users/sajee/order-to-cash/backend/.env")
+    for line in private.read_text(encoding="utf-8").splitlines():
+        key, separator, value = line.partition("=")
+        if separator and key.strip() == "ANTHROPIC_API_KEY":
+            result["ANTHROPIC_API_KEY"] = value.strip().strip("\"'")
+    if not result.get("ANTHROPIC_API_KEY"):
+        raise RuntimeError("Existing Anthropic credential unavailable")
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("role", choices=("prepare", "backend", "frontend"))
     parser.add_argument("--instance", default="legacy")
     parser.add_argument("--backend-port", type=int, default=8026)
     parser.add_argument("--frontend-port", type=int, default=3026)
+    parser.add_argument("--model-access", type=Path)
     args = parser.parse_args()
     role, state = args.role, instance_state(args.instance)
     if (
@@ -73,6 +103,11 @@ def main():
         "frontend_port": args.frontend_port,
         "root": str(ROOT),
     }
+    if args.model_access:
+        import hashlib
+
+        config["model_access"] = str(args.model_access.resolve(strict=True))
+        config["model_access_sha256"] = hashlib.sha256(args.model_access.read_bytes()).hexdigest()
     config_path = state / "launch.json"
     if config_path.exists() and json.loads(config_path.read_text(encoding="utf-8")) != config:
         raise RuntimeError("instance configuration changed; use a new isolated instance")
@@ -113,11 +148,15 @@ def main():
     for name in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY"):
         env.pop(name, None)
     if role == "backend":
+        application = "app.main:app"
+        if args.model_access:
+            env.update(model_environment(args.model_access))
+            application = "app.local_model_qualification:application"
         command = [
             str(ROOT / "backend/.venv/Scripts/python.exe"),
             "-m",
             "uvicorn",
-            "app.main:app",
+            application,
             "--host",
             "127.0.0.1",
             "--port",
@@ -125,6 +164,8 @@ def main():
             "--no-proxy-headers",
             "--no-access-log",
         ]
+        if args.model_access:
+            command.append("--factory")
         cwd = ROOT / "backend"
     else:
         node = shutil.which("node")

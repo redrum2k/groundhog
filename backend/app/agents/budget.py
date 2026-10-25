@@ -26,13 +26,15 @@ class ModelBudget:
         self.path = Path(path)
         self.maximum = int(Decimal(str(maximum_usd)) * 1_000_000)
         self.concurrency = min(2, int(concurrency))
-        self.cutoff = datetime.fromisoformat(cutoff)
+        self.cutoff = datetime.fromisoformat(cutoff) if cutoff else None
         self.window_id = window_id
         self.starts_at = None
         if not 0 < self.maximum <= 45_000_000 or self.concurrency < 1:
             raise BudgetExceeded("Invalid approved resource envelope")
-        if self.cutoff.tzinfo is None:
+        if self.cutoff is not None and self.cutoff.tzinfo is None:
             raise BudgetExceeded("Budget requires an absolute cutoff")
+        if self.cutoff is None and (not window_id or not self.path.is_file()):
+            raise BudgetExceeded("Budget-only use requires an existing registered authorization")
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.connect() as db:
             db.execute(
@@ -57,6 +59,11 @@ class ModelBudget:
                 "final_reserve_micro INTEGER NOT NULL, plan_sha256 TEXT, reason TEXT)"
             )
             db.execute(
+                "CREATE TABLE IF NOT EXISTS budget_authorizations (id TEXT PRIMARY KEY, "
+                "replaces_window_id TEXT NOT NULL, maximum_micro INTEGER NOT NULL, "
+                "authorization_sha256 TEXT NOT NULL, registered_at TEXT NOT NULL)"
+            )
+            db.execute(
                 "CREATE TABLE IF NOT EXISTS allocation_history (id INTEGER PRIMARY KEY, "
                 "recorded_at TEXT, window_id TEXT, final_reserve_micro INTEGER, "
                 "plan_sha256 TEXT, reason TEXT)"
@@ -76,16 +83,28 @@ class ModelBudget:
                 "CREATE TABLE IF NOT EXISTS budget_policy "
                 "(id INTEGER PRIMARY KEY CHECK(id=1), maximum_micro INTEGER, cutoff TEXT)"
             )
-            db.execute(
-                "INSERT OR IGNORE INTO budget_policy VALUES(1,?,?)",
-                (self.maximum, self.cutoff.isoformat()),
-            )
-            maximum, cutoff = db.execute(
+            if self.cutoff is not None:
+                db.execute(
+                    "INSERT OR IGNORE INTO budget_policy VALUES(1,?,?)",
+                    (self.maximum, self.cutoff.isoformat()),
+                )
+            policy = db.execute(
                 "SELECT maximum_micro,cutoff FROM budget_policy WHERE id=1"
             ).fetchone()
+            if policy is None:
+                raise BudgetExceeded("Existing cumulative budget policy required")
+            maximum, cutoff = policy
             # A resumed process cannot reset spent dollars or extend the original clock.
             self.maximum = min(self.maximum, maximum)
-            if window_id is None:
+            grant = db.execute(
+                "SELECT maximum_micro FROM budget_authorizations WHERE id=?", (window_id,)
+            ).fetchone()
+            if grant is not None:
+                self.maximum = min(self.maximum, grant[0])
+                # An optional caller cutoff may restrict, never extend, this grant.
+            elif self.cutoff is None:
+                raise BudgetExceeded("Budget-only authorization has not been explicitly registered")
+            elif window_id is None:
                 self.cutoff = min(self.cutoff, datetime.fromisoformat(cutoff))
             else:
                 window = db.execute(
@@ -95,6 +114,47 @@ class ModelBudget:
                     raise BudgetExceeded("New time window has not been explicitly registered")
                 self.starts_at = datetime.fromisoformat(window[0])
                 self.cutoff = min(self.cutoff, datetime.fromisoformat(window[1]))
+
+    def register_budget_authorization(
+        self, identifier, *, replaces_window_id, maximum_usd, authorization_sha256
+    ):
+        """Record explicit removal of a time limit without resetting cumulative spend.
+
+        Operator-only, never invoked by configuration, retry, or the model. The
+        maximum is an absolute cumulative cap, NOT additional money. Existing
+        timed authorizations and their original cutoff remain immutable.
+        """
+        maximum = int(Decimal(str(maximum_usd)) * 1_000_000)
+        if (
+            not identifier
+            or not 0 < maximum <= self.maximum
+            or len(authorization_sha256) != 64
+            or any(c not in "0123456789abcdef" for c in authorization_sha256)
+        ):
+            raise BudgetExceeded("Invalid separate budget-only authorization")
+        with self.connect() as db:
+            if not db.execute(
+                "SELECT 1 FROM authorized_windows WHERE id=?", (replaces_window_id,)
+            ).fetchone():
+                raise BudgetExceeded("Existing authorization to replace is required")
+            if db.execute("SELECT 1 FROM authorized_windows WHERE id=?", (identifier,)).fetchone():
+                raise BudgetExceeded("Authorization identifiers must be distinct")
+            values = (replaces_window_id, maximum, authorization_sha256)
+            old = db.execute(
+                "SELECT replaces_window_id,maximum_micro,authorization_sha256 "
+                "FROM budget_authorizations WHERE id=?",
+                (identifier,),
+            ).fetchone()
+            if old is not None:
+                if tuple(old) != values:
+                    raise BudgetExceeded("Registered authorization is immutable")
+                return
+            if db.execute("SELECT 1 FROM calls WHERE status='RESERVED'").fetchone():
+                raise BudgetExceeded("Reconcile outstanding requests before new authorization")
+            db.execute(
+                "INSERT INTO budget_authorizations VALUES(?,?,?,?,?)",
+                (identifier, *values, datetime.now(UTC).isoformat()),
+            )
 
     def register_authorized_window(self, identifier, *, starts_at, cutoff, authorization_sha256):
         """Explicit operator action for a NEW authorization; never rewrites old policy.
@@ -113,6 +173,10 @@ class ModelBudget:
         ):
             raise BudgetExceeded("Invalid separate bounded authorization")
         with self.connect() as db:
+            if db.execute(
+                "SELECT 1 FROM budget_authorizations WHERE id=?", (identifier,)
+            ).fetchone():
+                raise BudgetExceeded("Authorization identifiers must be distinct")
             original = db.execute("SELECT cutoff FROM budget_policy WHERE id=1").fetchone()[0]
             if start < datetime.fromisoformat(original):
                 raise BudgetExceeded("Separate window must not overlap the original mission")
@@ -142,8 +206,8 @@ class ModelBudget:
             )
         path = os.getenv("APPLICATION_MODEL_BUDGET_PATH")
         cutoff = os.getenv("APPLICATION_MODEL_CUTOFF_AT")
-        if not path or not cutoff:
-            raise BudgetExceeded("Durable model budget/cutoff is not configured")
+        if not path or (not cutoff and not os.getenv("APPLICATION_MODEL_WINDOW_ID")):
+            raise BudgetExceeded("Durable model budget/authorization is not configured")
         return cls(
             path,
             maximum_usd=os.getenv("APPLICATION_MODEL_BUDGET_USD", "0"),
@@ -168,7 +232,9 @@ class ModelBudget:
 
     def check_window(self):
         now = datetime.now(UTC)
-        if now >= self.cutoff or (self.starts_at and now < self.starts_at):
+        if (self.cutoff is not None and now >= self.cutoff) or (
+            self.starts_at and now < self.starts_at
+        ):
             raise BudgetExceeded("Absolute authorized model-call cutoff/window is closed")
         return now
 
@@ -345,6 +411,6 @@ class ModelBudget:
             "known_cost_usd": actual / 1_000_000,
             "conservative_committed_usd": conservative / 1_000_000,
             "maximum_usd": self.maximum / 1_000_000,
-            "cutoff": self.cutoff.isoformat(),
+            "cutoff": self.cutoff.isoformat() if self.cutoff is not None else None,
             "window_id": self.window_id,
         }
