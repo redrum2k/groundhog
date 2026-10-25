@@ -147,12 +147,16 @@ or changing the underlying financial policy.
 
 ## Verification
 
-- The final backend run covers blind review, incomplete/invalid evidence,
-  disagreement, timeout, lease bounds, interruption and the one-repair limit;
-  the final handoff records its completed count.
+- **512 focused backend tests passed**, including 13 semantic-review regressions
+  covering incomplete/invalid evidence, disagreement, timeout, lease bounds,
+  interruption and the one-repair limit. One dependency deprecation warning;
+  this is not a claim that the entire repository suite ran.
 - **153 frontend tests**, generated contracts, TypeScript and production build pass.
 - Ruff lint/format pass. Nikita's financial/checkout code and Lucas's UI are retained;
   no visual redesign or payment implementation changes were made.
+- Main through `96be3fc` is integrated into the local feature branch without
+  conflicts. Nikita's gateway, order/complaint contracts, payment modules and the
+  shared customer UI match main. The existing running demos were not changed.
 
 Audit saved evidence without model calls:
 

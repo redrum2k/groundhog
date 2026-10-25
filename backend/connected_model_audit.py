@@ -47,6 +47,12 @@ def audit(root):
         ).fetchone()[0]
         assert window_cost <= 5_000_000
     assert calls and all(r["status"] == "COMPLETE" for r in calls)
+    assert all(
+        datetime.fromisoformat(auth["start"])
+        <= datetime.fromisoformat(row["started_at"])
+        < datetime.fromisoformat(auth["cutoff"])
+        for row in calls
+    )
     assert sum(r["actual_micro_usd"] for r in calls) <= 5_000_000
     with sqlite3.connect((root / "orders.sqlite3").as_uri() + "?mode=ro", uri=True) as db:
         db.execute("BEGIN")
@@ -122,6 +128,11 @@ def audit(root):
                         row["status"],
                     )
             # Validate the actual accepted derived source, not just bundle inputs.
+            assert set(expected) == set(terms["coverage"]["expected_keys"])
+            assert all(
+                count is None if status != "released" else count >= terms["suppression_threshold"]
+                for _, count, status in expected.values()
+            )
             frozen = next(
                 s for s in order["sources"] if s["source_id"].endswith(":" + terms["category"])
             )
