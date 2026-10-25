@@ -24,18 +24,31 @@ export function OrbSlot({ name, orb, fallback }: { name: Stop; orb?: ReactNode; 
   );
 }
 
-/** The groundhog doesn't fly: a copy ducks into its burrow where it stood (`f`) and the burrow closes; meanwhile
- *  the real one waits under at its new slot, then climbs out of a burrow there. Returns how to cancel it. */
+const SETTLE = 60; // ms between looks at where the new slot is, while the view may still be scrolling to it
+
+/** The groundhog doesn't fly: a copy ducks into its burrow where it stood (`f`), scrolling away with the page if the
+ *  view is moving, and the burrow closes; meanwhile the real one waits under at its new slot and climbs out of a
+ *  burrow there, once the beat is over and the view has stopped scrolling. Returns how to cancel it. */
 function tunnelTo(el: HTMLElement, f: DOMRect) {
   const ghost = el.cloneNode(true) as HTMLElement;
   ghost.classList.add("orb-flyer");
-  ghost.style.transform = `translate(${f.left}px, ${f.top}px)`;
+  // anchored in the scrolling pane, not the viewport, so a smooth scroll carries it off like everything else
+  const pane = el.closest<HTMLElement>(".customer") ?? document.body;
+  const r = pane.getBoundingClientRect(); // a DOMRect's fields are getters, so no spreading it
+  const at = pane === document.body ? { left: -window.scrollX, top: -window.scrollY, scrollLeft: 0, scrollTop: 0 } : { left: r.left, top: r.top, scrollLeft: pane.scrollLeft, scrollTop: pane.scrollTop };
+  ghost.style.transform = `translate(${f.left - at.left + at.scrollLeft}px, ${f.top - at.top + at.scrollTop}px)`;
   el.classList.add("tunnel-under");
-  document.body.append(ghost);
+  pane.append(ghost);
   ghost.getBoundingClientRect(); // laid out standing first, so the dive is a transition and not a jump
   ghost.classList.add("tunnel-down");
+  let t = 0, last = NaN;
   const surface = () => { ghost.remove(); el.classList.remove("tunnel-under"); };
-  const t = window.setTimeout(surface, TUNNEL.dive + TUNNEL.under);
+  const settled = () => { // climbs out only once its slot has stopped moving
+    const top = el.getBoundingClientRect().top;
+    if (top === last) surface();
+    else { last = top; t = window.setTimeout(settled, SETTLE); }
+  };
+  t = window.setTimeout(settled, TUNNEL.dive + TUNNEL.under);
   return () => { window.clearTimeout(t); surface(); };
 }
 export const still = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
