@@ -9,9 +9,11 @@ import { IcLens, IcScroll } from "./icons";
 // a magnifier while investigating, sniff and look around while waiting on a human, squint happily
 // when the money lands. The class names stay the orb's so the canvas, guide and flyer styles still apply.
 // While investigating, a badge over its hat says "?" as it searches and "!" once it has found evidence.
-// Travel between places, in ms: it ducks all the way in and the burrow closes (dive), waits under (under),
-// then a burrow opens and it climbs out (rise). The burrow itself never moves. The CSS under .tunnel-* matches.
-export const TUNNEL = { dive: 620, under: 420, rise: 900 } as const;
+// Travel between places, in ms: it ducks all the way in and the burrow closes (dive), waits under until the run has
+// been quiet that long (under: a burst of quick steps is one trip, it surfaces at the last one), then a burrow opens
+// and it climbs out (rise). If a step starts while the burrow is only just opening, it shuts again (back). The burrow
+// itself never moves. The CSS under .tunnel-* matches.
+export const TUNNEL = { dive: 620, under: 1500, back: 200, rise: 900 } as const;
 
 export default function Orb({ mode, found }: { mode: OrbMode; found?: boolean }) {
   const clip = `gh-clip-${useId().replace(/:/g, "")}`;
