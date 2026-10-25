@@ -95,10 +95,6 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
       <div className="brand"><IcLogo className="logo" size={22}/><div><div className="wordmark">{S.us}</div><div className="seat">Financial agent for {S.broker}</div></div></div>
       <nav className="tabs" aria-label="Demo views"><button type="button" aria-pressed={tab==="run"} className={tab==="run"?"on":""} onClick={()=>navigate("run")}>Run</button><button type="button" aria-pressed={tab==="customer"} className={tab==="customer"?"on":""} onClick={customer}>Customer view</button></nav>
       <div className="top-r">
-        <div className="seg quiet" aria-label="Feed">
-          {recorded && <button type="button" onClick={recorded}>Recorded</button>}
-          <button type="button" className="on" aria-pressed>Live</button>
-        </div>
         <WalletSettings/>
       </div>
     </header>

@@ -112,12 +112,6 @@ export default function RunApp() {
           <button role="tab" aria-selected={tab === "customer"} className={tab === "customer" ? "on" : ""} onClick={() => setTab("customer")}>Customer view</button>
         </div>
         <div className="top-r">
-          {zoom && !learned && (
-            <div className="seg quiet" aria-label="Feed">
-              <button className={mode === "recorded" ? "on" : ""} onClick={() => { setMode("recorded"); start(run, { mode: "recorded" }); }}>Recorded</button>
-              <button className={mode === "live" ? "on" : ""} onClick={() => { setMode("live"); start(run, { mode: "live" }); }}>Live</button>
-            </div>
-          )}
           {/* who this order is for; "Customer" keeps it from reading as the signed-in account */}
           <div className="account">
             <span className="avatar" aria-hidden><IcSummit size={15} strokeWidth={1.6} /></span>
