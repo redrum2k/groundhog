@@ -1,4 +1,4 @@
-"""Pydantic source of truth for the existing DatumCo run canvas and live commands."""
+"""Pydantic source of truth for the existing Groundhog run canvas and live commands."""
 
 from typing import Annotated, Literal
 

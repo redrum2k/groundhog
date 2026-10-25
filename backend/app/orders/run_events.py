@@ -91,7 +91,7 @@ class CanvasEffects:
                 f"question:{draft.revision}",
                 type="step_waiting",
                 step="clarify",
-                waitingOn="AcmeFitness's answer",
+                waitingOn="Summit Fitness's answer",
             )
         if draft.specification:
             for r in draft.specification.requirements:
@@ -126,7 +126,7 @@ class CanvasEffects:
             step="clarify",
             contract={
                 "version": 1,
-                "buyer": "AcmeFitness",
+                "buyer": "Summit Fitness",
                 "title": quote.specification.summary,
                 "price": major_units(quote.amount.amount_minor, quote.amount.decimals),
                 "lines": [
@@ -317,7 +317,11 @@ class CanvasEffects:
             case.case_id,
             type="dispute_opened",
             step="investigate",
-            dispute={"id": case.case_id, "claim": case.complaint.text, "raisedBy": "AcmeFitness"},
+            dispute={
+                "id": case.case_id,
+                "claim": case.complaint.text,
+                "raisedBy": "Summit Fitness",
+            },
         )
         self.message(
             db,
