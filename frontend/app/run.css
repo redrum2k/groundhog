@@ -164,18 +164,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .edges g.hid { opacity: 0; }
 
 /* the source the agent reads during a dispute: a small database with the orb's eyes, and the queries coming out of it */
-.src { position: absolute; left: 0; top: 0; display: flex; align-items: flex-start; gap: 4px; pointer-events: none; }
-.src-glyph { width: 54px; height: 54px; flex: none; display: grid; place-items: center; }
-.wh-body { fill: color-mix(in srgb, var(--blue) 10%, var(--bg)); stroke: var(--blue); stroke-width: 1.4; }
-.wh-top { fill: color-mix(in srgb, var(--blue) 22%, var(--bg)); stroke: var(--blue); stroke-width: 1.4; }
-.wh-band { fill: none; stroke: var(--blue); stroke-width: 1.4; opacity: 0.45; }
-.wh-eyes rect { fill: var(--ink); }
-.wh-eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s 1.3s infinite; }
-.src-lines { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
-.src-l { display: inline-flex; align-items: center; gap: 7px; padding-right: 6px; background: var(--bg); font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); white-space: nowrap; }
-.src-l::before { content: ""; width: 16px; border-top: 1px dotted color-mix(in srgb, var(--blue) 55%, var(--line)); }
-.src-l svg { flex: none; }
-.src-l .spin2 { width: 8px; height: 8px; }
+.src { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 10px; margin-top: 2px; padding: 4px 10px 4px 2px; border-radius: 8px; background: var(--bg); pointer-events: none; } /* one quiet block: it hides the return edge behind it */
+.src-glyph { flex: none; display: grid; place-items: center; }
+.wh-body { fill: color-mix(in srgb, var(--blue) 6%, var(--bg)); stroke: var(--blue); stroke-width: 1.6; }
+.wh-top { fill: color-mix(in srgb, var(--blue) 14%, var(--bg)); stroke: var(--blue); stroke-width: 1.6; }
+.wh-band { fill: none; stroke: var(--blue); stroke-width: 1.6; opacity: 0.35; }
+.src-lines { display: flex; flex-direction: column; gap: 2px; }
+.src-l { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); white-space: nowrap; }
+.src-l svg { flex: none; color: var(--ink-3); }
+.src-l .spin2 { width: 8px; height: 8px; margin-inline: 1.5px; } /* as wide as the tick, so the line doesn't shift when it lands */
 :root[data-anim] .src { transition: opacity 220ms var(--ease-out), scale 220ms var(--ease-out); }
 :root[data-anim] .src-l { transition: opacity 220ms var(--ease-out), translate 220ms var(--ease-out); }
 @starting-style { :root[data-anim] .src { opacity: 0; scale: 0.96; } :root[data-anim] .src-l { opacity: 0; translate: 0 2px; } }
@@ -184,15 +181,15 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .orb-wrap { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 2; }
 :root[data-anim] .orb-wrap { transition: transform 1000ms var(--ease-in-out); }
 .orb { position: relative; display: block; width: 34px; height: 34px; }
+.orb svg { display: block; overflow: visible; }
+.orb-body { fill: var(--blue); }
+.orb-eyes rect { fill: #fff; }
 .orb-ears { fill: var(--blue); }
 .orb-ear-in { fill: #f3a9b9; }
 .orb-snout { fill: color-mix(in srgb, var(--blue) 72%, #fff); }
 .orb-nose { fill: var(--ink); }
 .orb-mouth { fill: none; stroke: var(--ink); stroke-width: 0.55; stroke-linecap: round; }
 .orb-glint { fill: #fff; opacity: 0.85; }
-.orb svg { display: block; overflow: visible; }
-.orb-body { fill: var(--blue); }
-.orb-eyes rect { fill: #fff; }
 .orb-specs { fill: none; stroke: var(--ink); stroke-width: 0.75; stroke-linecap: round; }
 .orb-hat { fill: #8c6239; }
 .orb-hat-band { fill: #5e3f22; }
@@ -406,8 +403,11 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .slot-decision, .slot-inspect { margin-left: auto; width: 34px; height: 0; align-self: center; }
 .slot-decision > .cust-orb, .slot-inspect > .cust-orb { position: absolute; top: -17px; left: 0; }
 /* in Summit's own view Summit writes on the right; our agent answers on the left, the orb beside its newest message */
+.customer .bub { max-width: 70%; } /* narrow enough that a long answer still reads as the left side */
 .customer .b-buyer { align-self: flex-end; }
-.customer .b-agent, .customer .b-controller { align-self: flex-start; margin-left: 42px; }
+.customer .b-agent, .customer .b-controller { align-self: flex-start; }
+/* the interview is the one chat the orb sits in, beside our newest message; it keeps the room for it, the others sit flush left */
+.customer .chat:has(.slot-transcript) :is(.b-agent, .b-controller) { margin-left: 42px; }
 .bub .slot-transcript { position: absolute; left: -42px; bottom: 0; width: 34px; height: 34px; }
 .slot-inspect { z-index: 3; } /* the inspector flies over the card's rows and checks */
 .cust-orb { display: block; pointer-events: none; }
@@ -455,7 +455,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .decision-t { font-size: 15px; }
 .decision-taken { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--green); }
 .decision-done { min-height: 34px; } /* as tall as the buttons it replaces, so the card doesn't shrink under the cursor */
-.decision-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.decision-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; scroll-margin-bottom: 32px; } /* scrolled to, the card's own bottom edge shows too */
 .decision-row { display: flex; gap: 8px; }
 .decision .sheet { margin: 0; }
 /* the delivered rows and the contract checks side by side, so both are judged at once */

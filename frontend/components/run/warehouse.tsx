@@ -1,11 +1,10 @@
-// The source the agent reads during a dispute: a small database in the orb's blue, with the orb's eyes.
-export default function Warehouse({ size = 54 }: { size?: number }) {
+// The source the agent reads during a dispute: a small database in the orb's blue.
+export default function Warehouse({ size = 36 }: { size?: number }) {
   return (
     <svg className="wh" width={size} height={size} viewBox="0 0 48 48" aria-hidden>
       <path d="M8 13v22c0 3.3 7.2 6 16 6s16-2.7 16-6V13" className="wh-body" />
       <path d="M8 24c0 3.3 7.2 6 16 6s16-2.7 16-6" className="wh-band" />
       <ellipse cx="24" cy="13" rx="16" ry="6" className="wh-top" />
-      <g className="wh-eyes"><rect x="17.5" y="17" width="4.5" height="6.5" rx="2.2" /><rect x="26" y="17" width="4.5" height="6.5" rx="2.2" /></g>
     </svg>
   );
 }

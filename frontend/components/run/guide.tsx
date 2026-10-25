@@ -4,7 +4,7 @@ import { createContext, useContext, useLayoutEffect, useRef, useState, type Reac
 import type { OrbMode } from "../../lib/run/fold";
 import Orb from "./orb";
 
-// The customer view's orb walks the buyer through the order: it waits beside Acme's open decision,
+// The customer view's orb walks the buyer through the order: it waits beside Summit's open decision,
 // inspects an objected delivery with its magnifier, and sits beside the interview while it asks.
 // Each place it can be is a slot; the orb lives in one slot at a time and flies between them.
 
@@ -42,7 +42,7 @@ function flyTo(el: HTMLElement, f: DOMRect) {
   const flight = animate(0, 1, { duration: 0.7, ease: EASE_IN_OUT, onUpdate: place, onComplete: land });
   return () => { flight.stop(); land(); };
 }
-const still = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+export const still = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 /** Moves the orb to `want` once that slot is on the page (home until then) and flies it there from where it stood.
  *  Within a stop it glides too, when its slot moves to a new element (beside the agent's newest message). */

@@ -94,9 +94,9 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
   const stepsWithWindow = (window: number | null): Step[] => MAIN.map((s) => s.kind === "review" ? { ...s, detail: window ? `${window}-minute review window` : "Accept or dispute" } : s.kind === "paid" ? { ...s, detail: `$${price} authorized` } : s);
   // What the agent reads at the source during a dispute: the engine re-runs every accepted line against the pinned vendor data and the delivery
   const sourceLines = (checked: boolean) => [
-    { id: "src-pin", text: `LOOKUP vendor panel v${sourceVersion} · pinned at acceptance`, checked },
-    { id: "src-lines", text: `CHECK ${lines().length} contract lines · against the source`, checked },
-    { id: "src-counts", text: "COMPARE delivered counts · with the source", checked },
+    { id: "src-pin", text: `Vendor panel v${sourceVersion} · as pinned at acceptance`, checked },
+    { id: "src-lines", text: `${lines().length} contract lines · against the source`, checked },
+    { id: "src-counts", text: "Delivered counts · against the source rows", checked },
   ];
   const closeDetour = () => {
     if (!detour) return;

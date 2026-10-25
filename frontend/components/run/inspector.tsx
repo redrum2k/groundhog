@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ContractLine, Evidence, ZipCount } from "../../lib/run/contract";
 import Orb from "./orb";
 
-// When Acme objects, the orb takes out a magnifier and reads the delivery through it, then flies to what
+// When Summit objects, the orb takes out a magnifier and reads the delivery through it, then flies to what
 // settles the objection: the contract term it rests on, or the term the data fails (red, with the row).
 
 export type Look = { term?: string; row?: string; failed: boolean };
