@@ -47,6 +47,8 @@ class ReviewView(Frozen):
     reason: str
     columns: tuple[str, ...]
     resolved: bool
+    actionable: bool = False
+    review_status: Literal["open", "resolved", "expired", "stale", "closed", "blocked"] = "closed"
 
 
 class CandidateView(Frozen):

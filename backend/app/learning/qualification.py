@@ -11,13 +11,124 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
+from app.agents import source_preparation
 from app.agents.source_knowledge import AuthorityHead, VendorExport
-from app.contracts.catalog import Artifact, RequestCommand, Source
+from app.catalog.preparation import PreparedSources
+from app.contracts.catalog import Artifact, QuoteRequest, RequestCommand, Source
+from app.contracts.dataset import DatasetSource
 from app.contracts.source_learning import BundleUpload, PartitionInput
 from app.datasets import canonical
 from app.learning.service import CORPUS, OPERATIONS, SourceLearning, implementation_digest
 from app.orders.catalog import CatalogService
+from app.orders.service import DomainError
 from app.storage.catalog import CatalogRepository
+
+
+def verify_composition(isolated, bundle, allowed, key, oracle_rows):
+    """Exercise the real adapter, then independently reopen its saved bytes/pins."""
+    service = isolated.service
+    draft = service.create_request(
+        RequestCommand(
+            prompt="SF adults 25-34, gym membership or fitness app use, counts by ZIP.",
+            corpus_id=CORPUS,
+            idempotency_key=key,
+        )
+    )
+    cases = isolated.cases(draft.request_id, bundle)
+    engine = isolated.engine(allowed)
+    results = [engine.assess(case) for case in cases]
+    draft = source_preparation.compile_composed_sources(
+        engine,
+        tuple(r["encounter_id"] for r in results),
+        idempotency_key=key + ":compile",
+    )
+    with service.repository.transaction() as db:
+        prepared = service.repository.load(
+            db, "prepared_sources", draft.request_id, PreparedSources
+        )
+    prefix = f"{CORPUS}:prepared:{draft.request_id}:"
+    sources = {s.source_id: s for s in prepared.sources}
+    derived = sources[prefix + cases[0].scope.category]
+    normalized = DatasetSource.model_validate_json(service.store.read(derived.artifact))
+    actual = {row.zip: (row.area, row.count, row.status) for row in normalized.rows}
+    if len(normalized.rows) != len(actual) or actual != oracle_rows:
+        raise ValueError("composed rows differ from independently read source bytes")
+    scope = cases[0].scope
+    if (
+        normalized.source_id,
+        normalized.version,
+        normalized.edition,
+        normalized.geography,
+        normalized.age_min,
+        normalized.age_max,
+        normalized.category,
+        normalized.population,
+        normalized.count_unit,
+        normalized.groups_disjoint,
+    ) != (
+        derived.source_id,
+        derived.version,
+        derived.edition,
+        scope.geography,
+        scope.age_min,
+        scope.age_max,
+        scope.category,
+        "synthetic_adults",
+        cases[0].desired_unit,
+        True,
+    ):
+        raise ValueError("composed source changed its authorized scope")
+    expected = {
+        s.source_id: s
+        for s in service.registry.manifest(CORPUS)
+        if s.source_id != CORPUS + ":" + scope.category
+    }
+    expected[derived.source_id] = derived
+    for index, result in enumerate(results):
+        if result["resolution_id"]:
+            resolution = isolated.memory.get("source_resolution", result["resolution_id"])
+            proof = Artifact.model_validate(resolution["evidence"])
+            attached = sources[prefix + f"schema-resolution-{index}"]
+            if attached.artifact != proof:
+                raise ValueError("composition omitted or substituted owner evidence")
+            service.store.read(proof)
+            expected[attached.source_id] = attached
+    lineage_source = sources[prefix + "schema-lineage"]
+    lineage = json.loads(service.store.read(lineage_source.artifact))
+    if (
+        lineage["operations"] != list(OPERATIONS)
+        or lineage["derived"] != derived.model_dump(mode="json")
+        or lineage["components"]
+        != [
+            {
+                "encounter_id": r["encounter_id"],
+                "binding": r["binding"],
+                "citations": r["citations"],
+                "procedure_id": r["procedure_id"],
+            }
+            for r in results
+        ]
+    ):
+        raise ValueError("composition evidence lineage differs from its assessed inputs")
+    expected[lineage_source.source_id] = lineage_source
+    if sources != expected or len(sources) != len(prepared.sources):
+        raise ValueError("composition selected the wrong source or evidence set")
+    quote = service.issue_quote(
+        draft.request_id,
+        QuoteRequest(
+            expected_revision=draft.revision,
+            idempotency_key=key + ":quote",
+        ),
+    )
+    if quote.sources != prepared.sources:
+        raise ValueError("quote lost composed source selection")
+    return {
+        "request_id": draft.request_id,
+        "derived_sha256": derived.artifact.sha256,
+        "lineage_sha256": lineage_source.artifact.sha256,
+        "rows": len(actual),
+        "independently_verified": True,
+    }
 
 
 def qualify(owner, candidate):
@@ -155,6 +266,7 @@ def qualify(owner, candidate):
                 if row["zip"] in oracle_rows:
                     violations.append("oracle_partition_overlap")
                 oracle_rows[row["zip"]] = (
+                    row["area"],
                     row["values"][columns[source_bytes["source_family"]]],
                     row["status"],
                 )
@@ -164,11 +276,24 @@ def qualify(owner, candidate):
             results = [isolated.engine(allowed).assess(case) for case in cases]
             ready = all(result["internal_reviews"] == 0 for result in results)
             actual = {
-                row["zip"]: (row["count"], row["status"])
+                row["zip"]: (row["area"], row["count"], row["status"])
                 for result in results
                 for row in (result["normalized"]["rows"] if result["normalized"] else [])
             }
             verified = ready == expected_ready[arm] and (not ready or actual == oracle_rows)
+            composition = None
+            if ready:
+                try:
+                    composition = verify_composition(
+                        isolated,
+                        isolated.bundle(),
+                        allowed,
+                        f"{seed}:{index}:{arm}",
+                        oracle_rows,
+                    )
+                except (ValueError, KeyError, DomainError) as error:
+                    verified = False
+                    composition = {"independently_verified": False, "error": str(error)}
             valid &= verified
             reviews = sum(r["internal_reviews"] for r in results)
             operations = sum(len(r["tool_operations"]) for r in results)
@@ -181,6 +306,7 @@ def qualify(owner, candidate):
                 "machine_operations": operations,
                 "source_hashes": [case.source.artifact.sha256 for case in cases],
                 "encounter_ids": [r["encounter_id"] for r in results],
+                "composition": composition,
             }
         correct += int(valid)
         if not valid:

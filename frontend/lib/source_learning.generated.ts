@@ -75,12 +75,14 @@ export interface QualificationView {
   violations: string[];
 }
 export interface ReviewView {
+  actionable?: boolean;
   authority_sha256: string;
   columns: string[];
   encounter_id: string;
   reason: string;
   request_id: string;
   resolved: boolean;
+  review_status?: "open" | "resolved" | "expired" | "stale" | "closed" | "blocked";
   source_family: string;
   source_sha256: string;
 }

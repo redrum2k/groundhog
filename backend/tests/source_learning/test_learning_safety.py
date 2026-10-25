@@ -291,3 +291,159 @@ def test_failed_owner_command_does_not_commit_training_evidence(live, monkeypatc
     assert learning.resolve(command, OWNER) == result
     assert len(learning.memory.records("source_resolution")) == 1
     assert len(learning.memory.records("source_procedure")) == 1
+
+
+def test_concurrent_changed_owner_command_cannot_leave_rejected_evidence(live):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    service, learning = live
+    learning.publish(example_bundle(service.clock()), "worker")
+    request = create(service, "concurrent-owner-command")
+    compile(service, request, "hold")
+    review = learning.state().reviews[0]
+    barrier = Barrier(2)
+
+    def submit(column):
+        barrier.wait(timeout=5)
+        try:
+            return learning.resolve(
+                ResolveSource(
+                    idempotency_key="same-key",
+                    encounter_id=review.encounter_id,
+                    column=column,
+                    explanation="Simulated competing owner command.",
+                ),
+                OWNER,
+            )
+        except DomainError as error:
+            return error
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(submit, ("v_count", "v_devices")))
+    assert sum(isinstance(r, DomainError) for r in results) == 1
+    assert len(learning.memory.records("source_resolution")) == 1
+    assert len(learning.memory.records("source_procedure")) == 1
+
+
+@pytest.mark.parametrize("stage", ["quote", "accept"])
+@pytest.mark.parametrize("second_source", ["public_definition", "owner_answer"])
+def test_mixed_preparation_retains_revocable_learning_dependency(live, stage, second_source):
+    from app.catalog.preparation import PreparedSources
+    from app.contracts.source_learning import BundleUpload
+
+    service, learning = live
+    _, candidate = trained(live)
+    version = activate(learning, candidate)
+    bundle = example_bundle(service.clock(), 2).model_dump(mode="json")
+    authority = bundle["partitions"][1]["authority"]
+    authority["epoch"] = "new-second-partition-authority"
+    if second_source == "public_definition":
+        authority["definitions"] = [{"column": "p_adults", "unit": "unique_adults_per_zip"}]
+    learning.publish(BundleUpload.model_validate(bundle), "worker")
+    request = create(service, "mixed-sources")
+    draft = compile(service, request, "mixed-compile")
+    if second_source == "owner_answer":
+        review = next(r for r in learning.state().reviews if r.request_id == request)
+        learning.resolve(
+            ResolveSource(
+                idempotency_key="new-second-source-answer",
+                encounter_id=review.encounter_id,
+                column="p_adults",
+                explanation="Current simulated owner evidence.",
+            ),
+            OWNER,
+        )
+        draft = compile(service, request, "after-second-answer")
+    assert draft.status == "ready"
+    with service.repository.transaction() as db:
+        prepared = service.repository.load(db, "prepared_sources", request, PreparedSources)
+        assert prepared.learning_version == version
+    assert not any(
+        e.kind == "knowledge_reused" and e.request_id == request for e in learning.state().events
+    )
+    if stage == "accept":
+        quote = service.issue_quote(
+            request, QuoteRequest(expected_revision=draft.revision, idempotency_key="quote")
+        )
+    learning.transition(
+        LearningCommand(idempotency_key="revoke", target_id=version), "controller", "revoke"
+    )
+    with pytest.raises(DomainError, match="no longer active"):
+        if stage == "quote":
+            service.issue_quote(
+                request, QuoteRequest(expected_revision=draft.revision, idempotency_key="quote")
+            )
+        else:
+            service.accept_quote(
+                AcceptQuoteCommand(
+                    quote_id=quote.quote_id, customer_actor="buyer", idempotency_key="accept"
+                )
+            )
+
+
+@pytest.mark.parametrize("change", ["expired", "stale"])
+def test_obsolete_reviews_remain_history_but_are_not_actionable(live, change):
+    from datetime import timedelta
+
+    service, learning = live
+    learning.publish(example_bundle(service.clock()), "worker")
+    request = create(service, "obsolete-review")
+    compile(service, request, "hold")
+    if change == "expired":
+        service.clock.now += timedelta(minutes=6)
+    else:
+        learning.publish(example_bundle(service.clock(), 2), "worker")
+    reviews = [r for r in learning.state().reviews if r.request_id == request]
+    assert len(reviews) == 2
+    assert all(not r.actionable and r.review_status == change for r in reviews)
+
+
+@pytest.mark.parametrize("defect", ["rows", "evidence"])
+def test_qualification_rejects_broken_real_composition(live, monkeypatch, defect):
+    import json
+
+    from app.agents import source_preparation
+    from app.catalog.preparation import PreparedSources
+    from app.datasets import canonical
+
+    service, learning = live
+    _, candidate = trained(live)
+    real = source_preparation.compile_composed_sources
+    calls = []
+
+    def broken(engine, encounter_ids, **kwargs):
+        draft = real(engine, encounter_ids, **kwargs)
+        calls.append(draft.request_id)
+        with engine.service.repository.transaction() as db:
+            prepared = engine.service.repository.load(
+                db, "prepared_sources", draft.request_id, PreparedSources
+            )
+            sources = list(prepared.sources)
+            if defect == "rows":
+                index = next(
+                    i
+                    for i, s in enumerate(sources)
+                    if ":prepared:" in s.source_id and s.source_id.endswith(":gym_or_fitness_app")
+                )
+                raw = json.loads(engine.service.store.read(sources[index].artifact))
+                raw["rows"] = raw["rows"][:-1]
+                artifact = engine.service.store.put(canonical(raw), "application/json")
+                sources[index] = sources[index].model_copy(update={"artifact": artifact})
+            else:
+                sources = [s for s in sources if not s.source_id.endswith(":schema-lineage")]
+            engine.service.repository.put(
+                db,
+                "prepared_sources",
+                draft.request_id,
+                prepared.model_copy(update={"sources": tuple(sources)}),
+            )
+        return draft
+
+    monkeypatch.setattr(source_preparation, "compile_composed_sources", broken)
+    result = learning.qualify(
+        LearningCommand(idempotency_key="broken-join", target_id=candidate), "controller"
+    )
+    assert calls, "qualification must execute the production composition adapter"
+    assert result.status == "REJECTED"
+    assert not learning.state().qualification.passed

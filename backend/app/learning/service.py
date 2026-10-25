@@ -352,6 +352,13 @@ class SourceLearning:
             and all(r["procedure_id"] in version["component_ids"] for r in results)
             else None
         )
+        # Partial reuse still depends on approval. Keep the consent/revocation
+        # guard even when we cannot attribute the whole bundle to this version.
+        dependent_version = (
+            version
+            if version and any(r["procedure_id"] in version["component_ids"] for r in results)
+            else None
+        )
         with self.service.repository.transaction() as db:
             current = self.service.repository.load(db, "request", request_id, RequestDraft)
             if current.revision != draft.revision or current.status != "compiling":
@@ -405,7 +412,7 @@ class SourceLearning:
             engine,
             tuple(r["encounter_id"] for r in results),
             idempotency_key=command.idempotency_key,
-            learning_version=reused_version["id"] if reused_version else None,
+            learning_version=dependent_version["id"] if dependent_version else None,
             compile_fingerprint=fingerprint,
         )
         with self.service.repository.transaction() as db:
@@ -667,6 +674,7 @@ class SourceLearning:
                 raw = VendorExport.model_validate_json(
                     self.service.store.read(case.source.artifact)
                 )
+                review_status = self.review_status(case, encounter, resolved)
                 reviews.append(
                     ReviewView(
                         encounter_id=encounter["id"],
@@ -677,6 +685,8 @@ class SourceLearning:
                         columns=raw.columns,
                         reason=encounter["result"]["reason"],
                         resolved=encounter["id"] in resolved,
+                        review_status=review_status,
+                        actionable=review_status == "open",
                     )
                 )
         with self.service.repository.transaction() as db:
@@ -713,3 +723,31 @@ class SourceLearning:
             if reports
             else None,
         )
+
+    def review_status(self, case, encounter, resolved):
+        if encounter["id"] in resolved:
+            return "resolved"
+        with self.service.repository.transaction() as db:
+            draft = self.service.repository.load(db, "request", case.request_id, RequestDraft)
+            if self.service.clock() >= draft.deadline:
+                return "expired"
+            if draft.status not in ("compiling", "human_review"):
+                return "closed"
+            current = self.service.registry.manifest(draft.corpus_id, db)
+            if case.source not in current or case.authority not in current:
+                return "stale"
+            from app.agents.source_knowledge import AuthorityHead
+
+            head = AuthorityHead.model_validate_json(
+                self.service.store.read(case.authority.artifact)
+            )
+            if self.service.clock() >= head.valid_until:
+                return "expired"
+            if (
+                head.status != "active"
+                or encounter["result"]["reason"] != "ambiguous_source_definition"
+            ):
+                return "blocked"
+            if draft.status == "human_review" and draft.error != "Source-owner review required.":
+                return "closed"
+            return "open"

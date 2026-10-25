@@ -1,13 +1,13 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import SourceLearning from "../components/run/source-learning";
 import { bridge } from "../lib/live-bridge";
 
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 
 const state = {
   enabled: true, mode: "controlled_local_mock", disclosure: "Simulated identities; mock funding only.",
-  reviews: [{ encounter_id: "e1", request_id: "r1", source_family: "partition-a", source_sha256: "a".repeat(64), authority_sha256: "b".repeat(64), reason: "ambiguous_source_definition", columns: ["v_count", "v_devices"], resolved: false }],
+  reviews: [{ encounter_id: "e1", request_id: "r1", source_family: "partition-a", source_sha256: "a".repeat(64), authority_sha256: "b".repeat(64), reason: "ambiguous_source_definition", columns: ["v_count", "v_devices"], resolved: false, actionable: true, review_status: "open" }],
   candidates: [], versions: [], events: [], active_version: null,
 };
 
@@ -27,6 +27,30 @@ it("requires an explicit owner column and evidence explanation, then submits the
   expect(body).toMatchObject({ encounter_id: "e1", column: "v_count", applicability: "source_edition" });
   expect(body).not.toHaveProperty("actor");
   expect(body.idempotency_key).toBeTruthy();
+});
+
+it("stops polling a disabled backend and permits an explicit availability retry", async () => {
+  vi.useFakeTimers();
+  const fetch = vi.fn(async () => Response.json({detail: "controlled local source learning is not enabled"}, {status: 503}));
+  vi.stubGlobal("fetch", fetch);
+  render(<SourceLearning openRun={vi.fn()} />);
+  await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+  expect(fetch).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByRole("button", {name: /Source learning/}));
+  fireEvent.click(screen.getByRole("button", {name: "Check learning availability"}));
+  await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
+  expect(fetch).toHaveBeenCalledTimes(2);
+});
+
+it("retains stale reviews as history without a resolve control or actionable count", async () => {
+  vi.stubGlobal("fetch", vi.fn(async () => Response.json({...state, reviews: [
+    {...state.reviews[0], actionable: false, review_status: "stale"},
+  ]})));
+  render(<SourceLearning openRun={vi.fn()} />);
+  fireEvent.click(await screen.findByRole("button", {name: "Source learning"}));
+  expect(await screen.findByText("Review history")).toBeTruthy();
+  expect(screen.getByText(/Review status: stale/)).toBeTruthy();
+  expect(screen.queryByRole("button", {name: "Source owner: resolve"})).toBeNull();
 });
 
 it("shows persisted active versions and measured qualification instead of playback events", async () => {

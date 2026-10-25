@@ -15,6 +15,17 @@ event and retry receipt now commit atomically. These changes require fresh
 qualification before replacing the running demo; the historical live evidence
 below is not relabeled as a run of the revised implementation.
 
+Greptile's first PR #29 pass identified six findings (2/5). The review branch also
+retains an approval dependency for mixed learned/public/owner-resolved bundles,
+executes the real composition adapter and quote path in qualification, independently
+checks persisted joined rows and all source/proof/lineage attachments, stops UI
+polling on the explicit disabled capability response, and keeps expired/stale
+reviews in non-actionable history. Regression tests include concurrent changed-key
+owner commands, event-write rollback, mixed-bundle quote/acceptance after revocation,
+code-upgrade consent checks, corrupted joined output/missing evidence, disabled
+polling, and stale review controls. The initial review and failures are preserved;
+the latest score must be read from the review for the current PR head.
+
 ## Running application and observed result
 
 - Frontend: **http://127.0.0.1:3026/live**. Open **Learning active** at bottom left.

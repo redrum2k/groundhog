@@ -6269,6 +6269,11 @@
       "ReviewView": {
         "additionalProperties": false,
         "properties": {
+          "actionable": {
+            "default": false,
+            "title": "Actionable",
+            "type": "boolean"
+          },
           "authority_sha256": {
             "title": "Authority Sha256",
             "type": "string"
@@ -6295,6 +6300,19 @@
           "resolved": {
             "title": "Resolved",
             "type": "boolean"
+          },
+          "review_status": {
+            "default": "closed",
+            "enum": [
+              "open",
+              "resolved",
+              "expired",
+              "stale",
+              "closed",
+              "blocked"
+            ],
+            "title": "Review Status",
+            "type": "string"
           },
           "source_family": {
             "title": "Source Family",

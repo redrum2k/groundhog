@@ -3362,6 +3362,11 @@ export interface components {
         };
         /** ReviewView */
         ReviewView: {
+            /**
+             * Actionable
+             * @default false
+             */
+            actionable?: boolean;
             /** Authority Sha256 */
             authority_sha256: string;
             /** Columns */
@@ -3374,6 +3379,12 @@ export interface components {
             request_id: string;
             /** Resolved */
             resolved: boolean;
+            /**
+             * Review Status
+             * @default closed
+             * @enum {string}
+             */
+            review_status?: "open" | "resolved" | "expired" | "stale" | "closed" | "blocked";
             /** Source Family */
             source_family: string;
             /** Source Sha256 */

@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { LearningResult, LearningState, ReviewView } from "../../lib/source_learning.generated";
-import { jsonRequest } from "../../lib/run/live";
+import { jsonRequest, RunError } from "../../lib/run/live";
 import styles from "./source-learning.module.css";
 
 export default function SourceLearning({ openRun }: { openRun: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<LearningState>();
   const [error, setError] = useState<string>();
+  const [disabled, setDisabled] = useState(false);
   const [busy, setBusy] = useState(false);
   const [source, setSource] = useState("");
   const [refresh, setRefresh] = useState(0);
@@ -26,9 +27,15 @@ export default function SourceLearning({ openRun }: { openRun: (id: string) => v
         const result = await jsonRequest<LearningState>("/source-learning/state", undefined, undefined, abort.signal);
         if (abort.signal.aborted) return;
         setState(result);
+        setDisabled(false);
       } catch (err) {
         if (abort.signal.aborted) return;
         setError(err instanceof Error ? err.message : "Learning state unavailable");
+        if (err instanceof RunError && err.status === 503 && err.message === "controlled local source learning is not enabled") {
+          setState(undefined);
+          setDisabled(true);
+          return; // Disabled is a capability result, not a transient polling error.
+        }
       }
       if (!abort.signal.aborted) timer = setTimeout(poll, 1000);
     };
@@ -56,7 +63,8 @@ export default function SourceLearning({ openRun }: { openRun: (id: string) => v
     try { void command("sources", JSON.parse(source)); }
     catch { setError("Supply a valid synthetic source-bundle JSON document."); }
   };
-  const unresolved = state?.reviews?.filter(review => !review.resolved) ?? [];
+  const unresolved = state?.reviews?.filter(review => review.actionable && !review.resolved) ?? [];
+  const history = state?.reviews?.filter(review => !review.actionable || review.resolved) ?? [];
   return <div className={styles.root}>
     <button type="button" className="btn" aria-expanded={open} onClick={() => setOpen(value => !value)}>
       {state?.active_current ? "Learning active" : "Source learning"}{unresolved.length ? ` · ${unresolved.length} reviews` : ""}
@@ -64,19 +72,21 @@ export default function SourceLearning({ openRun }: { openRun: (id: string) => v
     {open && <section className={styles.panel} aria-label="Persistent source learning">
       <header><div><span className="faint">Controlled local demonstration</span><h2>Learning from human interventions</h2></div>
         <button type="button" className="btn" onClick={() => setOpen(false)}>Close learning</button></header>
-      <p>{state?.disclosure ?? "Connecting to the running application…"}</p>
+      <p>{disabled ? "Source learning is disabled for this backend." : state?.disclosure ?? "Connecting to the running application…"}</p>
+      {disabled && <button type="button" className="btn" onClick={() => { setError(undefined); setRefresh(value => value + 1); }}>Check learning availability</button>}
       <p><strong>{state?.active_current ? "Approved learning is enabled" : state?.active_version ? "Requalification required after code change" : "No procedure active yet"}</strong><br />
         <small>Customer consent, agreed scope, prices and payment permissions never change.</small></p>
       {error && <p role="alert" className={styles.error}>{error}</p>}
       {state?.active_version && <details><summary>Active version</summary><code>{state.active_version}</code></details>}
       <details><summary>Supply new synthetic source bytes</summary>
         <label>Source bundle JSON<textarea aria-label="Source bundle JSON" value={source} onChange={event => setSource(event.target.value)} rows={5} /></label>
-        <button type="button" className="btn" disabled={busy || !source.trim()} onClick={upload}>Receive source bundle</button>
+        <button type="button" className="btn" disabled={busy || !state?.enabled || !source.trim()} onClick={upload}>Receive source bundle</button>
         <p>Then start an ordinary brokerage request using the existing Agreement panel.</p>
       </details>
       <h3>Source-owner reviews</h3>
       {!unresolved.length && <p>No unresolved source-owner review is recorded.</p>}
       {unresolved.map(review => <OwnerReview key={review.encounter_id} review={review} busy={busy} command={command} openRun={openRun} />)}
+      {!!history.length && <details><summary>Review history</summary>{history.map(review => <OwnerReview key={review.encounter_id} review={review} busy={busy} command={command} openRun={openRun} />)}</details>}
       <h3>Learn and qualify</h3>
       <button type="button" className="btn" disabled={busy || !state?.bundle_id} onClick={() => void command("propose", { target_id: state?.bundle_id })}>Derive composed procedure</button>
       {state?.candidates?.map(candidate => <article key={candidate.id}>
@@ -124,9 +134,10 @@ function OwnerReview({ review, busy, command, openRun }: {
   const [explanation, setExplanation] = useState("");
   return <article>
     <strong>{review.source_family}</strong><p>{review.reason.replaceAll("_", " ")}</p>
+    <p>Review status: {review.review_status}</p>
     <details><summary>Exact source / authority hashes</summary><code>{review.source_sha256}</code><code>{review.authority_sha256}</code><code>{review.encounter_id}</code></details>
     <button type="button" className="btn" onClick={() => openRun(review.request_id)}>Open order</button>
-    {review.reason === "ambiguous_source_definition" && <>
+    {review.actionable && !review.resolved && review.reason === "ambiguous_source_definition" && <>
       <label>Unique-adult count column<select aria-label={`Count column for ${review.source_family}`} value={column} onChange={event => setColumn(event.target.value)}>
         <option value="">Choose from owner evidence</option>{review.columns.map(value => <option key={value} value={value}>{value}</option>)}
       </select></label>
