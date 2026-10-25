@@ -24,14 +24,27 @@ def audit(root):
     assert results["restart_verified"] and results["source_sha256"] == plan["source_sha256"]
     access = load(ROOT / ".local/llm-access.json")
     auth = access["authorization"]
+    start = load(root / "supervisor.json")["started"]
+    final_supervisor = root / "recovery-supervisor.json"
+    if not final_supervisor.exists():
+        final_supervisor = root / "supervisor.json"
+    end = load(final_supervisor)["ended"]
     with sqlite3.connect(Path(auth["ledger"]).as_uri() + "?mode=ro", uri=True) as ledger:
         ledger.row_factory = sqlite3.Row
         calls = [
             dict(r)
             for r in ledger.execute(
-                "SELECT * FROM calls WHERE window_id=? ORDER BY started_at", (auth["window"],)
+                "SELECT * FROM calls WHERE window_id=? AND started_at>=? AND started_at<=? "
+                "ORDER BY started_at",
+                (auth["window"], start, end),
             )
         ]
+        window_cost = ledger.execute(
+            "SELECT sum(coalesce(actual_micro_usd,reserved_micro_usd)) "
+            "FROM calls WHERE window_id=?",
+            (auth["window"],),
+        ).fetchone()[0]
+        assert window_cost <= 5_000_000
     assert calls and all(r["status"] == "COMPLETE" for r in calls)
     assert sum(r["actual_micro_usd"] for r in calls) <= 5_000_000
     with sqlite3.connect((root / "orders.sqlite3").as_uri() + "?mode=ro", uri=True) as db:
@@ -173,15 +186,34 @@ def audit(root):
                     if block["type"] == "text"
                 )
                 assert json.loads(provider_text)["result"] == outcome["raw"]
-                responses.append(assessment["raw_response"])
                 assert assessment["candidate"]["provenance"]["kind"] == "model"
-                for key in ("candidate", "effective"):
-                    for ref in (
-                        *assessment[key]["citations"],
-                        *assessment[key]["conflicting_evidence"],
-                    ):
-                        exact_cell(root, order, ref)
-                        references += 1
+                all_attempts = root / (label + "-attempts.json")
+                attempts = load(all_attempts) if all_attempts.exists() else [assessment]
+                assert not load(root / (label + "-assessed.json"))["order"]["ledger"]
+                for saved in attempts:
+                    assert saved["order_id"] == info["order_id"]
+                    assert (
+                        saved["accepted_specification_sha256"]
+                        == hashlib.sha256(specification).hexdigest()
+                    )
+                    responses.append(saved["raw_response"])
+                    for key in ("candidate", "effective"):
+                        for ref in (*saved[key]["citations"], *saved[key]["conflicting_evidence"]):
+                            exact_cell(root, order, ref)
+                            references += 1
+                    if saved.get("review_response"):
+                        responses.append(saved["review_response"])
+                        review = saved["review"]
+                        if saved["status"] == "VALIDATED":
+                            assert review["result"] == saved["candidate"]["result"]
+                            assert " ".join(
+                                " ".join(c["text"] for c in review["clauses"]).split()
+                            ) == " ".join(saved["review_request"]["complaint"].split())
+                            for clause in review["clauses"]:
+                                assert clause["result"] == review["result"] and clause["citations"]
+                                for ref in clause["citations"]:
+                                    exact_cell(root, order, ref)
+                                    references += 1
             operations = [
                 json.loads(r[0])
                 for r in db.execute(
@@ -197,9 +229,14 @@ def audit(root):
                 for op in operations
             )
             terminals = [op for op in operations if op["intent"]["action"] != "fund"]
-            if label in ("training", "missing-zip"):
+            if label in ("training", "missing-zip", "excluded-population"):
                 assert len(terminals) == len(order["ledger"]) == 1
                 assert order["ledger"][0]["kind"] == "capture"
+            elif plan["attempt"] == "semantic-v1":
+                assert len(terminals) == len(order["ledger"]) == 1
+                assert order["ledger"][0]["kind"] == "release"
+                assert len(order["decisions"]) == 1
+                assert order["decisions"][0]["action"] == "release_authorization"
             else:
                 assert not terminals and not order["ledger"]
             observed.append(
@@ -231,6 +268,7 @@ def audit(root):
         "cases": results["cases"],
         "observations": observed,
         "model_calls": len(calls),
+        "total_authorized_window_cost_usd": window_cost / 1e6,
         "cost_usd": sum(r["actual_micro_usd"] for r in calls) / 1e6,
         "citations_independently_checked": references,
         "combined_qualification_passed": all(

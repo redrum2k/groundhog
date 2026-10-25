@@ -279,7 +279,7 @@ class ConnectedJourney(Journey):
                 self.settle_review(label, oid)
                 break
             if page["evidence_request"]:
-                prior = len(view["order"]["semantic_findings"])
+                prior = view["order"]["cases"][-1]["questions_asked"]
                 self.command(
                     f"/runs/{run}/answers",
                     {
@@ -296,7 +296,14 @@ class ConnectedJourney(Journey):
                 )
                 self.wait(
                     lambda: self.order(oid),
-                    lambda v, previous=prior: len(v["order"]["semantic_findings"]) > previous,
+                    lambda v, previous=prior: (
+                        bool(v["order"]["semantic_findings"])
+                        and (
+                            v["order"]["cases"][-1]["questions_asked"] > previous
+                            or v["order"]["order_state"] == "human_review"
+                            or v["order"]["cases"][-1]["status"] == "unsupported"
+                        )
+                    ),
                 )
                 continue
             assert any(a["action"] == "approve" and a["enabled"] for a in page["available_actions"])
@@ -382,7 +389,11 @@ def child(root, recover=False):
             {
                 "runtime_unchanged": True,
                 "harness_commit": plan["git_commit"],
-                "cause": "Harness compared Money object to string",
+                "cause": (
+                    "Harness waited for finding count to grow although answer invalidation replaces findings"
+                    if root.name == "semantic-v1"
+                    else "Harness compared Money object to string"
+                ),
             },
         )
     else:
