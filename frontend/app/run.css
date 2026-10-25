@@ -617,17 +617,9 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .wallet-account { margin-top: 20px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; }
 .wallet-account p { margin: 4px 0 0; overflow-wrap: anywhere; }
 .wallet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-.live-shell .top { display: grid; grid-template-columns: minmax(0, max-content) auto minmax(0, 1fr); align-items: start; gap: 12px 28px; padding-block: 12px; }
-.live-shell .brand { align-items: flex-start; }
+/* /live shares /demo's header: brand and tabs on the brand's last line, account at normal two-line spacing */
+.live-shell .top { flex-wrap: wrap; }
 .live-shell .brand > div { min-width: 0; }
-.live-shell .brand .logo { margin-top: 5px; display: block; }
-.live-shell .wordmark { line-height: 32px; }
-.live-shell .seat { line-height: 18px; }
-.live-shell .tabs button { height: 32px; }
-.live-shell .top-r { min-height: 32px; justify-self: end; align-items: flex-start; }
-.live-shell .account-btn { margin: 0; padding-block: 0; min-height: 32px; align-items: flex-start; }
-.live-shell .account-n { line-height: 32px; }
-.live-shell .account-r { line-height: 18px; }
 .live-shell:has(> .tools-err) { grid-template-rows: auto auto auto minmax(0, 1fr); }
 .live-shell > .tools-err { display: flex; align-items: center; gap: 12px; padding: 8px 20px; }
 .live-shell > .tools-err .btn { height: 28px; padding: 0 12px; color: var(--ink); font-size: 13px; }
