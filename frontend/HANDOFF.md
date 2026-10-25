@@ -1,6 +1,6 @@
 # Current integration pickup
 
-The Groundhog run canvas is at `/`, with retained broker live-demo and recorded
+The Groundhog run canvas is at `/demo` (redrum moved Nikita's live checkout to `/` on Oct 24 night), with retained broker live-demo and recorded
 feeds. The funded aggregate intake is at `/live`; these are distinct backend
 profiles. Use [workstream 06](../docs/workstreams/06-data-broker.md) for production
 local-demo commands, generated contracts, signing/events/actions and smoke tests.
@@ -260,7 +260,7 @@ Measured live with scripted parties: redrum's flow 28 seconds unattended, the es
 ## Merge with main, Oct 24 evening
 
 Main brought Nikita's aggregate brokerage: generated wire types (`lib/runs.generated.ts`, `lib/run/contract.ts` now re-exports them), a form-based intake `components/run/live-run.tsx` against `/api/live` (server-only bridge, needs `BROKER_LOCAL_DEMO=1` and distinct `INTERNAL_API_TOKEN` / `REVIEWER_API_TOKEN`), and payment-state folding.
-Resolution, per the demo decision above: the canvas stays at `/` and is the demo; Nikita's intake is mounted at `/live`.
+Resolution, per the demo decision above: the canvas was the demo at `/` with Nikita's intake at `/live`. Since redrum's a66c3cf on Oct 24 night, `/` is Nikita's live checkout and the canvas demo is at `/demo`; open `http://127.0.0.1:3000/demo` to present.
 The feed that polls Jeff's broker is still called `live` (main had renamed it `fixture`), and the header toggle still says Live.
 `caption` is a canvas-only event the translator narrates with; it is not on the wire, so `contract.ts` adds it to the generated union.
 `npm run generate:check` reports drift in `docs/openapi.json` on Python 3.13 only because the 422 reason phrase changed ("Unprocessable Content"); it is not a contract change.
