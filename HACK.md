@@ -106,6 +106,10 @@ The Next bridge requires trusted loopback demo mode or explicitly enabled,
 password-protected hosted demo mode, with distinct server-only worker/reviewer
 tokens. Hosted setup keeps the backend private; access is shared operator access,
 not customer authentication or tenant isolation. See [Railway setup](docs/RAILWAY.md).
+An explicitly enabled public demo can use real model calls with mock payments and
+no browser password. The bridge checks the backend's mock-payment capabilities
+before forwarding requests; legacy API proxies and controlled learning stay closed.
+All visitors share demo access and its configured model budget.
 See [workstream 06](docs/workstreams/06-data-broker.md) for implementation and evidence.
 
 ## Historical competitive demo checkpoint — October 24, 13:22 Pacific

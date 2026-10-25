@@ -85,6 +85,67 @@ Railway variable references are optional. For a service literally named `backend
 the equivalent reviewer reference. Substitute the actual case-sensitive service
 name in these references.
 
+## Public demo: real Claude calls, no wallet or browser password
+
+Use a separate backend service/volume for a second demo so live orders retain their
+original payment configuration. Both demo services still belong to the same Railway
+project/environment. Do not change or delete the live service's database to build it.
+
+On the mock-payment backend, use these overrides (keep the two API tokens):
+
+```dotenv
+PAYMENT_ADAPTER=mock
+ENABLE_TESTNET_BROADCAST=false
+ENABLE_PAID_MODELS=true
+ENABLE_DATASET_MODEL_ASSESSMENT=true
+ENABLE_BROKER_DISPUTE_ASSESSMENT=true
+ANTHROPIC_API_KEY=YOUR_ANTHROPIC_KEY
+CLAUDE_MODEL=claude-opus-5-5
+APPLICATION_MODEL_BUDGET_PATH=/data/model-budget.sqlite3
+APPLICATION_MODEL_BUDGET_USD=30
+APPLICATION_MODEL_CONCURRENCY=1
+APPLICATION_MODEL_FINAL_RESERVE_USD=0
+APPLICATION_MODEL_CUTOFF_AT=2026-10-27T21:41:30-07:00
+```
+
+This is the user's $30 Railway model allocation, expiring October 27 at 9:41 p.m.
+Pacific. Use one durable budget ledger for that allocation: if it is already running
+in another service, migrate/reuse its existing ledger and preserve usage and grants;
+do not create another $30 allocation just by duplicating an environment. Leave
+`APPLICATION_MODEL_WINDOW_ID` unset for a fresh timed allocation. A budget already
+bound to an older authorization cannot be extended by editing its environment.
+Remove `SOURCE_LEARNING_MODE`; controlled learning remains local-only.
+No wallet private keys or blockchain RPC are needed on this mock backend.
+
+On its frontend:
+
+```dotenv
+BROKER_HOSTED_DEMO=1
+BROKER_PUBLIC_DEMO=1
+BROKER_LOCAL_DEMO=0
+APP_ORIGIN=https://YOUR-DEMO-FRONTEND.up.railway.app
+BACKEND_URL=http://YOUR-MOCK-BACKEND.railway.internal:8000
+```
+
+Keep matching `INTERNAL_API_TOKEN` and `REVIEWER_API_TOKEN` on both services.
+`DEMO_USERNAME` and `DEMO_PASSWORD` are not needed in public mode. Every live bridge
+request checks the backend's `/health` capabilities and refuses to forward to a
+live-payment or unverified backend. Public legacy API routes are blocked; `/` and
+`/live` are the supported workflow. HTTPS, exact host and same-origin writes remain
+required. All visitors share demo controls and can consume the configured Claude
+budget. Use only synthetic demo data; this mode has no per-user isolation.
+
+The customer still explicitly accepts a quote and clicks **Simulate** to authorize
+mock funding. No browser wallet is required, and payment results remain labeled mock.
+Real model calls and mock payments are independent settings. For a password-protected
+wallet-free demo, keep `BROKER_PUBLIC_DEMO=0` and the original login credentials while
+using the same backend mock/model configuration.
+
+If using a public backend URL, use `https://<domain>` without `:8080` or an `/api`
+suffix. The domain's Railway target port must match the backend's `PORT` (for example,
+change a target of 8080 to 8000 if `PORT=8000`). Public HTTPS transport is supported,
+but private networking avoids exposing unauthenticated backend customer endpoints.
+
 ## Deploy and check
 
 1. Configure the backend volume, settings and variables. Deploy the backend.

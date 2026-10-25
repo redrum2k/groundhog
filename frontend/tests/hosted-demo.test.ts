@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { bridge } from "../lib/live-bridge";
 import { authorizeHostedDemo } from "../lib/hosted-demo";
@@ -16,6 +16,7 @@ const request = (path = "/api/live/runs", method = "POST", extra: Record<string,
 
 beforeEach(() => {
   vi.stubEnv("BROKER_HOSTED_DEMO", "1");
+  vi.stubEnv("BROKER_PUBLIC_DEMO", "0");
   vi.stubEnv("APP_ORIGIN", origin);
   vi.stubEnv("DEMO_USERNAME", "demo");
   vi.stubEnv("DEMO_PASSWORD", password);
@@ -88,4 +89,62 @@ it("does not expose arbitrary operations or controlled local source learning", a
 it("allows authenticated polling and checks writes against the configured external origin", () => {
   expect(authorizeHostedDemo(request("/api/live/runs/a/events", "GET", { origin: "" }))).toBeNull();
   expect(authorizeHostedDemo(request())).toBeNull();
+});
+
+describe("public mock-payment demo", () => {
+  const mockHealth = { payment_mode: "mock", live_adapter: "disabled", live_settlement_enabled: false };
+  beforeEach(() => {
+    vi.stubEnv("BROKER_PUBLIC_DEMO", "1");
+    vi.stubEnv("BROKER_HOSTED_DEMO", "0");
+    vi.stubEnv("DEMO_USERNAME", "");
+    vi.stubEnv("DEMO_PASSWORD", "");
+  });
+
+  it("opens the UI without a password and forwards a command only after checking mock capabilities", async () => {
+    expect(proxy(new NextRequest(request("/", "GET", { authorization: "" }))).status).toBe(200);
+    vi.mocked(fetch).mockResolvedValueOnce(Response.json(mockHealth))
+      .mockResolvedValueOnce(Response.json({ id: "new" }, { status: 201 }));
+    expect((await bridge(request(undefined, "POST", { authorization: "" }), ["runs"])).status).toBe(201);
+    expect(String(vi.mocked(fetch).mock.calls[0][0])).toBe("http://backend.railway.internal:8000/health");
+    expect(String(vi.mocked(fetch).mock.calls[1][0])).toBe("http://backend.railway.internal:8000/runs");
+    expect(new Headers(vi.mocked(fetch).mock.calls[1][1]?.headers).has("authorization")).toBe(false);
+  });
+
+  it.each([
+    { payment_mode: "base_sepolia", live_adapter: "ready", live_settlement_enabled: true },
+    { payment_mode: "base_sepolia", live_adapter: "unavailable", live_settlement_enabled: false },
+    { ...mockHealth, live_settlement_enabled: true }, {}, null,
+  ])("never forwards commands to a live or unverified backend: %j", async capabilities => {
+    vi.mocked(fetch).mockResolvedValueOnce(Response.json(capabilities));
+    expect((await bridge(request(undefined, "POST", { authorization: "" }), ["runs"])).status).toBe(503);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("rechecks capabilities on every request, including polling", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(Response.json(mockHealth))
+      .mockResolvedValueOnce(Response.json({ events: [] }))
+      .mockResolvedValueOnce(Response.json({ ...mockHealth, payment_mode: "base_sepolia" }));
+    const req = request("/api/live/runs/a/events", "GET", { authorization: "" });
+    expect((await bridge(req, ["runs", "a", "events"])).status).toBe(200);
+    expect((await bridge(req, ["runs", "a", "events"])).status).toBe(503);
+    expect(fetch).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not forward when the capability probe fails", async () => {
+    vi.mocked(fetch).mockRejectedValueOnce(new Error("offline"));
+    expect((await bridge(request(), ["runs"])).status).toBe(502);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["/api/jobflow/orders", "/api/broker/orders", "/api/improvements", "/api/broker-run/runs"])("blocks legacy bypass %s", path => {
+    expect(proxy(new NextRequest(request(path, "GET", { authorization: "" }))).status).toBe(403);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("still rejects cross-origin writes, wrong hosts and controlled learning", async () => {
+    expect((await bridge(request(undefined, "POST", { authorization: "", origin: "https://evil.example" }), ["runs"])).status).toBe(403);
+    expect((await bridge(request(undefined, "POST", { authorization: "", host: "evil.example" }), ["runs"])).status).toBe(403);
+    expect((await bridge(request(undefined, "POST", { authorization: "" }), ["source-learning", "resolve"])).status).toBe(403);
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });

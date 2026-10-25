@@ -1,4 +1,4 @@
-import { authorizeHostedDemo, hostedDemoEnabled } from "./hosted-demo";
+import { authorizeHostedDemo, hostedDemoEnabled, publicDemoEnabled } from "./hosted-demo";
 
 // Server-only bridge for a trusted local demo or an authenticated hosted demo.
 export async function bridge(request: Request, path: string[]) {
@@ -45,6 +45,15 @@ export async function bridge(request: Request, path: string[]) {
   const query = new URLSearchParams();
   if (target.endsWith("/events")) for (const k of ["after", "limit"]) if (url.searchParams.has(k)) query.set(k, url.searchParams.get(k)!);
   try {
+    if (publicDemoEnabled()) {
+      const health = await fetch(new URL("/health", backend), {
+        cache: "no-store", redirect: "error", signal: AbortSignal.timeout(5000),
+      });
+      const capabilities = health.ok ? await health.json() : null;
+      if (capabilities?.payment_mode !== "mock" || capabilities.live_settlement_enabled !== false || capabilities.live_adapter !== "disabled") {
+        return fail(503, "Public demo requires PAYMENT_ADAPTER=mock and disabled testnet broadcasts on its backend.");
+      }
+    }
     const response = await fetch(new URL(target + (query.size ? "?" + query : ""), backend), {
       method: request.method, headers, body: request.method === "POST" ? await request.text() : undefined, cache: "no-store", redirect: "error",
     });

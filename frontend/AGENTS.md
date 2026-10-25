@@ -10,7 +10,9 @@ Both read generated Pydantic DTOs; `lib/run/contract.ts` adds canvas-only narrat
 Preserve the retained demo, primary live pipeline and their shared visual design.
 Read HACK.md and docs/workstreams/06-data-broker.md for current prices and timing.
 The bridge permits loopback local-demo mode or explicitly enabled password-protected
-hosted demo mode, with distinct server-only credentials. See ../docs/RAILWAY.md.
+hosted demo mode, with distinct server-only credentials. An explicit public demo
+may omit the password only through the aggregate bridge, which checks that its
+backend is in mock-payment mode. See ../docs/RAILWAY.md.
 Controlled source learning remains local-only.
 Generate catalog, runs, jobflow, broker and improvement clients together; never hand-edit them.
 

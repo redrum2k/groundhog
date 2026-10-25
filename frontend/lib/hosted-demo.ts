@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 
-export const hostedDemoEnabled = () => process.env.BROKER_HOSTED_DEMO === "1";
+export const publicDemoEnabled = () => process.env.BROKER_PUBLIC_DEMO === "1";
+export const hostedDemoEnabled = () => process.env.BROKER_HOSTED_DEMO === "1" || publicDemoEnabled();
 
 // Shared operator access for a hosted demo, not customer/tenant authentication.
 // Check again in the live route handler so it does not depend on Proxy alone.
@@ -16,8 +17,8 @@ export function authorizeHostedDemo(request: Request): Response | null {
   } catch {
     return fail(503, "Set APP_ORIGIN to the exact public HTTPS origin, without a trailing slash.");
   }
-  if (!username || username.includes(":") || !password || password.length < 20 ||
-      [process.env.INTERNAL_API_TOKEN, process.env.REVIEWER_API_TOKEN].includes(password)) {
+  if (!publicDemoEnabled() && (!username || username.includes(":") || !password || password.length < 20 ||
+      [process.env.INTERNAL_API_TOKEN, process.env.REVIEWER_API_TOKEN].includes(password))) {
     return fail(503, "Configure a demo username and a separate password of at least 20 characters.");
   }
   const url = new URL(request.url);
@@ -29,7 +30,7 @@ export function authorizeHostedDemo(request: Request): Response | null {
   }
   const expected = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
   const digest = (value: string) => createHash("sha256").update(value).digest();
-  if (!timingSafeEqual(digest(request.headers.get("authorization") ?? ""), digest(expected))) {
+  if (!publicDemoEnabled() && !timingSafeEqual(digest(request.headers.get("authorization") ?? ""), digest(expected))) {
     return fail(401, "Demo sign-in required.", { "WWW-Authenticate": 'Basic realm="DatumCo demo", charset="UTF-8"' });
   }
   if (!["GET", "HEAD", "OPTIONS"].includes(request.method) && request.headers.get("origin") !== origin.origin) {
