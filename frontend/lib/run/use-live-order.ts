@@ -7,6 +7,7 @@ import { project } from "./fold";
 import { jsonRequest, useLiveRun } from "./live";
 import { useBuyerAddress } from "./buyer-settings";
 import { useCheckout } from "./use-checkout";
+import { isAssessmentAudit } from "./customer-messages";
 
 const EMPTY = {version:0,buyer:"",title:"",price:0,lines:[]};
 const REVIEW_REASONS={approve:"Approve the return of uncaptured funds for this unresolved case.",reject:"Reject the proposed return and retain human review.",ask:"Request additional evidence within the existing deadline.",escalate:"Escalate the unresolved case for further human review."};
@@ -35,7 +36,7 @@ export function useLiveOrder() {
   const runAction = (action:string,body:Record<string,unknown>) => live.command(`/runs/${live.id}/${action}`,{binding,...body});
   const delivery = view.deliveries.at(-1);
   const lines = view.contract.lines.length ? view.contract.lines : view.nodes.clarify?.drafted ?? [];
-  const messages = live.events.flatMap(event=>event.type==="message"?[event.message]:[]);
+  const messages = live.events.flatMap(event=>event.type==="message" && !isAssessmentAudit(event)?[event.message]:[]);
   const accepted=acceptance?.binding;
   const deliveryAccepted=!!accepted && acceptance?.run===live.id && !!binding
     && accepted.snapshot_id===binding.snapshotId && accepted.delivery_version===binding.deliveryVersion

@@ -1,10 +1,8 @@
 "use client";
 import { useLayoutEffect, useRef } from "react";
 import type { LiveOrder } from "../../lib/run/use-live-order";
-import { S } from "../../lib/run/scenario";
 import { Chat, Decision, Transcript } from "./conversation";
 import { GuideProvider, OrbSlot, useOrbFlight } from "./guide";
-import { IcSummit } from "./icons";
 import { LiveAgreement, LiveDelivery, LiveEvidence, LiveFunding, LiveIntake, LiveOffers, LiveVerdict, PaymentStatus } from "./live-order";
 
 export default function LiveCustomer({order,pay,working,customer,admin}:{order:LiveOrder;pay:()=>void;working:()=>void;customer:()=>void;admin:()=>void}) {
@@ -12,18 +10,18 @@ export default function LiveCustomer({order,pay,working,customer,admin}:{order:L
   return <main className="customer live-conversation" aria-label="Customer view" tabIndex={-1}>
     <GuideProvider value={{at,mood:{home:order.view.orb.mode,decision:"wait"}}}>
       <div className="cust-col" ref={col}>
-        <div className="cust-h"><div className="cust-who"><span className="avatar" aria-hidden><IcSummit size={19}/></span><div className="title">{S.buyer}</div></div><div className="cust-money"><OrbSlot name="home"/><PaymentStatus order={order}/></div></div>
+        <div className="customer-payment"><OrbSlot name="home"/><PaymentStatus order={order}/></div>
         {!order.live.id && <div className="live-welcome"><h1>What should we find for you?</h1><p>Describe the people, place and counts you need. We’ll clarify the requirements, agree on a price, then produce and check the dataset.</p></div>}
         {order.messages.length>0 && <Transcript title="Your conversation with Groundhog" count={order.messages.length} open compact={!!quote || !!order.delivery}>
           <Chat items={order.messages} view={order.view} onCite={order.cite} guide/>
         </Transcript>}
         <LiveIntake order={order}/>
-        {order.view.nodes.verdict?.verdict && <div ref={assessment} className="live-assessment"><LiveVerdict order={order} verdict={order.view.nodes.verdict.verdict}/></div>}
+        {order.view.nodes.verdict?.verdict && <div ref={assessment} className="live-assessment"><LiveVerdict order={order} verdict={order.view.nodes.verdict.verdict} showEvidence={false}/></div>}
         <div ref={decision} className="live-decisions">
           <OrderDecisions order={order} pay={pay} working={working} funding={funding}/>
         </div>
         {order.hasHumanReview && <div className="callout">{order.page?.payment?.payment.state==="voided"?"Funds returned after human review.":order.page?.payment?.payment.state==="void_pending"?"Return approved; waiting for confirmation.":order.needsHumanReview?"This order needs human review.":"A human review decision is recorded."} <button type="button" className="btn" onClick={admin}>Open admin review</button></div>}
-        <LiveEvidence order={order}/>
+        <LiveEvidence order={order} showInspector={false}/>
         {order.delivery && <LiveOffers order={order} customer={customer}/>}
         <p className="mock-note">Synthetic aggregate data. The dataset is produced and checked against the accepted sources; the operator applies the agreed payment rules.</p>
       </div>

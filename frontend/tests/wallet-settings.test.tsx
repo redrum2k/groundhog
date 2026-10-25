@@ -29,7 +29,7 @@ it("saves the connected buyer once and uses it for quotes after reload", async (
   const provider = wallet();
   vi.stubGlobal("ethereum", provider);
   const first = render(<LiveRun recorded={() => {}}/>);
-  fireEvent.click(screen.getByRole("button", {name: "Wallet settings"}));
+  fireEvent.click(screen.getByRole("button", {name: "Summit Fitness wallet"}));
   fireEvent.click(screen.getByRole("button", {name: "Connect MetaMask"}));
   await screen.findByText(buyer);
   expect(localStorage.getItem(STORAGE)).toBe(buyer);
@@ -59,7 +59,7 @@ it.each(["missing", "rejected", "network", "account-change"])("does not replace 
   });
   vi.stubGlobal("ethereum", kind === "missing" ? undefined : provider);
   render(<LiveRun recorded={() => {}}/>);
-  fireEvent.click(screen.getByRole("button", {name: "Wallet settings"}));
+  fireEvent.click(screen.getByRole("button", {name: "Summit Fitness wallet"}));
   fireEvent.click(screen.getByRole("button", {name: "Change buyer wallet"}));
   await screen.findByRole("alert");
   expect(localStorage.getItem(STORAGE)).toBe(buyer);
@@ -79,7 +79,7 @@ it("forgets the saved address and updates an open page when another tab changes 
     localStorage.setItem(STORAGE, buyer);
     window.dispatchEvent(new StorageEvent("storage", {key: STORAGE}));
   });
-  fireEvent.click(screen.getByRole("button", {name: "Wallet settings"}));
+  fireEvent.click(screen.getByRole("button", {name: "Summit Fitness wallet"}));
   expect(screen.getByText(buyer)).toBeTruthy();
   fireEvent.click(screen.getByRole("button", {name: "Forget wallet"}));
   expect(localStorage.getItem(STORAGE)).toBeNull();

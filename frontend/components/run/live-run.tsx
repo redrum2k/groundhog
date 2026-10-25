@@ -1,12 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLiveOrder } from "../../lib/run/use-live-order";
 import { S } from "../../lib/run/scenario";
 import { useRunNavigation } from "../../lib/run/use-run-navigation";
 import Canvas, { type CNode, type CanvasView } from "./canvas";
 import { IcLogo, IcX } from "./icons";
 import WalletSettings from "./wallet-settings";
-import SourceLearning from "./source-learning";
 import LiveCustomer from "./live-customer";
 import { LiveStep } from "./live-order";
 import AgentNote from "./agent-note";
@@ -24,6 +23,12 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
   const {live,view,page,busy}=order;
   const {tab,navigate,interaction}=useRunNavigation();
   const [panel,setPanel]=useState<string>();
+  const previousReview=useRef({run:live.id,needed:false});
+  useEffect(()=>{
+    const previous=previousReview.current;
+    if(previous.run===live.id && !previous.needed && order.needsHumanReview && (panel==="investigate" || panel==="verdict"))setPanel("decide");
+    previousReview.current={run:live.id,needed:order.needsHumanReview};
+  },[live.id,order.needsHumanReview,panel]);
   const [recenter,setRecenter]=useState(0);
   useEffect(()=>{
     const id=requestAnimationFrame(()=>{document.documentElement.dataset.anim="";});
@@ -45,19 +50,17 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
   const admin=()=>{navigate("run");setPanel("decide");};
   const pay=async()=>{if(!busy && await order.pay())working();};
   const turn=order.enabled("clarify")?"Your turn: answer the agent":order.enabled("accept_quote") || order.enabled("prepare_funding")?"Your turn: review & pay":order.enabled("accept")?"Your turn: review the dataset":order.enabled("quote")?"Your turn: review the request":undefined;
-  const paymentMode=(page?.payment?.payment.terms ?? page?.quote?.payment_terms)?.mode;
   const node=panel?view.nodes[panel]:undefined;
   const panelTitle=panel==="decide"?"Admin review":node?.step.title ?? ({paid:"Funding",clarify:"Clarify the order",review:"Delivery & review"}[panel ?? ""] ?? "Live order");
   return <div className="shell live-shell" {...interaction}>
     <header className="top">
-      <div className="brand"><IcLogo className="logo" size={22}/><div><div className="wordmark">{S.us}</div><div className="seat">{S.seat}</div></div></div>
+      <div className="brand"><IcLogo className="logo" size={22}/><div><div className="wordmark">{S.us}</div><div className="seat">Financial agent for {S.broker}</div></div></div>
       <nav className="tabs" aria-label="Demo views"><button type="button" aria-pressed={tab==="run"} className={tab==="run"?"on":""} onClick={()=>navigate("run")}>Run</button><button type="button" aria-pressed={tab==="customer"} className={tab==="customer"?"on":""} onClick={customer}>Customer view</button></nav>
-      <div className="top-r"><span className="live-mode">Live backend{paymentMode==="base_sepolia"?" · Base Sepolia":paymentMode==="mock"?" · mock payments":""}</span><WalletSettings/></div>
+      <div className="top-r"><WalletSettings/></div>
     </header>
     <div className="tools">
-      <SourceLearning openRun={live.resume}/>
       {live.id && <button type="button" className={`btn${tab==="run" && finished?" new-request-ready":""}`} disabled={busy} onClick={()=>{order.newRun();setPanel(undefined);customer();}}>New request</button>}
-      <span className="faint">{live.id?"The order":"New order"} · synthetic data</span><div className="spacer"/>
+      <div className="spacer"/>
       {tab==="run" && <>
         {turn && <button type="button" className="btn solid" onClick={customer}>{turn}</button>}
         <button type="button" className="btn" onClick={working}>Follow agent</button>

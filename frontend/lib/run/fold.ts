@@ -7,6 +7,7 @@ import type { SourceLine,
 import { captionFor, chipFor, type Case, type Ending } from "./scenario";
 import type { PaymentStateChanged } from "../runs.generated";
 import { formatCanvasMajor } from "../money";
+import { isAssessmentAudit } from "./customer-messages";
 
 export type NS = "idle" | "running" | "done" | "waiting" | "fail" | "grey";
 export type OrbMode = "float" | "carry" | "look" | "inspect" | "wait" | "happy";
@@ -142,6 +143,7 @@ function settlementProgress(v: View, state: PaymentStateChanged["state"]) {
 export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   if (e.seq <= v.lastSeq) return v;
   v.lastSeq = e.seq;
+  if (ctx.live && isAssessmentAudit(e)) return v;
   if (e.type === "delivery_ready" && e.delivery.reviewClosesAt) v.reviewWindow = windowLabel(Date.parse(e.delivery.reviewClosesAt) - Date.parse(e.at));
   const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? e.state : "") : ctx.narrated ? "" : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
   if (e.type === "steps_planned") {

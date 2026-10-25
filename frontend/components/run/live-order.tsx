@@ -108,11 +108,11 @@ export function LiveOffers({order,customer}:{order:LiveOrder;customer:()=>void})
   </details>;
 }
 
-export function LiveEvidence({order}:{order:LiveOrder}) {
+export function LiveEvidence({order,showInspector=true}:{order:LiveOrder;showInspector?:boolean}) {
   return <>
     {order.binding && order.page?.evidence_request && <EvidenceAnswer key={`${order.page.evidence_request.request_id}:${order.binding.revision}`} request={order.page.evidence_request} binding={order.binding} busy={order.busy} submit={answer=>void order.evidenceAnswer({...answer})}/>}
-    {Object.keys(order.view.evidence).length>0 && <details className="live-details"><summary>Inspect persisted evidence</summary><EvidenceReferences evidence={Object.values(order.view.evidence)} inspect={order.inspect}/></details>}
-    {order.resolved && <details className="live-details" open><summary>Selected evidence</summary><pre className="live-data">{order.resolved}</pre></details>}
+    {showInspector && Object.keys(order.view.evidence).length>0 && <details className="live-details"><summary>Inspect persisted evidence</summary><EvidenceReferences evidence={Object.values(order.view.evidence)} inspect={order.inspect}/></details>}
+    {showInspector && order.resolved && <details className="live-details" open><summary>Selected evidence</summary><pre className="live-data">{order.resolved}</pre></details>}
   </>;
 }
 
@@ -126,10 +126,10 @@ function EvidenceReferences({evidence,inspect}:{evidence:Evidence[];inspect:(id:
   })}</div></details>)}</>;
 }
 
-export function LiveVerdict({order,verdict}:{order:LiveOrder;verdict?:Verdict}) {
+export function LiveVerdict({order,verdict,showEvidence=true}:{order:LiveOrder;verdict?:Verdict;showEvidence?:boolean}) {
   if(!verdict)return null;
   const evidence=verdict.evidenceIds.flatMap(id=>order.view.evidence[id]?[order.view.evidence[id]]:[]);
-  return <section className="live-verdict live-agent-message" aria-label="Complaint assessment"><div className="live-agent-message-header"><IcLogo size={16}/><span>Groundhog</span><h3 className="faint">Complaint assessment</h3></div><p className="live-agent-message-text">{verdict.reason}</p>{evidence.length>0 && <details className="live-details"><summary>Evidence for this assessment · {evidence.length} references</summary><EvidenceReferences evidence={evidence} inspect={order.inspect}/></details>}</section>;
+  return <section className="live-verdict live-agent-message" aria-label="Complaint assessment"><div className="live-agent-message-header"><IcLogo size={16}/><span>Groundhog</span><h3 className="faint">Complaint assessment</h3></div><p className="live-agent-message-text">{verdict.reason}</p>{showEvidence && evidence.length>0 && <details className="live-details"><summary>Evidence for this assessment · {evidence.length} references</summary><EvidenceReferences evidence={evidence} inspect={order.inspect}/></details>}</section>;
 }
 
 function ReviewReceipt({order}:{order:LiveOrder}) {

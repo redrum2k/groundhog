@@ -243,6 +243,15 @@ it("shows a pending evidence question without presenting human approval controls
   expect(screen.queryByText("Human review · current order")).toBeNull();
   expect(screen.queryByLabelText("Reason or evidence answer")).toBeNull();
   expect(screen.queryByRole("button",{name:"Admin review"})).toBeNull();
+  state.page={...state.page,evidence_request:null,available_actions:[{action:"reject",enabled:true,reason:"Human review required"}],events:[...state.page.events,
+    {seq:4,at,type:"steps_planned",steps:[{id:"decide",kind:"decide",title:"Human reviews",detail:"Review the case"}]},
+    {seq:5,at,type:"state_changed",step:"investigate",state:"human_review",reason:"No further evidence",binding:state.page.binding!},
+  ],next_after:5,high_watermark:5};
+  fireEvent.click(screen.getByRole("button",{name:"Refresh"}));
+  expect(await screen.findByRole("complementary",{name:"Admin review"})).toBeTruthy();
+  expect(screen.queryByLabelText("Evidence answer")).toBeNull();
+  fireEvent.click(screen.getByRole("button",{name:"Investigate, waiting"}));
+  expect(screen.getByRole("complementary",{name:"Investigate"})).toBeTruthy();
 });
 
 it("shows the persisted scope explanation and buyer acceptance without stale human-review prompts", async()=>{
@@ -269,6 +278,7 @@ it("shows the persisted scope explanation and buyer acceptance without stale hum
 });
 
 it("keeps every repeated-label source cell inspectable by its persisted evidence ID", async()=>{
+  vi.stubGlobal("ResizeObserver",class {observe(){} disconnect(){}});
   const {state,fetcher}=setup();
   const at="2026-10-24T12:00:00Z";
   const events:RunPage["events"]=[{seq:1,at,type:"steps_planned",steps:[{id:"investigate",kind:"investigate",title:"Investigate",detail:"Read evidence"}]}];
@@ -276,6 +286,8 @@ it("keeps every repeated-label source cell inspectable by its persisted evidence
   state.page={...state.page,events,next_after:61,high_watermark:61};
   localStorage.setItem("datumco.live-run.v1",JSON.stringify({id:"run-1"}));
   render(<LiveRun/>);
+  fireEvent.click(screen.getByRole("button",{name:"Run"}));
+  fireEvent.click(await screen.findByRole("button",{name:/^Investigate,/}));
   fireEvent.click(await screen.findByText("Inspect persisted evidence"));
   fireEvent.click(screen.getByText("coverage.csv · 60 references"));
   expect(document.querySelectorAll(".live-evidence-list .cite")).toHaveLength(60);
