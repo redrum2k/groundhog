@@ -57,10 +57,9 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.investigate.evidence.map((e) => e.label)).toEqual(["Contract: San Francisco only", expect.stringMatching(/^\d+ of \d+ ZIPs delivered$/)]);
     expect(v.nodes.investigate.messages.at(-1)).toMatchObject({ from: "agent", attach: [{ kind: "evidence", evidenceId: "cite-geography" }, { kind: "evidence", evidenceId: "cite-coverage" }] });
     expect(v.nodes.verdict.chip).toBe("We're right");
-    // what the agent read at the source, ticked once the re-verification landed, and the thought it had at the verdict
+    // what the agent read at the source, ticked once the re-verification landed
     expect(v.nodes.investigate.source?.map((l) => l.checked)).toEqual([true, true, true]);
     expect(v.nodes.investigate.source?.[0].text).toMatch(/^LOOKUP vendor panel v1/);
-    expect(v.aside).toEqual({ step: "verdict", text: "No human needed. Settled by the contract and the source." });
     expect(v.nodes.review.attempt).toBe(2);
     expect(v.nodes.captured.status).toBe("done");
   });

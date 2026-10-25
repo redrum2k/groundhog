@@ -8,8 +8,8 @@ import { controllerContinuation, holdFor, stamp, type Draft } from "./scenario";
 
 export const LIVE_API = "/api/broker-run";
 const DRIP = 110; // ms between events the canvas takes from one poll's burst
-/** A few events deserve a beat before the next one lands: the verdict and the thought it comes with. */
-const holdLive = (e: RunEvent) => (e.type === "aside" ? 1500 : e.type === "verdict" ? 600 : DRIP);
+/** The verdict gets a beat before the next event lands, so the orb arrives before the run moves on. */
+const holdLive = (e: RunEvent) => (e.type === "verdict" ? 600 : DRIP);
 
 export type Feed =
   | { kind: "still"; events: RunEvent[]; ctx: FoldContext } // the whole timeline at once, not playing
