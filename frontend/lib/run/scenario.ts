@@ -218,9 +218,9 @@ const cite = (...ids: string[]): Message["attach"] => ids.map((evidenceId) => ({
 
 /** The three things the agent reads at the source during any dispute. */
 const SRC = (checked: boolean): Draft => ({ type: "source_checked", step: "investigate", lines: [
-  { id: "src-pin", text: "Vendor panel v1, pinned at acceptance", checked },
-  { id: "src-lines", text: "Every contract line re-checked against it", checked },
-  { id: "src-counts", text: "Delivered counts compared with the source", checked },
+  { id: "src-pin", text: "LOOKUP vendor panel v1 · pinned at acceptance", checked },
+  { id: "src-lines", text: "CHECK every contract line · against the source", checked },
+  { id: "src-counts", text: "COMPARE delivered counts · with the source", checked },
 ] });
 export const RED: Draft[] = [
   ...openDispute("red", [
