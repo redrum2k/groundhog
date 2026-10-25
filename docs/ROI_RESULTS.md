@@ -133,7 +133,7 @@ The original experiment was delivered as focused **local commits only**. The sub
 
 The user subsequently requested publication in the main repository and a fresh Greptile check. Current upstream `0407a71` was merged into this feature branch at `57f9191`, preserving the team's UI, source-visit and mock-payment changes. The only merge conflict was README wording; both the ROI section and Summit Fitness naming were retained. There are no ROI changes to production backend/frontend code relative to that main revision.
 
-The public dashboard is a sanitized **export of the original run**, not a rerun or a claim that the 60-case workload executed at this integration revision. The original results, hashes, capsules and all private artifacts remain untouched. Its SHA-256 is `dabe93d7c3b9bbd6a9c0728aa8bb2352f7a6a3987155d86d221f17bdd7550117`. Git preserves its LF bytes. Private evidence links lead to an explicit disclosure instead of broken local paths; the repository contains the sanitized evidence index and reproduction tooling, not raw databases, evaluator artifacts, credentials or generated datasets.
+The public dashboard is a sanitized **export of the original run**, not a rerun or a claim that the 60-case workload executed at this integration revision. The original results, hashes, capsules and all private artifacts remain untouched. Its SHA-256 is `1f91e74ef89c74ed6e2f0e4e256ab1c9bc3c8f39524476f2542c551a4f18748c`. Git and the exporter preserve its LF bytes. Private evidence links lead to an explicit disclosure instead of broken local paths; the repository contains the sanitized evidence index and reproduction tooling, not raw databases, evaluator artifacts, credentials or generated datasets.
 
 Fresh compatibility checks on the integrated branch:
 

@@ -95,7 +95,9 @@ def render(directory, report_name="report.html", *, public_snapshot=False):
     page = template.replace("__ROI_DATA__", json.dumps(data).replace("<", "\\u003c")).replace(
         "__ROI_SCRIPT__", script
     )
-    with (directory / report_name).open("x", encoding="utf-8") as handle:
+    with (directory / report_name).open(
+        "x", encoding="utf-8", newline="\n" if public_snapshot else None
+    ) as handle:
         handle.write(page)
     immutable_export(directory / "assumptions.json", data["assumptions"])
     work = load(directory / "work-ledger.json")

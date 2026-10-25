@@ -44,6 +44,7 @@ def test_public_snapshot_has_no_private_links_and_preserves_failed_cases(tmp_pat
     assert len(data["cases"]) == 201
     assert all("trace" not in r and "process_id" not in r for r in data["cases"])
     page = (directory / "public.html").read_text(encoding="utf-8")
+    assert b"\r\n" not in (directory / "public.html").read_bytes()
     assert "Public evidence snapshot" in page
     markup = page.split('<script id="roi-data"')[0]
     assert all(link.startswith("#") for link in re.findall(r'href="([^"]+)"', markup))
