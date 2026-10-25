@@ -60,7 +60,7 @@
 > one prompt submitted a missing-ZIP claim, and independent delivery checks rejected it
 > because that ZIP was present. No paid call or testnet transaction was used for this check.
 
-# 06 — Aggregate brokerage and live DatumCo canvas
+# 06 — Aggregate brokerage and live Groundhog canvas
 
 Branch: `codex/data-broker-migration`. Local integration merge: `41ecf61`.
 Backend baseline `39dd58602b3f8ac0a7906b4db4ddbbdb57b3d981`, reviewed main
@@ -340,7 +340,7 @@ full testnet application settlement and hosted authentication remain separate mi
 
 **Title:** Make aggregate dataset brokerage the primary funded live workflow
 
-New DatumCo requests now create immutable synthetic aggregate data contracts and
+New Bayline Data requests now create immutable synthetic aggregate data contracts and
 produce independently checked CSV/JSON through the existing funded worker. Eight
 server-owned checks, a frozen coverage registry, safe suppressed counts and explicit
 review/deadline budgets guard capture. Source deficiencies, provider correction,

@@ -1,4 +1,4 @@
-# DataPact frontend
+# Groundhog frontend
 
 `/` and `/live` are the primary aggregate application. **Customer view** is the
 full-screen conversation and decision cards; **Run** shows the same order's backend

@@ -29,7 +29,7 @@ export async function checkout({runId, quote, binding, wallet, signal, progress}
   let expected = binding ? {snapshot_id: binding.snapshotId, delivery_version: binding.deliveryVersion, evidence_revision: binding.evidenceVersion} : undefined;
   if (!binding) {
     progress("Accepting agreement…");
-    const accepted = await send<OrderView>("/quote-acceptance", {quote_id: quote.quote_id, customer_actor: "AcmeFitness"}, `checkout:accept:${quote.quote_id}`);
+    const accepted = await send<OrderView>("/quote-acceptance", {quote_id: quote.quote_id, customer_actor: "Summit Fitness"}, `checkout:accept:${quote.quote_id}`);
     if (!accepted.available_actions.includes("prepare_funding")) throw new Error("Agreement accepted. Funding is not available yet; check the current payment status.");
     orderId = accepted.order.snapshot.order_id;
     revision = accepted.order.revision ?? 1;

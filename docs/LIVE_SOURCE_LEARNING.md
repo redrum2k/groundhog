@@ -1,4 +1,4 @@
-# Enabled, persistent source learning in the local DataPact app
+# Enabled, persistent source learning in the local Groundhog app
 
 Branch: `feature/live-source-learning-20261024`, based on GitHub main `af1a0e8`
 (merged PR #24). This is an enabled controlled local application feature, not

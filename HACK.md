@@ -6,7 +6,7 @@ Coinbase, Microsoft. Sponsor eligibility remains unverified.
 
 ## Product
 
-DatumCo delivers a contract-checked synthetic aggregate dataset to AcmeFitness:
+Bayline Data delivers a contract-checked synthetic aggregate dataset to Summit Fitness:
 San Francisco adults aged 25–34 interested in fitness, grouped by ZIP. Intake,
 clarification, provider quote, explicit acceptance, confirmed funding, production,
 independent verification, customer review and settlement are separate transitions.

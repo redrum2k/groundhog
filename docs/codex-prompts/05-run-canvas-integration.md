@@ -46,7 +46,7 @@ the invoice API at /api/jobflow, with the invoice UI now at /jobflow.
 
 ## Reconcile the domain and policy before wiring events
 
-Lucas's canvas models Datum Co.'s aggregated SF fitness counts by ZIP, interview
+Lucas's canvas models Bayline Data's aggregated SF fitness counts by ZIP, interview
 messages and dataset cells. The catalog backend currently models supplier PDFs.
 Create a bounded data-broker run adapter with persisted transcript, accepted terms,
 versioned dataset artifacts and evidence references. Reuse the durable lifecycle
