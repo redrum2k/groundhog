@@ -168,10 +168,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .live-shell .nd[data-step="captured"].n-done { border-color: var(--green); background: var(--green-t); }
 .live-shell .nd[data-step="captured"].n-done .nd-t { color: var(--green); }
 .n-fail { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); }
-.live-shell .nd.outcome-not-upheld { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); background: color-mix(in srgb, var(--red-t) 55%, var(--bg)); }
-.live-shell .nd.outcome-not-upheld .nd-t, .outcome-not-upheld .band-label { color: var(--red); }
-.live-shell .nd.outcome-not-upheld .chip { color: var(--red); background: var(--red-t); }
-.outcome-not-upheld .edge-on { stroke: var(--red); }
+/* an objection that isn't upheld is a normal outcome, so it stays neutral; red is kept for operational failure */
+.live-shell .nd.outcome-not-upheld .chip { color: var(--ink-2); background: var(--hover); }
 .n-grey, .n-waiting { border-color: color-mix(in srgb, var(--amber) 45%, var(--line)); }
 
 .chip { position: absolute; right: 0; bottom: calc(100% + 6px); display: inline-flex; align-items: center; gap: 5px; height: 20px; max-width: 100%; box-sizing: border-box; padding: 0 8px; border-radius: 999px; font-size: 12px; white-space: nowrap; }
@@ -669,8 +667,8 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .required-evidence label { display: flex; align-items: flex-start; gap: 8px; padding: 6px 0; overflow-wrap: anywhere; }
 .required-evidence input[type="checkbox"] { flex: none; width: auto; margin: 3px 0 0; }
 .live-assessment { scroll-margin-top: 80px; }
-.objection-decision { display: grid; gap: 18px; padding: 20px; border: 1px solid color-mix(in srgb, var(--red) 24%, var(--line)); border-radius: 14px; background: var(--bg); box-shadow: 0 2px 8px rgb(0 0 0 / 0.025); }
-.objection-outcome { display: flex; align-items: center; gap: 7px; width: fit-content; padding: 5px 9px; border-radius: 6px; background: var(--red-t); color: var(--red); font-size: 12px; font-weight: 500; }
+.objection-decision { display: grid; gap: 18px; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); box-shadow: 0 2px 8px rgb(0 0 0 / 0.025); }
+.objection-outcome { display: flex; align-items: center; gap: 7px; width: fit-content; padding: 5px 9px; border-radius: 6px; background: var(--hover); color: var(--ink-2); font-size: 12px; font-weight: 500; }
 .live-shell .objection-decision h3 { font-size: 22px; line-height: 1.25; letter-spacing: -0.025em; font-weight: 500; text-wrap: balance; }
 .objection-facts { display: grid; gap: 5px; margin: 0; }
 .objection-facts dt { color: var(--ink-3); font-size: 12px; }
