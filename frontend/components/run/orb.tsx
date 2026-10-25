@@ -2,8 +2,8 @@
 import type { OrbMode } from "../../lib/run/fold";
 import { IcLens, IcScroll } from "./icons";
 
-// The agent's mascot: a flat blue orb with two eyes, dressed as a detective in a deerstalker and
-// round glasses. Its mode is a state indicator (like a spinner): float along, carry a sheet back,
+// The agent's mascot: a flat blue groundhog (round ears, a big nose on its snout) dressed as a detective in a
+// deerstalker and round glasses. Its mode is a state indicator (like a spinner): float along, carry a sheet back,
 // look around while clarifying, sweep a magnifier while investigating, blink slowly while waiting
 // on Maya, squint happily when the money lands.
 export default function Orb({ mode }: { mode: OrbMode }) {
@@ -12,8 +12,16 @@ export default function Orb({ mode }: { mode: OrbMode }) {
       {mode === "carry" && <span className="orb-sheet"><IcScroll size={10} strokeWidth={1.8} /></span>}
       {mode === "inspect" && <span className="orb-lens"><IcLens size={17} strokeWidth={1.9} /></span>}
       <svg viewBox="0 0 28 28" width="34" height="34">
+        <g className="orb-ears">
+          <circle cx="5.5" cy="3.7" r="2.4" /><circle cx="5.5" cy="3.7" r="1.2" className="orb-ear-in" />
+          <circle cx="22.5" cy="3.7" r="2.4" /><circle cx="22.5" cy="3.7" r="1.2" className="orb-ear-in" />
+        </g>
         <circle cx="14" cy="14" r="13" className="orb-body" />
         <g className="orb-face">
+          <ellipse cx="14" cy="20.2" rx="4.9" ry="4.1" className="orb-snout" />
+          <path className="orb-mouth" d="M14 20.15v1.35M12.5 21.2q.75.85 1.5.35q.75.5 1.5-.35" />
+          <ellipse cx="14" cy="18.9" rx="2.3" ry="1.45" className="orb-nose" />
+          <circle cx="13.08" cy="18.39" r="0.42" className="orb-glint" />
           <g className="orb-eyes">
             <rect x="8.6" y="10" width="3.2" height="6.4" rx="1.6" />
             <rect x="16.2" y="10" width="3.2" height="6.4" rx="1.6" />

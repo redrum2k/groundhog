@@ -49,7 +49,7 @@ export function Chat({ items, view, highlight, onCite, guide }: { items: Message
   );
 }
 
-/** One of Acme's decisions: the thing to decide on, the buttons while it's open, the choice once made. */
+/** One of Summit's decisions: the thing to decide on, the buttons while it's open, the choice once made. */
 /** `done` is the move just made here: the card keeps its place and its height, the receipt where the buttons were. */
 export function Decision({ title, open, taken, done, slot = "decision", orb, children, actions }: { title: string; open: boolean; taken?: ReactNode; done?: string; slot?: Stop; orb?: ReactNode; children: ReactNode; actions?: ReactNode }) {
   if (!open && !done && taken) return (

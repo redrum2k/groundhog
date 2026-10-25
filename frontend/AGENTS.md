@@ -1,4 +1,4 @@
-# DataPact canvas — Lucas
+# Groundhog canvas — Lucas
 
 The primary routes `/` and `/live` use funded aggregate intake (`components/run/live-run.tsx`,
 `lib/run/live.ts`) and share Customer view, Run canvas and admin review for one backend order.

@@ -4,17 +4,17 @@ import type { Step, ZipCount } from "../../lib/run/contract";
 import type { View } from "../../lib/run/fold";
 import { AREA_BY_ZIP, OAKLAND, S, type Case } from "../../lib/run/scenario";
 import type { BuyerGate, BuyerMove } from "../../lib/run/source";
-import { IcCheck, IcWallet } from "./icons";
+import { IcCheck, IcSummit, IcWallet } from "./icons";
 import TodoList from "./checklist";
-import { GuideProvider, OrbSlot, useOrbFlight, type Stop } from "./guide";
+import { GuideProvider, OrbSlot, still, useOrbFlight, type Stop } from "./guide";
 import Inspector, { lookFor, type Found } from "./inspector";
 import Label from "./label";
 import { Decision, Transcript } from "./conversation";
 import { PanelBody, checkItems, type BodyProps } from "./panel";
 
-// What Acme's buying agent sees: the same conversation, plus the three decisions that are
-// Acme's to make. On a live run the presenter makes them here; on a recorded one the cards
-// show the decision Acme took. Money is shown as what it is: signed, held, or paid to us.
+// What Summit's buying agent sees: the same conversation, plus the three decisions that are
+// Summit's to make. On a live run the presenter makes them here; on a recorded one the cards
+// show the decision Summit took. Money is shown as what it is: signed, held, or paid to us.
 
 type Props = {
   run: Case; steps: Step[]; view: View; bodyProps: Omit<BodyProps, "step">;
@@ -24,7 +24,7 @@ type Props = {
 
 const SUGGESTED_OBJECTION = "Counts look low. Oakland should be in there.";
 const RECEIPT: Record<BuyerMove["action"], string> = { approve: "Approved", accept: "Accepted", object: "Objection sent" };
-type Where = "contract" | "delivery" | "after"; // which of Acme's decisions a move was made on
+type Where = "contract" | "delivery" | "after"; // which of Summit's decisions a move was made on
 
 function Wallet({ view }: { view: View }) {
   const amount = view.payments.reduce((a, p) => a + p.amount, 0);
@@ -34,7 +34,7 @@ function Wallet({ view }: { view: View }) {
   return (
     <span className={`wallet w-${state}`} role="status">
       <IcWallet size={14} />
-      <span key={`${state}-${amount}`} className="wallet-t"><Label text={state === "paid" && view.payments.some((p) => p.mock) ? `${text} · mock` : text} quiet="tail" /></span>
+      <span key={`${state}-${amount}`} className="wallet-t"><Label text={text} quiet="tail" /></span>
     </span>
   );
 }
@@ -58,7 +58,7 @@ function Sheet({ rows, note, gap, ghosts }: { rows: ZipCount[]; note?: string; g
       </table></div>
       {ghosts && (
         <div className="ghosts">
-          <div className="faint">Asked for, not in your contract</div>
+          <div className="faint">Missing from contract</div>
           {ghosts.map((g) => <div key={g.zip} className="ghost"><span className="mono">{g.zip}</span><span>{g.area}</span><span>not ordered</span></div>)}
         </div>
       )}
@@ -69,12 +69,13 @@ function Sheet({ rows, note, gap, ghosts }: { rows: ZipCount[]; note?: string; g
 export default function Customer({ run, steps, view, bodyProps, awaiting, buyer, onMoved }: Props) {
   const [objection, setObjection] = useState("");
   const [objecting, setObjecting] = useState(false);
+  const objectionBox = useRef<HTMLTextAreaElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const col = useRef<HTMLDivElement>(null);
   const landed = useRef(false);
   // The move just made, held in place while the view hands back to Run: the stream confirms it a poll later,
-  // and without this the cards would fold and reopen in between. A new turn for Acme clears it.
+  // and without this the cards would fold and reopen in between. A new turn for Summit clears it.
   const [moved, setMoved] = useState<{ at: Where; action: BuyerMove["action"] } | null>(null);
   useEffect(() => { if (awaiting) setMoved(null); }, [awaiting]);
   const move = async (m: BuyerMove, at: Where) => { setBusy(true); setError(null); const err = await buyer(m); setBusy(false); setError(err); if (!err) { setObjecting(false); setMoved({ at, action: m.action }); if (m.action !== "object") onMoved?.(); } }; // an objection stays here: the inspection that answers it is what to watch
@@ -102,21 +103,30 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
   const [inspected, setInspected] = useState<Found & { key?: string }>({});
   const found: Found = inspected.key === lookKey ? inspected : {};
   const onFound = (stage: keyof Found) => setInspected((f) => ({ ...(f.key === lookKey ? f : {}), key: lookKey, [stage]: true }));
-  // it finishes the inspection, and points at the evidence, before it goes to Acme's next decision
+  // it finishes the inspection, and points at the evidence, before it goes to Summit's next decision
   const showing = held && !found.done && (!!look || investigate?.status === "running");
-  // The orb inspects an objected delivery, stands beside Acme's open decision, and sits by the interview while it asks
+  // The orb inspects an objected delivery, stands beside Summit's open decision, and sits by the interview while it asks
   const want: Stop = held && (!awaiting || showing) ? "inspect" : awaiting || moved ? "decision" : view.orb.mode === "look" ? "transcript" : "home";
-  // Acme's turn brings its decision into view, once any inspection has finished pointing, not mid-way through it.
+  // Summit's turn brings its decision into view, once any inspection has finished pointing, not mid-way through it.
   // With nothing to decide, opening the view mid-run lands once on the newest activity instead of the top.
-  const turn = awaiting && !showing ? awaiting : null;
+  // a reopened review is a new turn, though the gate's name is the same
+  const turn = awaiting && !showing ? `${awaiting}-${review?.attempt ?? 1}` : null;
   useLayoutEffect(() => {
     // the card with buttons: an objected delivery stays open too, but only to show its receipt
     const open = [...(col.current?.querySelectorAll<HTMLElement>(".decision.open") ?? [])].find((d) => d.querySelector(":scope > .decision-actions button"));
     const pane = col.current?.parentElement;
-    if (open) open.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    if (open) open.scrollIntoView?.({ block: "center", behavior: still() ? "auto" : "smooth" });
     else if (!landed.current && pane) pane.scrollTop = pane.scrollHeight;
     landed.current = true;
   }, [turn]);
+  // Object opens the box at the foot of a tall card: bring it and Send into view, ready to type
+  useEffect(() => {
+    const box = objectionBox.current;
+    if (!objecting || !box) return;
+    box.focus({ preventScroll: true });
+    box.setSelectionRange(box.value.length, box.value.length);
+    box.closest(".decision-actions")?.scrollIntoView?.({ block: "nearest", behavior: still() ? "auto" : "smooth" });
+  }, [objecting]);
   const at = useOrbFlight(col, want);
   const mood = { home: view.orb.mode === "wait" || view.orb.mode === "happy" ? view.orb.mode : "float", decision: moved ? "happy" : "wait" } as const;
 
@@ -125,7 +135,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
       <GuideProvider value={{ at, mood }}>
         <div className="cust-col" ref={col}>
           <div className="cust-h">
-            <div className="cust-who"><span className="avatar" aria-hidden>{S.buyer.split(" ").map((w) => w[0]).join("")}</span><div className="title">{S.buyerAgent}</div></div>
+            <div className="cust-who"><span className="avatar" aria-hidden><IcSummit size={15} strokeWidth={1.6} /></span><div className="title">{S.buyerAgent}</div></div>
             <div className="cust-money"><OrbSlot name="home" /><Wallet view={view} /></div>
           </div>
 
@@ -141,11 +151,12 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
             </Decision>
           )}
 
-          {delivery && review && review.status !== "idle" && (
+          {/* a reopened review starts blank for an event: the card it was disputed on stays up through it */}
+          {delivery && review && (review.status !== "idle" || disputed) && (
             <Decision title={`Delivery${delivery.version >= 2 ? ` v${delivery.version}` : ""}`} open={reviewOpen && !disputed} done={held ? `Objection sent: “${view.dispute?.claim}”` : done("delivery")} slot={held ? "inspect" : "decision"}
               orb={held ? <Inspector look={look} found={found} onFound={onFound} /> : undefined} taken={accepted && disputed ? "Objected, answered, then accepted" : accepted ? "Accepted" : disputed ? `Objected: “${view.dispute?.claim}”` : undefined}
               actions={objecting ? <>
-                <textarea className="objection" rows={2} value={objection} onChange={(e) => setObjection(e.target.value)} placeholder="What's wrong with the delivery?" aria-label="Your objection" />
+                <textarea ref={objectionBox} className="objection" rows={2} value={objection} onChange={(e) => setObjection(e.target.value)} placeholder="What's wrong with the delivery?" aria-label="Your objection" />
                 <div className="decision-row">
                   <button className="btn solid" disabled={busy || !objection.trim()} onClick={() => move({ action: "object", text: objection.trim() }, "delivery")}>Send objection</button>
                   <button className="btn" disabled={busy} onClick={() => setObjecting(false)}>Back</button>
@@ -176,7 +187,8 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
             <Transcript title="Under review" open={n.decide.status !== "done"}><PanelBody step={step("decide")!} {...bodyProps} customer /></Transcript>
           )}
 
-          {((disputed && reviewOpen && !accepted) || done("after")) && (
+          {/* only once the review has reopened: right after the objection the old turn is still open for a poll */}
+          {((disputed && reviewOpen && !accepted && (review?.attempt ?? 1) > 1) || done("after")) && (
             <Decision title="Delivery, after your objection" open={reviewOpen} done={done("after")} taken={undefined}
               actions={<>
                 <button className="btn solid" disabled={busy} onClick={() => move({ action: "accept" }, "after")}>Accept delivery</button>
@@ -187,7 +199,7 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
           )}
 
           {n.captured?.status === "done" && (
-            <section className="cust-sec"><div className="cust-step">Paid</div><p className="cust-paid"><IcCheck size={14} strokeWidth={2.2} /> ${price} paid to {S.us}{view.payments.some((p) => p.mock) && <span className="faint"> (mock capture)</span>}. The dataset is yours.</p></section>
+            <section className="cust-sec"><div className="cust-step">Paid</div><p className="cust-paid"><IcCheck size={14} strokeWidth={2.2} /> ${price} paid to {S.us}.{view.payments.some((p) => p.mock) && <span className="faint"> Demo payment, no funds move.</span>} The dataset is yours.</p></section>
           )}
 
           {error && <p className="review-err" role="alert">{error}</p>}
