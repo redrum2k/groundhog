@@ -1,0 +1,16 @@
+{
+  "origin": "explicitly_simulated_source_owner_training_input",
+  "notice": "Synthetic source documentation, not a real commercial incident or evaluation answer. No customer-dispute verdict is supplied.",
+  "walkthroughs": [
+    {
+      "source_family": "local-demo-partition-0",
+      "column": "v_count",
+      "explanation": "The simulated owner checked the partition-0 dictionary. v_count measures unique adults per ZIP; v_devices measures device registrations. Apply only with this schema and current source-owner authority."
+    },
+    {
+      "source_family": "local-demo-partition-1",
+      "column": "p_adults",
+      "explanation": "The simulated owner independently checked partition-1. p_adults measures unique adults per ZIP; p_devices measures devices. The partitions are disjoint; preserve suppression and require the same schema and authority."
+    }
+  ]
+}

@@ -47,6 +47,7 @@ def create_app(
     payment_transport=None,
     source_learning=False,
     source_owner_token=None,
+    source_learning_model_qualification=False,
 ):
     if isinstance(database_path, Jobflow):
         service, database_path = database_path, None
@@ -103,7 +104,20 @@ def create_app(
                     "distinct source-owner, controller and worker credentials required"
                 )
             if os.getenv("ENABLE_PAID_MODELS") == "true":
-                raise ValueError("controlled local learning forbids paid model calls")
+                if not source_learning_model_qualification:
+                    raise ValueError("controlled local learning forbids paid model calls")
+                # Explicit test-process opt-in, never inferred from production env.
+                # Retain the same cumulative ledger and registered authorization.
+                from app.agents.budget import ModelBudget
+
+                budget = ModelBudget.configured()
+                if (
+                    payments.mode != "mock"
+                    or not budget.window_id
+                    or os.getenv("ENABLE_DATASET_MODEL_ASSESSMENT") != "true"
+                ):
+                    raise ValueError("model qualification requires mock payments and a paid window")
+                budget.check_window()
             app.state.source_owner_token = owner_token
             app.state.source_learning = SourceLearning(app.state.orders, enabled=True)
             app.state.orders.source_learning = app.state.source_learning
