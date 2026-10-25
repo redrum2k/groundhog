@@ -98,6 +98,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const srcNode = view.source ? byId[view.source.node] : undefined;
   const source = view.source && srcNode && st(srcNode.id) !== "idle" ? { lines: view.source.lines, node: srcNode, col: byRow(srcNode.row)[byRow(srcNode.row).length - 1].col + 1 } : null;
   const atSource = !!source && view.orb?.node === source.node.id && st(source.node.id) === "running";
+  const reading = !!source && view.orb?.node === source.node.id && source.lines.some((l) => !l.checked); // no "!" until the last line is read
   const orbX = atSource && source ? COL_X(source.col) + 6 : COL_X(orbNode.col) + 6;
   const orbY = ROW_Y[orbNode.row] + H + 6;
   const tunnel = useTunnel(orbX, orbY, midRun);
@@ -242,7 +243,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
           )}
           {!quiet && view.orb && (
             <div className={`orb-wrap${tunnel.phase ? ` tunnel-${tunnel.phase}` : ""}`} style={{ transform: `translate(${tunnel.x}px, ${tunnel.y}px)` }}>
-              <span className={`canvas-agent${hideAgent ? " departed" : ""}`}><Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} /></span>
+              <span className={`canvas-agent${hideAgent ? " departed" : ""}`}><Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? !reading && view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} /></span>
               {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.alert ? " alert" : ""}${view.coin.done ? " done" : ""}${view.coin.returned ? " returned" : ""}`}>
                 <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : view.coin.returned ? <IcReturn size={10} strokeWidth={2} /> : <IcWallet size={10} strokeWidth={2} />}<Label text={view.coin.text} quiet="tail" /></span></span>}
             </div>
