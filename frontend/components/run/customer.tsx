@@ -30,7 +30,7 @@ function Wallet({ view }: { view: View }) {
   const amount = view.payments.reduce((a, p) => a + p.amount, 0);
   const captured = view.payments.length > 0 && view.payments.every((p) => p.id in view.captured);
   const state = !view.payments.length ? "empty" : captured ? "paid" : view.dispute ? "held" : "signed";
-  const text = state === "empty" ? "No payment yet" : state === "signed" ? `$${amount} signed, not taken` : state === "held" ? `$${amount} held while disputed` : `$${amount} paid to ${S.us}`;
+  const text = state === "empty" ? "No payment yet" : state === "signed" ? `$${amount} signed, not taken` : state === "held" ? `$${amount} held while disputed` : `$${amount} paid to ${S.broker}`;
   return (
     <span className={`wallet w-${state}`} role="status">
       <IcWallet size={14} />
@@ -192,14 +192,14 @@ export default function Customer({ run, steps, view, bodyProps, awaiting, buyer,
             <Decision title="Delivery, after your objection" open={reviewOpen} done={done("after")} taken={undefined}
               actions={<>
                 <button className="btn solid" disabled={busy} onClick={() => move({ action: "accept" }, "after")}>Accept delivery</button>
-                <span className="faint" style={{ fontSize: 12.5 }}>Accepting releases the ${price} to {S.us}.</span>
+                <span className="faint" style={{ fontSize: 12.5 }}>Accepting releases the ${price} to {S.broker}.</span>
               </>}>
               <p className="faint" style={{ margin: 0, fontSize: 13.5 }}>The agent answered your objection with the contract and the evidence above. Nothing was missing from what was agreed, and there is no charge for asking.</p>
             </Decision>
           )}
 
           {n.captured?.status === "done" && (
-            <section className="cust-sec"><div className="cust-step">Paid</div><p className="cust-paid"><IcCheck size={14} strokeWidth={2.2} /> ${price} paid to {S.us}.{view.payments.some((p) => p.mock) && <span className="faint"> Demo payment, no funds move.</span>} The dataset is yours.</p></section>
+            <section className="cust-sec"><div className="cust-step">Paid</div><p className="cust-paid"><IcCheck size={14} strokeWidth={2.2} /> ${price} paid to {S.broker}.{view.payments.some((p) => p.mock) && <span className="faint"> Demo payment, no funds move.</span>} The dataset is yours.</p></section>
           )}
 
           {error && <p className="review-err" role="alert">{error}</p>}
