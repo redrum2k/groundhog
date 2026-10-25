@@ -56,7 +56,7 @@ export interface View {
   lastSeq: number;
   binding?: Binding;
 }
-export interface FoldContext { lane: Case; ending: Ending; learned: boolean; contract: DataContract; live?: boolean }
+export interface FoldContext { lane: Case; ending: Ending; learned: boolean; contract: DataContract; live?: boolean; narrated?: boolean /* the stream carries its own caption events; no scenario captions */ }
 
 const blankNode = (step: Step): NodeState => ({ step, status: "idle", attempt: 1, messages: [], asked: [], drafted: [], pending: {}, checks: {}, evidence: [], allowedBy: [] });
 const LANE_KINDS = new Set(["investigate", "verdict", "amend", "grey", "decide"]);
@@ -94,7 +94,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   if (e.seq <= v.lastSeq) return v;
   v.lastSeq = e.seq;
   if (e.type === "delivery_ready" && e.delivery.reviewClosesAt) v.reviewWindow = windowLabel(Date.parse(e.delivery.reviewClosesAt) - Date.parse(e.at));
-  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? e.state : "") : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
+  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? e.state : "") : ctx.narrated ? "" : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
   if (e.type === "steps_planned") {
     for (const s of e.steps) { v.nodes[s.id] ??= blankNode(s); v.nodes[s.id].step = s; if (!v.order.includes(s.id)) v.order.push(s.id); }
     return v;
