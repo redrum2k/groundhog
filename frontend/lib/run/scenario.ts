@@ -224,7 +224,7 @@ const SRC = (checked: boolean): Draft => ({ type: "source_checked", step: "inves
 ] });
 export const RED: Draft[] = [
   ...openDispute("red", [
-    step("investigate", "investigate", "Investigate", `“${CLAIM.red}”`, true),
+    step("investigate", "investigate", "Investigate", `“${CLAIM.red}”`),
     step("verdict", "verdict", "They're right", "Our check missed 94110"),
   ], buyer("m-claim", "ZIP 94110 is missing from the delivery.")),
   SRC(false),
@@ -245,7 +245,7 @@ export const RED: Draft[] = [
 const ADD_OAKLAND: Amendment = { id: "extra", summary: "Add Oakland ZIPs", price: S.oakland, line: { id: "oakland", text: `Amendment: add Oakland ZIPs · +$${S.oakland}`, check: "schema" } };
 export const GREEN: Draft[] = [
   ...openDispute("green", [
-    step("investigate", "investigate", "Investigate", `“Add Oakland”`, true),
+    step("investigate", "investigate", "Investigate", `“Add Oakland”`),
     step("verdict", "verdict", "We're right", "Contract: SF city only"),
     step("amend", "amend", "Amendment", `Add Oakland for $${S.oakland}`, true),
   ], buyer("m-claim", "Counts look low. Oakland should be in there.")),

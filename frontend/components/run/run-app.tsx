@@ -58,7 +58,7 @@ export default function RunApp() {
   useEffect(() => { const id = requestAnimationFrame(() => { document.documentElement.dataset.anim = ""; }); return () => { cancelAnimationFrame(id); delete document.documentElement.dataset.anim; }; }, []);
 
   const steps = useMemo(() => (run === "shared" ? MAIN : [...MAIN, ...laneSteps(run, ending, learned)]), [run, ending, learned]);
-  const stepOf = (id: string) => steps.find((s) => s.id === id);
+  const stepOf = (id: string) => view.nodes[id]?.step ?? steps.find((s) => s.id === id); // a live stream's own step wins over the recorded plan
   const total = useMemo(() => fullEvents(run, ending, learned).filter((e) => e.type === "step_started").length, [run, ending, learned]);
 
   const nodes = useMemo<CNode[]>(() => {
