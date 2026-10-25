@@ -11,21 +11,21 @@ import os
 import sqlite3
 import subprocess
 import sys
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-
-from tools.judge_journey import Journey, save
-
 from aggregate_qualification import observe
 from app.agents.budget import ModelBudget
 from app.main import create_app
 from primary_followup_eval import source_hash
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from tools.judge_journey import Journey, save  # noqa: E402
 
 AUTH = ROOT / ".local/llm-authorization.json"
 ACCESS = ROOT / ".local/llm-access.json"
@@ -39,15 +39,26 @@ RECIPES = (
     },
     {
         "id": "scope-reasoning",
-        "text": "Our agreement excludes yoga-only participants, so treating their absence as a delivery defect would change the deal.",
+        "text": (
+            "Our agreement excludes yoga-only participants, so treating their absence "
+            "as a delivery defect would change the deal."
+        ),
         "expected": "PASS",
-        "basis": "Accepted explicit exclusion supports this statement; it alleges no output defect. Fresh compound paraphrase, not a canned grammar probe.",
+        "basis": (
+            "Accepted explicit exclusion supports this statement; it alleges no output "
+            "defect. Fresh compound paraphrase, not a canned grammar probe."
+        ),
     },
     {
         "id": "unproved-deduplication",
-        "text": "Gym and app customers might appear in multiple ZIPs. Prove that the underlying people were deduplicated across ZIPs, not merely that each ZIP row occurs once.",
+        "text": (
+            "Gym and app customers might appear in multiple ZIPs. Prove that the underlying "
+            "people were deduplicated across ZIPs, not merely that each ZIP row occurs once."
+        ),
         "expected": "UNKNOWN",
-        "basis": "Aggregate counts and a disjointness contract are not person-level identity evidence.",
+        "basis": (
+            "Aggregate counts and a disjointness contract are not person-level identity evidence."
+        ),
     },
 )
 
@@ -164,18 +175,22 @@ class ConnectedJourney(Journey):
         return body
 
     def assess(self, recipe, run, oid):
-        original = self.order(oid)
-        self.command(
-            f"/orders/{oid}/complaints",
-            {**self.bound(original), "text": recipe["text"]},
-            recipe["id"] + ":plain-complaint",
-            repeat=True,
-        )
-        current = self.wait(
-            lambda: self.order(oid),
-            lambda v: bool(v["order"]["semantic_findings"]),
-            seconds=45,
-        )
+        original = load(self.output / (recipe["id"] + "-delivered.json"))
+        saved = self.output / (recipe["id"] + "-assessed.json")
+        if saved.exists():
+            current = load(saved)  # Technical recovery: no repeated model dispatch.
+        else:
+            self.command(
+                f"/orders/{oid}/complaints",
+                {**self.bound(original), "text": recipe["text"]},
+                recipe["id"] + ":plain-complaint",
+                repeat=True,
+            )
+            current = self.wait(
+                lambda: self.order(oid),
+                lambda v: bool(v["order"]["semantic_findings"]),
+                seconds=45,
+            )
         order = current["order"]
         with sqlite3.connect(self.backend.app.state.orders.repository.path) as db:
             attempts = [
@@ -187,10 +202,15 @@ class ConnectedJourney(Journey):
             ]
         assert len(attempts) == 1
         attempt = attempts[0]
-        save(self.output / (recipe["id"] + "-attempt.json"), attempt)
-        save(self.output / (recipe["id"] + "-assessed.json"), current)
+        if not saved.exists():
+            save(self.output / (recipe["id"] + "-attempt.json"), attempt)
+            save(saved, current)
         assert order["snapshot"] == original["order"]["snapshot"] and not order["ledger"]
-        assert order["snapshot"]["quote"]["amount"] == "1.00"
+        assert order["snapshot"]["quote"]["amount"] == {
+            "amount_minor": 100,
+            "currency": "USD",
+            "decimals": 2,
+        }
         raw, effective = attempt["candidate"], attempt["effective"]
         result = {
             "case": recipe["id"],
@@ -207,7 +227,8 @@ class ConnectedJourney(Journey):
             "raw_explanation": raw["explanation"] if raw else None,
         }
         if order["cases"][-1]["status"] == "unsupported":
-            self.settle_review(recipe["id"], oid)
+            if not self.order(oid)["order"]["ledger"]:
+                self.settle_review(recipe["id"], oid)
         else:
             # Preserve the unresolved/supported hold; never manufacture an answer
             # or approval to make this qualification look successful.
@@ -229,7 +250,7 @@ def application(root):
     )
 
 
-def child(root):
+def child(root, recover=False):
     budget = configure()
     before_hash = source_hash()
     plan = {
@@ -249,10 +270,28 @@ def child(root):
         "concurrency": 1,
         "cutoff": load(AUTH)["cutoff"],
         "additional_spend_cap": 5,
-        "criterion": "Raw model and effective findings must both be correct and model-provenanced; deterministic fallback is not success",
-        "artifact_contract": "Actual HTTP commands/events, source/delivery bytes, raw model responses, persisted attempts, cumulative ledger reconciliation",
+        "criterion": (
+            "Raw model and effective findings must both be correct and "
+            "model-provenanced; deterministic fallback is not success"
+        ),
+        "artifact_contract": (
+            "Actual HTTP commands/events, source/delivery bytes, raw model "
+            "responses, persisted attempts, cumulative ledger reconciliation"
+        ),
     }
-    save(root / "frozen-plan.json", plan)
+    if recover:
+        frozen = load(root / "frozen-plan.json")
+        assert frozen["source_sha256"] == before_hash and frozen["recipes"] == list(RECIPES)
+        save(
+            root / "technical-recovery.json",
+            {
+                "runtime_unchanged": True,
+                "harness_commit": plan["git_commit"],
+                "cause": "Harness compared Money object to string",
+            },
+        )
+    else:
+        save(root / "frozen-plan.json", plan)
     save(
         root / "capsule.json",
         {
@@ -265,23 +304,50 @@ def child(root):
         with TestClient(application(root)) as client:
             gateway = client.app.state.orders.dataset_compiler
             assert gateway.__class__.__name__ == "ClaudeGateway"
-            observe(gateway, root)
+            calls = root / "recovery-calls" if recover else root
+            if recover:
+                calls.mkdir(exist_ok=False)
+            observe(gateway, calls)
             journey = ConnectedJourney(client, root)
-            run, oid = journey.intake("training", 301, ambiguous=True)
-            journey.settle_review("training", oid)
-            candidate = journey.command(
-                "/source-learning/propose",
-                {"target_id": journey.learning()["bundle_id"]},
-                "propose",
-            )["record_id"]
-            journey.command("/source-learning/qualify", {"target_id": candidate}, "qualify")
-            version = journey.command(
-                "/source-learning/approve", {"target_id": candidate}, "approve"
-            )["record_id"]
-            journey.command("/source-learning/activate", {"target_id": version}, "activate")
+            if recover:
+                source = load(root / "training-source.json")
+                journey.anchor = datetime.fromisoformat(
+                    source["partitions"][0]["authority"]["valid_until"]
+                ) - timedelta(hours=24)
+                for label in ("training", *(r["id"] for r in RECIPES)):
+                    delivered = root / (label + "-delivered.json")
+                    if not delivered.exists():
+                        continue
+                    order = load(delivered)["order"]
+                    learning = load(root / (label + "-learning.json"))
+                    journey.report["orders"][label] = {
+                        "run_id": order["snapshot"]["quote"]["request_id"],
+                        "order_id": order["snapshot"]["order_id"],
+                        "snapshot_id": order["snapshot"]["snapshot_id"],
+                        "source_bundle_id": learning["bundle_id"],
+                        "initial_internal_reviews": 2 if label == "training" else 0,
+                    }
+                version = journey.learning()["active_version"]
+            else:
+                run, oid = journey.intake("training", 301, ambiguous=True)
+                journey.settle_review("training", oid)
+                candidate = journey.command(
+                    "/source-learning/propose",
+                    {"target_id": journey.learning()["bundle_id"]},
+                    "propose",
+                )["record_id"]
+                journey.command("/source-learning/qualify", {"target_id": candidate}, "qualify")
+                version = journey.command(
+                    "/source-learning/approve", {"target_id": candidate}, "approve"
+                )["record_id"]
+                journey.command("/source-learning/activate", {"target_id": version}, "activate")
             journey.report["learning_version"] = version
             for batch, recipe in enumerate(RECIPES, 302):
-                run, oid = journey.intake(recipe["id"], batch)
+                if recipe["id"] in journey.report["orders"]:
+                    info = journey.report["orders"][recipe["id"]]
+                    run, oid = info["run_id"], info["order_id"]
+                else:
+                    run, oid = journey.intake(recipe["id"], batch)
                 assert journey.report["orders"][recipe["id"]]["initial_internal_reviews"] == 0
                 results.append(journey.assess(recipe, run, oid))
                 save(root / "results.json", {"cases": results, "journey": journey.report})
@@ -317,7 +383,7 @@ def child(root):
         )
     except BaseException as error:
         save(
-            root / "failure.json",
+            root / ("recovery-failure.json" if recover else "failure.json"),
             {
                 "type": type(error).__name__,
                 "message": str(error),
@@ -333,12 +399,13 @@ def main():
     parser.add_argument("--authorize", action="store_true")
     parser.add_argument("--child", type=Path)
     parser.add_argument("--cohort", default="pilot")
+    parser.add_argument("--recover", action="store_true")
     args = parser.parse_args()
     if args.authorize:
         print(json.dumps(authorize(), indent=2))
         return
     if args.child:
-        child(args.child)
+        child(args.child, args.recover)
         return
     auth = load(AUTH)
     remaining = (datetime.fromisoformat(auth["cutoff"]) - datetime.now(UTC)).total_seconds()
@@ -347,12 +414,15 @@ def main():
     if not args.cohort.replace("-", "").isalnum():
         raise ValueError("Use a simple new cohort identifier")
     root = OUTPUT / args.cohort
-    root.mkdir(parents=True, exist_ok=False)
+    if not args.recover:
+        root.mkdir(parents=True, exist_ok=False)
     started = datetime.now(UTC).isoformat()
-    with (root / "supervisor.log").open("x", encoding="utf-8") as log:
+    prefix = "recovery-supervisor" if args.recover else "supervisor"
+    with (root / (prefix + ".log")).open("x", encoding="utf-8") as log:
         try:
             process = subprocess.run(
-                [sys.executable, str(Path(__file__).resolve()), "--child", str(root)],
+                [sys.executable, str(Path(__file__).resolve()), "--child", str(root)]
+                + (["--recover"] if args.recover else []),
                 cwd=ROOT,
                 stdout=log,
                 stderr=log,
@@ -363,7 +433,7 @@ def main():
         except subprocess.TimeoutExpired:
             result = {"terminated": True, "reason": "Independent authorized cutoff"}
     save(
-        root / "supervisor.json",
+        root / (prefix + ".json"),
         {"started": started, "ended": datetime.now(UTC).isoformat(), **result},
     )
     print(json.dumps({"evidence": str(root), **result}))
