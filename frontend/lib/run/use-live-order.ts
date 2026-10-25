@@ -5,6 +5,7 @@ import type { Binding as DeliveryBinding, OrderView } from "../catalog.generated
 import type { Source } from "./contract";
 import { project } from "./fold";
 import { jsonRequest, useLiveRun } from "./live";
+import { useRevealed } from "./reveal";
 import { useBuyerAddress } from "./buyer-settings";
 import { useCheckout } from "./use-checkout";
 import { isAssessmentAudit } from "./customer-messages";
@@ -24,7 +25,8 @@ export function useLiveOrder() {
   const [resolved,setResolved] = useState<string>();
   const [error,setError] = useState<string>();
   const [acceptance,setAcceptance] = useState<{run:string;binding:DeliveryBinding;revision:number}>();
-  const view = useMemo(()=>project(live.events,{lane:"shared",ending:"human",learned:false,contract:EMPTY,live:true}),[live.events]);
+  const shown = useRevealed(live.events); // what is on screen; the finding of a fresh investigation waits for the groundhog
+  const view = useMemo(()=>project(shown.events,{lane:"shared",ending:"human",learned:false,contract:EMPTY,live:true}),[shown.events]);
   const page = live.page;
   const binding = page?.binding;
   const assessment = currentAssessment(live.events,binding);
@@ -38,7 +40,7 @@ export function useLiveOrder() {
   const runAction = (action:string,body:Record<string,unknown>) => live.command(`/runs/${live.id}/${action}`,{binding,...body});
   const delivery = view.deliveries.at(-1);
   const lines = view.contract.lines.length ? view.contract.lines : view.nodes.clarify?.drafted ?? [];
-  const messages = live.events.flatMap(event=>event.type==="message" && !isAssessmentAudit(event)?[event.message]:[]);
+  const messages = shown.events.flatMap(event=>event.type==="message" && !isAssessmentAudit(event)?[event.message]:[]);
   const accepted=acceptance?.binding;
   const deliveryAccepted=!!accepted && acceptance?.run===live.id && !!binding
     && accepted.snapshot_id===binding.snapshotId && accepted.delivery_version===binding.deliveryVersion
@@ -55,7 +57,7 @@ export function useLiveOrder() {
   }
   function clear() { checkout.clearError();setOffer(undefined);setResolved(undefined);setError(undefined);setAnswer("");setReason(""); }
   return {
-    live, page, view, binding, assessment, busy, enabled, needsHumanReview, hasHumanReview, delivery, deliveryAccepted, lines, messages,
+    live, page, view, read:shown.read, binding, assessment, busy, enabled, needsHumanReview, hasHumanReview, delivery, deliveryAccepted, lines, messages,
     prompt, setPrompt, answer, setAnswer, reason, setReason, offer, resolved, inspect, cite,
     stage:checkout.stage, error:live.error ?? error ?? checkout.error,
     newRun:()=>{live.newRun();clear();},
