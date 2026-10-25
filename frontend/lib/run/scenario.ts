@@ -301,6 +301,7 @@ export function amberOpen(ending: Ending, learned: boolean): Draft[] {
       done("investigate"),
       start("grey"),
       { type: "verdict", step: "grey", verdict: { kind: "agree", decidedBy: "contract", evidenceIds: ["e-v2"], reason: "Contract v2 says yoga counts. No person needed." }, allowedBy: POLICY.contractV2 } as Draft,
+      { type: "aside" as const, step: "grey", text: "Remembering Maya's ruling: contract v2 covers yoga. No human needed this time." },
       done("grey"),
     ] : [
       found("investigate", E.gyms),
