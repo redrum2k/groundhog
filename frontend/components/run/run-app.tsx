@@ -38,7 +38,6 @@ const canvasView = (v: View): CanvasView => ({
   chip: Object.fromEntries(Object.entries(v.nodes).map(([id, n]) => [id, n.chip])),
   orb: { node: v.orb.step, mode: v.orb.mode }, coin: v.coin, loops: v.loops, cards: v.cards,
   source: (() => { const n = Object.values(v.nodes).find((n) => n.source && n.status !== "idle"); return n?.source ? { node: n.step.id, lines: n.source } : null; })(),
-  aside: v.aside ? { node: v.aside.step, text: v.aside.text } : null,
 });
 
 export default function RunApp() {
@@ -58,7 +57,7 @@ export default function RunApp() {
   useEffect(() => { const id = requestAnimationFrame(() => { document.documentElement.dataset.anim = ""; }); return () => { cancelAnimationFrame(id); delete document.documentElement.dataset.anim; }; }, []);
 
   const steps = useMemo(() => (run === "shared" ? MAIN : [...MAIN, ...laneSteps(run, ending, learned)]), [run, ending, learned]);
-  const stepOf = (id: string) => steps.find((s) => s.id === id);
+  const stepOf = (id: string) => view.nodes[id]?.step ?? steps.find((s) => s.id === id); // a live stream's own step wins over the recorded plan
   const total = useMemo(() => fullEvents(run, ending, learned).filter((e) => e.type === "step_started").length, [run, ending, learned]);
 
   const nodes = useMemo<CNode[]>(() => {

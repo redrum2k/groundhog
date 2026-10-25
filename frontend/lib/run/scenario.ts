@@ -1,7 +1,7 @@
 // The demo scenario: DataPact builds a custom audience dataset for Summit Fitness's buying agent.
 // Every name, amount and line of text on the canvas comes from this file. Synthetic data;
 // prices are sample values for the team to confirm.
-import type {
+import type { SourceLine,
   Amendment, ContractLine, ControllerAction, DataContract, Delivery, Evidence, JournalEntry, LaneId, Message, Payment, RunEvent, Step,
   Track, ZipCount,
 } from "./contract";
@@ -15,11 +15,10 @@ export function stamp(track: Track, drafts: Draft[], from = 0): RunEvent[] {
 }
 
 // How long each event holds the screen during playback, long enough to read what changed
-export function holdFor(e: { type: RunEvent["type"] }): number {
+export function holdFor(e: { type: RunEvent["type"]; lines?: SourceLine[] }): number {
   switch (e.type) {
     case "evidence_found": return 1100;
-    case "source_checked": return 900;
-    case "aside": return 1300;
+    case "source_checked": return e.lines?.every((l) => l.checked) ? 900 : 2200; // the first one covers the walk over and the dive
     case "message": return 1250; // long enough to read a one- or two-line bubble
     case "verdict": case "rule_updated": case "controller_decided": case "amendment_signed": case "books_posted": return 1400;
     case "check_passed": case "check_failed": case "check_fixed": return 600;
@@ -224,7 +223,7 @@ const SRC = (checked: boolean): Draft => ({ type: "source_checked", step: "inves
 ] });
 export const RED: Draft[] = [
   ...openDispute("red", [
-    step("investigate", "investigate", "Investigate", `“${CLAIM.red}”`, true),
+    step("investigate", "investigate", "Investigate", `“${CLAIM.red}”`),
     step("verdict", "verdict", "They're right", "Our check missed 94110"),
   ], buyer("m-claim", "ZIP 94110 is missing from the delivery.")),
   SRC(false),
@@ -235,7 +234,6 @@ export const RED: Draft[] = [
   done("investigate"),
   start("verdict"),
   { type: "verdict", step: "verdict", verdict: { kind: "agree", decidedBy: "rules", evidenceIds: ["e-line5", "e-94110"], reason: "The contract promises every SF ZIP and 94110 is missing. Our check used the vendor's list instead of the official one." }, allowedBy: `Contract line: ${CONTRACT[4].text}` },
-  { type: "aside", step: "verdict", text: "Our miss, caught by the checks. Corrected at our cost, no human needed." },
   done("verdict"),
   ...rewalk(sheet(2, "acme-sf-fitness-v2.csv", withheld(ROWS).map((r) => (r.zip === "94110" ? { ...r, flag: "added" as const } : r))), coverageDetails, S.price,
     [entry("Rerun 94110, our cost", "Data cost", "Cash", S.rerunCost)],
@@ -245,7 +243,7 @@ export const RED: Draft[] = [
 const ADD_OAKLAND: Amendment = { id: "extra", summary: "Add Oakland ZIPs", price: S.oakland, line: { id: "oakland", text: `Amendment: add Oakland ZIPs · +$${S.oakland}`, check: "schema" } };
 export const GREEN: Draft[] = [
   ...openDispute("green", [
-    step("investigate", "investigate", "Investigate", `“Add Oakland”`, true),
+    step("investigate", "investigate", "Investigate", `“Add Oakland”`),
     step("verdict", "verdict", "We're right", "Contract: SF city only"),
     step("amend", "amend", "Amendment", `Add Oakland for $${S.oakland}`, true),
   ], buyer("m-claim", "Counts look low. Oakland should be in there.")),
@@ -257,7 +255,6 @@ export const GREEN: Draft[] = [
   done("investigate"),
   start("verdict"),
   { type: "verdict", step: "verdict", verdict: { kind: "disagree", decidedBy: "rules", evidenceIds: ["e-city", "e-line2"], reason: "We delivered what was agreed: San Francisco city only, which Summit said in the interview." }, allowedBy: `Contract line: ${CONTRACT[1].text}` },
-  { type: "aside", step: "verdict", text: "Settled by the contract and the source. No human needed." },
   done("verdict"),
   start("amend"),
   say("amend", buyer("m-yes", "Yes, add Oakland.")),
@@ -301,7 +298,6 @@ export function amberOpen(ending: Ending, learned: boolean): Draft[] {
       done("investigate"),
       start("grey"),
       { type: "verdict", step: "grey", verdict: { kind: "agree", decidedBy: "contract", evidenceIds: ["e-v2"], reason: "Contract v2 says yoga counts. No person needed." }, allowedBy: POLICY.contractV2 } as Draft,
-      { type: "aside" as const, step: "grey", text: "Remembering Maya's ruling: contract v2 covers yoga. No human needed this time." },
       done("grey"),
     ] : [
       found("investigate", E.gyms),

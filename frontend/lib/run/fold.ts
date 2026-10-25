@@ -55,7 +55,6 @@ export interface View {
   reviewWindow?: string; // from the server's review deadline, when a live stream sets one
   lastSeq: number;
   binding?: Binding;
-  aside?: { step: string; text: string }; // the orb's thought at a step
 }
 export interface FoldContext { lane: Case; ending: Ending; learned: boolean; contract: DataContract; live?: boolean }
 
@@ -79,15 +78,15 @@ function coinFor(v: View): Coin | null {
   if (v.payments.some(p => v.paymentStates[p.id])) {
     const states = v.payments.map(p => v.paymentStates[p.id] ?? (p.id in v.captured ? "captured" : "funded"));
     return {
-      text:v.payments.map((p,i)=>`$${p.amount} ${labels[states[i]]}${p.mock ? " · mock" : ""}`).join(" + "),
+      text:v.payments.map((p,i)=>`$${p.amount} ${labels[states[i]]}`).join(" + "),
       done:states.every(s=>s==="captured" || s==="voided"),
       locked:states.some(s=>!["captured","voided","awaiting_signature","blocked_parent"].includes(s)),
     };
   }
   const parts = v.payments.map((p) => `$${p.amount}`).join(" + ");
-  if (v.payments.every((p) => p.id in v.captured)) return { text: `$${money(v)} captured${v.payments.some((p) => p.mock) ? " · mock" : ""}`, done: true };
+  if (v.payments.every((p) => p.id in v.captured)) return { text: `$${money(v)} captured`, done: true };
   if (v.payments.every((p) => p.rail === "mock")) return { text: `${parts} authorized`, locked: !!v.dispute };
-  return { text: `${parts} held${v.payments.some(p => p.mock) ? " · mock" : ""}`, locked: !!v.dispute };
+  return { text: `${parts} held`, locked: !!v.dispute };
 }
 
 /** Applies one event; mutates and returns the same view so callers can fold incrementally. */
@@ -102,7 +101,6 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   }
   if (e.type === "caption") { v.caption = e.text; return v; }
   if (e.type === "source_checked") { const n = v.nodes[e.step]; if (n) n.source = e.lines; return v; }
-  if (e.type === "aside") { v.aside = { step: e.step, text: e.text }; return v; }
   if (e.type === "payment_authorized") { v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment]; v.coin = coinFor(v); return v; }
   if (e.type === "payment_captured") { v.captured[e.paymentId] = e.captureTx; v.coin = coinFor(v); return v; }
   if (e.type === "payment_state_changed") {
