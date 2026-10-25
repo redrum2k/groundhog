@@ -149,6 +149,30 @@ def audit(root):
                 assert attempt["internal_reviews"] == 0 and attempt["baseline_reviews"] == 2
                 assessment = load(root / (label + "-attempt.json"))
                 assert assessment["order_id"] == info["order_id"]
+                specification = json.dumps(
+                    snapshot["quote"]["specification"],
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                ).encode()
+                assert (
+                    assessment["accepted_specification_sha256"]
+                    == hashlib.sha256(specification).hexdigest()
+                )
+                expected = next(r["expected"] for r in plan["recipes"] if r["id"] == label)
+                outcome = next(r for r in results["cases"] if r["case"] == label)
+                assert outcome["raw"] == assessment["candidate"]["result"]
+                assert outcome["effective"] == assessment["effective"]["result"]
+                assert outcome["raw_correct"] == (outcome["raw"] == expected)
+                assert outcome["effective_correct"] == (outcome["effective"] == expected)
+                assert outcome["effective_model_provenance"] == (
+                    assessment["effective"]["provenance"]["kind"] == "model"
+                )
+                provider_text = "".join(
+                    block["text"]
+                    for block in assessment["raw_response"]["content"]
+                    if block["type"] == "text"
+                )
+                assert json.loads(provider_text)["result"] == outcome["raw"]
                 responses.append(assessment["raw_response"])
                 assert assessment["candidate"]["provenance"]["kind"] == "model"
                 for key in ("candidate", "effective"):

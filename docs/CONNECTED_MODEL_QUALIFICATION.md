@@ -32,7 +32,9 @@ The isolated branch `feature/llm-learning-qualified-20261024` merges main
 There were no textual merge conflicts. Gateway wording repair, plain-text
 complaint routing, financial contracts, payment code, $1 pricing, and frontend
 checkout code were retained unchanged from main. The subsequent main update
-`de1725008118171206628020751697381e2e657a` adds documentation only.
+`de1725008118171206628020751697381e2e657a` adds documentation only and is also
+merged into this local feature branch. The current application source hash still
+exactly matches the paid trial; the harness recovery changed no application code.
 
 The live-model trial explicitly used Nikita's new `/orders/{id}/complaints`
 plain-text command and asserted the actual accepted price object:
@@ -91,6 +93,22 @@ $17.129304 includes $2.129304 prior conservative commitments, the unchanged $10
 reserve and the $5 allowance. Concurrency is one; SDK retries are zero; a hidden
 parent process enforces a timeout no later than the authorization cutoff.
 The test exited successfully; no paid worker/server is left running.
+
+## Integration checks
+
+- **499 backend tests passed** in 268.31 seconds, including source learning,
+  datasets, catalog, investigation, model budgets, catalog worker and settlement.
+  One existing dependency deprecation warning; not a full-repository test claim.
+- **153 frontend tests passed**, plus generated-contract freshness, TypeScript
+  and a production build of Nikita/Lucas's combined frontend.
+- Ruff lint and formatting passed (213 files).
+- Independent saved-byte/model/financial audit passed while explicitly reporting
+  the **failed combined semantic qualification**. Green regression tests do not
+  erase that observed product failure.
+- Git confirms latest fetched main is an ancestor of this branch. Nikita's gateway,
+  order/complaint/financial contracts, payment modules and the shared UI match main.
+
+The test branch is local; neither main nor a running shared application was changed.
 
 Audit without any model calls:
 
