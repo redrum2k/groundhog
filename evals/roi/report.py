@@ -66,11 +66,31 @@ def dashboard_data(directory):
     )
 
 
-def render(directory, report_name="report.html"):
+def render(directory, report_name="report.html", *, public_snapshot=False):
     if not re.fullmatch(r"[A-Za-z0-9][\w.-]*\.html", report_name):
         raise ValueError("Presentation name must be a local HTML filename")
     data = dashboard_data(directory)
+    if public_snapshot:
+        # Publish only the existing aggregate/per-case counts. Local paths and process
+        # identities are useful for a private audit, not a standalone public download.
+        for row in data["cases"]:
+            row.pop("trace", None)
+            row.pop("process_id", None)
     template = Path(__file__).with_name("dashboard.html").read_text(encoding="utf-8")
+    if public_snapshot:
+        template = re.sub(r'href="(?!#)[^"]+"', 'href="#publication-note"', template)
+        template = template.replace(
+            "Each link opens original records from the isolated execution.",
+            "This public snapshot contains per-case counts, not private raw traces.",
+        )
+        template = template.replace(
+            "<footer>",
+            '<footer><p id="publication-note"><b>Public evidence snapshot.</b> '
+            "Private traces, databases and pilot packets are intentionally not bundled. "
+            "See docs/ROI_RESULTS.md and docs/evidence/roi-lab-20261025.json in the "
+            "repository for the original revision, artifact hashes and reproduction "
+            "commands. This is an export of the preserved run, not a new experiment.</p>",
+        )
     script = Path(__file__).with_name("dashboard.js").read_text(encoding="utf-8")
     page = template.replace("__ROI_DATA__", json.dumps(data).replace("<", "\\u003c")).replace(
         "__ROI_SCRIPT__", script

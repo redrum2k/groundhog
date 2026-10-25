@@ -7,3 +7,5 @@ frontend/api.generated.ts text eol=lf
 docs/openapi.json text eol=lf
 # Preserve the published qualification bundle hashes on Windows checkouts.
 docs/evidence/aggregate-qualification*.json text eol=lf
+# The published ROI dashboard is a hashed export of the preserved local run.
+docs/evidence/roi-dashboard.html text eol=lf

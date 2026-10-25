@@ -4,6 +4,7 @@ const {pathToFileURL}=require('node:url');
 const {chromium,expect}=require(path.resolve(__dirname,'../../frontend/node_modules/@playwright/test'));
 const directory=path.resolve(process.argv[2]||'');
 const reportName=process.argv[3]||'report.html',stem=path.parse(reportName).name;
+const publicSnapshot=process.argv[4]==='--public-snapshot';
 if(path.basename(reportName)!==reportName)throw Error('Report must be a local filename');
 const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 (async()=>{
@@ -49,7 +50,14 @@ const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest
   await page.locator('#trace-filter').selectOption('all');
   if(await page.locator('#trace-table tbody tr').count()!==60)throw Error('Wrong scheduled denominator');
   const traceLinks=await page.locator('#trace-table tbody a').evaluateAll(els=>els.map(e=>e.getAttribute('href')));
-  if(!traceLinks.every(link=>fs.existsSync(path.join(directory,link))))throw Error('Trace link has no original record');
+  if(publicSnapshot){
+   if(traceLinks.length)throw Error('Public snapshot exposes private trace links');
+   await expect(page.locator('#publication-note')).toContainText('Private traces');
+   const valid=await page.locator('a').evaluateAll(els=>els.every(e=>{const h=e.getAttribute('href');return h.startsWith('#')&&document.getElementById(h.slice(1));}));
+   if(!valid)throw Error('Public snapshot has a broken or external link');
+   const privateData=await page.evaluate(()=>JSON.parse(document.getElementById('roi-data').textContent).cases.some(r=>'trace' in r||'process_id' in r));
+   if(privateData)throw Error('Public snapshot contains private trace metadata');
+  }else if(traceLinks.length!==60||!traceLinks.every(link=>fs.existsSync(path.join(directory,link))))throw Error('Trace link has no original record');
   await page.setViewportSize({width:390,height:844});
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:path.join(directory,stem+'-mobile.png'),fullPage:true});

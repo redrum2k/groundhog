@@ -8,6 +8,7 @@ Do **not** replace this with “X% less operator attention.” The 60 scenarios 
 
 ## Open the deliverables
 
+- GitHub-ready [standalone dashboard](evidence/roi-dashboard.html): download the raw HTML and open locally. It contains the original per-case counts and interactive assumptions, but intentionally omits private trace links and process identities.
 - Final read-only dashboard: [report-release.html](../.local/roi-attempt-001/report-release.html). It works directly from a local file; no server or paid calls are needed.
 - [Desktop screenshot](../.local/roi-attempt-001/report-release-desktop-top.png) and [mobile screenshot](../.local/roi-attempt-001/report-release-mobile-top.png).
 - [Method, fairness, economics and literature](ROI_METHOD.md).
@@ -126,4 +127,26 @@ The brief's three arms, six workload categories, complete no-learning resolution
 
 No humans participated; active-minute savings, real operator mistakes/time distribution, production inference/compute/storage/support/payment expense, empirical prevalence, cash realization, real deployment reliability and broader business impact remain unmeasured. The pilot export is the explicit permitted fallback, not a claim that the pilot was run. Literature supplies mechanisms only, not calibration or sponsor promises. Zero failures in this finite synthetic suite does not prove production reliability.
 
-All changes are focused **local commits only**. No push, merge or deployment is included. Production application behavior, live authorization, existing budgets, accepted agreements, prior qualification evidence and sealed evaluation keys are unchanged.
+The original experiment was delivered as focused **local commits only**. The subsequent user-authorized GitHub publication is recorded below. Production application behavior, live authorization, existing budgets, accepted agreements, prior qualification evidence and sealed evaluation keys are unchanged by the ROI changes.
+
+## GitHub integration — October 25, 2026
+
+The user subsequently requested publication in the main repository and a fresh Greptile check. Current upstream `0407a71` was merged into this feature branch at `57f9191`, preserving the team's UI, source-visit and mock-payment changes. The only merge conflict was README wording; both the ROI section and Summit Fitness naming were retained. There are no ROI changes to production backend/frontend code relative to that main revision.
+
+The public dashboard is a sanitized **export of the original run**, not a rerun or a claim that the 60-case workload executed at this integration revision. The original results, hashes, capsules and all private artifacts remain untouched. Its SHA-256 is `dabe93d7c3b9bbd6a9c0728aa8bb2352f7a6a3987155d86d221f17bdd7550117`. Git preserves its LF bytes. Private evidence links lead to an explicit disclosure instead of broken local paths; the repository contains the sanitized evidence index and reproduction tooling, not raw databases, evaluator artifacts, credentials or generated datasets.
+
+Fresh compatibility checks on the integrated branch:
+
+- **115 tests passed** in 66.81 seconds: the prior relevant set plus upstream's ten mock-payment-pacing tests. XML `.local/roi-main-integration-tests.xml`, SHA-256 `4edb0e8840b49fae7ccbc66627ad7358cb55db98ec921f05de1a4031bb08fd87`.
+- Additional public-export regression checks preserve failed-case denominators, reject overwriting, strip private links/metadata and compare the committed snapshot against the frozen evidence and current dashboard script.
+- Public dashboard browser checks passed desktop/mobile, 18 calculator comparisons, 60 visible cases/eight holds, valid internal links, no private trace metadata, no network calls/browser errors and no mutation of the original evidence.
+- Ruff and whitespace checks pass. The full repository suite and live-model experiment were not rerun; earlier live-model qualification remains separate inherited evidence.
+
+The earlier PR #53 received Greptile **5/5** at `82dd93a`; that rating does **not** cover this ROI change. Request a fresh review of the ROI PR's exact head. This publication does not authorize deployment or production activation.
+
+Public-export reproduction from the preserved artifact directory (use a fresh filename):
+
+```powershell
+uv run --locked --directory backend python ../tools/roi_benchmark.py report --output ../.local/roi-attempt-001 --report-name report-github.html --public-snapshot
+node evals/roi/browser_check.cjs .local/roi-attempt-001 report-github.html --public-snapshot
+```

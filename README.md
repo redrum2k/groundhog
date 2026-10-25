@@ -17,6 +17,17 @@ scripted work episodes are not staff minutes. Source-owner/buyer work, setup, fa
 holds and all economic assumptions remain visible. The standalone report has no network
 or financial-execution path. No live inference or production activation is implied.
 
+**Results:** all three arms correctly handled 60/60 scenarios (52 fulfilled, eight
+safely held). Including setup, provider work episodes were **247 with operator notes,
+268 without learning, and 201 with approved learning**. These are scripted counts,
+not measured staff-time or cash savings.
+
+Download [the standalone ROI dashboard](docs/evidence/roi-dashboard.html) using
+GitHub's **Download raw file**, then open it locally. It includes the preserved
+counts and interactive assumptions, but no private traces or databases. Under the
+illustrative defaults, capacity break-even is 39 seconds/scenario; at 50% cash
+realization it is 78 seconds. Human timing remains unmeasured.
+
 ```powershell
 uv sync --locked --project backend
 # Commit the implementation first; use a fresh private output name.

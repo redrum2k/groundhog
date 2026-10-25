@@ -96,4 +96,4 @@ The brief's separate literature-review/calculator attachments and claimed README
 
 ## Reproduction and completion evidence
 
-See `ROI_RESULTS.md` for the exact executed revision, capsule hash, commands, quality results, retained failures, default scenarios, screenshots and remaining unmeasured quantities. The report is a standalone `file://`-compatible HTML artifact with embedded data/assets, no network calls or financial command path. Changing inputs changes only projections. All implementation commits stay local; no push, merge or deployment is authorized by this brief.
+See `ROI_RESULTS.md` for the exact executed revision, capsule hash, commands, quality results, retained failures, default scenarios, screenshots and remaining unmeasured quantities. The report is a standalone `file://`-compatible HTML artifact with embedded data/assets, no network calls or financial command path. Changing inputs changes only projections. The original brief required local-only commits; the user's subsequent GitHub-publication request permits the feature push and review documented in `ROI_RESULTS.md`, not deployment or production activation.

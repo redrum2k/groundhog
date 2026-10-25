@@ -107,6 +107,7 @@ def main():
     parser.add_argument("--arm", choices=ARMS)
     parser.add_argument("--stream")
     parser.add_argument("--report-name", default="report.html")
+    parser.add_argument("--public-snapshot", action="store_true")
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument("--stop", type=int, default=1000)
     args = parser.parse_args()
@@ -133,7 +134,9 @@ def main():
         print(
             json.dumps(
                 {
-                    "quality_gate": render(directory, args.report_name)["quality_gate"],
+                    "quality_gate": render(
+                        directory, args.report_name, public_snapshot=args.public_snapshot
+                    )["quality_gate"],
                     "report": str(directory / args.report_name),
                 }
             )
