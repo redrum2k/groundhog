@@ -29,17 +29,14 @@ it("requires an explicit owner column and evidence explanation, then submits the
   expect(body.idempotency_key).toBeTruthy();
 });
 
-it("stops polling a disabled backend and permits an explicit availability retry", async () => {
+it("stops polling a backend without learning and shows no learning button", async () => {
   vi.useFakeTimers();
   const fetch = vi.fn(async () => Response.json({detail: "controlled local source learning is not enabled"}, {status: 503}));
   vi.stubGlobal("fetch", fetch);
   render(<SourceLearning openRun={vi.fn()} />);
   await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
   expect(fetch).toHaveBeenCalledTimes(1);
-  fireEvent.click(screen.getByRole("button", {name: /Source learning/}));
-  fireEvent.click(screen.getByRole("button", {name: "Check again"}));
-  await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
-  expect(fetch).toHaveBeenCalledTimes(2);
+  expect(screen.queryByRole("button", {name: /Source learning/})).toBeNull();
 });
 
 it("retains stale reviews as history without a resolve control or actionable count", async () => {
