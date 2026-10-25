@@ -229,6 +229,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
               <div className="src-lines">{source.lines.map((l, i) => <span key={l.id} className={`src-l${l.checked ? " ok" : ""}`} style={{ transitionDelay: `${i * 60}ms` }}>{l.checked ? <IcCheck size={11} strokeWidth={2.4} /> : <i className="spin2" />}<Label text={l.text} quiet="tail" /></span>)}</div>
             </div>
           )}
+          {!quiet && tunnel.trail && <DigTrail key={tunnel.trail.id} trail={tunnel.trail} />}
           {!quiet && view.orb && (
             <div className={`orb-wrap${tunnel.phase ? ` tunnel-${tunnel.phase}` : ""}`} style={{ transform: `translate(${tunnel.x}px, ${tunnel.y}px)` }}>
               <Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} />
@@ -244,27 +245,75 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   );
 }
 
-// The groundhog doesn't slide between steps: it ducks into its hole, the hole closes, and it pops
-// up out of a new hole at the next step: an unhurried dive and climb, about 1.7 s in all.
-// Reduced motion just moves it.
+// The groundhog doesn't slide between steps: it ducks into its hole, the hole closes, it digs
+// underground (a line of pebbles grows from the old step to the next), and it pops up out of a
+// new hole at the next step. The trail fades once it's out. Reduced motion just moves it.
 const DIVE_MS = 820; // dive 600ms, then the hole closes by ~800ms
+const DIG_MS = 760; // the pebble line takes this long to reach the next step
+const TRAIL_HOLD_MS = 900; // how long the trail lingers after it pops up, before fading
+type Pt = { x: number; y: number };
+type Trail = { id: number; from: Pt; to: Pt; fading: boolean };
 function useTunnel(x: number, y: number) {
   const [state, setState] = useState<{ x: number; y: number; phase: "" | "down" | "hidden" }>({ x, y, phase: "" });
+  const [trail, setTrail] = useState<Trail | null>(null);
   const target = useRef({ x, y });
+  const seq = useRef(0);
   useEffect(() => {
     if (target.current.x === x && target.current.y === y) return;
+    const from = target.current;
     target.current = { x, y };
     if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
       setState({ x, y, phase: "" });
+      setTrail(null);
       return;
     }
-    setState((s) => ({ ...s, phase: "down" }));
+    const id = ++seq.current;
+    const timers: number[] = [];
     let raf = 0;
-    const dive = window.setTimeout(() => {
+    const later = (ms: number, f: () => void) => timers.push(window.setTimeout(f, ms));
+    setState((s) => ({ ...s, phase: "down" }));
+    later(DIVE_MS, () => setTrail({ id, from, to: { x, y }, fading: false }));
+    later(DIVE_MS + DIG_MS, () => {
       setState({ x, y, phase: "hidden" });
       raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => setState({ x, y, phase: "" }))));
-    }, DIVE_MS);
-    return () => { window.clearTimeout(dive); cancelAnimationFrame(raf); };
+    });
+    later(DIVE_MS + DIG_MS + TRAIL_HOLD_MS, () => setTrail((t) => (t && t.id === id ? { ...t, fading: true } : t)));
+    later(DIVE_MS + DIG_MS + TRAIL_HOLD_MS + 700, () => setTrail((t) => (t && t.id === id ? null : t)));
+    return () => { timers.forEach((t) => window.clearTimeout(t)); cancelAnimationFrame(raf); };
   }, [x, y]);
-  return state;
+  return { ...state, trail };
+}
+
+// Pebbles and dirt clods along the underground path, from the old burrow's mouth to the new one.
+// Sizes, offsets and shades come from the index, so the trail looks dug by hand but never flickers.
+const PEBBLE_SHADES = ["#6f5537", "#8a6a46", "#5a4430", "#9b7b55", "#7a5c3c"];
+const MOUTH = { x: 17, y: 29 }; // the burrow's mouth inside the 34px mascot box
+function DigTrail({ trail }: { trail: Trail }) {
+  const ax = trail.from.x + MOUTH.x, ay = trail.from.y + MOUTH.y;
+  const bx = trail.to.x + MOUTH.x, by = trail.to.y + MOUTH.y;
+  const len = Math.hypot(bx - ax, by - ay) || 1;
+  const n = Math.max(5, Math.round(len / 11));
+  const nx = -(by - ay) / len, ny = (bx - ax) / len; // unit normal, for the wobble
+  const pebbles = Array.from({ length: n }, (_, i) => {
+    const t = (i + 0.5) / n;
+    const wobble = Math.sin(i * 2.3) * 2.6;
+    const r = 1.6 + ((i * 7) % 5) * 0.35;
+    return {
+      x: ax + (bx - ax) * t + nx * wobble,
+      y: ay + (by - ay) * t + ny * wobble,
+      rx: r * 1.25,
+      ry: r * 0.85,
+      rot: (i * 37) % 180,
+      fill: PEBBLE_SHADES.at(i % PEBBLE_SHADES.length),
+      delay: Math.round((i / Math.max(1, n - 1)) * DIG_MS * 0.92),
+    };
+  });
+  return (
+    <svg className={`dig-trail${trail.fading ? " fading" : ""}`} aria-hidden>
+      {pebbles.map((p, i) => (
+        <ellipse key={i} className="dig-pebble" cx={p.x} cy={p.y} rx={p.rx} ry={p.ry}
+          fill={p.fill} style={{ animationDelay: `${p.delay}ms`, rotate: `${p.rot}deg` }} />
+      ))}
+    </svg>
+  );
 }

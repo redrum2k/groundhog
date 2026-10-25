@@ -187,6 +187,10 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .orb-wrap.tunnel-down :is(.orb-sheet, .orb-lens), .orb-wrap.tunnel-hidden :is(.orb-sheet, .orb-lens) { opacity: 0; }
 .orb-wrap.tunnel-hidden .gh-rise { transform: translateY(15px); transition: none; }
 .orb-wrap.tunnel-hidden :is(.gh-hole-rim, .gh-hole, .gh-lip) { transform: scale(0); transition: none; }
+/* the digging line: pebbles pop in one after another along the underground path, then fade */
+.dig-trail { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; pointer-events: none; z-index: 1; transition: opacity 700ms ease-out; }
+.dig-trail.fading { opacity: 0; }
+.dig-pebble { transform-box: fill-box; transform-origin: center; opacity: 0; scale: 0.2; animation: pebble-in 320ms cubic-bezier(0.22, 0.8, 0.3, 1) forwards; }
 .orb { position: relative; display: block; width: 34px; height: 34px; }
 .orb svg { display: block; overflow: visible; }
 /* the groundhog and its burrow */
@@ -245,6 +249,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 /* a sniff: the nose twitches twice, then rests */
 @keyframes badge-in { from { opacity: 0; transform: scale(0.4); } 70% { transform: scale(1.15); } to { opacity: 1; transform: scale(1); } }
 @keyframes badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+@keyframes pebble-in { 0% { opacity: 0; scale: 0.2; translate: 0 2px; } 70% { opacity: 1; scale: 1.12; translate: 0 -0.6px; } 100% { opacity: 1; scale: 1; translate: 0 0; } }
 @keyframes sniff { 0%, 60%, 100% { transform: scale(1); } 66% { transform: scale(0.84, 0.88); } 72% { transform: scale(1.06); } 78% { transform: scale(0.84, 0.88); } 86% { transform: scale(1); } }
 @keyframes sniff-muzzle { 0%, 62%, 100% { transform: scale(1); } 68%, 80% { transform: scale(1.04, 0.96); } 74%, 86% { transform: scale(1); } }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
@@ -427,7 +432,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 
 @media (prefers-reduced-motion: reduce) {
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
-  .orb, .gh-rise, .gh-tilt, .gh-gaze, .gh-breathe, .gh-nose, .gh-muzzle, .gh-badge, .orb-eyes, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
+  .dig-trail, .orb, .gh-rise, .gh-tilt, .gh-gaze, .gh-breathe, .gh-nose, .gh-muzzle, .gh-badge, .orb-eyes, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
   :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: none; }
   :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, :root[data-anim] .src, :root[data-anim] .src-l, .bub, .panel { transition: opacity 150ms ease; transform: none; scale: none; translate: none; }
 }
