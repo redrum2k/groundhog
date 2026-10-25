@@ -13,7 +13,7 @@ const snapshot = (c: Case, upTo = Infinity): BrokerSnapshot => {
   const { checksBySeq, rowsByVersion } = load<Pick<BrokerSnapshot, "checksBySeq" | "rowsByVersion">>(`${c}-snapshots`);
   return { events, order, checksBySeq, rowsByVersion };
 };
-const view = (c: Case) => project(translate(snapshot(c), c), { lane: c, ending: "human", learned: false, contract: CONTRACT_V1 });
+const view = (c: Case) => project(translate(snapshot(c), c), { lane: c, ending: "human", learned: false, contract: CONTRACT_V1, narrated: true });
 
 describe("broker stream → canvas", () => {
   it("walks the no-dispute order from interview to a demo capture", () => {
@@ -70,7 +70,7 @@ describe("broker stream → canvas", () => {
     const opened = s.events.findIndex((e) => e.type === "case.opened");
     const event: BrokerEvent = { ...s.events[opened], id: "event_assessed", type: "dispute.assessed", payload };
     const events = translate({ ...s, events: [...s.events.slice(0, opened + 1), event, ...s.events.slice(opened + 1)] }, "green");
-    return { events, v: project(events, { lane: "green", ending: "human", learned: false, contract: CONTRACT_V1 }) };
+    return { events, v: project(events, { lane: "green", ending: "human", learned: false, contract: CONTRACT_V1, narrated: true }) };
   };
 
   it("shows a model-decided dispute as decided by model, verified by code, with its quoted references as evidence", () => {
