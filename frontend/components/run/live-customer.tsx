@@ -16,7 +16,7 @@ export default function LiveCustomer({order,pay,working,customer,admin}:{order:L
           <Chat items={order.messages} view={order.view} onCite={order.cite} guide/>
         </Transcript>}
         <LiveIntake order={order}/>
-        {order.view.nodes.verdict?.verdict && <div ref={assessment} className="live-assessment"><LiveVerdict order={order} verdict={order.view.nodes.verdict.verdict} showEvidence={false}/></div>}
+        {order.assessment && <div ref={assessment} className="live-assessment"><LiveVerdict order={order} verdict={order.assessment.verdict} showEvidence={false} review={()=>decision.current?.scrollIntoView({block:"start",behavior:"instant"})} customer={customer}/></div>}
         <div ref={decision} className="live-decisions">
           <OrderDecisions order={order} pay={pay} working={working} funding={funding}/>
         </div>
@@ -54,7 +54,7 @@ function useConversationGuide(order:LiveOrder) {
   const funding=!!payment && !["funded","captured","voided"].includes(payment.state);
   const needsDecision=!!order.stage || funding || !order.binding && !!quote || order.enabled("accept");
   const at=useOrbFlight(col,needsDecision?"decision":order.messages.length?"transcript":"home");
-  const verdict=order.view.nodes.verdict?.verdict;
+  const verdict=order.assessment?.verdict;
   const turn=verdict?JSON.stringify([verdict.reason,verdict.evidenceIds]):order.page?.request.question?.question_id ?? (order.enabled("accept")?order.delivery?.artifactId:!order.binding?quote?.quote_id:undefined);
   useLayoutEffect(()=>{
     if(turn){

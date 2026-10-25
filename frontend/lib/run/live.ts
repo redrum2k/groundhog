@@ -21,6 +21,7 @@ export function useLiveRun() {
   const [page, setPage] = useState<RunPage>();
   const [error, setError] = useState<string>();
   const [pollError, setPollError] = useState<string>();
+  const [missing, setMissing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [refresh, setRefresh] = useState(0);
@@ -54,6 +55,7 @@ export function useLiveRun() {
     }
     setRefreshing(!!id);
     setPollError(undefined);
+    setMissing(false);
     if (!id) return () => abort.abort();
     let cursor = 0;
     let timer: ReturnType<typeof setTimeout>;
@@ -73,6 +75,11 @@ export function useLiveRun() {
         // Keep the last confirmed review and decision visible, but disable mutations
         // until current permissions are available again.
         setRefreshing(true);
+        if (err instanceof RunError && err.status === 404) {
+          setMissing(true);
+          setPollError("This order was not found on the connected backend. Choose New request to start again, or Refresh after reconnecting the original backend.");
+          return;
+        }
         setPollError(err instanceof Error ? err.message : "Backend unavailable");
         timer = setTimeout(poll, 1000);
       }
@@ -119,5 +126,5 @@ export function useLiveRun() {
       } else setError(err instanceof Error ? err.message : "Command failed");
     } finally { if (turn === generation.current) setBusy(false); }
   };
-  return {id,events,page,error:pollError ?? error,busy:busy || refreshing,start,resume,command, newRun:()=>{identity.current++;generation.current++;localStorage.removeItem(SESSION);pending.current=undefined;setId(undefined);setPage(undefined);setEvents([]);setBusy(false);setRefreshing(false);setError(undefined);}, retry:()=>{setError(undefined);setRefreshing(!!id);setRefresh(n=>n+1);}};
+  return {id,events,page,error:pollError ?? error,busy:busy || refreshing,canRecover:missing && !busy,start,resume,command, newRun:()=>{identity.current++;generation.current++;localStorage.removeItem(SESSION);pending.current=undefined;setId(undefined);setPage(undefined);setEvents([]);setBusy(false);setRefreshing(false);setError(undefined);}, retry:()=>{setError(undefined);setRefreshing(!!id);setRefresh(n=>n+1);}};
 }

@@ -8,6 +8,7 @@ import { jsonRequest, useLiveRun } from "./live";
 import { useBuyerAddress } from "./buyer-settings";
 import { useCheckout } from "./use-checkout";
 import { isAssessmentAudit } from "./customer-messages";
+import { currentAssessment } from "./assessment";
 
 const EMPTY = {version:0,buyer:"",title:"",price:0,lines:[]};
 const REVIEW_REASONS={approve:"Approve the return of uncaptured funds for this unresolved case.",reject:"Reject the proposed return and retain human review.",ask:"Request additional evidence within the existing deadline.",escalate:"Escalate the unresolved case for further human review."};
@@ -26,6 +27,7 @@ export function useLiveOrder() {
   const view = useMemo(()=>project(live.events,{lane:"shared",ending:"human",learned:false,contract:EMPTY,live:true}),[live.events]);
   const page = live.page;
   const binding = page?.binding;
+  const assessment = currentAssessment(live.events,binding);
   const busy = live.busy || !!checkout.stage;
   const enabled = (action:string) => !busy && !!page?.available_actions.some(a=>a.action===action && a.enabled);
   const needsHumanReview = !!page?.available_actions.some(a=>["approve","reject","ask","escalate"].includes(a.action) && a.enabled);
@@ -53,7 +55,7 @@ export function useLiveOrder() {
   }
   function clear() { checkout.clearError();setOffer(undefined);setResolved(undefined);setError(undefined);setAnswer("");setReason(""); }
   return {
-    live, page, view, binding, busy, enabled, needsHumanReview, hasHumanReview, delivery, deliveryAccepted, lines, messages,
+    live, page, view, binding, assessment, busy, enabled, needsHumanReview, hasHumanReview, delivery, deliveryAccepted, lines, messages,
     prompt, setPrompt, answer, setAnswer, reason, setReason, offer, resolved, inspect, cite,
     stage:checkout.stage, error:live.error ?? error ?? checkout.error,
     newRun:()=>{live.newRun();clear();},

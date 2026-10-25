@@ -2,6 +2,15 @@
 
 Current local semantic follow-up state and limitations: [HANDOFF.md](HANDOFF.md).
 
+## Ownership-scoped hackathon Q&A
+
+For `grill-me` or technical Q&A rehearsal, read
+[docs/GRILL_ME_REFERENCE.md](docs/GRILL_ME_REFERENCE.md). Establish whether the
+participant is Jeff, Nikita or Lucas, then restrict questions to their implemented
+topics and named shared boundaries. File location or merge authorship alone does
+not establish ownership. Recheck current code before grading; this reference does
+not change engineering ownership or product policy.
+
 ## Aggregate brokerage is the primary product
 
 Follow HACK.md (`aggregate-brokerage-v1`) and docs/workstreams/06-data-broker.md.

@@ -53,7 +53,7 @@ it("puts Summit Fitness in the header as the only customer identity and opens it
   await screen.findByText(explanation);
   const header=screen.getByRole("banner");
   expect(within(header).getByText("Financial agent for Bayline Data")).toBeTruthy();
-  const account=within(header).getByRole("button",{name:"Summit Fitness wallet"});
+  const account=within(header).getByRole("button",{name:/^Summit Fitness.*wallet settings/});
   expect(screen.getAllByText("Summit Fitness")).toHaveLength(1);
   expect(within(screen.getByRole("main",{name:"Customer view"})).queryByText("Summit Fitness")).toBeNull();
   expect(screen.queryByRole("button",{name:/Source learning/})).toBeNull();
