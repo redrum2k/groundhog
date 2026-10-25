@@ -1,0 +1,23 @@
+{
+  "status": "verified_bounded_live_qualification",
+  "runtime_commit": "3da9be2e03dc3b805433868e9cbc525b2a5278f9",
+  "integrated_main": "1408b56",
+  "capsule_sha256": "908edeb5e8f2dfd503dd88218a1afc6732f6bdb8330410fc9a6a1699c2769aa9",
+  "authorization": {"mode": "budget_only", "new_money": 0, "preserved_cumulative_cap_usd": 17.129304, "preserved_reserve_usd": 10, "remaining_usd_after": 2.639400},
+  "actual_provider_calls": 12,
+  "estimated_cost_usd": 0.425644,
+  "model": "claude-opus-5-5",
+  "cases": [
+    {"case": "zero-count-with-negation", "expected": "FAIL", "raw": "FAIL", "effective": "FAIL", "provenance": "model", "blind_review": true, "exact_refs_verified": 9, "rows_verified": 27, "order_id": "order-quote-9fe512fd2c9a40838befc336789da16c", "run_id": "request-3b5e7ad4187a41dd805c7ca0d282db50", "baseline_reviews": 2, "learner_reviews": 0, "terminal_bookings": 1},
+    {"case": "suppression-not-download-fault", "expected": "PASS", "raw": "PASS", "effective": "PASS", "provenance": "model", "blind_review": true, "exact_refs_verified": 12, "rows_verified": 27, "order_id": "order-quote-69b8717f55974744a3e8844bd24cd036", "run_id": "request-dd33682f5dbb4acfb7c78df55ebb084b", "baseline_reviews": 2, "learner_reviews": 0, "terminal_bookings": 1},
+    {"case": "threshold-and-membership-inference", "expected": "UNKNOWN", "raw": "UNKNOWN", "effective": "UNKNOWN", "provenance": "model", "blind_review": false, "exact_refs_verified": 6, "rows_verified": 27, "order_id": "order-quote-9ec94d867bfd47d6936915fac9c69082", "run_id": "request-7e94a1b3e69d42f98b517fe5f6374f6b", "baseline_reviews": 2, "learner_reviews": 0, "terminal_bookings": 1}
+  ],
+  "learning_version": "institutional-c9d8dc69a94c41d1c9b76c8f7414d8ed50dd66cc84a48cc23d2a9f83c9728060",
+  "restart_verified": true,
+  "replayed_commands": 16,
+  "tests": {"focused_budget_launcher": 43, "catalog_investigation_source_learning": 177, "frontend": 153, "production_frontend_build": "pass", "full_backend_after_budget_change": "not_rerun; prior full-suite 1085 passed/16 known Windows failures"},
+  "private_evidence": ".local/live-learning/hyphenate-live-budget-20261024/evidence/4848765009ef41d4bb3b0cae71cc42e9",
+  "preserved_initial_driver_failure": ".local/live-learning/hyphenate-live-budget-20261024/evidence/ce33e8ce51b342a79e8f02e92dcce4e4",
+  "technical_recovery": "Post-settlement HTTP-client audit adapter corrected; first model response and settled order reused, not rerun. Audit DTO assumption corrected before read-only verification.",
+  "limits": ["three-case engineering qualification, not general accuracy", "simulated source-owner authority", "mock payments only", "no production activation or merge", "original complaint and finding/provenance UI display gap remains", "independent human evaluation artifacts still pending"]
+}
