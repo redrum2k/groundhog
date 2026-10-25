@@ -153,7 +153,7 @@ async function reviewGate(run: Run, oid: string, ocmd: Cmd) {
   let move = await waitBuyer(run, "review");
   if (move.action === "object") {
     await ocmd("customer", { verb: "dispute", text: move.text });
-    await sleep(PACE * 1.5);
+    await sleep(PACE * 2); // long enough to watch the orb walk to the source on the canvas
     const o = await ocmd("investigator", { verb: "investigate" });
     if (o.resolution !== "NO_REMEDY") return finish(run, oid, ocmd); // the objection was right: the engine corrects
     move = await waitBuyer(run, "review");

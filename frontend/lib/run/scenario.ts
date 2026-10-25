@@ -18,6 +18,8 @@ export function stamp(track: Track, drafts: Draft[], from = 0): RunEvent[] {
 export function holdFor(e: { type: RunEvent["type"] }): number {
   switch (e.type) {
     case "evidence_found": return 1100;
+    case "source_checked": return 900;
+    case "aside": return 1300;
     case "message": return 1250; // long enough to read a one- or two-line bubble
     case "verdict": case "rule_updated": case "controller_decided": case "amendment_signed": case "books_posted": return 1400;
     case "check_passed": case "check_failed": case "check_fixed": return 600;
@@ -114,10 +116,10 @@ const sheet = (version: number, file: string, rows: ZipCount[]): Delivery => ({ 
 
 export const MAIN: Step[] = [
   { id: "clarify", kind: "clarify", title: "Clarify the order", detail: `Interview to a $${S.price} contract`, panel: true },
-  { id: "paid", kind: "paid", title: "Paid upfront", detail: `$${S.price} authorized, not taken` },
-  { id: "produce", kind: "produce", title: "Produce & check", detail: "Rented data → counts", panel: true },
+  { id: "paid", kind: "paid", title: "Paid upfront", detail: `$${S.price} authorized` },
+  { id: "produce", kind: "produce", title: "Produce & check", detail: "Build and check the dataset", panel: true },
   { id: "review", kind: "review", title: "Customer review", detail: `${S.reviewHours}h to accept or dispute` },
-  { id: "captured", kind: "captured", title: "Captured", detail: "Payment taken, books posted", panel: true },
+  { id: "captured", kind: "captured", title: "Captured", detail: "Paid and booked", panel: true },
 ];
 
 const step = (id: string, kind: Step["kind"], title: string, detail: string, panel?: boolean): Step => ({ id, kind, title, detail, panel });
@@ -214,17 +216,26 @@ const E = {
 } satisfies Record<string, Evidence>;
 const cite = (...ids: string[]): Message["attach"] => ids.map((evidenceId) => ({ kind: "evidence", evidenceId }));
 
+/** The three things the agent reads at the source during any dispute. */
+const SRC = (checked: boolean): Draft => ({ type: "source_checked", step: "investigate", lines: [
+  { id: "src-pin", text: "Vendor panel v1, pinned at acceptance", checked },
+  { id: "src-lines", text: "Every contract line re-checked against it", checked },
+  { id: "src-counts", text: "Delivered counts compared with the source", checked },
+] });
 export const RED: Draft[] = [
   ...openDispute("red", [
     step("investigate", "investigate", "Investigate", `“${CLAIM.red}”`, true),
     step("verdict", "verdict", "They're right", "Our check missed 94110"),
   ], buyer("m-claim", "ZIP 94110 is missing from the delivery.")),
+  SRC(false),
+  SRC(true),
   found("investigate", E.line5),
   found("investigate", E.no94110),
   say("investigate", agent("m-reply", "Checking against your contract. You're right: there's no 94110 row. Our check used the vendor's ZIP list, which lacked it. Rerunning now at our cost.", cite("e-line5", "e-94110"))),
   done("investigate"),
   start("verdict"),
   { type: "verdict", step: "verdict", verdict: { kind: "agree", decidedBy: "rules", evidenceIds: ["e-line5", "e-94110"], reason: "The contract promises every SF ZIP and 94110 is missing. Our check used the vendor's list instead of the official one." }, allowedBy: `Contract line: ${CONTRACT[4].text}` },
+  { type: "aside", step: "verdict", text: "Our miss, caught by the checks. Corrected at our cost, no human needed." },
   done("verdict"),
   ...rewalk(sheet(2, "acme-sf-fitness-v2.csv", withheld(ROWS).map((r) => (r.zip === "94110" ? { ...r, flag: "added" as const } : r))), coverageDetails, S.price,
     [entry("Rerun 94110, our cost", "Data cost", "Cash", S.rerunCost)],
@@ -238,12 +249,15 @@ export const GREEN: Draft[] = [
     step("verdict", "verdict", "We're right", "Contract: SF city only"),
     step("amend", "amend", "Amendment", `Add Oakland for $${S.oakland}`, true),
   ], buyer("m-claim", "Counts look low. Oakland should be in there.")),
+  SRC(false),
+  SRC(true),
   found("investigate", E.sfOnly),
   found("investigate", E.line2),
   say("investigate", agent("m-reply", `Your order covers San Francisco city only. Nothing's missing from what was agreed, and there's no charge for asking. Want Oakland added as an amendment for $${S.oakland}?`, cite("e-city", "e-line2"))),
   done("investigate"),
   start("verdict"),
   { type: "verdict", step: "verdict", verdict: { kind: "disagree", decidedBy: "rules", evidenceIds: ["e-city", "e-line2"], reason: "We delivered what was agreed: San Francisco city only, which Acme said in the interview." }, allowedBy: `Contract line: ${CONTRACT[1].text}` },
+  { type: "aside", step: "verdict", text: "Settled by the contract and the source. No human needed." },
   done("verdict"),
   start("amend"),
   say("amend", buyer("m-yes", "Yes, add Oakland.")),
@@ -287,6 +301,7 @@ export function amberOpen(ending: Ending, learned: boolean): Draft[] {
       done("investigate"),
       start("grey"),
       { type: "verdict", step: "grey", verdict: { kind: "agree", decidedBy: "contract", evidenceIds: ["e-v2"], reason: "Contract v2 says yoga counts. No person needed." }, allowedBy: POLICY.contractV2 } as Draft,
+      { type: "aside" as const, step: "grey", text: "Remembering Maya's ruling: contract v2 covers yoga. No human needed this time." },
       done("grey"),
     ] : [
       found("investigate", E.gyms),

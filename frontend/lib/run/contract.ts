@@ -1,7 +1,12 @@
 // Wire types are generated from Pydantic. This module preserves Lucas's useful aliases.
 import type * as Wire from "../runs.generated";
-/** Plus "caption": a line the translator narrates for the canvas; never on the wire. */
-export type RunEvent = Wire.RunContractExport["event"] | { seq: number; at: string; track: Track; type: "caption"; text: string };
+/** What the agent reads at the source while it investigates: one line per check, ticked when the check is done. */
+export interface SourceLine { id: string; text: string; checked: boolean }
+/** Plus three canvas-only events the narration adds; never on the wire: a caption, the source checks, and a thought the orb has at a step. */
+export type RunEvent = Wire.RunContractExport["event"]
+  | { seq: number; at: string; track: Track; type: "caption"; text: string }
+  | { seq: number; at: string; track: Track; type: "source_checked"; step: string; lines: SourceLine[] }
+  | { seq: number; at: string; track: Track; type: "aside"; step: string; text: string };
 export type RunEventType = RunEvent["type"];
 export type Track = NonNullable<Wire.RunContractExport["event"]["track"]>;
 export type LaneId = Exclude<Track, "shared">;

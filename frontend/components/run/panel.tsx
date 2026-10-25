@@ -157,10 +157,33 @@ function Checks({ node, view }: { node: NodeState; view: View }) {
 const ACTIONS: [ControllerAction, string][] = [["approve", "Yoga counts, rerun free"], ["reject", `No, offer $${S.yoga}`], ["ask", "Ask Acme for more"], ["escalate", "Send to CFO"]];
 // The live backend's controller can resume or hold; the other two are not commands it has
 const LIVE_ACTIONS: [ControllerAction, string][] = [["approve", "Resume, evidence holds up"], ["reject", "Hold the payment"]];
+/** A live grey area in plain words, from the run itself: the term the records can't settle, for which ZIPs, what the vendor said and what has happened since. */
+function greyArea(view: View, node: NodeState) {
+  const inv = view.nodes.investigate;
+  const unclear = inv?.evidence.find((e) => /^(?:unknown|fail)-\d+-/.test(e.id));
+  const dim = unclear?.id.replace(/^(?:unknown|fail)-\d+-/, "");
+  const term = view.contract.lines.find((l) => l.id === dim)?.text;
+  // a live delivery flags a row whose source has no observation date
+  const rows = dim === "freshness" ? (view.deliveries.at(-1)?.rows ?? []).filter((r) => r.flag === "withheld" || r.flag === "missing") : [];
+  const zips = rows.map((r) => `${r.zip} (${r.area})`).join(", ");
+  const escalation = node.messages.find((m) => m.from === "agent");
+  const [reason, missing] = (escalation?.text ?? "").split(" Missing: ");
+  return {
+    escalation,
+    headline: zips ? `${zips} ${rows.length > 1 ? "have" : "has"} no observation date, so the freshness term can't pass or fail.` : term ? `The records can't settle “${term}”.` : reason,
+    term,
+    missing: zips ? `An observation date for ${zips}. The 90-day check needs one for every ZIP.` : missing,
+    vendor: (inv?.messages ?? []).filter((m) => m.id.startsWith("answer_")).map((m) => `“${m.text}”`).join(" "),
+    since: node.messages.filter((m) => m !== escalation && m.from === "agent").map((m) => m.text).join(" "),
+  };
+}
+
 function Review({ node, view, decide, onCite, live }: { node: NodeState; view: View; decide: Decide; onCite: (s: Source) => void; live?: boolean }) {
   const [busy, setBusy] = useState<ControllerAction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const question = node.messages.find((m) => m.from === "agent"); // the escalation itself, not later notes
+  const grey = live ? greyArea(view, node) : null;
+  const held = view.payments[0]?.amount ?? S.price;
   const act = async (a: ControllerAction) => {
     setBusy(a); setError(null);
     const err = await decide(a, bindingFor(view));
@@ -169,14 +192,28 @@ function Review({ node, view, decide, onCite, live }: { node: NodeState; view: V
   return (
     <div className="review">
       <div className="review-tag"><IcLock size={11} strokeWidth={2} /> <Label text="Needs your decision · records don't settle it" quiet="tail" /></div>
-      <p className="review-q">{question?.text}</p>
-      <p className="faint" style={{ margin: "0 0 12px" }}>{live ? "Resume re-checks the delivery against the accepted sources; hold keeps the payment held until new evidence or an accepted amendment." : `Counting them adds about 9% more people. If yes, we rerun free and the contract becomes v2 so this is automatic next time. If no, we offer a $${S.yoga} amendment.`}</p>
+      <p className="review-q">{grey ? grey.headline : question?.text}</p>
+      {grey && (
+        <dl className="review-facts">
+          {grey.term && <><dt>The term</dt><dd>{grey.term}</dd></>}
+          {grey.missing && <><dt>What&apos;s missing</dt><dd>{grey.missing}</dd></>}
+          {grey.vendor && <><dt>The vendor says</dt><dd>{grey.vendor}</dd></>}
+          {grey.since && <><dt>Since then</dt><dd>{grey.since}</dd></>}
+        </dl>
+      )}
+      {!live && <p className="faint" style={{ margin: "0 0 12px" }}>{`Counting them adds about 9% more people. If yes, we rerun free and the contract becomes v2 so this is automatic next time. If no, we offer a $${S.yoga} amendment.`}</p>}
       <div className="review-ev">
         {question?.attach?.map((a, i) => a.kind === "evidence" && view.evidence[a.evidenceId] ? <CiteChip key={i} e={view.evidence[a.evidenceId]} onCite={onCite} /> : null)}
       </div>
       <div className="review-actions">
         {(live ? LIVE_ACTIONS : ACTIONS).map(([a, label]) => <button key={a} className={`btn${a === "approve" ? " solid" : ""}`} disabled={busy !== null} onClick={() => act(a)}>{label}</button>)}
       </div>
+      {live && (
+        <ul className="review-opts">
+          <li><b>Resume</b> re-checks the delivery against the vendor&apos;s latest source.</li>
+          <li><b>Hold</b> keeps the ${held} held until new evidence or an amendment.</li>
+        </ul>
+      )}
       {error && <p className="review-err">{error}</p>}
       <div className="faint" style={{ fontSize: 12, marginTop: 10 }}>Applies to this dispute and evidence set. Your name, time and reason are recorded.</div>
     </div>
@@ -253,17 +290,28 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
     }
     case "amend": content = (<><Chat items={node.messages} view={view} highlight={hl.msg} onCite={onCite} /><Contract view={view} extra={node.amendment?.line} /></>); break;
     case "decide": {
+      // live: the escalation reads as the grey area in plain words, in the history as on the card
+      const grey = live ? greyArea(view, node) : null;
+      const history = node.messages.map((m) => (grey && m === grey.escalation ? { ...m, text: grey.headline } : m));
       if (node.status === "waiting" && customer) content = <Chat items={[{ id: "x", from: "agent", text: "The contract doesn't settle this, so our controller is reviewing the evidence. Payment stays on hold until it's decided." }]} view={view} onCite={onCite} />;
       else if (node.status === "waiting") content = <Review node={node} view={view} decide={decide} onCite={onCite} live={live} />;
       else if (node.decision?.action === "approve") content = (<>
         {node.rule && <div className="learned"><IcCheck size={14} strokeWidth={2.2} /> Learned: {node.rule.text.toLowerCase()}. Saved as Data contract v2.</div>}
-        <Chat items={node.messages.filter((m) => m.from !== "agent" || m.id !== "m-escalate")} view={view} highlight={hl.msg} onCite={onCite} />
+        <Chat items={history.filter((m) => m.from !== "agent" || m.id !== "m-escalate")} view={view} highlight={hl.msg} onCite={onCite} />
         <Contract view={view} />
-        {done && <button className="btn solid replay-learned" onClick={onReplayLearned}>Replay the yoga dispute with the new rule</button>}
+        {done && !live && <button className="btn solid replay-learned" onClick={onReplayLearned}>Replay the yoga dispute with the new rule</button>}
       </>);
       else content = (<>
-        <Chat items={node.messages} view={view} highlight={hl.msg} onCite={onCite} />
+        <Chat items={history} view={view} highlight={hl.msg} onCite={onCite} />
         {node.amendment ? <Contract view={view} extra={node.amendment.line} /> : rerunDone && <Sheet rows={sheetRows(view, view.nodes.produce)} highlight={hl.row} note="yoga added" />}
+      </>);
+      // A live call is recorded, not learned: the backend keeps the decision with its evidence and changes no rule
+      if (live && node.decision) content = (<>
+        <div className="on-record">
+          <span className="on-record-h"><IcCheck size={13} strokeWidth={2.2} /> {node.decision.by} {node.decision.action === "approve" ? "resumed" : "held"} the case. The call is on record.</span>
+          <p>Saved with this case&apos;s evidence: who decided, when and why.{node.decision.note ? ` Reason: ${node.decision.note}` : ""} It doesn&apos;t change the rules, so a case like this comes to a person again.</p>
+        </div>
+        {content}
       </>);
       break;
     }

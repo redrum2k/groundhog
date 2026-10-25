@@ -50,7 +50,7 @@ function rowsToSheet(rows: DataRow[]): ZipCount[] {
 /** The steps a detour takes, in the backend's own terms. */
 function detourSteps(kind: Detour, resolution: BrokerOrder["resolution"], decidedBy?: DecidedBy): Step[] {
   if (kind === "dispute") return [
-    { id: "investigate", kind: "investigate", title: "Investigate", detail: "The accepted spec against the delivery", panel: true },
+    { id: "investigate", kind: "investigate", title: "Investigate", detail: "Contract against the delivery", panel: true },
     { id: "verdict", kind: "verdict", title: resolution === "CORRECTED" ? "They're right" : "We're right", detail: decidedBy === "model" ? "Decided by model, verified by code" : decidedBy === "rules" ? "Decided by rules" : resolution === "CORRECTED" ? "A requirement failed" : "Delivered as accepted" },
   ];
   if (kind === "failed") return [
@@ -87,10 +87,17 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
   let delivery = 0, reviews = 0, verifications = 0;
   let detour: Detour | null = null, detourDelivery = 0, detourStep = "investigate", resumed = false, verdictDone = false, controllerOpen = false;
   let assessment: { reason: string; decidedBy: DecidedBy; evidenceIds: string[] } | null = null; // the bounded assessment, when the backend flag is on
+  let sourceVersion = 1; // the vendor panel version pinned at acceptance; a clarification brings v2
   // A message on the decide step reads as activity; while the controller's task is open the gate is re-asserted after it
   const holdForController = () => { if (controllerOpen && detourStep === "decide") emit({ type: "step_waiting", step: "decide", waitingOn: S.controller }); };
   const lines = (): ContractLine[] => [...drafted].map((d) => lineFor(d, answered)); // in the order the interview settled them, so approval and review list the same thing
-  const stepsWithWindow = (window: number | null): Step[] => MAIN.map((s) => s.kind === "review" ? { ...s, detail: window ? `${window}-minute window to accept or dispute` : "Accept or dispute" } : s.kind === "paid" ? { ...s, detail: `$${price} authorized · mock` } : s);
+  const stepsWithWindow = (window: number | null): Step[] => MAIN.map((s) => s.kind === "review" ? { ...s, detail: window ? `${window}-minute review window` : "Accept or dispute" } : s.kind === "paid" ? { ...s, detail: `$${price} authorized` } : s);
+  // What the agent reads at the source during a dispute: the engine re-runs every accepted line against the pinned vendor data and the delivery
+  const sourceLines = (checked: boolean) => [
+    { id: "src-pin", text: `Vendor panel v${sourceVersion}, pinned at acceptance`, checked },
+    { id: "src-lines", text: `${lines().length} contract lines re-checked against it`, checked },
+    { id: "src-counts", text: "Delivered counts compared with the source", checked },
+  ];
   const closeDetour = () => {
     if (!detour) return;
     if (detour === "dispute" && !verdictDone) {
@@ -110,6 +117,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
       complete("investigate");
       emit({ type: "step_started", step: "verdict" });
       emit({ type: "verdict", step: "verdict", verdict: { kind, decidedBy: "rules", evidenceIds: [...cites, ...(assessment?.evidenceIds ?? [])], reason: assessment ? `${assessment.decidedBy === "model" ? "Decided by the model, verified by code: " : ""}${assessment.reason}` : kind === "agree" ? "A requirement failed and was corrected." : "Every accepted requirement passed; nothing was missing from what was agreed." }, allowedBy: POLICY.checks });
+      emit({ type: "aside", step: "verdict", text: kind === "disagree" ? "Settled by the contract and the source. No human needed." : "Our miss, caught by the checks. Corrected at our cost, no human needed." });
       verdictDone = true;
     }
     for (const s of detourSteps(detour, order.resolution)) complete(s.id);
@@ -182,6 +190,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         const step = detour === null || rerun ? "produce" : detourStep;
         const attempt = step === "produce" ? delivery : 1;
         if (detour === "unknown" && resumed && !rerun) say("decide", { id: `recheck-${e.sequence}`, from: "agent", text: verdict === "PASS" ? "Rechecked against the clarified contract: it passes." : "Rechecked against the clarified contract. The delivery was built from the old revision, so it fails and the correction is free." });
+        if (detour === "dispute" && !rerun) emit({ type: "source_checked", step: "investigate", lines: sourceLines(true) });
         for (const c of checks) emit(c.passed ? { type: "check_passed", step, attempt, lineId: c.id, detail: c.detail } : { type: "check_failed", step, attempt, lineId: c.id, reason: c.detail ?? "did not pass" });
         if (verdict === "PASS") {
           const wasRerun = rerun;
@@ -223,6 +232,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         break;
       }
       case "evidence.source_added": {
+        sourceVersion = Number((p.source as { version?: number } | undefined)?.version ?? sourceVersion);
         if (!detour) break; // the first upload happens on the draft, before anything is on screen
         const src = p.source as { version: number } | undefined;
         say(detourStep, { id: `source-${e.sequence}`, from: "agent", text: `Supplied revision ${src?.version ?? ""} of the vendor's source.` });
@@ -253,6 +263,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         emit({ type: "step_waiting", step: "review", attempt: reviews, waitingOn: S.buyer });
         emit({ type: "steps_planned", steps: detourSteps("dispute", order.resolution) });
         emit({ type: "step_started", step: "investigate" });
+        emit({ type: "source_checked", step: "investigate", lines: sourceLines(false) });
         say("investigate", { id: `claim-${e.sequence}`, from: "buyer", text: base?.complaint ?? "Disputed." });
         caption(`Acme disputes: “${base?.complaint ?? "the delivery"}”. The payment stays held until it's resolved.`);
         break;
@@ -297,6 +308,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         complete("grey");
         detourStep = "decide";
         emit({ type: "step_started", step: "decide" });
+        emit({ type: "aside", step: "decide", text: `Neither the contract nor the source settles this. One call for ${S.controller}.` });
         say("decide", { id: task.id, from: "agent", text: `${task.reason} Missing: ${task.missing_facts.join("; ")}` });
         emit({ type: "step_waiting", step: "decide", waitingOn: S.controller });
         controllerOpen = true;
