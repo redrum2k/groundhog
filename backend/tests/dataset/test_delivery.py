@@ -20,8 +20,9 @@ def test_complete_bytes_funding_and_event_journey(dataset_service):
     order = accepted(service)
     assert isinstance(order.snapshot.quote.specification.terms, DatasetSpecification)
     assert order.snapshot.quote.policy.version == "aggregate-brokerage-v1"
-    assert order.snapshot.quote.amount.amount_minor == 12000
-    assert order.snapshot.quote.payment_terms.amount_atomic == 120000000
+    assert order.snapshot.quote.policy.pricing_version == "datumco-demo-pricing-v2"
+    assert order.snapshot.quote.amount.amount_minor == 100
+    assert order.snapshot.quote.payment_terms.amount_atomic == 1000000
     with pytest.raises(DomainError):
         service.claim_job(order.snapshot.order_id)
     order = fund(service, order)
@@ -47,6 +48,7 @@ def test_complete_bytes_funding_and_event_journey(dataset_service):
     service.expire_due()
     final = service.get(order.snapshot.order_id)
     assert len(final.ledger) == 1 and final.order_state == "closed"
+    assert final.ledger[0].amount.amount_minor == 100
     page = Runs(service).page(order.snapshot.quote.request_id)
     captures = [e for e in page.events if e.type == "payment_captured"]
     assert len(captures) == 1 and captures[0].captureTx is None

@@ -568,6 +568,10 @@ class DisputeCommand(OrderCommand):
     complaint: Complaint
 
 
+class ComplaintTextCommand(OrderCommand):
+    text: Annotated[Text, Field(max_length=2000)]
+
+
 class AnswerCommand(OrderCommand):
     text: Annotated[str, Field(min_length=1, max_length=2000)]
 
@@ -663,3 +667,4 @@ class CatalogContractExport(Contract):
     order: OrderView
     command: OrderCommand
     dispute: DisputeCommand
+    complaint_text: ComplaintTextCommand

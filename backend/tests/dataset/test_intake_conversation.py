@@ -187,7 +187,6 @@ def test_model_can_identify_ambiguity_beyond_offline_keywords(dataset_service):
     [
         ("unsupported", None, None),
         ("ambiguous", "fabricated words", "What scope?"),
-        ("ambiguous", None, "Which scope? Also what price?"),
     ],
 )
 def test_unsupported_or_invalid_model_proposal_cannot_create_terms(

@@ -20,7 +20,7 @@ from app.contracts.catalog import (
     Span,
 )
 from app.contracts.dataset import DatasetReference
-from app.contracts.dataset_intake import DatasetIntakeProposal
+from app.contracts.dataset_intake import DatasetClarification, DatasetIntakeProposal
 from app.contracts.models import Contract, Text
 
 T = TypeVar("T", bound=BaseModel)
@@ -32,6 +32,12 @@ MODEL_INPUT_CHARACTERS = 50000
 
 class ModelFailure(RuntimeError):
     pass
+
+
+class DatasetClarificationFailure(ModelFailure):
+    def __init__(self, proposal: DatasetIntakeProposal):
+        super().__init__("Dataset intake may ask only one material clarification at a time.")
+        self.proposal = proposal
 
 
 class EvidencePassage(Contract):
@@ -143,6 +149,8 @@ class ClaudeGateway:
                 "Return requested_scope (the proposed product option, not accepted terms), an "
                 "EXACT quote from buyer text, explanation, and at most ONE context-sensitive "
                 "clarification when ambiguous, with clarification_field cohort or category. "
+                "Ask a single question with one question mark; list alternatives within that "
+                "question instead of asking a separate question for each option. "
                 "Interpret paraphrases, corrections and negation in their question context. "
                 "Explain unavailable scope rather than promising it. Do not repeat prior "
                 "questions. No contract acceptance, deadline, pricing or payment authority.",
@@ -168,8 +176,35 @@ class ClaudeGateway:
         if not any(proposal.evidence_quote in text for text in buyer_text):
             raise ModelFailure("Dataset intent quote is not grounded in the buyer conversation.")
         if proposal.clarification and proposal.clarification.count("?") > 1:
-            raise ModelFailure("Dataset intake may ask only one material clarification at a time.")
+            raise DatasetClarificationFailure(proposal)
         return proposal
+
+    def repair_dataset_clarification(self, context, proposal):
+        """One separately reserved call repairs wording, never scope or buyer consent."""
+        try:
+            repaired = self.parse(
+                DatasetClarification,
+                "Rewrite the proposed aggregate-data clarification as ONE question about "
+                "its clarification_field, using at most one question mark. Alternatives "
+                "belong within that question, not in separate questions. Preserve the "
+                "material ambiguity and requested scope; use the buyer conversation for "
+                "context. Do not assume consent or change the product, cohort, source, price "
+                "or payment terms. Ask only what is needed next; do not repeat an answered "
+                "question. This is a wording repair, not a new interpretation.",
+                {
+                    "draft": context.draft.model_dump(mode="json"),
+                    "proposal": proposal.model_dump(mode="json"),
+                },
+            )
+        except BudgetExceeded as error:
+            raise ModelFailure(
+                "Dataset intake unavailable: budget/window authorization denied."
+            ) from error
+        if repaired.clarification.count("?") > 1:
+            raise ModelFailure(
+                "Dataset intake could not produce one clear clarification after retrying."
+            )
+        return proposal.model_copy(update={"clarification": repaired.clarification})
 
     def assess_obligation(self, requirement, claim, evidence_bundle):
         result = self.parse(

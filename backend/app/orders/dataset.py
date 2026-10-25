@@ -1,6 +1,8 @@
 """Dataset-specific hooks on the existing CatalogService lifecycle and durable jobs."""
 
-from app.contracts.catalog import FulfillmentContext
+import re
+
+from app.contracts.catalog import Complaint, FulfillmentContext
 from app.contracts.dataset import DatasetComplaintTarget
 from app.datasets import is_dataset, produce_dataset, verify_dataset
 from app.investigation.dataset import (
@@ -13,6 +15,45 @@ from app.orders.service import DomainError
 
 
 class DatasetLifecycle:
+    def dataset_complaint_from_text(self, order, text):
+        """Route a customer's words, not their verdict or consent, to a frozen target.
+
+        Ambiguous/multi-topic text targets the whole artifact. Investigation still
+        receives the complete complaint and independently verifies every requirement.
+        No phrase here authorizes changed scope, fees, correction or settlement.
+        """
+        patterns = {
+            "category": r"\b(?:yoga|fitness|gym|membership|category|taxonomy)\b",
+            "cohort": r"\b(?:age|aged|ages|cohort)\b|\b\d{2}\s*[-–]\s*\d{2}\b",
+            "geography": r"\b(?:oakland|san francisco|sf|city|geography|boundary)\b",
+            "coverage": r"\b(?:duplicate|coverage|completeness)\b",
+            "suppression": r"\b(?:suppressed|suppression|privacy|threshold)\b",
+            "schema": r"\b(?:schema|columns?|headers?|format)\b",
+            "provenance": r"\b(?:provenance|authority|edition|version|authenticity|hash)\b",
+        }
+        matched = [field for field, pattern in patterns.items() if re.search(pattern, text, re.I)]
+        if (
+            re.search(r"\b(?:zip|rows?|\d{5})\b", text, re.I)
+            and re.search(r"\b(?:missing|omitted)\b", text, re.I)
+            and "coverage" not in matched
+        ):
+            matched.append("coverage")
+        field = matched[0] if len(matched) == 1 else "artifact"
+        targets = self.complaint_targets(order)
+        target = next(t for t in targets if t.field == field)
+        mentioned = set(re.findall(r"\b\d{5}\b", text))
+        row = next(iter(mentioned)) if len(mentioned) == 1 and len(matched) <= 1 else "dataset"
+        if row not in target.row_ids:
+            row = "dataset"
+        return Complaint(
+            text=text,
+            product_id=row,
+            field=target.field,
+            requirement_id=target.requirement_id,
+            artifact_id=order.deliveries[-1].csv.artifact_id,
+            intent="dispute_fact",
+        )
+
     def reclaim_dataset_assessment(self, db, order):
         """Carry completed work across only the claim's own +1 revision, atomically."""
         if not order.cases or order.cases[-1].status != "open":

@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from app.agents.compiler import OfflineCompiler
 from app.agents.dataset import compile_dataset
-from app.agents.gateway import ClaudeGateway, ModelFailure
+from app.agents.gateway import ClaudeGateway, DatasetClarificationFailure, ModelFailure
 from app.catalog.amendments import assess_amendment
 from app.catalog.artifacts import ArtifactStore
 from app.catalog.documents import extract_source, produce
@@ -28,6 +28,7 @@ from app.contracts.catalog import (
     ClarificationAnswer,
     DatasetDelivery,
     Delivery,
+    DisputeCommand,
     DisputeContext,
     EvidenceRequest,
     FulfillmentContext,
@@ -40,7 +41,12 @@ from app.contracts.catalog import (
     ReviewerDecision,
     Snapshot,
 )
-from app.contracts.dataset import BrokeragePolicy, DatasetSpecification
+from app.contracts.dataset import (
+    DATASET_PRICES_MINOR,
+    DATASET_PRICING,
+    BrokeragePolicy,
+    DatasetSpecification,
+)
 from app.contracts.models import Money
 from app.datasets import delivery_artifact, is_dataset
 from app.investigation.catalog import CatalogInvestigator
@@ -202,7 +208,39 @@ class CatalogService(DatasetLifecycle):
             if dataset:
                 context = PrecontractContext(draft=draft, sources=sources)
                 if isinstance(self.dataset_compiler, ClaudeGateway):
-                    proposal = self.dataset_compiler.interpret_dataset(context)
+                    try:
+                        proposal = self.dataset_compiler.interpret_dataset(context)
+                    except DatasetClarificationFailure as exc:
+                        # Reserve the single wording repair against the same draft's
+                        # call limit and deadline; preserve the rejected proposal.
+                        with self.repository.transaction() as db:
+                            current = self.repository.load(db, "request", request_id, RequestDraft)
+                            if (
+                                current.revision != reserved_revision
+                                or current.status != "compiling"
+                                or self.clock() >= current.deadline
+                            ):
+                                raise DomainError(
+                                    409, "stale compiler result; refetch draft"
+                                ) from exc
+                            self.repository.put(
+                                db,
+                                "dataset_intake",
+                                f"{request_id}:{reserved_revision}",
+                                exc.proposal,
+                            )
+                            can_repair = current.compiler_calls < 4
+                            if can_repair:
+                                current.compiler_calls += 1
+                                current.revision += 1
+                                reserved_revision = current.revision
+                                self.repository.put(db, "request", request_id, current)
+                        if not can_repair:
+                            raise ModelFailure("Compiler call budget exhausted.") from exc
+                        context = PrecontractContext(draft=current, sources=sources)
+                        proposal = self.dataset_compiler.repair_dataset_clarification(
+                            context, exc.proposal
+                        )
                     with self.repository.transaction() as db:
                         self.repository.put(
                             db, "dataset_intake", f"{request_id}:{reserved_revision}", proposal
@@ -349,7 +387,7 @@ class CatalogService(DatasetLifecycle):
             ):
                 raise DomainError(409, "Child offer price and purpose are fixed; accept that offer")
             price = (
-                Money(amount_minor=12000, currency="USD", decimals=2)
+                Money(amount_minor=DATASET_PRICES_MINOR["initial"], currency="USD", decimals=2)
                 if dataset
                 else self.price("initial")
             )
@@ -360,7 +398,7 @@ class CatalogService(DatasetLifecycle):
                 specification=draft.specification,
                 sources=request_sources(self, draft, db),
                 amount=price,
-                policy=BrokeragePolicy() if dataset else self.policy,
+                policy=BrokeragePolicy(pricing_version=DATASET_PRICING) if dataset else self.policy,
                 payment_terms=self.payments.terms(
                     price, getattr(command, "payer", None), self.clock()
                 ),
@@ -530,13 +568,14 @@ class CatalogService(DatasetLifecycle):
             handler = {
                 "accept": self._accept,
                 "dispute": self._dispute,
+                "complaint": self._complaint,
                 "answer": self._answer,
                 "approval_customer": self._approve_customer,
                 "approval_provider": self._approve_provider,
                 "review": self._review,
                 "retry": self._retry,
             }[operation]
-            if operation in ("accept", "review", "dispute"):
+            if operation in ("accept", "review", "dispute", "complaint"):
                 handler(order, command, self.clock(), actor, db=db)
             else:
                 handler(order, command, self.clock(), actor)
@@ -727,6 +766,20 @@ class CatalogService(DatasetLifecycle):
         ):
             return
         order.jobs = (*order.jobs, Job(job_id=identifier("job"), kind=kind, binding=order.binding))
+
+    def _complaint(self, order, command, now, actor, *, db=None):
+        if not is_dataset(order):
+            raise DomainError(422, "plain-text complaints require an aggregate dataset order")
+        if not order.deliveries:
+            raise DomainError(409, "a complaint requires a published delivery")
+        complaint = self.dataset_complaint_from_text(order, command.text)
+        structured = DisputeCommand(
+            expected_revision=command.expected_revision,
+            expected_binding=command.expected_binding,
+            idempotency_key=command.idempotency_key,
+            complaint=complaint,
+        )
+        self._dispute(order, structured, now, actor, db=db)
 
     def _dispute(self, order, command, now, actor, *, db=None):
         submitted = self.payments.submitted_capture(db, order)

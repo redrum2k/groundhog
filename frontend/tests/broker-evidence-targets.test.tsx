@@ -1,6 +1,6 @@
 import {cleanup,fireEvent,render,screen} from "@testing-library/react";
 import {afterEach,expect,it,vi} from "vitest";
-import type {DecisionBinding,RunEvidenceRequest,DatasetComplaintTarget} from "../lib/runs.generated";
+import type {DecisionBinding,RunEvidenceRequest} from "../lib/runs.generated";
 import EvidenceAnswer from "../components/run/evidence-answer";
 import ComplaintForm from "../components/run/complaint-form";
 afterEach(cleanup);
@@ -14,17 +14,24 @@ it("submits the request identity, current binding and selected resolving evidenc
  fireEvent.click(screen.getByRole("button"));
  expect(submit).toHaveBeenCalledWith({request_id:request.request_id,binding,text:"See the cited taxonomy cell.",references:request.allowed_references});
 });
-const targets:DatasetComplaintTarget[]=[{requirement_id:"R-COVERAGE",field:"coverage",row_ids:["dataset","94110"],columns:["zip","count","status"]},{requirement_id:"R-CATEGORY",field:"category",row_ids:["dataset"],columns:[]}];
-it.each(["dispute_fact","change_scope"] as const)("preserves coverage row/cell and explicit %s intent",intent=>{
- const submit=vi.fn();render(<ComplaintForm targets={targets} artifactId="delivery" disabled={false} submit={submit}/>);
- fireEvent.change(screen.getByLabelText("Accepted requirement"),{target:{value:"R-COVERAGE"}});
- fireEvent.change(screen.getByLabelText("Dataset row"),{target:{value:"94110"}});
- fireEvent.change(screen.getByLabelText("Dataset column (optional)"),{target:{value:"zip"}});
- fireEvent.change(screen.getByLabelText("Request type"),{target:{value:intent}});
- fireEvent.change(screen.getByLabelText("Complaint or scope request"),{target:{value:"ZIP 94110 is missing from the delivery"}});
- fireEvent.click(screen.getByRole("button"));
- expect(submit).toHaveBeenCalledWith({artifact_id:"delivery",requirement_id:"R-COVERAGE",field:"coverage",product_id:"94110",column:"zip",intent,text:"ZIP 94110 is missing from the delivery"});
- fireEvent.change(screen.getByLabelText("Accepted requirement"),{target:{value:"R-CATEGORY"}});
- expect((screen.getByLabelText("Dataset row") as HTMLSelectElement).value).toBe("dataset");
- expect((screen.getByLabelText("Dataset column (optional)") as HTMLSelectElement).value).toBe("");
+it("submits a complaint using only a prompt field, without target selectors",()=>{
+ const submit=vi.fn();render(<ComplaintForm disabled={false} submit={submit}/>);
+ expect(screen.queryAllByRole("combobox")).toHaveLength(0);
+ expect(screen.getAllByRole("textbox")).toHaveLength(1);
+ const button=screen.getByRole("button",{name:"Send complaint"}) as HTMLButtonElement;
+ expect(button.disabled).toBe(true);
+ fireEvent.change(screen.getByLabelText("Your complaint"),{target:{value:"ZIP 94110 is missing from the delivery"}});
+ fireEvent.click(button);
+ expect(submit).toHaveBeenCalledWith("ZIP 94110 is missing from the delivery");
+});
+it("keeps the draft while permissions change and blocks disabled or blank submissions",()=>{
+ const submit=vi.fn();const {rerender}=render(<ComplaintForm disabled={false} submit={submit}/>);
+ fireEvent.change(screen.getByRole("textbox"),{target:{value:"   "}});
+ fireEvent.submit(screen.getByRole("textbox").closest("form")!);
+ expect(submit).not.toHaveBeenCalled();
+ fireEvent.change(screen.getByRole("textbox"),{target:{value:"Yoga should be included."}});
+ rerender(<ComplaintForm disabled submit={submit}/>);
+ expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Yoga should be included.");
+ fireEvent.submit(screen.getByRole("textbox").closest("form")!);
+ expect(submit).not.toHaveBeenCalled();
 });

@@ -2,8 +2,11 @@
 
 Turn AcmeFitness's request into a frozen data contract, fund it explicitly, deliver
 independently checked synthetic aggregate CSV/JSON, then settle under the review rules.
-The primary canvas at `/` consumes durable backend events. Recorded rehearsal is
-separate. Mock payments are the default; no live testnet success is claimed.
+The primary app at `/` (also `/live`) shares a full-screen customer conversation and
+the agent's Run canvas, both driven by the same durable aggregate order. Claude calls
+and Base Sepolia payments use the configured backend; checkout requests one buyer
+signature after connection. The retained broker/recorded rehearsal lives at `/demo`.
+Mock payments are the default; no live testnet settlement success is claimed.
 
 Start with [product policy](HACK.md), [migration and runnable acceptance](docs/workstreams/06-data-broker.md),
 [domain language](CONTEXT.md) and [migration decision](docs/adr/0001-aggregate-brokerage.md).

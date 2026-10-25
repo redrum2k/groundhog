@@ -33,12 +33,13 @@ No PDF generation or parsing belongs to the new happy path.
 
 ## Agreement and remedies
 
-Server pricing `datumco-demo-pricing-v1`: base $120, separate Oakland extension $60,
-separately offered yoga expansion $30, whole-specification replacement $120. These
-are synthetic demo assumptions, not market prices. Accepted historical prices stay
-unchanged. Yoga already owed under the accepted definition cannot be billed again.
-Exact USD minor units convert at the retained accepted 1 USD:1 USDC rule; $120 is
-120000000 atomic USDC. On-chain integers serialize as decimal strings.
+New quotes use server pricing `datumco-demo-pricing-v2`: base $1, separate Oakland
+extension $0.50, separately offered yoga expansion $0.25, whole-specification
+replacement $1. These are synthetic demo assumptions, not market prices. Previously
+issued v1 quotes and accepted prices ($120/$60/$30/$120) stay unchanged. Yoga already
+owed under the accepted definition cannot be billed again. Exact USD minor units
+convert at the retained accepted 1 USD:1 USDC rule; $1 is 1000000 atomic USDC.
+On-chain integers serialize as decimal strings.
 
 Creation is not consent. Acceptance freezes parties, price, source hashes, policy,
 payment terms and deadlines. Work starts only after confirmed funding or explicit
@@ -98,8 +99,9 @@ broker-review-v0.3 with its 600-second review, 1,800-second case bound and USDSI
 mock authority; `/api/improvements` retains Jeff's scoped proposal/probe/approval/
 activation/revoke loop. None is reinterpreted as a newly funded aggregate order.
 
-Aggregate intake at `/live` consumes persisted backend events from intake onward.
-The DataPact canvas at `/` uses the retained broker demo or recorded rehearsal.
+The primary app at `/` and `/live` consumes persisted aggregate backend events from
+intake onward. Customer view and Run share one order, with real funding consent and
+server-gated admin controls. The retained broker demo/recorded rehearsal is at `/demo`.
 The Next bridge requires trusted loopback demo
 mode and distinct server-only worker/reviewer tokens. Hosted access requires a
 separate authentication/deployment design; no tenant isolation is claimed.
