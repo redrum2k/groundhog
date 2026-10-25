@@ -1,0 +1,216 @@
+{
+  "kind": "groundhog-roi-lab-20261025",
+  "execution_commit": "f314b6dc5d74568f40280bb235a587590f5b384e",
+  "presentation_and_validation_commit": "77c32f0b4882751d856416e5da13ba7f56f535ec",
+  "baseline": "956d4e470b390bacc7564d31dcd160d05b4b0222",
+  "capsule_sha256": "313ceeb238083e3d36a0ca69da109b223d8db903a3e11fcb4498a46e6cb19f72",
+  "mode": "offline_rules_mock_payments",
+  "runtime_attempts": 1,
+  "scenario_count_per_arm": 60,
+  "setup_count_per_arm": 7,
+  "summary": {
+    "operator": {
+      "scheduled": 60,
+      "correctly_handled": 60,
+      "dispositions": {
+        "fulfilled": 52,
+        "held_before_acceptance": 6,
+        "held_funded": 2
+      },
+      "actual_order_records": 61,
+      "provider_episodes": 212,
+      "setup_provider_episodes": 35,
+      "source_owner_episodes": 0,
+      "buyer_episodes": 191,
+      "setup_cases": 7,
+      "setup_correct": 7,
+      "quality_failures": 0,
+      "known_safety_issues": 0,
+      "observed_provider_cost_usd": 0,
+      "observed_compute_cost_usd": null,
+      "measured_human_minutes": null
+    },
+    "no_learning": {
+      "scheduled": 60,
+      "correctly_handled": 60,
+      "dispositions": {
+        "fulfilled": 52,
+        "held_before_acceptance": 6,
+        "held_funded": 2
+      },
+      "actual_order_records": 61,
+      "provider_episodes": 240,
+      "setup_provider_episodes": 28,
+      "source_owner_episodes": 88,
+      "buyer_episodes": 191,
+      "setup_cases": 7,
+      "setup_correct": 7,
+      "quality_failures": 0,
+      "known_safety_issues": 0,
+      "observed_provider_cost_usd": 0,
+      "observed_compute_cost_usd": null,
+      "measured_human_minutes": null
+    },
+    "approved_learning": {
+      "scheduled": 60,
+      "correctly_handled": 60,
+      "dispositions": {
+        "fulfilled": 52,
+        "held_before_acceptance": 6,
+        "held_funded": 2
+      },
+      "actual_order_records": 61,
+      "provider_episodes": 152,
+      "setup_provider_episodes": 49,
+      "source_owner_episodes": 0,
+      "buyer_episodes": 191,
+      "setup_cases": 7,
+      "setup_correct": 7,
+      "quality_failures": 0,
+      "known_safety_issues": 0,
+      "observed_provider_cost_usd": 0,
+      "observed_compute_cost_usd": null,
+      "measured_human_minutes": null
+    }
+  },
+  "lineage_audit": {
+    "status": "VERIFIED",
+    "reused_cases": 44,
+    "fresh_component_bindings_checked": 88,
+    "invalid_source_cases_held": 6,
+    "runtime_modified": false,
+    "new_model_calls": 0,
+    "scope": "Exact current authority pins, schema/scope/publisher, persisted approval/qualification and fresh input hashes"
+  },
+  "browser": {
+    "status": "PASS",
+    "calculator_comparisons": 18,
+    "observed_data_unchanged": true,
+    "network_requests": [],
+    "errors": [],
+    "viewports": [
+      "1440x1000",
+      "390x844"
+    ],
+    "held_cases_visible": 8,
+    "total_cases_visible": 60
+  },
+  "machine_elapsed_seconds": 340.98399999999674,
+  "joined_child_processes": 27,
+  "failed_child_processes": 0,
+  "human_timing": "unmeasured",
+  "human_pilot": {
+    "task_packets": 24,
+    "completed_observations": 0,
+    "paired_tasks": 12
+  },
+  "assumptions": {
+    "evidence_class": "assumed",
+    "perspective": "Provider operational capacity, not sales margin",
+    "commercial_unit": "Scheduled commercial scenario; expanded scenarios contain separately counted parent/child orders",
+    "defaults": {
+      "orders_per_month": 1000,
+      "horizon_months": 12,
+      "loaded_hourly_cost": 40,
+      "incremental_variable_cost_per_order": 0.2,
+      "fixed_cost_per_month": 150,
+      "setup_cost": 1000,
+      "realization_fraction": 0.5,
+      "additional_governance_seconds": 0,
+      "cost_components": {
+        "incremental_inference_per_order": 0.15,
+        "compute_per_order": 0.04,
+        "storage_per_order": 0.01,
+        "incremental_payment_fee_per_order": 0,
+        "support_per_month": 120,
+        "hosting_per_month": 30
+      }
+    },
+    "assumed_active_seconds_by_work_type": {
+      "glossary_lookup_apply": 45,
+      "source_coordination": 30,
+      "source_explanation": 120,
+      "routine_oversight": 10,
+      "final_review": 30,
+      "finding_review": 30,
+      "rework_review": 60,
+      "scope_offer_review": 30,
+      "exception_review": 120,
+      "unnecessary_escalation": 180,
+      "qualification_review": 180,
+      "procedure_approval": 60,
+      "activation_check": 30,
+      "contract_consent": 30,
+      "funding_consent": 20,
+      "delivery_acceptance": 30,
+      "objection_submission": 60
+    },
+    "workload_profiles": {
+      "low_repeat": {
+        "repeat": 0.1,
+        "documented": 0.45,
+        "defect": 0.1,
+        "objection": 0.15,
+        "scope": 0.1,
+        "exception": 0.1
+      },
+      "medium_repeat": {
+        "repeat": 0.4,
+        "documented": 0.2,
+        "defect": 0.1,
+        "objection": 0.1,
+        "scope": 0.1,
+        "exception": 0.1
+      },
+      "high_repeat": {
+        "repeat": 0.7,
+        "documented": 0.1,
+        "defect": 0.05,
+        "objection": 0.05,
+        "scope": 0.05,
+        "exception": 0.05
+      }
+    },
+    "setup_accounting": "The setup input is a total allowance including teaching/qualification/approval labor. Show that labor separately and never add it twice; reject allowances below the modeled incremental onboarding cost.",
+    "missing": [
+      "Actual active human times",
+      "Production inference mix and failures",
+      "Metered compute/storage costs",
+      "Production payment fees",
+      "Operating support load",
+      "Empirical case prevalence",
+      "Payroll/cash realization"
+    ],
+    "warning": "All defaults are illustrative scenarios, not external benchmarks. Zero payment-fee assumption is not a measured production fee. Source-owner and buyer attention are separate, not hidden provider savings."
+  },
+  "artifact_root": ".local/roi-attempt-001",
+  "artifact_hashes": {
+    "inputs.json": "bf479827ec1b5c8acef2459eaa25e127bbfa14b61cb5c75fd8c42f7d39682b7c",
+    "results.json": "eff207b7d3eec095892012124c4815f65f73e018d3adc4253484fae9679f4ba1",
+    "work-ledger.json": "e1fe60608e3c17e8cd069f92161e0496e5b34cdc293099f45cf3ae61b97b981f",
+    "quality.json": "58adcda2c152a863c41cfea941b857fbaffaac67a81765d084778bd430215d98",
+    "lineage-audit.json": "fadf25ef9070b0a847e5ba41fa46c3fa5c96b501c475f89f700dbdeaf009a80b",
+    "report-release.html": "d516a6cc91fcb96374051aed57dba6c2d79331dc01a181b16720affd38f6fcc2",
+    "report-release-browser-check.json": "167451f2e13c5827670cb87644abc4e4ae57c83793f65997d11a10c958daee40",
+    "assumptions.json": "1454d21e44e3b70ca4ec2fb872f37731ac3a9c87d27e6e339595bf15576b9149",
+    "calculator-parity.json": "f0bc3fbd9c6b499bbc973fa83966cb44bfcd62074a113c7ad9a3f0f240c92a90"
+  },
+  "relevant_tests": {
+    "junit_sha256": "4f871daf1061ea459f06177e4d1ee2d6a406b31458d804b26f38a1baa9f3240f",
+    "additional_manifest_regression": "passed in 12-test accounting rerun",
+    "batch_passed": 104,
+    "junit": ".local/roi-relevant-tests.xml",
+    "existing_acceptance": ".local/roi-existing-acceptance/broker-c6l210la/report.json",
+    "seconds": 81.7
+  },
+  "known_baseline": "Previous full repository qualification recorded 16 Windows baseline failures; full suite not rerun here; no unrelated tests changed",
+  "limitations": [
+    "Scripted operator tool proxy, not a timed human",
+    "60 selected engineering scenarios, not market prevalence",
+    "61 actual order records plus 7 setup orders per arm; held is not fulfilled",
+    "No new live inference or chain transactions",
+    "All economic durations, wages and deployment deltas are assumed",
+    "No measured payroll reduction or production reliability claim"
+  ],
+  "cleanup": "No persistent services or remote resources created; all finite children joined; existing demos untouched"
+}
