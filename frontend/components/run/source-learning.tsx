@@ -69,6 +69,8 @@ export default function SourceLearning({ openRun }: { openRun: (id: string) => v
   const disclosure = state && (state.mode ?? "controlled_local_mock") === "controlled_local_mock"
     ? "The data sources are synthetic, the source owner and the controller are simulated people, and no real money moves."
     : state?.disclosure;
+  // hosted demos run without learning, so the button only appears when this backend has it on
+  if (!open && !state?.enabled) return null;
   return <div className={styles.root}>
     <button type="button" className="btn" aria-expanded={open} onClick={() => setOpen(value => !value)}>
       {state?.active_current ? "Learning active" : "Source learning"}{unresolved.length ? ` (${unresolved.length} to answer)` : ""}

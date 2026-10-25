@@ -23,5 +23,5 @@ it("does not present settled funds as an active human-review task", ()=>{
   render(<LiveReview order={order}/>);
   expect(screen.getByText(/does not resolve any factual uncertainty/)).toBeTruthy();
   expect(screen.getByText("Return approved")).toBeTruthy();
-  expect(screen.queryByRole("button",{name:"approve"})).toBeNull();
+  expect(screen.queryByRole("button",{name:"Approve"})).toBeNull();
 });

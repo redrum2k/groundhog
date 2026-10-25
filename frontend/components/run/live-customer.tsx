@@ -20,7 +20,7 @@ export default function LiveCustomer({order,pay,working,customer,admin}:{order:L
         <div ref={decision} className="live-decisions">
           <OrderDecisions order={order} pay={pay} working={working} funding={funding}/>
         </div>
-        {order.hasHumanReview && <div className="callout">{order.page?.payment?.payment.state==="voided"?"Funds returned after human review.":order.page?.payment?.payment.state==="void_pending"?"Return approved; waiting for confirmation.":order.needsHumanReview?"This order needs human review.":"A human review decision is recorded."} <button type="button" className="btn" onClick={admin}>Open admin review</button></div>}
+        {order.hasHumanReview && <div className="callout">{order.page?.payment?.payment.state==="voided"?"Funds returned after human review.":order.page?.payment?.payment.state==="void_pending"?"Return approved; waiting for confirmation.":order.needsHumanReview?"This order needs human review.":"A human review decision is recorded."} <button type="button" className="btn" onClick={admin}>Open human review</button></div>}
         <LiveEvidence order={order}/>
       </div>
     </GuideProvider>

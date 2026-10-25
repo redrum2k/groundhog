@@ -64,6 +64,17 @@ export interface FoldContext { lane: Case; ending: Ending; learned: boolean; con
 const blankNode = (step: Step): NodeState => ({ step, status: "idle", attempt: 1, messages: [], asked: [], drafted: [], pending: {}, checks: {}, evidence: [], allowedBy: [] });
 const LANE_KINDS = new Set(["investigate", "verdict", "amend", "grey", "decide"]);
 
+// The recorded demo narrates the groundhog's visit to the database itself (source_checked). The live backend never
+// says so, it only reports the finding, so the live route opens the same three lines when Investigate starts and
+// reads them all once the finding is in. The reading in between is paced on screen (reveal.ts), not by events: the
+// backend's cited cells arrive after its verdict.
+const sourceVisit = (lines: number): SourceLine[] => [
+  { id: "src-pin", text: "Accepted sources · as pinned at acceptance", checked: false },
+  { id: "src-lines", text: `${lines || "The"} contract lines · against the source`, checked: false },
+  { id: "src-rows", text: "Delivered rows · against the source", checked: false },
+];
+const allRead = (lines: SourceLine[]): SourceLine[] => lines.map((l) => ({ ...l, checked: true }));
+
 export function emptyView(contract: DataContract): View {
   return { nodes: {}, order: [], orb: { step: "clarify", mode: "float" }, coin: null, loops: [], cards: [], contract, caption: "", evidence: {}, deliveries: [], payments: [], captured: {}, paymentStates: {}, started: 0, lastSeq: 0 };
 }
@@ -194,6 +205,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       if (LANE_KINDS.has(n.step.kind)) v.lastLane = e.step;
       v.orb = { step: e.step, mode: n.step.kind === "investigate" ? "inspect" : n.step.kind === "clarify" ? "look" : n.step.kind === "produce" ? "carry" : "float" };
       if (n.step.kind === "review" && attempt === 1 && v.nodes.produce) v.nodes.produce.status = "done";
+      if (ctx.live && n.step.kind === "investigate") n.source = sourceVisit(v.contract.lines.length);
       break;
     case "step_waiting": n.status = "waiting"; n.waitingOn = e.waitingOn; if (n.step.kind === "decide") v.orb = { step: e.step, mode: "wait" }; break;
     case "step_completed":
@@ -202,6 +214,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       n.status = n.verdict?.kind === "grey" ? "grey" : !ctx.live && n.verdict?.decidedBy === "rules" && n.verdict.kind === "agree" ? "fail" : "done";
       n.waitingOn = undefined;
       if (n.step.kind === "captured") v.orb = { step: e.step, mode: "happy" };
+      if (ctx.live && n.source) n.source = allRead(n.source);
       break;
     case "message": if (n.status === "waiting") n.status = "running"; n.messages.push(e.message); if (e.message.asks) n.asked.push(e.message.asks); break;
     case "contract_line_asked": if (!n.asked.includes(e.line.id)) n.asked.push(e.line.id); n.pending[e.line.id] = e.line; break;
@@ -226,6 +239,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
           investigation.status = e.verdict.kind === "grey" ? "waiting" : "done";
           investigation.waitingOn = e.verdict.kind === "grey" ? investigation.waitingOn ?? "Waiting for evidence or human review" : undefined;
           investigation.chip = investigation.waitingOn ?? "Assessment complete";
+          if (investigation.source) investigation.source = allRead(investigation.source); // the finding is in: nothing left to read
         }
         v.orb = {step: e.step, mode: "wait"};
       }

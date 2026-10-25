@@ -6,6 +6,7 @@ import { useRunNavigation } from "../../lib/run/use-run-navigation";
 import Canvas, { type CNode, type CanvasView } from "./canvas";
 import { IcLogo, IcX } from "./icons";
 import WalletSettings from "./wallet-settings";
+import SourceLearning from "./source-learning";
 import LiveCustomer from "./live-customer";
 import { LiveStep } from "./live-order";
 import AgentNote from "./agent-note";
@@ -58,7 +59,7 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
   const finished=settled;
   const nodes:CNode[]=view.order.map(key=>({id:key,row:MAIN.has(key)?0:1,col:view.order.filter(k=>MAIN.has(k)===MAIN.has(key)).indexOf(key),title:view.nodes[key].step.title,desc:key==="captured" && view.nodes[key].status==="running"?"Awaiting confirmation":DETAILS[key] ?? view.nodes[key].step.detail,keepChip:["verdict","grey"].includes(view.nodes[key].step.kind)}));
   const source=Object.values(view.nodes).find(n=>n.source && n.status!=="idle");
-  const canvas:CanvasView={status:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,reviewComplete && k==="review"?"done":n.status])),chip:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,k==="captured" && n.status==="running"?"Confirming payment":CHIPS[n.status]])),orb:{node:finished?"captured":view.orb.step,mode:view.orb.mode},coin:view.coin,loops:view.loops,cards:view.cards,source:source?.source?{node:source.step.id,lines:source.source}:null};
+  const canvas:CanvasView={status:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,reviewComplete && k==="review"?"done":n.status])),chip:Object.fromEntries(Object.entries(view.nodes).map(([k,n])=>[k,k==="captured" && n.status==="running"?"Confirming payment":CHIPS[n.status]])),orb:{node:finished?"captured":view.orb.step,mode:view.orb.mode},coin:view.coin,loops:view.loops,cards:view.cards,source:source?.source?{node:source.step.id,lines:source.source.map((l,i)=>({...l,checked:l.checked || i<order.read}))}:null};
   if(paymentProcessing) {
     const paymentNode=nodes.find(node=>node.id===paymentProcessing);
     if(paymentNode) {
@@ -82,14 +83,14 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
       ? paymentState==="capture_pending"
         ? simulated?"Review complete. The server has queued the simulated payment release. Waiting for confirmation before marking it complete.":"Review complete. Waiting for payment confirmation."
         : simulated?"Delivery accepted. Preparing the simulated payment release.":"Delivery accepted. Preparing payment release."
-      : returned?"The return is confirmed. Funds have been returned to the buyer.":settled?"Payment is confirmed and recorded.":rejection?"Objection not upheld. Open Finding to review the decision, agreement and supporting evidence.":order.needsHumanReview?"Waiting for an admin to review the case.":view.caption;
+      : returned?"The return is confirmed. Funds have been returned to the buyer.":settled?"Payment is confirmed and recorded.":rejection?"Objection not upheld. Open Finding to review the decision, agreement and supporting evidence.":order.needsHumanReview?"This dispute is escalated to a person. Nothing moves until they decide.":view.caption;
   const working=()=>{setPanel(undefined);navigate("run",true);setRecenter(n=>n+1);};
   const customer=()=>navigate("customer");
   const admin=()=>{navigate("run");setPanel("decide");};
   const pay=async()=>{if(!busy && await order.pay())working();};
   const turn=order.enabled("clarify")?"Your turn: answer the agent":order.enabled("accept_quote") || order.enabled("prepare_funding")?"Your turn: review & pay":order.enabled("accept")?"Your turn: review the dataset":order.enabled("quote")?"Your turn: review the request":undefined;
   const node=panel?view.nodes[panel]:undefined;
-  const panelTitle=panel==="decide"?"Admin review":node?.step.title ?? ({paid:"Funding",clarify:"Clarify the order",review:"Delivery & review"}[panel ?? ""] ?? "Live order");
+  const panelTitle=panel==="decide"?"Human review":node?.step.title ?? ({paid:"Funding",clarify:"Clarify the order",review:"Delivery & review"}[panel ?? ""] ?? "Live order");
   return <div className="shell live-shell" {...interaction}>
     <header className="top">
       <div className="brand"><IcLogo className="logo" size={22}/><div><div className="wordmark">{S.us}</div><div className="seat">Financial agent for {S.broker}</div></div></div>
@@ -99,6 +100,7 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
       </div>
     </header>
     <div className="tools">
+      <SourceLearning openRun={live.resume}/>
       {live.id && <button type="button" className={`btn${tab==="run" && finished?" solid":""}`} disabled={busy && !recoveryAvailable} onClick={()=>{order.newRun();setPanel(undefined);customer();}}>New request</button>}
       <div className="spacer"/>
       {tab==="run" && <>
@@ -106,8 +108,8 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
         {turn && <button type="button" className="btn turn" onClick={customer}><span className="turn-dot" aria-hidden/>{turn}</button>}
         {/* when a person has to decide, say so the same way the buyer's turn does */}
         {order.hasHumanReview && (order.needsHumanReview
-          ? <button type="button" className="btn turn" onClick={admin}><span className="turn-dot" aria-hidden/>Admin&apos;s turn: review the case</button>
-          : <button type="button" className="btn" onClick={admin}>Admin review</button>)}
+          ? <button type="button" className="btn turn" onClick={admin}><span className="turn-dot" aria-hidden/>Escalated to a person: settle the dispute</button>
+          : <button type="button" className="btn" onClick={admin}>Human review</button>)}
       </>}
     </div>
     {order.error && <div className="tools-err" role="alert">{order.error}<button type="button" className="btn" disabled={busy && !recoveryAvailable} onClick={live.retry}>Try again</button></div>}

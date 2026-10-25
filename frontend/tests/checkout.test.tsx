@@ -169,19 +169,19 @@ it("switches customer/admin views on the same run and honors current reviewer pe
   localStorage.setItem("datumco.live-run.v1",JSON.stringify({id:"run-1"}));
   render(<LiveRun recorded={()=>{}}/>);
   await screen.findByText("Awaiting payment");
-  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^(Escalated to a person|Human review)/})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
-  fireEvent.click(screen.getByRole("button",{name:/^Admin's turn/}));
-  await waitFor(()=>expect((screen.getByRole("button",{name:"reject"}) as HTMLButtonElement).disabled).toBe(false));
-  expect((screen.getByRole("button",{name:"approve"}) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByRole("button",{name:/^Escalated to a person/}));
+  await waitFor(()=>expect((screen.getByRole("button",{name:"Reject"}) as HTMLButtonElement).disabled).toBe(false));
+  expect((screen.getByRole("button",{name:"Approve"}) as HTMLButtonElement).disabled).toBe(true);
   expect(posts(fetcher)).toHaveLength(0);
   fireEvent.change(screen.getByLabelText("Reason or evidence answer"),{target:{value:"Need more evidence"}});
-  fireEvent.click(screen.getByRole("button",{name:"reject"}));
+  fireEvent.click(screen.getByRole("button",{name:"Reject"}));
   await waitFor(()=>expect(posts(fetcher)).toHaveLength(1));
   expect(posts(fetcher)[0][0]).toBe("/api/live/runs/run-1/decisions");
   expect(JSON.parse(posts(fetcher)[0][1]!.body as string)).toMatchObject({binding,action:"reject",reason:"Need more evidence"});
   fireEvent.click(screen.getByRole("button",{name:"Customer view"}));
-  expect(screen.queryByRole("button",{name:"reject"})).toBeNull();
+  expect(screen.queryByRole("button",{name:"Reject"})).toBeNull();
   expect(JSON.parse(localStorage.getItem("datumco.live-run.v1")!).id).toBe("run-1");
 });
 
@@ -241,14 +241,14 @@ it("shows a pending evidence question without presenting human approval controls
   fireEvent.click(screen.getByRole("button",{name:"Investigate, waiting"}));
   expect(screen.getByLabelText("Evidence answer")).toBeTruthy();
   expect(within(screen.getByRole("complementary",{name:"Investigate"})).getAllByText("Which frozen source supports this complaint?")).toHaveLength(1);
-  expect(screen.queryByText("Human review · current order")).toBeNull();
+  expect(screen.queryByText("Needs a person's decision")).toBeNull();
   expect(screen.queryByLabelText("Reason or evidence answer")).toBeNull();
-  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^(Escalated to a person|Human review)/})).toBeNull();
   state.page={...state.page,evidence_request:null,available_actions:[{action:"reject",enabled:true,reason:"Human review required"}],events:[...state.page.events,
     {seq:4,at,type:"steps_planned",steps:[{id:"decide",kind:"decide",title:"Human reviews",detail:"Review the case"}]},
     {seq:5,at,type:"state_changed",step:"investigate",state:"human_review",reason:"No further evidence",binding:state.page.binding!},
   ],next_after:5,high_watermark:5};
-  expect(await screen.findByRole("complementary",{name:"Admin review"})).toBeTruthy();
+  expect(await screen.findByRole("complementary",{name:"Human review"})).toBeTruthy();
   expect(screen.queryByLabelText("Evidence answer")).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Investigate, waiting"}));
   expect(screen.getByRole("complementary",{name:"Investigate"})).toBeTruthy();
@@ -269,12 +269,12 @@ it("shows the persisted scope explanation and buyer acceptance without stale hum
   render(<LiveRun/>);
   expect(await screen.findByText(reason)).toBeTruthy();
   expect(screen.getByRole("button",{name:"Accept verified delivery"})).toBeTruthy();
-  expect(screen.queryByRole("button",{name:"Open admin review"})).toBeNull();
+  expect(screen.queryByRole("button",{name:"Open human review"})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
-  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^(Escalated to a person|Human review)/})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Assessment, done"}));
   expect(screen.getByText(reason)).toBeTruthy();
-  expect(screen.queryByText("Human review · current order")).toBeNull();
+  expect(screen.queryByText("Needs a person's decision")).toBeNull();
 });
 
 it("keeps every repeated-label source cell inspectable by its persisted evidence ID", async()=>{

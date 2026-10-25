@@ -98,6 +98,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const srcNode = view.source ? byId[view.source.node] : undefined;
   const source = view.source && srcNode && st(srcNode.id) !== "idle" ? { lines: view.source.lines, node: srcNode, col: byRow(srcNode.row)[byRow(srcNode.row).length - 1].col + 1 } : null;
   const atSource = !!source && view.orb?.node === source.node.id && st(source.node.id) === "running";
+  const reading = !!source && view.orb?.node === source.node.id && source.lines.some((l) => !l.checked); // no "!" until the last line is read
   const orbX = atSource && source ? COL_X(source.col) + 6 : COL_X(orbNode.col) + 6;
   const orbY = ROW_Y[orbNode.row] + H + 6;
   const tunnel = useTunnel(orbX, orbY, midRun);
@@ -108,7 +109,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const WH = ROW_Y[Math.max(0, ...shown.map((n) => n.row))] + H + 110;
   const DOTS = 3000; // the grid extends past the world so it fills the stage at any camera position
 
-  // camera
+  // camera; SIDE keeps the drawn edge clear of the 40px side fade, so the first and last cards never sit in it
+  const SIDE = 56;
   let s: number, tx: number, ty: number;
   const vw = panelOpen && size.w > 760 ? size.w - 460 : size.w;
   const target = focusNode ? byId[focusNode] : undefined;
@@ -121,19 +123,22 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     tx = (size.w - WW * s) / 2; ty = Math.max(10, (size.h - 70 - WH * s) / 2);
   } else {
     // the camera closes in on the step the groundhog is on and its neighbours, not on every step so far: the rest
-    // waits off to the side, a drag away. Never below 1.15, so cards and chips read from the back of a room.
+    // waits off to the side, a drag away. Never below 1.15 (the database visit aside), so cards and chips read from the back of a room.
     const near = shown.filter((n) => n.row === orbNode.row && Math.abs(n.col - orbNode.col) <= 1);
-    const x0 = Math.min(...near.map((n) => COL_X(n.col))), x1 = Math.max(...near.map((n) => COL_X(n.col) + W), atSource && source ? COL_X(source.col) + 330 : 0);
+    // room past both ends for the 40px side fade and the lane label that hangs left of the first card
+    const EDGE = 48;
+    const x0 = Math.min(...near.map((n) => COL_X(n.col))) - EDGE, x1 = Math.max(...near.map((n) => COL_X(n.col) + W), atSource && source ? COL_X(source.col) + 330 : 0) + EDGE;
     const y0 = ROW_Y[orbNode.row] - 44, y1 = ROW_Y[orbNode.row] + H + 72; // the chip above, the groundhog below
-    s = clamp(Math.min((vw - 48) / (x1 - x0), (size.h - 110) / (y1 - y0)), 1.15, 1.45);
+    // the database visit spans a step and the source, so it may go to 1.0 to keep both whole on a laptop screen
+    s = clamp(Math.min((vw - 48) / (x1 - x0), (size.h - 110) / (y1 - y0)), atSource ? 1 : 1.15, 1.45);
     // centred on that window, but never past the edge of what is drawn
-    tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp((vw - (x1 - x0) * s) / 2 - x0 * s, vw - WW * s - 24, 24);
+    tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp((vw - (x1 - x0) * s) / 2 - x0 * s, vw - WW * s - SIDE, SIDE);
     ty = WH * s <= size.h - 90 ? (size.h - 70 - WH * s) / 2 : clamp((size.h - 70 - (y1 - y0) * s) / 2 - y0 * s, size.h - WH * s - 70, 20);
   }
   const cam = free ?? { tx, ty, s };
   // A world wider than the view slides edge to edge; one that fits only gives a little, then springs back
   const range = (t: number, world: number, view: number, pad: number): Range => (world > view - 2 * pad ? [view - pad - world, pad] : [t, t]);
-  const bx = range(tx, WW * cam.s, vw, 24), by = range(ty, WH * cam.s, size.h - 70, 20);
+  const bx = range(tx, WW * cam.s, vw, SIDE), by = range(ty, WH * cam.s, size.h - 70, 20);
   const pannable = focus.kind !== "overview";
   useLayoutEffect(() => { pan.current = { follow: { tx, ty, s }, bx, by, on: pannable }; });
 
@@ -235,14 +240,14 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
           })}
   
           {source && (
-            <div className="src" style={{ transform: `translate(${COL_X(source.col)}px, ${ROW_Y[source.node.row]}px)` }}>
+            <div className={`src${source.lines.some((l) => !l.checked) ? " querying" : ""}`} style={{ transform: `translate(${COL_X(source.col)}px, ${ROW_Y[source.node.row]}px)` }}>
               <span className="src-glyph"><Warehouse /></span>
               <div className="src-lines">{source.lines.map((l, i) => <span key={l.id} className={`src-l${l.checked ? " ok" : ""}`} style={{ transitionDelay: `${i * 60}ms` }}>{l.checked ? <IcCheck size={11} strokeWidth={2.4} /> : <i className="spin2" />}<Label text={l.text} quiet="tail" /></span>)}</div>
             </div>
           )}
           {!quiet && view.orb && (
             <div className={`orb-wrap${tunnel.phase ? ` tunnel-${tunnel.phase}` : ""}`} style={{ transform: `translate(${tunnel.x}px, ${tunnel.y}px)` }}>
-              <span className={`canvas-agent${hideAgent ? " departed" : ""}`}><Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} /></span>
+              <span className={`canvas-agent${hideAgent ? " departed" : ""}`}><Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? !reading && view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} /></span>
               {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.alert ? " alert" : ""}${view.coin.done ? " done" : ""}${view.coin.returned ? " returned" : ""}`}>
                 <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : view.coin.returned ? <IcReturn size={10} strokeWidth={2} /> : <IcWallet size={10} strokeWidth={2} />}<Label text={view.coin.text} quiet="tail" /></span></span>}
             </div>
