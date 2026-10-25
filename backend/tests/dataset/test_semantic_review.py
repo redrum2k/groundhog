@@ -55,7 +55,7 @@ def wire(service, monkeypatch, *, invalid=None, slow=None):
                     DatasetReference.model_validate(p["citation"])
                     for p in packet["frozen_evidence_packet"]["passages"]
                 )
-                if invalid == "omitted-clause":
+                if invalid == "omitted-clause" or invalid == "repair-success" and len(calls) == 2:
                     text = "Our agreement excludes yoga-only participants,"
                 if invalid == "invented-ref":
                     refs = (refs[0].model_copy(update={"sha256": "0" * 64}),)
@@ -114,7 +114,8 @@ def test_blind_review_requires_complete_grounded_agreement(dataset_service, monk
     current = service.get(original.snapshot.order_id)
     with service.repository.transaction() as db:
         attempt = semantic_attempt(db, current)
-    assert len(calls) == 2 and attempt.candidate.result == "PASS"
+    expected_calls = 3 if invalid in {"omitted-clause", "invented-ref", "no-citations"} else 2
+    assert len(calls) == expected_calls and attempt.candidate.result == "PASS"
     assert "FIRST_ANSWER_MUST_NOT_REACH_REVIEWER" not in json.dumps(calls[1][1])
     assert attempt.effective.result == ("PASS" if invalid is None else "UNKNOWN")
     assert attempt.status == ("VALIDATED" if invalid is None else "ADVISORY")
@@ -123,6 +124,23 @@ def test_blind_review_requires_complete_grounded_agreement(dataset_service, monk
     assert current.snapshot == original.snapshot and not current.ledger
     assert current.cases[-1].deadline == original.cases[-1].deadline
     assert not current.free_corrections_used
+
+
+def test_one_completeness_repair_preserves_first_review_and_blindness(dataset_service, monkeypatch):
+    service, _ = dataset_service
+    original = dispute(service, make_delivery(service), text=CLAIM)
+    calls = wire(service, monkeypatch, invalid="repair-success")
+    assert CatalogWorker(service).run_once()
+    current = service.get(original.snapshot.order_id)
+    with service.repository.transaction() as db:
+        attempt = semantic_attempt(db, current)
+    assert len(calls) == 3 and attempt.status == "VALIDATED"
+    assert attempt.effective.result == "PASS" and not current.ledger
+    assert attempt.review.clauses[0].text != CLAIM
+    assert attempt.review_repair.clauses[0].text == CLAIM
+    assert attempt.review_response and attempt.review_repair_response
+    assert "FIRST_ANSWER_MUST_NOT_REACH_REVIEWER" not in json.dumps(calls[1:])
+    assert "validation_error" in calls[2][1]["format_repair"]
 
 
 def test_review_does_not_extend_existing_lease_or_deadline(dataset_service, monkeypatch):

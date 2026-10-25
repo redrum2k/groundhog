@@ -41,6 +41,10 @@ class DatasetSemanticAttempt(Contract):
     review_response: dict | None = None
     review: DatasetClaimReview | None = None
     review_failure: str | None = None
+    review_repair_request: dict | None = None
+    review_repair_response: dict | None = None
+    review_repair: DatasetClaimReview | None = None
+    review_repair_failure: str | None = None
     candidate: Assessment | None = None
     effective: Assessment | None = None
     failure: str | None = None

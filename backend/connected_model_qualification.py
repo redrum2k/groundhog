@@ -141,7 +141,9 @@ CONTEXT_CASES = (
             "Someone whose sole membership is a yoga studio was not part of that agreed audience."
         ),
         "expected": "PASS",
-        "basis": "Both contractual assertions are supported by accepted terms and category evidence.",
+        "basis": (
+            "Both contractual assertions are supported by accepted terms and category evidence."
+        ),
     },
     {
         "id": "source-dedup",
@@ -151,7 +153,40 @@ CONTEXT_CASES = (
             "record-level matching evidence."
         ),
         "expected": "UNKNOWN",
-        "basis": "The empirical allegation remains unproved despite the contract's disjointness rule.",
+        "basis": (
+            "The empirical allegation remains unproved despite the contract's disjointness rule."
+        ),
+    },
+)
+
+
+REPAIR_CASES = (
+    {
+        "id": "geography-promise",
+        "text": (
+            "The contract we accepted was for Oakland, so a file restricted to San Francisco "
+            "violates that contract."
+        ),
+        "expected": "FAIL",
+        "basis": "The accepted agreement is explicitly for San Francisco, not Oakland.",
+    },
+    {
+        "id": "cohort-agreement",
+        "text": (
+            "Adults aged 25 to 34 are within the age cohort in our accepted agreement; "
+            "that age range is what the dataset was ordered to cover."
+        ),
+        "expected": "PASS",
+        "basis": "Accepted age terms and actual source cohort metadata support both assertions.",
+    },
+    {
+        "id": "empirical-overlap",
+        "text": (
+            "I suspect that adults with multiple addresses appear in more than one ZIP count. "
+            "That is a claim about actual records, not a request to change the agreed scope."
+        ),
+        "expected": "UNKNOWN",
+        "basis": "The available aggregate artifacts do not establish individual overlap.",
     },
 )
 
@@ -425,11 +460,15 @@ def child(root, recover=False, recovery_id=0):
         "semantic-v1": SEMANTIC_CASES,
         "semantic-v2": FINAL_CASES,
         "semantic-v3": CONTEXT_CASES,
+        "semantic-v4": REPAIR_CASES,
     }.get(root.name, RECIPES)
     complete_settlement = root.name.startswith("semantic-")
-    training_batch = {"semantic-v1": 401, "semantic-v2": 501, "semantic-v3": 601}.get(
-        root.name, 301
-    )
+    training_batch = {
+        "semantic-v1": 401,
+        "semantic-v2": 501,
+        "semantic-v3": 601,
+        "semantic-v4": 701,
+    }.get(root.name, 301)
     plan = {
         "lane": "LOCAL",
         "attempt": root.name,
