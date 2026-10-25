@@ -1,5 +1,32 @@
 # Groundhog Hyphenate release qualification
 
+## Latest qualification status
+
+**CONDITIONAL GO for a disclosed, supervised local live-AI + approved-learning demonstration; not a claim of unattended production readiness or general dispute accuracy.** The actual production frontend now shows the full buyer complaint, effective finding, model/rules/unresolved provenance, assessor/version, reasoning and clickable evidence. This was fixed in the owned backend's existing event projection, not by rewriting Lucas's UI: complaint/finding messages are persisted, rejected raw candidates are not promoted, and completed assessments emit their completion events. Financial gates are unchanged. Existing historical event logs are not backfilled or rewritten.
+
+Current implementation is `81c7ee11867a700c8539b9d7ea9152c3ba73bdde`; the actual live/browser transcript trial ran at `97ed03003f92952f52085358459e27b68cae6df5`, including latest-main `e2f50005b6ecf57093c614144c9ae27b3581d239`. The later change only fixes portable private-credential loading. It was regression-tested and the same owned instance restarted successfully using an explicitly configured path to the same existing credential. Frontend and payment implementation remain byte-identical to that main. No source history, credential file, budget allowance, or production activation was changed.
+
+The original real-model cohort remains **3/3 raw and effective matches**. A separate, pre-frozen two-case display trial produced **2/2 raw matches but 1/2 effective matches**:
+
+| New display trial | Expected | Primary model | Effective | Interpretation |
+| --- | --- | --- | --- | --- |
+| ZIP present but count allegedly zero, with a qualifier about what is disputed | FAIL | FAIL | UNKNOWN | Real blind-review disagreement: contextual/intent clauses were treated as independent unverifiable assertions. This is a quality miss and unnecessary escalation, not relabeled as success. |
+| Released ZIP count allegedly establishes current paid membership | UNKNOWN | UNKNOWN | UNKNOWN | Model correctly identifies missing status/time authority, asks bounded evidence questions, then escalates. |
+
+The display faithfully distinguishes the first case's **unresolved** gate result from the second case's **model-provenanced UNKNOWN**. Both held funds until an explicit simulated controller return. An additional evidence-packet limitation is preserved: the second wording was routed with `product_id=dataset`, so the named-row enrichment did not supply the 94112 count. Its unavailable individual membership status still justifies UNKNOWN, but this is not proof that the investigator saw every relevant row. No prompt or evidence requirement was weakened to make either case pass.
+
+Read-only audit verifies **21 cited references** across the new attempts, immutable accepted snapshots, exact claims, separate authorized mock settlement and 2-to-0 repeated source-owner reviews on fresh source bytes. The new trial used **10 actual provider calls**, estimated **$0.383320**, leaving **$2.256080** of the existing allowance. Together the two new live phases used 22 calls and $0.808964; they remain separate cohorts, not a pooled accuracy claim. No outstanding reservations; the $10 held reserve is untouched.
+
+Browser evidence (actual persisted runs, no prerecorded state) is in `.local/browser/transcript-disagreement/`, `.local/browser/transcript-model-unknown/` and `.local/browser/real-claude-training/`. Customer and Finding screenshots were visually inspected; evidence chips open persisted cells. The training view displays the real AI clarification, simulated owner corrections, accepted agreement, checked delivery and mock capture. The later views show the same approved procedure reused without repeated owner reviews. Some generic human-review controls/narration remain visible after a controller return; payment state is correctly returned and actions are disabled. This is residual presentation polish, not a claim that settlement solved the factual uncertainty.
+
+The display capsule SHA-256 is `77011e86b714f92e8eb1731a3c04c17ef99c9bab0e5b6e47a449f2922b1c5fa6`. Evidence: `.local/live-learning/hyphenate-live-budget-20261024/evidence/8f07015829554e5a8eea4eab27b6a441/independent-transcript-audit.json`; the initial quality failure and driver assertion are preserved at sibling `06f8f2e46ef744a9bfaf642ecd9fb793`. Recovery skipped that completed case rather than calling the model again, and corrected only the display driver's incorrect assumption that every effective result must have model provenance. The expected FAIL remains unchanged and the observed UNKNOWN remains a miss.
+
+Regression results: three new transcript tests failed before the fix and pass afterward; model, rules and blind-disagreement paths all preserve payment/snapshot/deadline invariants. **504 dataset/catalog/investigation/source-learning tests pass**, as do **157 frontend tests** and the production build with latest-main animation changes. Greptile's P1 machine-specific-key finding is addressed by environment-key, checkout-private-file and explicit-private-file routes; **22 launcher/budget boundary tests pass**. The full final backend run is in progress at this checkpoint; its result must be reconciled with the preserved baseline before final sign-off.
+
+Credential configuration: provide `ANTHROPIC_API_KEY` to the backend environment, a private `backend/.env` in the active checkout, or a `credential_file` path in the private registered access artifact (relative paths resolve against that artifact). Only the provider key is loaded; unrelated secrets and all provider credentials stay out of the frontend. The launcher never registers or refills a budget. On this machine, the access artifact now explicitly points to the pre-existing private file. Prior access/launch metadata and the exact migration are preserved in `.local/portable-key-migration.json`; authorization objects and spending are unchanged.
+
+The sections below retain earlier phases with their exact revisions and limitations. Statements about a missing paid authorization, no new calls, or the original missing transcript describe those earlier phases, not the current state.
+
 ## Budget-only continuation (subsequent authorization)
 
 The user explicitly removed the model authorization's clock expiry: "stop authroizing against time, just the budget". The original qualification below remains historical evidence, not a claim that authorization is still missing. A new immutable budget-only grant references the original timed authorization without changing it, resetting usage, or adding money. Cumulative cap: $17.129304; preserved final-evaluation reserve: $10; conservative committed cost at registration: $4.064260; available continuation allowance: **$3.065044**. There were zero outstanding requests and no new provider calls during registration.
@@ -224,11 +251,11 @@ Baseline learning evidence is `.local/live-learning/hyphenate-qualification-2026
 
 Only the two instances created for this qualification were stopped after inspection. Tasks, credentials and evidence remain preserved; their ownership-checked rollback is the existing launcher with `-Action Start` and the matching instance/ports. The original demos/worktrees were not changed. No paid process was started or left running.
 
-## What is still needed for GO
+## Remaining limitations and review gates
 
 1. Review the isolated fixes; do not automatically merge them or enable production learning.
-2. Obtain a new explicit, bounded model-call window. Run fresh independently labeled disputes on the reviewed revision, including a genuine provider-defect scenario as distinct from a supported observation. Preserve unsuccessful outcomes and original evidence.
-3. Exercise the real-model path and learning together through the production-built frontend using the explicitly authorized local qualification configuration. The normal startup restriction is an integration limitation, not permission to bypass it.
-4. Coordinate with Lucas to expose the complete buyer allegation, judgment, reasoning and model/rule/UNKNOWN provenance, and reconcile terminal canvas narration. Coordinate Windows/payment baseline failures with Nikita rather than claiming a green release.
+2. Budget-only live authorization and combined live-model/learning/browser evidence are now established. Do not request another clock-based spending window or refill the remaining allowance. Fresh independent human evaluation and a genuine provider-defect live-model scenario remain additional qualification work, distinct from the supported suppression observation already tested.
+3. Preserve the newly exposed over-conservative blind-review failure and missing named-row context; a future semantic fix needs fresh frozen cases, not retries or relabeling of this cohort. The current local workflow supports evidence-based escalation, not guaranteed autonomous resolution of every unfamiliar complaint.
+4. Full complaint/finding/provenance display is now supplied through existing backend events. Coordinate any further visual polish and terminal narration changes with Lucas. Coordinate Windows/payment baseline failures with Nikita rather than claiming a universally green release.
 
-Until those gates pass, present the real source-learning benefit and historical Claude evidence with their actual scope. Do not claim that the newly tested ordinary application has demonstrated the combined strong-LLM employee workflow.
+Present the observed combined local workflow with synthetic sources, simulated owner/controller authority, real Claude calls and mock payments explicitly disclosed. This report does not authorize a main merge, production learning, public hosting or blockchain transactions.
