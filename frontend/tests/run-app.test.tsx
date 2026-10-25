@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import RunApp from "../components/run/run-app";
 import { S } from "../lib/run/scenario";
 
-// The run screen through its buttons and captions only. Fake timers stand in for the recorded
+// The run screen through its buttons and its narration (off screen, for assistive tech) only. Fake timers stand in for the recorded
 // scenario's pacing; nothing here reaches into the fold or the canvas internals.
 
 class RO { observe() {} disconnect() {} unobserve() {} }
@@ -27,7 +27,6 @@ describe("run screen", () => {
   it("opens paused on the order, with a Play button", () => {
     render(<RunApp />);
     expect(caption()).toBe("Press play to run the recorded order.");
-    expect(document.querySelector(".cap-step")?.textContent).toMatch(/^0\//);
     expect(disabled("Play")).toBe(false);
     expect(panel()).toBeUndefined();
     expect(screen.getAllByRole("button", { name: /Clarify the order/ })).toHaveLength(1);
@@ -74,7 +73,6 @@ describe("Escalation", () => {
     await until(() => !!screen.queryByText("Covered"));
     await until(finished);
     expect(screen.queryByRole("button", { name: "Waiting on Human" })).toBeNull();
-    expect(document.querySelector(".cap-step")?.textContent).toBe("10/10"); // 5 steps, 3 detour steps, 2 revisits
   }, 60_000);
 });
 

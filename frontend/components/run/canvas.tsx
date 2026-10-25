@@ -40,8 +40,8 @@ type Cam = { tx: number; ty: number; s: number };
 type Range = readonly [number, number];
 const T = (c: Cam) => `translate(${c.tx}px, ${c.ty}px) scale(${c.s})`;
 
-export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay, quiet, recenter }: {
-  nodes: CNode[]; view: CanvasView; focus: Focus; panelOpen: boolean; onNode: (id: string) => void; overlay?: ReactNode; quiet?: boolean;
+export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay, quiet, recenter, midRun }: {
+  nodes: CNode[]; view: CanvasView; focus: Focus; panelOpen: boolean; onNode: (id: string) => void; overlay?: ReactNode; quiet?: boolean; midRun?: boolean;
   recenter?: number; // a new value hands the camera back to the orb
 }) {
   const box = useRef<HTMLDivElement>(null);
@@ -99,7 +99,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const atSource = !!source && view.orb?.node === source.node.id && st(source.node.id) === "running";
   const orbX = atSource && source ? COL_X(source.col) + 6 : COL_X(orbNode.col) + 6;
   const orbY = ROW_Y[orbNode.row] + H + 6;
-  const tunnel = useTunnel(orbX, orbY);
+  const tunnel = useTunnel(orbX, orbY, midRun);
   const WWfull = COL_X(4) + W + 40;
   const WHfull = ROW_Y[maxRow] + H + 110;
   // the camera frames what is shown, so the run opens close on the first step and widens as the path grows
@@ -254,27 +254,35 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
 // it climbs out. The burrow never moves. A burst of quick steps is one trip: it surfaces at the last one.
 // Reduced motion just moves it.
 type Phase = "" | "down" | "under" | "back" | "up";
-const EMERGING = 240; // ms into the climb before any of it shows (the burrow opens first); until then it can slip back under
-export function useTunnel(x: number, y: number) {
-  const [state, setState] = useState<{ x: number; y: number; phase: Phase }>({ x, y, phase: "" });
+const EMERGING = 320; // ms into the climb before more than the crown of its hat shows (the burrow opens first); until then it slips back under
+/** `startUnder`: mounted while the run is moving (the view just came back from the customer's turn), so it is
+ *  already on its way: it climbs out where it is once the run is quiet, instead of standing on a step it is about to leave. */
+export function useTunnel(x: number, y: number, startUnder = false) {
+  const [state, setState] = useState<{ x: number; y: number; phase: Phase }>({ x, y, phase: startUnder && !reduced() ? "under" : "" });
   const target = useRef({ x, y });
-  const phase = useRef<Phase>("");
+  const phase = useRef<Phase>(state.phase);
   const timer = useRef(0);
   const upAt = useRef(0);
+  // it changes position while under, when nothing of it shows
+  const enter = (p: Phase) => { phase.current = p; setState((s) => ({ ...(p === "under" ? target.current : s), phase: p })); };
+  const after = (ms: number, fn: () => void) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(fn, ms); };
+  const surface = () => { upAt.current = Date.now(); enter("up"); after(TUNNEL.rise, () => enter("")); };
+  const under = () => { enter("under"); after(TUNNEL.under, surface); };
+  useEffect(() => {
+    if (phase.current === "under") after(TUNNEL.under, surface);
+    return () => window.clearTimeout(timer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     if (target.current.x === x && target.current.y === y) return;
     target.current = { x, y };
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) { window.clearTimeout(timer.current); phase.current = ""; setState({ x, y, phase: "" }); return; }
-    // it changes position while under, when nothing of it shows
-    const enter = (p: Phase) => { phase.current = p; setState((s) => ({ ...(p === "under" ? target.current : s), phase: p })); };
-    const after = (ms: number, fn: () => void) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(fn, ms); };
-    const surface = () => { upAt.current = Date.now(); enter("up"); after(TUNNEL.rise, () => enter("")); };
-    const under = () => { enter("under"); after(TUNNEL.under, surface); };
+    if (reduced()) { window.clearTimeout(timer.current); phase.current = ""; setState({ x, y, phase: "" }); return; }
     if (phase.current === "down" || phase.current === "back") return; // on its way under already; it goes under with the newest target
     if (phase.current === "under") under(); // stays under; the quiet period restarts for the newest step
     else if (phase.current === "up" && Date.now() - upAt.current < EMERGING) { enter("back"); after(TUNNEL.back, under); } // the burrow had only begun to open: it shuts again
     else { enter("down"); after(TUNNEL.dive, under); } // standing, or climbing out: ducks back in
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [x, y]);
-  useEffect(() => () => window.clearTimeout(timer.current), []);
   return state;
 }
+const reduced = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;

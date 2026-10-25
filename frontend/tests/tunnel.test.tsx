@@ -71,6 +71,15 @@ describe("useTunnel", () => {
     expect(result.current).toEqual({ x: 600, y: 0, phase: "" });
   });
 
+  it("mounted while the run is moving, it is already under and climbs out once the run is quiet", () => {
+    const { result } = renderHook(() => useTunnel(300, 0, true));
+    expect(result.current).toEqual({ x: 300, y: 0, phase: "under" });
+    tick(TUNNEL.under - 1);
+    expect(result.current.phase).toBe("under");
+    tick(1);
+    expect(result.current).toEqual({ x: 300, y: 0, phase: "up" });
+  });
+
   it("a step on another row is the same trip: the burrow never moves", () => {
     const { result, rerender } = hook();
     rerender({ x: 300, y: 200 });
