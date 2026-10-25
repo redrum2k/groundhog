@@ -22,7 +22,7 @@ async function main() {
   const observed={run,origin,errors,mutations};
   try {
     await page.goto(origin+'/live',{waitUntil:'networkidle'});
-    await expect(page.getByText('Live backend · mock payments',{exact:true})).toBeVisible();
+    await expect(page.getByText('Synthetic data, mock payments',{exact:true})).toBeVisible();
     observed.customer = await page.locator('body').innerText();
     await page.screenshot({path:path.join(output,'customer.png'),fullPage:true,animations:'disabled'});
     await page.getByRole('button',{name:'Run',exact:true}).click();

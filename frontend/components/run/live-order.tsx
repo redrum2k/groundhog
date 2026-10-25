@@ -21,7 +21,7 @@ const PAYMENT_LABELS:Record<string,string> = {
 
 export function PaymentStatus({order}:{order:LiveOrder}) {
   const payment=order.page?.payment;
-  return <span className="wallet" role="status"><IcWallet size={14}/><span>{payment ? `${PAYMENT_LABELS[payment.payment.state]}${payment.simulated?" · mock":""}` : "No payment yet"}</span></span>;
+  return <span className="wallet" role="status"><IcWallet size={14}/><span>{payment ? PAYMENT_LABELS[payment.payment.state] : "No payment yet"}</span>{payment?.simulated && <><span className="wallet-sep" aria-hidden/><span className="faint"><span className="sr-only">, </span>Mock</span></>}</span>;
 }
 
 export function LiveIntake({order}:{order:LiveOrder}) {

@@ -134,7 +134,7 @@ export default function RunApp() {
         </div>
         <div className="spacer" />
         {playback.awaiting && tab === "run" && (
-          <button className="btn solid" onClick={() => setTab("customer")}>{playback.awaiting === "approve" ? "Summit's turn: approve the contract" : "Summit's turn: accept or object"}</button>
+          <button className="btn turn" onClick={() => setTab("customer")}><span className="turn-dot" aria-hidden />{playback.awaiting === "approve" ? "Summit's turn: approve the contract" : "Summit's turn: accept or object"}</button>
         )}
         {status === "error" && <span className="tools-err" role="alert">{playback.error}</span>}
         {zoom && (

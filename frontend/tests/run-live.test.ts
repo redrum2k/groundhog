@@ -46,7 +46,7 @@ describe("recorded API fixture", () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(900); });
     expect(result.current.view.nodes.investigate?.status).toBe("running");
     expect(result.current.view.nodes.review.status).toBe("waiting");
-    expect(result.current.view.coin).toMatchObject({ locked: true });
+    expect(result.current.view.coin).toMatchObject({ locked: true, alert: true }); // held, and amber because it's disputed
     expect(server.calls[0]).toMatchObject({ method: "POST", url: "/api/broker-run/runs", body: { case: "amber" } });
     expect(server.calls[1].url).toBe("/api/broker-run/runs/run-1/events?after=0");
 

@@ -62,7 +62,7 @@ describe("historical aggregate capture replay", () => {
     expect(view.nodes.verdict.status).toBe("done");
     expect(["waiting", "running"]).toContain(view.nodes.captured.status);
     expect(view.orb.step).toBe("captured");
-    expect(view.coin).toMatchObject({ text: "$1 capture pending", done: false, locked: true });
+    expect(view.coin).toMatchObject({ text: "$1 capture pending", done: false, locked: true, alert: false });
     expect(view.captured).toEqual({});
     expect(view.nodes.captured.entries).toBeUndefined();
     expect(JSON.stringify(events)).toBe(original);

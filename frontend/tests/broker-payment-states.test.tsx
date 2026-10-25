@@ -61,4 +61,5 @@ it("replays held to returned through the whole canvas and funding panel",()=>{
  expect(screen.getByRole("heading",{name:"Funding · voided"})).toBeTruthy();
  expect(coin("$120 returned").length).toBeGreaterThan(0);
  expect(screen.queryByText("$120 held")).toBeNull();
+ expect(document.querySelector(".coin.returned:not(.done)")).toBeTruthy(); // a refund is not shown as a completed sale
 });
