@@ -58,7 +58,6 @@ export default function RunApp() {
 
   const steps = useMemo(() => (run === "shared" ? MAIN : [...MAIN, ...laneSteps(run, ending, learned)]), [run, ending, learned]);
   const stepOf = (id: string) => view.nodes[id]?.step ?? steps.find((s) => s.id === id); // a live stream's own step wins over the recorded plan
-  const total = useMemo(() => fullEvents(run, ending, learned).filter((e) => e.type === "step_started").length, [run, ending, learned]);
 
   const nodes = useMemo<CNode[]>(() => {
     const planned = (s: Step) => view.nodes[s.id]?.step ?? (mode === "live" && LIVE_DETAIL[s.id] ? { ...s, detail: LIVE_DETAIL[s.id] } : s);
@@ -158,13 +157,10 @@ export default function RunApp() {
           <Canvas
             nodes={nodes} view={cv} focus={{ kind: "follow" }}
             panelOpen={!!panelStep} onNode={onNode} recenter={recenter}
-            overlay={
-              <div className={`caption${panelStep ? " shifted" : ""}`} aria-live="polite">
-                {zoom && <span className="cap-step">{view.started}/{total}</span>}
-                <span key={caption} className="cap-text">{caption}</span>
-              </div>
-            }
+            midRun={status === "playing" || status === "waiting"}
           />
+          {/* the narration is not on screen (the cards and chips carry it); screen readers still hear it */}
+          <p className="sr-only cap-text" aria-live="polite">{caption}</p>
           {shown && <Panel key={shown.id + (learned ? "L" : "")} step={shown} {...bodyProps} closing={!panelStep} onClose={() => setPanel(null)} onClosed={() => setShown(undefined)} />}
         </main>
       ) : (
