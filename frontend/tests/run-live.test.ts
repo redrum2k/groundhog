@@ -94,6 +94,17 @@ describe("recorded API fixture at the controller gate", () => {
     expect(result.current.view.coin).toMatchObject({ done: true });
     expect(fetch.mock.calls.filter(([u]) => String(u).endsWith("/decisions")).map(([, i]) => JSON.parse(String((i as RequestInit).body)))).toEqual([{ action: "approve", binding }, { action: "approve", binding }]);
   });
+
+  it("is done once Captured completes, even when a closing caption follows it", async () => {
+    const { events } = timeline("green", "human");
+    expect(events.some((e) => e.type === "step_completed" && e.step === "captured")).toBe(true);
+    const server = fakeServer([...events, ...stamp("green", [{ type: "caption", text: "Accepted. $120 captured and booked." }], events.length)]);
+    vi.stubGlobal("fetch", server.fetch);
+    const feed: Feed = { kind: "live", api: "/api/broker-run", body: { case: "green" }, before: [], ctx: { ...ctx, lane: "green" } };
+    const { result } = renderHook(() => usePlayback(feed));
+    await act(async () => { await vi.advanceTimersByTimeAsync(20_000); });
+    expect(result.current.status).toBe("done");
+  });
 });
 
 describe("recorded API fixture failure", () => {

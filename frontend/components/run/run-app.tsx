@@ -99,7 +99,7 @@ export default function RunApp() {
   // The last panel stays mounted while it slides out, then Panel reports it gone
   const [shown, setShown] = useState(panelStep);
   if (panelStep && panelStep !== shown) setShown(panelStep);
-  const offerLearned = run === "amber" && ending === "human" && !learned && done;
+  const offerLearned = run === "amber" && ending === "human" && !learned && done && !playback.live; // the yoga replay is recorded; a live case is about its own term
   const caption = zoom ? (view.caption || (status === "idle" ? (mode === "live" ? "Press Play live to start the order on the backend." : "Press play to run the recorded order.") : "")) : S.positioning;
   const bodyProps = { view, lane: run, ending, learned, done, live: playback.live, decide: playback.decide, onReplayLearned: replayLearned };
 
