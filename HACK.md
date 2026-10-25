@@ -61,6 +61,12 @@ Jeff's improvement workflow remains scoped to its compatibility profile.
 ## Time and settlement
 
 Review and dispute windows are 60 seconds each; answers never extend either.
+For aggregate orders, a resolved unsupported complaint or answered scope question
+permits another objection to the same delivery. Only one case may be unresolved
+at a time. Each new case has its own 60-second dispute window; the delivery review
+deadline stays fixed. Objections after review expiry or submitted settlement go
+to human review and cannot cancel submitted payment. Catalog compatibility retains
+its one-case-per-delivery rule.
 Intake has two questions within 300 seconds. Investigation has at most two questions.
 Source repair has two attempts and a 120-second episode bounded by existing clocks.
 Capture authority expires one hour after quote preparation, not after delivery.
@@ -119,6 +125,10 @@ behind permitted collection. The selected video follows one correct delivery:
 SF request → fitness clarification → accepted agreement → simulated funding →
 verified CSV/JSON → “Oakland should be in there” → cited defense of the agreed
 SF scope → customer acceptance → confirmed mock collection.
+The three-minute demo excludes source learning, reviewer-memory teaching and a
+second-order improvement comparison. Those implementations remain background
+work; reliable self-improvement is not a demonstrated outcome. Human review stays
+available for uncertainty and Q&A without entering reusable guidance.
 See [PITCH.md](PITCH.md) for narration, recording cues, a short version and Q&A.
 Recording driver and narrator are unassigned; the driver plays Summit Fitness.
 Technical follow-ups follow existing ownership: Jeff for evidence/interpretation,

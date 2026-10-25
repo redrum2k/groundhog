@@ -16,6 +16,7 @@ from app.contracts.dataset import DATASET_PRICES_MINOR, DATASET_PRICING, Brokera
 from app.contracts.models import Money
 from app.contracts.runs import ActionAvailability, DecisionAcknowledgement, RunCreated, RunPage
 from app.datasets import make_terms, seed_registry
+from app.investigation.reviewer_memory import capture
 from app.orders.catalog import identifier
 from app.orders.dataset_evidence import (
     evidence_request,
@@ -24,7 +25,7 @@ from app.orders.dataset_evidence import (
 )
 from app.orders.run_events import binding
 from app.orders.service import DomainError
-from app.runtime.catalog_policy import authorization_ready
+from app.runtime.catalog_policy import authorization_ready, can_open_dispute
 from app.runtime.dataset_policy import cutoff
 
 
@@ -142,7 +143,7 @@ class Runs:
                 # Late complaints remain recordable even when payment cannot settle.
                 if (
                     order.deliveries
-                    and not order.cases
+                    and can_open_dispute(order)
                     and not any(a.action == "dispute" for a in actions)
                 ):
                     actions.append(
@@ -207,7 +208,10 @@ class Runs:
 
     def decide(self, run_id, command, key, actor):
         scope = f"run-decisions:{run_id}:{actor}"
-        fingerprint = self.repository.fingerprint("review", command)
+        payload = command.model_dump(mode="json")
+        if payload["guidance"] is None:
+            payload.pop("guidance")  # Preserve exact replay of historical decisions.
+        fingerprint = json.dumps({"operation": "review", "payload": payload}, sort_keys=True)
         with self.repository.transaction() as db:
             replay = self.repository.replay(db, scope, key, fingerprint, DecisionAcknowledgement)
             if replay:
@@ -240,6 +244,7 @@ class Runs:
                 self.service.store.resolve(ref, order.artifacts)
             now = self.service.clock()
             decision_id = identifier("decision")
+            memory_id = capture(db, self.service, order, command, cited, decision_id, actor, now)
             mapped = (
                 "release_authorization"
                 if command.action == "approve"
@@ -302,9 +307,12 @@ class Runs:
                 action=command.action,
                 by=actor,
                 note=command.reason,
+                guidance_memory_id=memory_id,
                 binding=command.binding.model_dump(),
             )
-            acknowledgement = DecisionAcknowledgement(decision_id=decision_id)
+            acknowledgement = DecisionAcknowledgement(
+                decision_id=decision_id, guidance_memory_id=memory_id
+            )
             self.repository.remember(db, scope, key, fingerprint, acknowledgement)
             return acknowledgement
 

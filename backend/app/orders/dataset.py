@@ -343,6 +343,7 @@ class DatasetLifecycle:
                 assessed_binding=attempt.binding.model_dump(),
                 accepted_specification_sha256=attempt.accepted_specification_sha256,
                 attempt_id=attempt.attempt_id,
+                reviewer_guidance=(attempt.request or {}).get("reviewer_guidance", []),
                 candidate=attempt.candidate.model_dump() if attempt.candidate else None,
                 effective=semantic.model_dump(),
                 validation=attempt.status,

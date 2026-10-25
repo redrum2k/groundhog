@@ -92,22 +92,29 @@ function isLateComplaint(order:LiveOrder) {
 
 /** `audit`: the Run panel also shows hashes and deadlines; the customer view keeps to the decision. */
 export function LiveDelivery({order,working,audit}:{order:LiveOrder;working:()=>void;audit?:boolean}) {
-  const [objecting,setObjecting]=useState(false);
   const {page,delivery,binding}=order;
-  const late=isLateComplaint(order);
   return <>
     {delivery ? <>
       <div className="review-grid"><div className="sheet"><div className="sheet-h"><span>{delivery.file}</span><a className="sheet-dl" href={`${LIVE_API}/orders/${binding?.orderId}/artifacts/${delivery.artifactId}`} download={delivery.file}><IcDownload size={13} strokeWidth={1.8} aria-hidden/>Download CSV</a></div><div className="sheet-rows"><table><thead><tr><th>ZIP</th><th>Area</th><th className="num">People</th><th>Status</th></tr></thead><tbody>{delivery.rows.map(row=><tr key={row.zip}><td className="mono">{row.zip}</td><td>{row.area}</td><td className="num">{row.count ?? "—"}</td><td>{row.status}</td></tr>)}</tbody></table></div></div><LiveChecks order={order}/></div>
       <DeliveryReviewStatus page={page}/>
-      {/* the backend keeps a complaint open after the review window, but it goes to human review and can't stop payment */}
-      {late && <p className="faint">The review window closed without an objection, so this delivery counts as accepted. You can still file a late complaint for human review; it won&apos;t stop the payment.</p>}
-      <div className="decision-actions">
-        {order.enabled("accept") && <button type="button" className="btn solid" onClick={async()=>{if(await order.acceptDelivery())working();}}>Accept verified delivery</button>}
-        {order.enabled("dispute") && <button type="button" className="btn" onClick={()=>setObjecting(!objecting)}>{objecting?"Close":late?"File a late complaint":"Object"}</button>}
-      </div>
-      {objecting && <ComplaintForm key={`${binding?.orderId}:${delivery.version}`} disabled={!order.enabled("dispute")} submit={async text=>{if(await order.complain(text)){setObjecting(false);working();}}}/>}
+      <DeliveryDecisions order={order} working={working}/>
       {audit && <details className="live-details"><summary>Delivery and review details</summary><p>SHA-256: {delivery.sha256}</p><p>Review closes: {page?.reviewClosesAt}<br/>Dispute closes: {page?.disputeClosesAt ?? "Not opened"}<br/>Latest safe capture submission: {page?.latestSafeSubmissionAt}<br/>Authorization expires: {page?.captureClosesAt}</p></details>}
     </> : <><LiveChecks order={order}/><p className="faint">{order.binding?"The delivery will appear here after funded production and independent checks.":"Agree on a dataset first."}</p></>}
+  </>;
+}
+
+function DeliveryDecisions({order,working}:{order:LiveOrder;working:()=>void}) {
+  const [objecting,setObjecting]=useState(false);
+  const {binding}=order;
+  const late=isLateComplaint(order);
+  return <>
+      {/* the backend keeps a complaint open after the review window, but it goes to human review and can't stop payment */}
+      {late && <p className="faint">The delivery review window has ended. Further complaints go to human review and cannot cancel a submitted payment.</p>}
+      <div className="decision-actions">
+        {order.enabled("accept") && <button type="button" className="btn solid" onClick={async()=>{if(await order.acceptDelivery())working();}}>Accept verified delivery</button>}
+        <button type="button" className="btn" disabled={!objecting && !order.enabled("dispute")} onClick={()=>setObjecting(!objecting)}>{objecting?"Close":late?"File a late complaint":order.view.dispute?"Object again":"Object"}</button>
+      </div>
+      {objecting && <ComplaintForm key={`${binding?.orderId}:${order.delivery!.version}`} disabled={!order.enabled("dispute")} submit={async text=>{if(await order.complain(text)){setObjecting(false);working();}}}/>}
   </>;
 }
 
@@ -136,11 +143,24 @@ function EvidenceReferences({evidence,inspect}:{evidence:Evidence[];inspect:(id:
   })}</div></details>)}</>;
 }
 
+function ReviewerGuidance({order,verdict}:{order:LiveOrder;verdict:Verdict}) {
+  const memories=verdict.finding?.reviewer_guidance;
+  if(!memories?.length)return null;
+  return <details className="live-details"><summary>Prior reviewer guidance consulted</summary>
+    <p className="faint">Retrieved reference material. Consultation alone does not establish a successful answer; the current assessment and evidence checks determine the result.</p>
+    {memories.map(memory=><div key={memory.memory_id}>
+      <p>{memory.guidance}</p><p>Previous explanation: {memory.explanation}</p>
+      <p className="faint">{memory.actor} · Originating case: {memory.originating_case} · Order: {memory.originating_order}</p>
+      <details className="live-details"><summary>Current supporting citations</summary>{memory.current_citations.map(ref=><p key={`${ref.sha256}:${ref.source_id}:${ref.version}:${ref.row}:${ref.column}`}><a className="cite" href={`${LIVE_API}/orders/${order.binding?.orderId}/artifacts/${ref.artifact_id}`} target="_blank" rel="noreferrer">{ref.source_id} · {ref.row} · {ref.column} · v{ref.version}</a>: {ref.value ?? "Unknown / null"}<br/><span className="faint">SHA-256: {ref.sha256}</span></p>)}</details>
+    </div>)}
+  </details>;
+}
+
 export function LiveVerdict({order,verdict,showEvidence=true,review,customer}:{order:LiveOrder;verdict?:Verdict;showEvidence?:boolean;review?:()=>void;customer?:()=>void}) {
   if(!verdict)return null;
   if(verdict.kind==="disagree")return <ObjectionDecision order={order} verdict={verdict} review={review} customer={customer}/>;
   const evidence=verdict.evidenceIds.flatMap(id=>order.view.evidence[id]?[order.view.evidence[id]]:[]);
-  return <section className="live-verdict live-agent-message" aria-label="Complaint assessment"><div className="live-agent-message-header"><IcLogo size={16}/><span>Groundhog</span><h3 className="faint">Complaint assessment</h3></div><p className="live-agent-message-text">{verdict.reason}</p>{showEvidence && evidence.length>0 && <details className="live-details"><summary>Evidence for this assessment · {evidence.length} references</summary><EvidenceReferences evidence={evidence} inspect={order.inspect}/></details>}</section>;
+  return <section className="live-verdict live-agent-message" aria-label="Complaint assessment"><div className="live-agent-message-header"><IcLogo size={16}/><span>Groundhog</span><h3 className="faint">Complaint assessment</h3></div><p className="live-agent-message-text">{verdict.reason}</p><ReviewerGuidance order={order} verdict={verdict}/>{showEvidence && evidence.length>0 && <details className="live-details"><summary>Evidence for this assessment · {evidence.length} references</summary><EvidenceReferences evidence={evidence} inspect={order.inspect}/></details>}</section>;
 }
 
 const assessmentSentences=new Intl.Segmenter("en",{granularity:"sentence"});
@@ -181,6 +201,7 @@ function ObjectionDecision({order,verdict,review,customer}:{order:LiveOrder;verd
       {evidence.map(item=><blockquote key={item.id}><strong>{item.label}</strong><p>{"quote" in item?item.quote:"value" in item?item.value:item.note}</p><p className="faint">{item.note}</p></blockquote>)}
       {!evidence.length && <p className="faint">No linked evidence references were supplied with this assessment.</p>}
     </details>
+    <ReviewerGuidance order={order} verdict={verdict}/>
     {summary!==verdict.reason && <details className="live-details"><summary>Read full assessment</summary><p>{verdict.reason}</p></details>}
   </section>;
 }
@@ -197,6 +218,7 @@ function ReviewReceipt({order}:{order:LiveOrder}) {
   return <section className="review-receipt" aria-label="Human review decision">
     <header className="review-receipt-heading"><span className="review-receipt-icon"><IcCheck size={16}/></span><div><span className="faint">Human review</span><h3>{titles[decision.action]}</h3></div></header>
     {decision.action==="approve" && <div className="review-receipt-payment" role="status"><strong>{status}</strong><p>{payment?.state==="voided"?"The buyer’s funds have been returned.":"Funds remain held until the return is confirmed."}</p>{returnFailed && <p className="review-err">{lastReturn.error}</p>}</div>}
+    {decision.guidanceMemoryId && <p role="status">Guidance saved for similar cases</p>}
     <details className="live-details"><summary>Reviewer note</summary><p>{decision.note}</p></details>
     {order.page?.payment?.simulated && <span className="faint">Simulated payment</span>}
     {payment?.state==="voided" && <p className="faint">Returning funds does not resolve any factual uncertainty. The complaint and evidence remain inspectable.</p>}
@@ -205,6 +227,28 @@ function ReviewReceipt({order}:{order:LiveOrder}) {
 
 const REVIEW_ACTIONS = { approve: "Approve", reject: "Reject", ask: "Ask", escalate: "Escalate" } as const;
 
+function ReviewEvidence({order}:{order:LiveOrder}) {
+  const selected=new Set(order.reviewEvidence ?? []);
+  const seen=new Set<string>();
+  const evidence=Object.values(order.view.evidence).filter(item=>{
+    const source=item.source;
+    if(source.kind!=="cell" || !source.reference)return false;
+    const ref=source.reference;
+    if(ref.source_id==="delivery" && ref.version!==order.binding?.deliveryVersion)return false;
+    const key=JSON.stringify(ref);
+    if(seen.has(key))return false;
+    seen.add(key);return true;
+  });
+  return <details className="live-details"><summary>Supporting evidence</summary>
+    <p className="faint">Select up to eight current citations for reusable guidance. A remedy decision alone does not create guidance.</p>
+    <fieldset className="required-evidence"><legend>Review citations</legend>{evidence.map(item=><label key={item.id}>
+      <input type="checkbox" checked={selected.has(item.id)} disabled={order.busy || !selected.has(item.id) && selected.size>=8}
+        onChange={e=>order.setReviewEvidence(e.target.checked?[...selected,item.id]:[...selected].filter(id=>id!==item.id))}/>
+      <span>{item.label} · {item.source.kind==="cell"?`${item.source.row} · ${item.source.column}`:""}</span>
+    </label>)}</fieldset>
+  </details>;
+}
+
 export function LiveReview({order}:{order:LiveOrder}) {
   const paymentState=order.page?.payment?.payment.state;
   if(!order.needsHumanReview || paymentState==="void_pending" || paymentState==="voided")return <ReviewReceipt order={order}/>;
@@ -212,6 +256,8 @@ export function LiveReview({order}:{order:LiveOrder}) {
     <div className="review-tag">Needs a person&apos;s decision</div>
     <p className="live-review-note">Review the evidence and the proposed remedy. Approval can release eligible uncaptured funds; it can&apos;t override verification or force a capture.</p>
     <label htmlFor="reason">Reason or evidence answer</label><textarea id="reason" value={order.reason} onChange={e=>order.setReason(e.target.value)}/>
+    <label htmlFor="review-guidance">Guidance for similar cases (optional)</label><textarea id="review-guidance" maxLength={1200} value={order.guidance ?? ""} onChange={e=>order.setGuidance(e.target.value)}/>
+    <ReviewEvidence order={order}/>
     {/* one row per action: the button, then why it is or isn't available right now */}
     <ul className="live-review-choices">{(["approve","reject","ask","escalate"] as const).map(action=><li key={action}><button type="button" className="btn" disabled={!order.enabled(action)} onClick={()=>void order.decide(action)}>{REVIEW_ACTIONS[action]}</button><span>{order.page?.available_actions.find(a=>a.action===action)?.reason}</span></li>)}</ul>
   </div></>;

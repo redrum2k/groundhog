@@ -13,6 +13,7 @@ from app.contracts.payments import (
     PaymentAccountState,
     PaymentView,
 )
+from app.contracts.reviewer_memory import GuidanceConsulted
 
 Track = Literal["shared", "red", "green", "amber"]
 StepKind = Literal[
@@ -175,6 +176,7 @@ class DatasetFinding(Frozen):
     assessed_binding: Binding
     accepted_specification_sha256: str
     attempt_id: str
+    reviewer_guidance: tuple[GuidanceConsulted, ...] = ()
     candidate: Assessment | None
     effective: Assessment
     validation: Literal["DISPATCHED", "VALIDATED", "ADVISORY", "INVALID", "FAILED", "STALE"]
@@ -313,6 +315,7 @@ class ControllerDecided(StepEvent):
     action: ControllerAction
     by: str
     note: str
+    guidance_memory_id: str | None = None
     binding: CanvasBinding
 
 
@@ -444,11 +447,13 @@ class RunDecision(Frozen):
         "Review current cited evidence and the proposed remedy."
     )
     evidence_ids: tuple[Name, ...] = ()
+    guidance: Annotated[str, Field(min_length=1, max_length=1200)] | None = None
 
 
 class DecisionAcknowledgement(Frozen):
     ok: Literal[True] = True
     decision_id: str
+    guidance_memory_id: str | None = None
 
 
 class RunOffer(Frozen):

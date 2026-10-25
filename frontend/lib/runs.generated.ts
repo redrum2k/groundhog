@@ -36,6 +36,7 @@ export interface RunContractExport {
 }
 export interface DecisionAcknowledgement {
   decision_id: string;
+  guidance_memory_id?: string | null;
   ok?: true;
 }
 export interface RunEvidenceAnswer {
@@ -105,6 +106,7 @@ export interface RunDecision {
   action: "approve" | "reject" | "ask" | "escalate";
   binding: DecisionBinding;
   evidence_ids?: string[];
+  guidance?: string | null;
   reason?: string;
 }
 export interface StepsPlanned {
@@ -345,6 +347,7 @@ export interface DatasetFinding {
   evidence_ids: string[];
   kind: "supported" | "contradicted" | "unclear";
   reason: string;
+  reviewer_guidance?: GuidanceConsulted[];
   validation: "DISPATCHED" | "VALIDATED" | "ADVISORY" | "INVALID" | "FAILED" | "STALE";
 }
 export interface Binding {
@@ -388,12 +391,54 @@ export interface Provenance {
   model_score?: number | null;
   version: string;
 }
+export interface GuidanceConsulted {
+  actor: string;
+  applicability: {
+    [k: string]: unknown;
+  };
+  /**
+   * @maxItems 8
+   */
+  current_citations:
+    | []
+    | [DatasetReference]
+    | [DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference, DatasetReference]
+    | [
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference
+      ]
+    | [
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference,
+        DatasetReference
+      ];
+  explanation: string;
+  guidance: string;
+  memory_id: string;
+  originating_case: string;
+  originating_order: string;
+}
 export interface ControllerDecided {
   action: "approve" | "reject" | "ask" | "escalate";
   at: string;
   attempt?: number;
   binding: CanvasBinding;
   by: string;
+  guidance_memory_id?: string | null;
   note: string;
   seq: number;
   step: string;

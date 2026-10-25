@@ -85,3 +85,26 @@ it("keeps an unresolved assessment out of the red rejection styling",async()=>{
   expect(document.querySelector(".nd.outcome-not-upheld")).toBeNull();
   expect(screen.queryByText("Objection not upheld")).toBeNull();
 });
+
+
+it("keeps the objection control visible and enables another submission after resolution",async()=>{
+  page.available_actions=[{action:"accept",enabled:true,reason:"Resolved"},{action:"dispute",enabled:true,reason:"Previous case resolved"}];
+  render(<LiveRun/>);
+  const button=await screen.findByRole("button",{name:"Object again"}) as HTMLButtonElement;
+  expect(button.disabled).toBe(false);
+  fireEvent.click(button);
+  fireEvent.change(screen.getByLabelText("Your complaint"),{target:{value:"ZIP 94112 is missing"}});
+  fireEvent.click(screen.getByRole("button",{name:"Send complaint"}));
+  await waitFor(()=>expect(fetcher.mock.calls.some(([url,options])=>url.endsWith("/complaints") && options?.method==="POST")).toBe(true));
+  const call=fetcher.mock.calls.find(([url,options])=>url.endsWith("/complaints") && options?.method==="POST")!;
+  expect(JSON.parse(call[1].body)).toMatchObject({text:"ZIP 94112 is missing",expected_revision:page.binding!.revision});
+});
+
+it("keeps the repeat objection button visible but disabled while a case needs review",async()=>{
+  page.available_actions=[{action:"approve",enabled:true,reason:"Human review required"}];
+  render(<LiveRun/>);
+  const button=await screen.findByRole("button",{name:"Object again"}) as HTMLButtonElement;
+  expect(button.disabled).toBe(true);
+  fireEvent.click(button);
+  expect(screen.queryByLabelText("Your complaint")).toBeNull();
+});

@@ -21,6 +21,8 @@ export function useLiveOrder() {
   const [prompt,setPrompt] = useState("SF adults 25–34 interested in fitness, counts by ZIP.");
   const [answer,setAnswer] = useState("");
   const [reason,setReason] = useState("");
+  const [guidance,setGuidance] = useState("");
+  const [reviewEvidence,setReviewEvidence] = useState<string[]>([]);
   const [offer,setOffer] = useState<Quote>();
   const [resolved,setResolved] = useState<string>();
   const [error,setError] = useState<string>();
@@ -55,10 +57,10 @@ export function useLiveOrder() {
     const evidence=Object.values(view.evidence).find(e=>e.source===source);
     if(evidence)void inspect(evidence.id);
   }
-  function clear() { checkout.clearError();setOffer(undefined);setResolved(undefined);setError(undefined);setAnswer("");setReason(""); }
+  function clear() { checkout.clearError();setOffer(undefined);setResolved(undefined);setError(undefined);setAnswer("");setReason("");setGuidance("");setReviewEvidence([]); }
   return {
     live, page, view, read:shown.read, binding, assessment, busy, enabled, needsHumanReview, hasHumanReview, delivery, deliveryAccepted, lines, messages,
-    prompt, setPrompt, answer, setAnswer, reason, setReason, offer, resolved, inspect, cite,
+    prompt, setPrompt, answer, setAnswer, reason, setReason, guidance, setGuidance, reviewEvidence, setReviewEvidence, offer, resolved, inspect, cite,
     stage:checkout.stage, error:live.error ?? error ?? checkout.error,
     newRun:()=>{live.newRun();clear();},
     prepareQuote:()=>request("quotes",payer?{payer}:{}),
@@ -70,7 +72,11 @@ export function useLiveOrder() {
       return !!result;
     },
     complain:async(text:string)=>!!await current("complaints",{text}),
-    decide:(action:RunDecision["action"])=>runAction("decisions",{action,reason:reason.trim() || REVIEW_REASONS[action]}),
+    decide:async(action:RunDecision["action"])=>{
+      const result=await runAction("decisions",{action,reason:reason.trim() || REVIEW_REASONS[action],evidence_ids:reviewEvidence,...(guidance.trim()?{guidance:guidance.trim()}:{})});
+      if(result){setGuidance("");setReviewEvidence([]);}
+      return result;
+    },
     evidenceAnswer:(answer:Record<string,unknown>)=>runAction("answers",answer),
     requestOffer:async(scope:string)=>{const q=await live.command<Quote>(`/runs/${live.id}/offers`,{binding,scope});if(q)setOffer(q);},
     reviewOffer:()=>{if(offer){live.resume(offer.request_id);clear();}},
