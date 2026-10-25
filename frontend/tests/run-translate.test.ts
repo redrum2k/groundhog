@@ -60,7 +60,7 @@ describe("broker stream → canvas", () => {
     // what the agent read at the source, ticked once the re-verification landed, and the thought it had at the verdict
     expect(v.nodes.investigate.source?.map((l) => l.checked)).toEqual([true, true, true]);
     expect(v.nodes.investigate.source?.[0].text).toMatch(/^LOOKUP vendor panel v1/);
-    expect(v.aside).toEqual({ step: "verdict", text: "Settled by the contract and the source. No human needed." });
+    expect(v.aside).toEqual({ step: "verdict", text: "No human needed. Settled by the contract and the source." });
     expect(v.nodes.review.attempt).toBe(2);
     expect(v.nodes.captured.status).toBe("done");
   });

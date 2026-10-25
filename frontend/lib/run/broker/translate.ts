@@ -117,7 +117,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
       complete("investigate");
       emit({ type: "step_started", step: "verdict" });
       emit({ type: "verdict", step: "verdict", verdict: { kind, decidedBy: "rules", evidenceIds: [...cites, ...(assessment?.evidenceIds ?? [])], reason: assessment ? `${assessment.decidedBy === "model" ? "Decided by the model, verified by code: " : ""}${assessment.reason}` : kind === "agree" ? "A requirement failed and was corrected." : "Every accepted requirement passed; nothing was missing from what was agreed." }, allowedBy: POLICY.checks });
-      emit({ type: "aside", step: "verdict", text: kind === "disagree" ? "Settled by the contract and the source. No human needed." : "Our miss, caught by the checks. Corrected at our cost, no human needed." });
+      emit({ type: "aside", step: "verdict", text: kind === "disagree" ? "No human needed. Settled by the contract and the source." : "No human needed. Our miss, caught by the checks and corrected at our cost." });
       verdictDone = true;
     }
     for (const s of detourSteps(detour, order.resolution)) complete(s.id);
