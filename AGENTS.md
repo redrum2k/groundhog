@@ -25,6 +25,14 @@ CONTEXT.md is glossary only. **Catalog policy v0.3 supersedes invoice assumption
 The Base escrow amendment adds `catalog-payments-v1` and schema-4 accepted snapshots;
 it supersedes mock-only payment assumptions without changing catalog evidence/review policy.
 
+## Demo, names and diagrams
+
+The product is Groundhog, the order-to-cash agent working for the data broker Bayline Data.
+The demo customer is Summit Fitness and the human controller persona is "Human"; the names live in `frontend/lib/run/scenario.ts` and must match across copy, video and docs.
+Pitch: Groundhog takes a data broker's order from request to cash, and it only gets paid once the customer accepts the data.
+The judged demo is one live order on the `/demo` canvas; the presenter plays the customer in the Customer view and the Escalation act stays for Q&A.
+Architecture diagrams (stack and improvement harness) live in docs/diagrams with their HTML sources and a re-render script; edit the HTML, not the PNG.
+
 ## Commands (repository root)
 
 ```sh

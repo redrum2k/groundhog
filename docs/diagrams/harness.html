@@ -1,0 +1,107 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Groundhog harness</title>
+<style>
+  body { margin: 0; background: #fff; font-family: Arial, Helvetica, sans-serif; color: #111; }
+  #stage { position: relative; width: 1720px; height: 580px; background: #fff; overflow: hidden; }
+  #wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+  .wire-label { font: 16px Arial, Helvetica, sans-serif; fill: #111; }
+  .title { position: absolute; font-size: 22px; text-align: center; line-height: 1.25; }
+  .title small { display: block; font-size: 17px; color: #333; }
+  .group { position: absolute; border: 2px dashed #444; }
+  .brand { position: absolute; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 26px; }
+  .brand img, .brand svg { width: 32px; height: 32px; }
+  .box { position: absolute; border: 2px solid #333; border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 19px; line-height: 1.2; box-sizing: border-box; padding: 4px 8px; }
+  .legend { position: absolute; background: #fff; padding: 0 8px; font-size: 18px; }
+  .cyl { position: absolute; }
+  .mascot { position: absolute; display: block; width: 44px; height: 44px; }
+  .mascot svg { display: block; }
+  .mascot .prop { position: absolute; }
+  .cyl .t { position: absolute; left: 0; right: 0; top: 26px; font-size: 19px; text-align: center; }
+</style>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <clipPath id="ghclip"><rect x="-6" y="-14" width="40" height="38"/><ellipse cx="14" cy="24" rx="10.6" ry="2.4"/></clipPath>
+    <symbol id="gh" viewBox="0 0 28 28">
+      <ellipse cx="14" cy="24" rx="12.6" ry="3.4" fill="#6f5537"/>
+      <ellipse cx="14" cy="24" rx="10.6" ry="2.4" fill="#2b1d12"/>
+      <g clip-path="url(#ghclip)">
+        <circle cx="7.2" cy="8.6" r="1.7" fill="#c46a35"/><circle cx="20.8" cy="8.6" r="1.7" fill="#c46a35"/>
+        <circle cx="7.2" cy="8.6" r="0.8" fill="#8e4520"/><circle cx="20.8" cy="8.6" r="0.8" fill="#8e4520"/>
+        <path d="M6.2 26V15.4C6.2 9.4 9.6 5.4 14 5.4S21.8 9.4 21.8 15.4V26Z" fill="#c46a35"/>
+        <path d="M9.4 26V20.4C9.4 17.6 11.5 16 14 16S18.6 17.6 18.6 20.4V26Z" fill="#efae66"/>
+        <ellipse cx="14" cy="13.6" rx="3.4" ry="2.5" fill="#f6c58a"/>
+        <ellipse cx="14" cy="12.4" rx="1.15" ry="0.85" fill="#5b2f15"/>
+        <rect x="13" y="14.5" width="0.95" height="1.6" rx="0.25" fill="#fff" stroke="#d9c3a3" stroke-width="0.2"/>
+        <rect x="14.05" y="14.5" width="0.95" height="1.6" rx="0.25" fill="#fff" stroke="#d9c3a3" stroke-width="0.2"/>
+        <ellipse cx="11.4" cy="23.2" rx="1.5" ry="0.75" fill="#a8552a"/><ellipse cx="16.6" cy="23.2" rx="1.5" ry="0.75" fill="#a8552a"/>
+        <circle cx="11" cy="10.6" r="0.95" fill="#2b1a10"/><circle cx="17" cy="10.6" r="0.95" fill="#2b1a10"/>
+        <path d="M8.75 10.6a2.25 2.25 0 1 0 4.5 0a2.25 2.25 0 1 0-4.5 0ZM14.75 10.6a2.25 2.25 0 1 0 4.5 0a2.25 2.25 0 1 0-4.5 0ZM13.25 10.4h1.5" fill="none" stroke="#111" stroke-width="0.75" stroke-linecap="round"/>
+        <g transform="translate(14 6.2) scale(0.56) translate(-14 -4.2) rotate(-6 14 6)">
+          <path d="M4.6 6.4C4.2-4 23.8-4 23.4 6.4C18.6 7.6 9.4 7.6 4.6 6.4Z" fill="#8c6239"/>
+          <path d="M4.75 4.9C9.4 6 18.6 6 23.25 4.9L23.4 6.4C18.6 7.6 9.4 7.6 4.6 6.4ZM5.2 5.6C3.4 5.9 1.6 6.9.6 8.4C2.8 8.4 4.6 8 6.2 7.2ZM22.8 5.6C24.6 5.9 26.4 6.9 27.4 8.4C25.2 8.4 23.4 8 21.8 7.2Z" fill="#5e3f22"/>
+        </g>
+      </g>
+      <path d="M3.4 24A10.6 2.4 0 0 0 24.6 24" fill="none" stroke="#6f5537" stroke-width="1" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="lens" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5" fill="#fff" stroke="#333" stroke-width="2"/><path d="M15 15l6 6" stroke="#333" stroke-width="2.6" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+<div id="stage">
+  <svg id="wires"><defs></defs></svg>
+
+  <!-- one order -->
+  <div class="title" style="left:40px;width:1120px;top:28px">One Order, From Request to Cash</div>
+  <div class="group" id="order" style="left:40px;top:90px;width:1120px;height:450px"></div>
+  <div class="brand" style="left:962px;top:104px"><svg width="36" height="36"><use href="#gh"/></svg>Groundhog</div>
+  <div class="box" id="c1" style="left:60px;top:182px;width:160px;height:80px">Clarify the order</div>
+  <div class="box" id="c2" style="left:244px;top:182px;width:160px;height:80px">Hold payment in escrow</div>
+  <div class="box" id="c3" style="left:428px;top:182px;width:160px;height:80px">Produce the data</div>
+  <div class="box" id="c4" style="left:612px;top:182px;width:160px;height:80px">Run the 8 checks</div>
+  <div class="box" id="c5" style="left:796px;top:182px;width:160px;height:80px">Customer accepts or objects</div>
+  <div class="box" id="c6" style="left:980px;top:182px;width:160px;height:80px">Pay out or return</div>
+  <span class="mascot" style="left:670px;top:266px"><svg width="44" height="44"><use href="#gh"/></svg><svg class="prop" style="right:-10px;bottom:-2px" width="20" height="20"><use href="#lens"/></svg></span>
+
+  <div class="group" style="left:60px;top:348px;width:1080px;height:142px;border-width:1.5px"></div>
+  <div class="legend" style="left:480px;top:336px">If the customer objects</div>
+  <div class="box" id="d1" style="left:100px;top:392px;width:260px;height:60px">Investigate, 2 questions max</div>
+  <div class="box" id="d2" style="left:440px;top:392px;width:260px;height:60px">Verdict with evidence</div>
+  <div class="box" id="d3" style="left:780px;top:392px;width:260px;height:60px">A human decides</div>
+
+  <!-- improvement harness -->
+  <div class="title" style="left:1280px;width:400px;top:28px">Improve the Harness Between Orders<small>(Harness2-inspired)</small></div>
+  <div class="group" id="imp" style="left:1280px;top:90px;width:400px;height:450px"></div>
+  <div class="brand" style="left:1548px;top:100px"><img src="icons/claude.svg">Claude</div>
+  <div class="box" id="i1" style="left:1310px;top:150px;width:340px;height:44px">An order hit a grey area</div>
+  <div class="box" id="i2" style="left:1310px;top:208px;width:340px;height:44px">Claude proposes up to 2 fixes</div>
+  <div class="box" id="i3" style="left:1310px;top:266px;width:340px;height:44px">Each fix is tested in a sandbox</div>
+  <div class="box" id="i4" style="left:1310px;top:324px;width:340px;height:44px">Keep the better one</div>
+  <div class="box" id="i5" style="left:1310px;top:382px;width:340px;height:44px">A human approves</div>
+  <div class="cyl" id="store" style="left:1340px;top:440px;width:280px;height:64px">
+    <svg width="280" height="64" viewBox="0 0 280 64"><path d="M2 11v42a138 9 0 0 0 276 0V11" fill="#f4f4f4" stroke="#333" stroke-width="2"/><ellipse cx="140" cy="11" rx="138" ry="9" fill="#fff" stroke="#333" stroke-width="2"/></svg>
+    <div class="t">Versions and test results</div>
+  </div>
+</div>
+<script src="arrows.js"></script>
+<script>
+window.draw = () => {
+  const k = { color: "#111", width: 2.5, head: 6 };
+  const r = (id) => document.getElementById(id).getBoundingClientRect();
+  const cy = (b) => b.top + b.height / 2;
+  const order = r("order"), imp = r("imp");
+  // the order, left to right
+  for (const [a, b] of [["c1", "c2"], ["c2", "c3"], ["c3", "c4"], ["c4", "c5"], ["c5", "c6"], ["d1", "d2"], ["d2", "d3"]])
+    connect(a, b, { from: "right", to: "left", ...k });
+  // back to the start for the next order, over the top of the row
+  connect("c6", "c1", { from: "top", to: "top", elbow: true, my: 160, label: "Next order", ly: -32, ...k });
+  // the detour
+  connect("c5", "d1", { from: "bottom", to: "top", elbow: true, my: 318, dash: "7 5", ...k });
+  connect("d3", "c6", { from: "right", to: "bottom", elbow: true, dash: "7 5", ...k });
+  // the harness, top to bottom
+  for (const [a, b] of [["i1", "i2"], ["i2", "i3"], ["i3", "i4"], ["i4", "i5"], ["i5", "store"]])
+    connect(a, b, { from: "bottom", to: "top", ...k });
+  // between the loops
+  connect("order", "imp", { from: "right", to: "left", ft: (cy(r("i1")) - order.top) / order.height, tt: (cy(r("i1")) - imp.top) / imp.height, label: "this case", ly: -12, ...k });
+  connect("imp", "order", { from: "left", to: "right", ft: (cy(r("store")) - imp.top) / imp.height, tt: (cy(r("store")) - order.top) / order.height, label: "next orders use\nthe new version", ly: -30, ...k });
+};
+</script>

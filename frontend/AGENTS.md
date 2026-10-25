@@ -15,6 +15,8 @@ may omit the password only through the aggregate bridge, which checks that its
 backend is in mock-payment mode. See ../docs/RAILWAY.md.
 Controlled source learning remains local-only.
 Generate catalog, runs, jobflow, broker and improvement clients together; never hand-edit them.
+Copy on the canvas and Customer view describes a simulated payment in plain English ("Demo payment: no funds move"); the word "mock" stays in code and the admin review.
+UI text uses a plain dash, never an em dash.
 
 The remaining catalog/PDF guidance applies to retained compatibility behavior:
 
