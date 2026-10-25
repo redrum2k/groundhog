@@ -9,6 +9,9 @@ const base = (size = 16, sw = 1.4) => ({
 });
 const icon = (d: string) => ({ size, strokeWidth, ...p }: IconProps) => <svg {...base(size, strokeWidth)} {...p}><path d={d} /></svg>;
 
+/** The customer's mark: a summit line */
+export const IcSummit = icon("M1.5 12.5 6 5l3 4.5 2-3 3.5 6");
+
 /** Tick */
 export const IcCheck = icon("m3.25 8.5 3 3 6.5-7");
 /** Close */

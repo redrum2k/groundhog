@@ -1,4 +1,4 @@
-// The scripted parties for a live demo order: Acme's buying agent, our provider and investigator
+// The scripted parties for a live demo order: Summit's buying agent, our provider and investigator
 // seats act against Jeff's backend on a timer while the canvas watches the event stream. Only
 // the controller's decision is a human click (see the decisions route).
 import { createHash } from "node:crypto";
@@ -6,7 +6,7 @@ import { ROWS, S, type Case } from "../scenario";
 import { BrokerError, createDraft, draftCommand, events as brokerEvents, getOrder, orderCommand, session, uploadSource, type Role } from "./client";
 import type { BrokerOrder } from "./types";
 
-/** Acme's moves. The presenter makes them from the customer view; the driver waits for each. */
+/** Summit's moves. The presenter makes them from the customer view; the driver waits for each. */
 export type BuyerMove = { action: "approve" } | { action: "accept" } | { action: "object"; text: string };
 export type BuyerGate = "approve" | "review"; // what the run is waiting for: contract approval, or accept / object
 
@@ -23,13 +23,13 @@ export interface Run {
   markReady: () => void;
 }
 
-/** Pauses the scripted parties until the presenter, as Acme, makes a move of the right kind. */
+/** Pauses the scripted parties until the presenter, as Summit, makes a move of the right kind. */
 function waitBuyer(run: Run, gate: BuyerGate): Promise<BuyerMove> {
   return new Promise((resolve) => { run.awaiting = gate; run.move = (m) => { run.awaiting = null; run.move = null; resolve(m); }; });
 }
 export function buyerMove(run: Run, m: BuyerMove): { status: number; detail?: string } {
   const ok = run.awaiting === "approve" ? m.action === "approve" : run.awaiting === "review" ? m.action !== "approve" : false;
-  if (!ok || !run.move) return { status: 409, detail: run.awaiting ? `The order is waiting for Acme to ${run.awaiting === "approve" ? "approve the contract" : "accept or object"}` : "The order is not waiting on Acme right now" };
+  if (!ok || !run.move) return { status: 409, detail: run.awaiting ? `The order is waiting for Summit to ${run.awaiting === "approve" ? "approve the contract" : "accept or object"}` : "The order is not waiting on Summit right now" };
   run.move(m);
   return { status: 200 };
 }
@@ -37,7 +37,7 @@ export function buyerMove(run: Run, m: BuyerMove): { status: number; detail?: st
 const key = () => crypto.randomUUID();
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const PACE = 1400; // between party actions, so the canvas can follow
-const ANSWER = 500; // between Acme's intake answers: the interview is the agent at work, not the moment to read along
+const ANSWER = 500; // between Summit's intake answers: the interview is the agent at work, not the moment to read along
 // market-v1 takes numeric values only, so the suppressed ZIP stays out of the vendor panel and the coverage
 const SOURCE_ROWS = ROWS.flatMap((r) => (r.count === null ? [] : [{ zip: r.zip, count: r.count }]));
 
@@ -148,7 +148,7 @@ async function clarifyWithRevision(run: Run, oid: string, version: number) {
 
 type Cmd = (who: Role, body: Record<string, unknown>) => Promise<BrokerOrder>;
 
-/** Delivered: Acme accepts, or objects in their own words and the agent answers by the contract. */
+/** Delivered: Summit accepts, or objects in their own words and the agent answers by the contract. */
 async function reviewGate(run: Run, oid: string, ocmd: Cmd) {
   let move = await waitBuyer(run, "review");
   if (move.action === "object") {
@@ -161,7 +161,7 @@ async function reviewGate(run: Run, oid: string, ocmd: Cmd) {
   if (move.action === "accept") await ocmd("customer", { verb: "accept_delivery" });
 }
 
-/** After the parties' last move: produce the free correction when the engine allows it, then Acme reviews. */
+/** After the parties' last move: produce the free correction when the engine allows it, then Summit reviews. */
 async function finish(run: Run, oid: string, ocmd: Cmd): Promise<void> {
   let produced = false;
   for (let i = 0; i < 600; i++) {

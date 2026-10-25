@@ -79,8 +79,8 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
   const complete = (step: string, attempt = 1) => { const k = `${step}#${attempt}`; if (!completed.has(k)) { completed.add(k); emit({ type: "step_completed", step, attempt }); } };
 
   const answered: Record<string, unknown> = {};
-  const answers: Record<string, { id: string; text: string }> = {}; // Acme's own words per contract line, to cite
-  const pendingQuestions = new Map<string, Message>(); // the backend asks everything up front; each question shows when Acme answers it, as a conversation
+  const answers: Record<string, { id: string; text: string }> = {}; // Summit's own words per contract line, to cite
+  const pendingQuestions = new Map<string, Message>(); // the backend asks everything up front; each question shows when Summit answers it, as a conversation
   const drafted = new Set<string>();
   const asked = new Set<string>();
   let contractVersion = 0;
@@ -107,7 +107,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         const geo = answers.geography;
         if (geo) {
           cites.push("cite-geography");
-          emit({ type: "evidence_found", step: "investigate", evidence: { id: "cite-geography", kind: "interview_quote", label: `Contract: ${answered.geography} only`, note: "The geography line of the contract, in Acme's own words.", speaker: S.buyerAgent, quote: geo.text, source: { kind: "message", messageId: geo.id } } });
+          emit({ type: "evidence_found", step: "investigate", evidence: { id: "cite-geography", kind: "interview_quote", label: `Contract: ${answered.geography} only`, note: "The geography line of the contract, in Summit's own words.", speaker: S.buyerAgent, quote: geo.text, source: { kind: "message", messageId: geo.id } } });
         }
         const zips = count(answered.coverage_ids);
         cites.push("cite-coverage");
@@ -133,7 +133,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         emit({ type: "step_started", step: "clarify" });
         const intent = order.messages?.[0];
         if (intent) say("clarify", { id: intent.id, from: "buyer", text: intent.text });
-        caption("Our agent interviews Acme's buying agent. Each answer becomes a line in the contract.");
+        caption("Our agent interviews Summit's buying agent. Each answer becomes a line in the contract.");
         break;
       }
       case "spec.question_requested": {
@@ -171,7 +171,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         emit({ type: "step_started", step: "paid" });
         emit({ type: "payment_authorized", payment: { id: "order", amount: price, rail: "mock", network: "base-sepolia", mock: true }, allowedBy: POLICY.authorized });
         complete("paid");
-        caption(`Acme approves the contract. The backend opens a $${price} authorization; it is only taken once the data is accepted.`);
+        caption(`Summit approves the contract. The backend opens a $${price} authorization; it is only taken once the data is accepted.`);
         break;
       }
       case "delivery.published": {
@@ -254,7 +254,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         if (window) emit({ type: "steps_planned", steps: stepsWithWindow(window) });
         emit({ type: "delivery_ready", step: "review", attempt: reviews, delivery: { version: delivery, file: "market-data.json", rows: rowsToSheet(rowsFor(delivery)), reviewClosesAt: (p.deadline as string | undefined) ?? undefined } });
         emit({ type: "step_started", step: "review", attempt: reviews });
-        caption(window ? `Delivered. Acme has ${window} minutes to accept or dispute.` : "Delivered. Acme can accept or dispute.");
+        caption(window ? `Delivered. Summit has ${window} minutes to accept or dispute.` : "Delivered. Summit can accept or dispute.");
         break;
       }
       case "case.opened": {
@@ -265,7 +265,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         emit({ type: "step_started", step: "investigate" });
         emit({ type: "source_checked", step: "investigate", lines: sourceLines(false) });
         say("investigate", { id: `claim-${e.sequence}`, from: "buyer", text: base?.complaint ?? "Disputed." });
-        caption(`Acme disputes: “${base?.complaint ?? "the delivery"}”. The payment stays held until it's resolved.`);
+        caption(`Summit disputes: “${base?.complaint ?? "the delivery"}”. The payment stays held until it's resolved.`);
         break;
       }
       case "dispute.assessed": {
@@ -291,7 +291,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         const q = p.question as { id: string; text: string; recipient: string };
         say("investigate", { id: q.id, from: "agent", text: q.text });
         emit({ type: "step_waiting", step: "investigate", waitingOn: q.recipient === "customer" ? S.buyer : q.recipient === "provider" ? "the provider" : S.controller });
-        caption(`The agent asks ${q.recipient === "customer" ? "Acme" : "the provider"} for the missing fact. Two questions at most.`);
+        caption(`The agent asks ${q.recipient === "customer" ? "Summit" : "the provider"} for the missing fact. Two questions at most.`);
         break;
       }
       case "answer.received": {
@@ -350,7 +350,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
 
 const parse = (text: string): unknown => { try { return JSON.parse(text); } catch { return text; } };
 const plain = (text: string) => { const v = parse(text); return Array.isArray(v) ? v.join(", ") : typeof v === "string" ? v : text; };
-/** Acme's answer in words. The backend keeps the machine value; the customer reads what they meant. */
+/** Summit's answer in words. The backend keeps the machine value; the customer reads what they meant. */
 const wordsFor = (field: string, text: string): string => {
   const v = parse(text);
   if (Array.isArray(v)) return v.join(", ");

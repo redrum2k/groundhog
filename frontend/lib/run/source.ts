@@ -23,8 +23,8 @@ export interface Playback {
   error?: string;
   live: boolean;
   played: number; // events applied so far
-  awaiting: BuyerGate | null; // a live run paused for Acme's move
-  /** Acme's move, made by the presenter; null on success, else the server's reason. */
+  awaiting: BuyerGate | null; // a live run paused for Summit's move
+  /** Summit's move, made by the presenter; null on success, else the server's reason. */
   buyer: (m: BuyerMove) => Promise<string | null>;
   /** The controller's click: appends the recorded continuation, or posts to the live run. */
   decide: (action: ControllerAction, binding: Binding) => Promise<string | null>;
@@ -57,7 +57,7 @@ export function usePlayback(feed: Feed): Playback {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     // A poll brings a burst (a question and its answer, a batch of checks); the canvas takes them one at a time,
-    // so the chat scrolls continuously and the checklist ticks line by line. Acme's gate waits for the last one.
+    // so the chat scrolls continuously and the checklist ticks line by line. Summit's gate waits for the last one.
     const queue: RunEvent[] = [];
     let gate: BuyerGate | null = null;
     let drip: ReturnType<typeof setTimeout> | undefined;

@@ -33,7 +33,7 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.captured.entries?.[0]).toMatchObject({ amount: S.price });
   });
 
-  it("asks each contract line as a question until Acme's answer settles its wording", () => {
+  it("asks each contract line as a question until Summit's answer settles its wording", () => {
     const events = translate(snapshot("green"), "green");
     const asked = events.flatMap((e) => (e.type === "contract_line_asked" ? [e.line.text] : []));
     expect(asked.length).toBeGreaterThan(0);

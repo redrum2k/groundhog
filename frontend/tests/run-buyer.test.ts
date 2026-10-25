@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { buyerMove, type Run } from "../lib/run/broker/driver";
 
-// The presenter's moves as Acme, against the gates the driver opens.
+// The presenter's moves as Summit, against the gates the driver opens.
 
 const run = (awaiting: Run["awaiting"]): Run => ({ id: "x", case: "green", tokens: { customer: "", provider: "", investigator: "", controller: "" }, finished: false, awaiting, move: null, ready: Promise.resolve(), markReady: () => {} });
 
 describe("buyer gate", () => {
-  it("refuses a move when the order is not waiting on Acme", () => {
-    expect(buyerMove(run(null), { action: "accept" })).toMatchObject({ status: 409, detail: /not waiting on Acme/ });
+  it("refuses a move when the order is not waiting on Summit", () => {
+    expect(buyerMove(run(null), { action: "accept" })).toMatchObject({ status: 409, detail: /not waiting on Summit/ });
   });
 
   it("refuses the wrong kind of move for the gate", () => {
