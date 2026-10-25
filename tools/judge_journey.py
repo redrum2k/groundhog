@@ -58,7 +58,7 @@ def save(path, value):
 
 
 class Journey:
-    def __init__(self, instance, objection, owner_walkthroughs):
+    def __init__(self, instance, objection, owner_walkthroughs, after_restart_objection=None):
         self.state_dir = instance_state(instance)
         self.config = json.loads((self.state_dir / "launch.json").read_text(encoding="utf-8"))
         self.budget_before = budget_snapshot(self.config)
@@ -96,6 +96,7 @@ class Journey:
             "budget_before": self.budget_before,
             "real_broadcasts": 0,
             "objection": objection,
+            "after_restart_objection": after_restart_objection,
             "database": str(self.state_dir / "orders.sqlite3"),
             "orders": {},
             "profile": "aggregate-brokerage-v1",
@@ -522,7 +523,10 @@ class Journey:
                 raise RuntimeError("saved response did not survive restart")
         self.report["retries_after_restart"] = len(self.retries)
         run, oid = self.intake("after-restart", 103)
-        self.settle_review("after-restart", oid)
+        if self.report.get("after_restart_objection"):
+            self.dispute("after-restart", run, oid, self.report["after_restart_objection"])
+        else:
+            self.settle_review("after-restart", oid)
         run, oid = self.intake("scope-change", 104)
         self.dispute(
             "scope-change",
@@ -563,8 +567,14 @@ def main():
             "show cross-ZIP deduplication evidence."
         ),
     )
+    parser.add_argument(
+        "--after-restart-objection",
+        help="Optional fresh complaint on the independent post-restart order",
+    )
     args = parser.parse_args()
-    journey = Journey(args.instance, args.objection, args.owner_walkthroughs)
+    journey = Journey(
+        args.instance, args.objection, args.owner_walkthroughs, args.after_restart_objection
+    )
     try:
         journey.run()
     except Exception as error:
