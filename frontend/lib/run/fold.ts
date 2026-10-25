@@ -192,7 +192,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     case "step_completed":
       // A completed live assessment is not itself a failed operation or a repair.
       // Real failed delivery checks retain their own check_failed events.
-      n.status = !ctx.live && n.verdict && n.verdict.decidedBy === "rules" ? (n.verdict.kind === "agree" ? "fail" : n.verdict.kind === "grey" ? "grey" : "done") : "done";
+      n.status = n.verdict?.kind === "grey" ? "grey" : !ctx.live && n.verdict?.decidedBy === "rules" && n.verdict.kind === "agree" ? "fail" : "done";
       n.waitingOn = undefined;
       if (n.step.kind === "captured") v.orb = { step: e.step, mode: "happy" };
       break;

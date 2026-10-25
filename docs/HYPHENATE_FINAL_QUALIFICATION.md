@@ -1,6 +1,6 @@
 # Groundhog final Hyphenate qualification
 
-**Qualified for a disclosed local live-AI + approved-learning demonstration with mock settlement. Not production-ready or a general dispute-accuracy claim.** All scoped implementation and qualification work is complete: the integrated live trial passes its two frozen expectations, the primary UI exposes actual financial evidence, and the full suite has **1,186 passing tests and the same 16 known Windows failures**. The frontend has **227 passing tests**, with passing typecheck, generated contracts and production build.
+**Qualified for a disclosed local live-AI + approved-learning demonstration with mock settlement. Not production-ready or a general dispute-accuracy claim.** All scoped implementation and qualification work is complete: the integrated live trial passes its two frozen expectations, the primary UI exposes actual financial evidence, and the full suite has **1,186 passing tests and the same 16 known Windows failures**. The frontend has **229 passing tests**, with passing typecheck, generated contracts and production build. Five additional audit regressions pass after review; the original full-backend result remains bound to its tested revision.
 
 The [sanitized evidence index](evidence/hyphenate-final-20261024.json) preserves exact revisions, failure IDs, hashes, run/order identities, budgets and separate cohort results. Raw requests/responses, databases, generated datasets and browser traces remain local, not committed.
 
@@ -122,7 +122,7 @@ npm --prefix frontend run build
 - Scope/money before/after: eight scope failures plus two genuine monetary failures reproduced; 17 initial focused tests pass after repair. The original monetary-test fixture had an incorrect command verb; that fixture error was corrected before recording the genuine monetary failures.
 - Pre-main-integration scoped backend: **532 passed**. Named-row/blind-review controls: **20 passed**, including three before-fix omissions. Expanded financial tests: **20 passed**.
 - Pre-main-integration full backend: **1,136 passed, 16 failed**, 1,152 total, 588.62 seconds. `.local/full-final-checkpoint.xml`; exact failures match the previously preserved 16-ID Windows baseline.
-- Latest-main focused integration: **81 passed**. Final frontend: **227 tests in 35 files passed**, TypeScript and production build passed. The final presentation-only follow-up preserves historical whole-dollar canvas labels while rendering fractional amounts with both cent digits (`$0.50`, not `$0.5`); its new regression is included in this count. Backend/model evidence remains bound to `d754c25`, not relabeled as a new model run on the later documentation/presentation commit.
+- Latest-main focused integration: **81 passed**. Final frontend: **229 tests in 35 files passed**, TypeScript and production build passed. The final presentation follow-up preserves historical whole-dollar canvas labels while rendering fractional amounts with both cent digits (`$0.50`, not `$0.5`), and preserves grey unresolved Finding status after assessment completion. Backend/model evidence remains bound to `d754c25`, not relabeled as a new model run on the later documentation/presentation/audit commits.
 - Final integrated full backend at `d754c25`: **1,186 passed / 16 failed**, **1,202 total**, zero errors/skips, 596.80 seconds. All 16 failure IDs exactly match the preserved baseline. XML `.local/full-integrated.xml` SHA-256 `93a3880a1dcb27ef520f749a3df743ce6266f0ac58ba1aac9e27abf9b28cfe67`. Ruff check and format-check pass (231 backend files); modified audit/acceptance tools and `git diff --check` pass.
 - Earlier frontend: 170 then 172 passed as two regressions were added. One initial component test fixture omitted `payment_info`; fixed without changing product behavior. One TypeScript test used a Playwright-only `exact` option in Testing Library; corrected.
 - One production rebuild failed with Windows `EBUSY` because the owned frontend was serving `.next/standalone`. Stopped only the completed owned instance, preserved its state/tasks, rebuilt successfully. No destructive cleanup or other demo restart.
@@ -130,6 +130,17 @@ npm --prefix frontend run build
 - The 16 historical Windows failures are listed in [the earlier release report](HYPHENATE_RELEASE_QUALIFICATION.md#test-results-and-all-remaining-failures). They cover evaluator encoding/child environments (3), payment HTTP subprocess boundaries (11), POSIX permissions (1), and a POSIX-only interpreter path (1). They are not waived or described as a green full suite.
 
 ## Reproduce the connected workflow
+
+### PR review corrections
+
+Greptile's first review of PR #53 rated `c2ce32b` **4/5** and identified two non-blocking issues. Both were corrected before merge:
+
+- Audit response correlation used usage counts alone. It now reconstructs the exact reserved request envelope from the saved input and tested revision's literal prompts, matches its SHA-256 plus model/purpose to exactly one ledger call, checks usage separately, and rejects duplicate response IDs. No gateway/client is instantiated. Five regressions cover equal usage on unrelated requests and missing/ambiguous/wrong-purpose/inconsistent-usage matches.
+- A `step_completed` event erased grey status on unresolved live findings. Grey now persists for both rules and model findings; answered scope questions still finish normally. Two new UI regressions cover the unresolved cases.
+
+Both cohorts were re-audited without inference or database changes. Each still verifies five raw dispute/reviewer responses against its ten-call ledger cohort. Original audits remain untouched; new `independent-model-request-audit.json` files alongside them have SHA-256 `37ef30e2cf329baa572180ee838582709096774a5d566210166b29d533e7e660` (first cohort) and `44942fd31680f7e804d70dcbeec54f53966c9922831530487161b5d18e32b030` (integrated cohort). These are stronger audits of the original trials, not new experimental outcomes.
+
+### Commands
 
 Use a new instance name and unused ports. The launcher rejects ownership/configuration mismatches; never reset an old DB. `tools/judge_journey.py` now supports the explicitly registered live access configuration already selected by the launcher, carries it through backend restart, reports the cumulative budget delta and exports payment justifications. Omit `-ModelAccess` for an explicitly offline run; no silent substitution is advertised as live.
 

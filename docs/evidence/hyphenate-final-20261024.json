@@ -30,7 +30,7 @@
     "sha256": "93a3880a1dcb27ef520f749a3df743ce6266f0ac58ba1aac9e27abf9b28cfe67"
   },
   "frontend": {
-    "passed": 227,
+    "passed": 229,
     "files": 35,
     "typecheck": "PASS",
     "build": "PASS",
@@ -277,6 +277,17 @@
     }
   ],
   "kind": "groundhog_final_qualification_20261024",
+  "review_followup": {
+    "pr": 53,
+    "original_greptile_score": "4/5 at c2ce32b",
+    "audit_regressions_passed": 5,
+    "additional_frontend_regressions_passed": 2,
+    "changes": ["Exact dispatched request hash/model/purpose matching before usage validation", "Preserve grey unresolved findings after assessment completion"],
+    "re_audit_file": "independent-model-request-audit.json alongside each original audit",
+    "first_cohort_re_audit_sha256": "37ef30e2cf329baa572180ee838582709096774a5d566210166b29d533e7e660",
+    "integrated_cohort_re_audit_sha256": "44942fd31680f7e804d70dcbeec54f53966c9922831530487161b5d18e32b030",
+    "both_re_audits": "VERIFIED: five exact request-bound responses per ten-call cohort; zero new model calls"
+  },
   "disclosure": {
     "settlement": "mock",
     "source_owner_and_controller_roles": "explicitly_simulated",
