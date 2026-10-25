@@ -181,7 +181,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 @starting-style { :root[data-anim] .src { opacity: 0; scale: 0.96; } :root[data-anim] .src-l { opacity: 0; translate: 0 2px; } }
 
 /* the orb's thought at a step: two dots and a pill */
-.thought { position: absolute; left: 10px; bottom: calc(100% + 34px); width: max-content; max-width: 200px; padding: 6px 10px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); font-size: 12px; line-height: 1.35; color: var(--ink-2); white-space: normal; transform-origin: 0 100%; }
+.thought { position: absolute; left: 8px; bottom: calc(100% + 30px); width: max-content; max-width: 230px; padding: 5px 9px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); font-size: 11.5px; line-height: 1.35; color: var(--ink-2); white-space: normal; transform-origin: 0 100%; }
+.thought b { font-weight: 400; color: var(--ink); }
 .thought::before, .thought::after { content: ""; position: absolute; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); }
 .thought::before { width: 6px; height: 6px; left: -5px; bottom: -9px; }
 .thought::after { width: 4px; height: 4px; left: -12px; bottom: -15px; }
