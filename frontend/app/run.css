@@ -184,6 +184,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .orb-wrap { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; pointer-events: none; z-index: 2; }
 :root[data-anim] .orb-wrap { transition: transform 1000ms var(--ease-in-out); }
 .orb { position: relative; display: block; width: 34px; height: 34px; }
+.orb-ears { fill: var(--blue); }
+.orb-ear-in { fill: #f3a9b9; }
+.orb-snout { fill: color-mix(in srgb, var(--blue) 72%, #fff); }
+.orb-nose { fill: var(--ink); }
+.orb-mouth { fill: none; stroke: var(--ink); stroke-width: 0.55; stroke-linecap: round; }
+.orb-glint { fill: #fff; opacity: 0.85; }
 .orb svg { display: block; overflow: visible; }
 .orb-body { fill: var(--blue); }
 .orb-eyes rect { fill: #fff; }

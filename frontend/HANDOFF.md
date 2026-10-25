@@ -1,6 +1,6 @@
 # Current integration pickup
 
-The DataPact run canvas is at `/`, with retained broker live-demo and recorded
+The Groundhog run canvas is at `/`, with retained broker live-demo and recorded
 feeds. The funded aggregate intake is at `/live`; these are distinct backend
 profiles. Use [workstream 06](../docs/workstreams/06-data-broker.md) for production
 local-demo commands, generated contracts, signing/events/actions and smoke tests.
@@ -33,7 +33,7 @@ Tracks: Hyphenate (order-to-cash finance seat), Coinbase (x402 payments, visible
 
 ## The demo story
 
-- Us: **DataPact**, a data broker. Builds custom datasets from rented vendor data, so every rerun
+- Us: **Groundhog**, a data broker. Builds custom datasets from rented vendor data, so every rerun
   costs us a license fee plus compute.
 - Customer: **Summit Fitness's buying agent** (an agent, not a person).
 - Controller: **Human**.

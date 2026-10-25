@@ -1,4 +1,4 @@
-// The demo scenario: DataPact builds a custom audience dataset for Summit Fitness's buying agent.
+// The demo scenario: Groundhog builds a custom audience dataset for Summit Fitness's buying agent.
 // Every name, amount and line of text on the canvas comes from this file. Synthetic data;
 // prices are sample values for the team to confirm.
 import type { SourceLine,
@@ -32,7 +32,7 @@ export function holdFor(e: { type: RunEvent["type"]; lines?: SourceLine[] }): nu
 }
 
 export const S = {
-  us: "DataPact",
+  us: "Groundhog",
   agent: "Order agent",
   buyer: "Summit Fitness",
   buyerAgent: "Summit's buying agent",

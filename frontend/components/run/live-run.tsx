@@ -34,7 +34,7 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
   return <div className="shell live-shell">
     <SourceLearning openRun={live.resume}/>
     <header className="top">
-      <div className="brand"><IcLogo className="logo" size={22}/><div><div className="wordmark">DataPact</div><div className="seat">Order-to-cash agent for a data broker</div></div></div>
+      <div className="brand"><IcLogo className="logo" size={22}/><div><div className="wordmark">Groundhog</div><div className="seat">Order-to-cash agent for a data broker</div></div></div>
       <nav className="tabs" aria-label="Demo views"><button type="button" aria-pressed={tab==="run"} className={tab==="run"?"on":""} onClick={()=>setTab("run")}>Run</button><button type="button" aria-pressed={tab==="customer"} className={tab==="customer"?"on":""} onClick={customer}>Customer view</button></nav>
       <div className="top-r"><span className="live-mode">Live backend{paymentMode==="base_sepolia"?" · Base Sepolia":paymentMode==="mock"?" · mock payments":""}</span><WalletSettings/></div>
     </header>
