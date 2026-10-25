@@ -70,6 +70,11 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
     canvas.chip[paymentProcessing]=simulated?"Simulating":"Confirming payment";
     canvas.orb={node:paymentProcessing,mode:"wait"};
   }
+  if(view.nodes.verdict?.chip==="Reviewed") {
+    canvas.chip.verdict="Reviewed";
+    const finding=nodes.find(node=>node.id==="verdict");
+    if(finding)finding.desc="Human review complete; evidence remains inconclusive";
+  }
   if(rejection)for(const node of nodes) {
     if(node.id==="investigate" || node.id==="verdict") {
       node.outcome="not_upheld";

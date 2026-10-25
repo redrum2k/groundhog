@@ -108,3 +108,27 @@ it("keeps the repeat objection button visible but disabled while a case needs re
   fireEvent.click(button);
   expect(screen.queryByLabelText("Your complaint")).toBeNull();
 });
+
+it.each(["void_pending","voided"] as const)("clears the stale review prompt after approval with payment %s",async(state)=>{
+  page.events=page.events.map(event=>event.type==="verdict"?{...event,verdict:{...event.verdict,kind:"grey",finding:null,reason:"Evidence remains inconclusive."}}:event);
+  const seq=page.next_after;
+  page.events.push(
+    {seq:seq+1,at:page.server_time,type:"controller_decided",step:"decide",action:"approve",by:"Human",note:"Return the uncaptured funds",binding:page.binding!},
+    {seq:seq+2,at:page.server_time,type:"payment_state_changed",payment:{id:"payment-preview",amount:1,mock:true},state},
+    {seq:seq+3,at:page.server_time,type:"state_changed",step:"review",state:state==="voided"?"closed":"human_review",reason:"Evidence unresolved",binding:page.binding!,paymentState:state},
+  );
+  page.next_after=page.high_watermark=seq+3;
+  page.payment!.payment.state=state;
+  // The backend can retain these actions while an approved return is reconciling.
+  page.available_actions=[{action:"reject",enabled:true,reason:"Human review retained"}];
+  render(<LiveRun/>);
+  await screen.findByText("Evidence remains inconclusive.");
+  fireEvent.click(screen.getByRole("button",{name:"Run"}));
+  await waitFor(()=>expect(document.querySelector('[data-step="verdict"]')?.textContent).toContain("Reviewed"));
+  expect(document.querySelector('[data-step="verdict"]')?.classList.contains("n-done")).toBe(true);
+  expect(screen.queryByText("Needs review")).toBeNull();
+  expect(screen.queryByRole("button",{name:"Escalated to a person: settle the dispute"})).toBeNull();
+  fireEvent.click(screen.getByRole("button",{name:"Human review"}));
+  expect(screen.getByText("Return approved")).toBeTruthy();
+  expect(screen.queryByLabelText("Reason or evidence answer")).toBeNull();
+});
