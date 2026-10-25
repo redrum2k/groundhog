@@ -3,9 +3,10 @@ import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type R
 import type { LaneId, SourceLine } from "../../lib/run/contract";
 import type { Card, Coin, NS, OrbMode } from "../../lib/run/fold";
 import { LANE_NAME } from "../../lib/run/scenario";
-import { IcCheck, IcCoin, IcLock, IcScroll } from "./icons";
+import { IcCheck, IcCoin, IcLock } from "./icons";
 import Label from "./label";
 import Orb from "./orb";
+import Warehouse from "./warehouse";
 
 // The run canvas: the 5-step path on row 0, a dispute's detour on the row below, and the orb
 // carrying the job back up to Produce. One CSS transform is the camera, so a new target
@@ -221,7 +222,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   
           {source && (
             <div className="src" style={{ transform: `translate(${COL_X(source.col)}px, ${ROW_Y[source.node.row]}px)` }}>
-              <span className="src-glyph"><IcScroll size={22} /></span>
+              <span className="src-glyph"><Warehouse /></span>
               <div className="src-lines">{source.lines.map((l, i) => <span key={l.id} className={`src-l${l.checked ? " ok" : ""}`} style={{ transitionDelay: `${i * 60}ms` }}>{l.checked ? <IcCheck size={11} strokeWidth={2.4} /> : <i className="spin2" />}<Label text={l.text} quiet="tail" /></span>)}</div>
             </div>
           )}
