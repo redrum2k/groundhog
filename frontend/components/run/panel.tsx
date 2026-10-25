@@ -226,7 +226,7 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
     case "paid": {
       const pay = view.payments[0];
       content = (<div className="pay"><div className="pay-amt">${formatMajor(pay?.amount ?? S.price)}</div>
-        {pay?.rail === "mock" ? <div>Mock authorization opened by the backend on acceptance.</div> : <div>x402 authorization signed by {S.buyerAgent}.</div>}
+        {pay?.rail === "mock" ? <div>Simulated authorization opened by the backend on acceptance.</div> : <div>x402 authorization signed by {S.buyerAgent}.</div>}
         <div className="faint">Captured only after Summit accepts or the review window passes. "Authorized" means signed, not funds held.</div></div>);
       break;
     }

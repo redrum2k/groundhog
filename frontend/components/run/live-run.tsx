@@ -82,7 +82,7 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
       ? paymentState==="capture_pending"
         ? simulated?"Review complete. The server has queued the simulated payment release. Waiting for confirmation before marking it complete.":"Review complete. Waiting for payment confirmation."
         : simulated?"Delivery accepted. Preparing the simulated payment release.":"Delivery accepted. Preparing payment release."
-      : returned?"The return is confirmed. Funds have been returned to the buyer.":settled?"Payment is confirmed and recorded.":rejection?"Objection not upheld. Open Finding to review the decision, agreement and supporting evidence.":view.caption;
+      : returned?"The return is confirmed. Funds have been returned to the buyer.":settled?"Payment is confirmed and recorded.":rejection?"Objection not upheld. Open Finding to review the decision, agreement and supporting evidence.":order.needsHumanReview?"Waiting for an admin to review the case.":view.caption;
   const working=()=>{setPanel(undefined);navigate("run",true);setRecenter(n=>n+1);};
   const customer=()=>navigate("customer");
   const admin=()=>{navigate("run");setPanel("decide");};
@@ -106,16 +106,15 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
       {live.id && <button type="button" className={`btn${tab==="run" && finished?" solid":""}`} disabled={busy && !recoveryAvailable} onClick={()=>{order.newRun();setPanel(undefined);customer();}}>New request</button>}
       <div className="spacer"/>
       {tab==="run" && <>
+        {/* each step on the canvas opens its own panel, so there are no per-step buttons here */}
         {turn && <button type="button" className="btn turn" onClick={customer}><span className="turn-dot" aria-hidden/>{turn}</button>}
-        <button type="button" className="btn" onClick={working}>Follow agent</button>
-        <button type="button" className="btn" onClick={()=>setPanel("clarify")}>Agreement</button>
-        <button type="button" className="btn" onClick={()=>setPanel("paid")}>Funding</button>
-        <button type="button" className="btn" onClick={()=>setPanel("review")}>Delivery & review</button>
-        {order.hasHumanReview && <button type="button" className="btn" onClick={admin}>Admin review</button>}
+        {/* when a person has to decide, say so the same way the buyer's turn does */}
+        {order.hasHumanReview && (order.needsHumanReview
+          ? <button type="button" className="btn turn" onClick={admin}><span className="turn-dot" aria-hidden/>Admin&apos;s turn: review the case</button>
+          : <button type="button" className="btn" onClick={admin}>Admin review</button>)}
       </>}
-      <button type="button" className="btn" disabled={busy && !recoveryAvailable} onClick={live.retry}>Refresh</button>
     </div>
-    {order.error && <div className="tools-err" role="alert">{order.error}</div>}
+    {order.error && <div className="tools-err" role="alert">{order.error}<button type="button" className="btn" disabled={busy && !recoveryAvailable} onClick={live.retry}>Try again</button></div>}
     {tab==="customer"?<LiveCustomer order={order} pay={()=>void pay()} working={working} customer={customer} admin={admin}/>:<main className="stage" aria-label="Run view" tabIndex={-1}>
       {nodes.length>0?<Canvas nodes={nodes} view={canvas} focus={panel==="verdict" && rejection?{kind:"node",node:"verdict"}:finished?{kind:"node",node:"captured"}:{kind:"follow"}} hideAgent={finished} panelOpen={!!panel} onNode={setPanel} recenter={recenter} overlay={panel==="verdict" && rejection?undefined:<AgentNote text={note} settled={settled} shifted={!!panel}/>}/>:<div className="live-empty"><h2>{live.id?"Loading the order…":"The agent’s work will appear here"}</h2><p>Start the conversation and agree on a dataset to follow its progress.</p><button type="button" className="btn solid" onClick={customer}>Open customer view</button>{recorded && <button type="button" className="btn" onClick={recorded}>Open rehearsal</button>}</div>}
       {panel && <aside ref={panelRef} tabIndex={-1} className="panel" aria-label={panelTitle}><div className="panel-h"><div><div className="panel-t">{panelTitle}</div><div className="faint">{node?.step.detail ?? "Current order and evidence"}</div></div><button type="button" className="sq" aria-label="Close panel" onClick={()=>setPanel(undefined)}><IcX/></button></div><div className="panel-b live-content"><LiveStep order={order} step={panel} pay={()=>void pay()} working={working} customer={customer} review={()=>setPanel("review")}/></div></aside>}

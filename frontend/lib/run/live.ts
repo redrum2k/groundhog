@@ -77,7 +77,7 @@ export function useLiveRun() {
         setRefreshing(true);
         if (err instanceof RunError && err.status === 404) {
           setMissing(true);
-          setPollError("This order was not found on the connected backend. Choose New request to start again, or Refresh after reconnecting the original backend.");
+          setPollError("This order was not found on the connected backend. Choose New request to start again, or Try again after reconnecting the original backend.");
           return;
         }
         setPollError(err instanceof Error ? err.message : "Backend unavailable");

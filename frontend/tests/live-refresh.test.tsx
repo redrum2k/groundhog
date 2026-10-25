@@ -41,7 +41,7 @@ it("lets the user leave a missing order and start a new request",async()=>{
   vi.stubGlobal("fetch",vi.fn(async()=>response({detail:"Run not found"},404)));
   render(<LiveRun/>);
   await screen.findByText(/This order was not found on the connected backend/);
-  expect((screen.getByRole("button",{name:"Refresh"}) as HTMLButtonElement).disabled).toBe(false);
+  expect((screen.getByRole("button",{name:"Try again"}) as HTMLButtonElement).disabled).toBe(false);
   const reset=screen.getByRole("button",{name:"New request"}) as HTMLButtonElement;
   expect(reset.disabled).toBe(false);
   fireEvent.click(reset);

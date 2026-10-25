@@ -150,7 +150,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   v.lastSeq = e.seq;
   if (ctx.live && isAssessmentAudit(e)) return v;
   if (e.type === "delivery_ready" && e.delivery.reviewClosesAt) v.reviewWindow = windowLabel(Date.parse(e.delivery.reviewClosesAt) - Date.parse(e.at));
-  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? e.state : "") : ctx.narrated ? "" : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
+  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? "" : "") : ctx.narrated ? "" : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
   if (e.type === "steps_planned") {
     for (const s of e.steps) { v.nodes[s.id] ??= blankNode(s); v.nodes[s.id].step = s; if (!v.order.includes(s.id)) v.order.push(s.id); }
     return v;

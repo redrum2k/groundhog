@@ -60,7 +60,7 @@
 > one prompt submitted a missing-ZIP claim, and independent delivery checks rejected it
 > because that ZIP was present. No paid call or testnet transaction was used for this check.
 
-# 06 — Aggregate brokerage and live DatumCo canvas
+# 06 — Aggregate brokerage and live Groundhog canvas
 
 Branch: `codex/data-broker-migration`. Local integration merge: `41ecf61`.
 Backend baseline `39dd58602b3f8ac0a7906b4db4ddbbdb57b3d981`, reviewed main
@@ -239,8 +239,8 @@ Open `http://127.0.0.1:3017/`. The isolated build directory also permits an
 independent `npm run dev -- --port 3016` with the same bridge environment. Set BACKEND_URL at build time as well as startup because
 the retained jobflow/broker/improvement rewrites are compiled during the build.
 Create request, answer the gym/app clarification,
-prepare quote, explicitly accept $120, open Funding, prepare funding, explicitly
-simulate mock funding, open Delivery & review, inspect/download, then accept delivery
+prepare quote, explicitly accept $120, open the Funds held step, prepare funding, explicitly
+simulate mock funding, open the Customer review step, inspect/download, then accept delivery
 or record a complaint. Worker/background payments run automatically. Reload resumes.
 Oakland/yoga buttons request a provider offer; review the separate offer, accept it,
 and fund it separately. Recorded rehearsal has its own explicit button and no live
@@ -340,7 +340,7 @@ full testnet application settlement and hosted authentication remain separate mi
 
 **Title:** Make aggregate dataset brokerage the primary funded live workflow
 
-New DatumCo requests now create immutable synthetic aggregate data contracts and
+New Bayline Data requests now create immutable synthetic aggregate data contracts and
 produce independently checked CSV/JSON through the existing funded worker. Eight
 server-owned checks, a frozen coverage registry, safe suppressed counts and explicit
 review/deadline budgets guard capture. Source deficiencies, provider correction,

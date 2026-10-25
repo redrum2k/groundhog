@@ -8,7 +8,7 @@ import fixture from "./fixtures/objection-page.json";
 let page:RunPage;
 let fetcher:ReturnType<typeof vi.fn>;
 beforeEach(()=>{
-  page=structuredClone(fixture) as unknown as RunPage;
+  page={...structuredClone(fixture),poll_after_ms:20} as unknown as RunPage;
   localStorage.clear();localStorage.setItem("datumco.live-run.v1",JSON.stringify({id:"preview"}));
   vi.stubGlobal("ResizeObserver",class {observe(){} disconnect(){}});
   fetcher=vi.fn(async(url:string,options?:RequestInit)=>{
@@ -62,12 +62,11 @@ it("does not reopen a dismissed result on each poll or paint a new dispute red",
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
   await screen.findByRole("complementary",{name:"Finding"});
   fireEvent.click(screen.getByRole("button",{name:"Close panel"}));
-  fireEvent.click(screen.getByRole("button",{name:"Refresh"}));
-  await waitFor(()=>expect((screen.getByRole("button",{name:"Refresh"}) as HTMLButtonElement).disabled).toBe(false));
+  const polls=fetcher.mock.calls.length;
+  await waitFor(()=>expect(fetcher.mock.calls.length).toBeGreaterThan(polls));
   expect(screen.queryByRole("complementary",{name:"Finding"})).toBeNull();
   const seq=page.next_after+1;
   page={...page,events:[...page.events,{seq,at:page.server_time,type:"dispute_opened",step:"investigate",dispute:{id:"new-dispute",claim:"Check the source",raisedBy:"buyer"}}],next_after:seq,high_watermark:seq};
-  fireEvent.click(screen.getByRole("button",{name:"Refresh"}));
   await waitFor(()=>expect(document.querySelector(".nd.outcome-not-upheld")).toBeNull());
 });
 

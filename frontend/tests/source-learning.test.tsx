@@ -16,7 +16,7 @@ it("requires an explicit owner column and evidence explanation, then submits the
   vi.stubGlobal("fetch", fetch);
   render(<SourceLearning openRun={vi.fn()} />);
   fireEvent.click(await screen.findByRole("button", { name: /Source learning/ }));
-  const resolve = await screen.findByRole("button", { name: "Source owner: resolve" });
+  const resolve = await screen.findByRole("button", { name: "Answer as source owner" });
   expect((resolve as HTMLButtonElement).disabled).toBe(true);
   fireEvent.change(screen.getByLabelText("Count column for partition-a"), { target: { value: "v_count" } });
   fireEvent.change(screen.getByLabelText("Owner explanation for partition-a"), { target: { value: "Owner confirms unique adults for this schema." } });
@@ -37,7 +37,7 @@ it("stops polling a disabled backend and permits an explicit availability retry"
   await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
   expect(fetch).toHaveBeenCalledTimes(1);
   fireEvent.click(screen.getByRole("button", {name: /Source learning/}));
-  fireEvent.click(screen.getByRole("button", {name: "Check learning availability"}));
+  fireEvent.click(screen.getByRole("button", {name: "Check again"}));
   await act(async () => { await vi.advanceTimersByTimeAsync(5000); });
   expect(fetch).toHaveBeenCalledTimes(2);
 });
@@ -48,9 +48,9 @@ it("retains stale reviews as history without a resolve control or actionable cou
   ]})));
   render(<SourceLearning openRun={vi.fn()} />);
   fireEvent.click(await screen.findByRole("button", {name: "Source learning"}));
-  expect(await screen.findByText("Review history")).toBeTruthy();
-  expect(screen.getByText(/Review status: stale/)).toBeTruthy();
-  expect(screen.queryByRole("button", {name: "Source owner: resolve"})).toBeNull();
+  expect(await screen.findByText("Answered questions")).toBeTruthy();
+  expect(screen.getByText(/Status: stale/)).toBeTruthy();
+  expect(screen.queryByRole("button", {name: "Answer as source owner"})).toBeNull();
 });
 
 it("shows persisted active versions and measured qualification instead of playback events", async () => {
@@ -60,7 +60,7 @@ it("shows persisted active versions and measured qualification instead of playba
   })));
   render(<SourceLearning openRun={vi.fn()} />);
   fireEvent.click(await screen.findByRole("button", { name: "Learning active" }));
-  expect(await screen.findByText("Approved learning is enabled")).toBeTruthy();
+  expect(await screen.findByText("A learned procedure is on")).toBeTruthy();
   expect(screen.getByText(/10 → 6/)).toBeTruthy();
   expect(screen.getByText("New bytes handled using approved evidence.")).toBeTruthy();
 });

@@ -28,35 +28,35 @@ async function main() {
         await panel.getByLabel(`Owner explanation for ${family}`).fill(
           `Simulated DatumCo source owner: ${column} is the unique-adult count for ${family}; the other measure counts devices. This independently evidenced schema resolution covers later batches of this edition.`);
         const article = panel.locator("article").filter({has:page.getByText(family,{exact:true})});
-        await article.getByRole("button", {name:"Source owner: resolve"}).click();
+        await article.getByRole("button", {name:"Answer as source owner"}).click();
         await expect(choice).toHaveCount(0, {timeout:15000});
         actions.push({action:"source_owner_resolved",family,column});
       }
-      await expect(panel.getByRole("button", {name:"Source owner: resolve"})).toHaveCount(0);
+      await expect(panel.getByRole("button", {name:"Answer as source owner"})).toHaveCount(0);
     } else if (phase === "approval") {
-      await panel.getByRole("button", {name:"Derive composed procedure"}).click();
-      const qualify = panel.getByRole("button", {name:"Qualify on fresh cases"}).last();
+      await panel.getByRole("button", {name:"Propose a procedure"}).click();
+      const qualify = panel.getByRole("button", {name:"Test on fresh cases"}).last();
       await expect(qualify).toBeEnabled();
       await qualify.click();
-      await expect(panel.getByRole("heading",{name:"Qualification passed"})).toBeVisible({timeout:45000});
-      const approve = panel.getByRole("button",{name:"Controller: approve"}).last();
+      await expect(panel.getByRole("heading",{name:"Passed on fresh cases"})).toBeVisible({timeout:45000});
+      const approve = panel.getByRole("button",{name:"Approve as controller"}).last();
       await expect(approve).toBeEnabled();
       await approve.click();
-      const activate = panel.getByRole("button",{name:"Controller: activate learning"}).last();
+      const activate = panel.getByRole("button",{name:"Turn on as controller"}).last();
       await expect(activate).toBeEnabled();
       await activate.click();
-      await expect(panel.getByText("Approved learning is enabled")).toBeVisible({timeout:15000});
+      await expect(panel.getByText("A learned procedure is on")).toBeVisible({timeout:15000});
       actions.push({action:"controller_qualified_approved_and_activated"});
     } else {
-      await expect(panel.getByText("Approved learning is enabled")).toBeVisible();
-      const successful = panel.locator("article").filter({hasText:"Internal reviews: 2 → 0."}).filter({hasText:"Same-byte stateless comparison"}).last();
-      const compared = successful.getByRole("button", {name:"Open compared order"});
+      await expect(panel.getByText("A learned procedure is on")).toBeVisible();
+      const successful = panel.locator("article").filter({hasText:"Reviews needed: 2 → 0."}).filter({hasText:"Same input, with and without learning"}).last();
+      const compared = successful.getByRole("button", {name:"Open this order"});
       if (await compared.count()) {
         await compared.click();
         await successful.scrollIntoViewIfNeeded();
         await page.screenshot({path:path.join(output,"live-comparison.png")});
       }
-      await panel.getByRole("heading",{name:"Actual application events"}).scrollIntoViewIfNeeded();
+      await panel.getByRole("heading",{name:"Activity"}).scrollIntoViewIfNeeded();
       actions.push({action:"inspected_persisted_live_events"});
     }
     await page.screenshot({path:path.join(output,`${phase}-after.png`)});

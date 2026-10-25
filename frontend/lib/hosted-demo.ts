@@ -31,7 +31,7 @@ export function authorizeHostedDemo(request: Request): Response | null {
   const expected = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
   const digest = (value: string) => createHash("sha256").update(value).digest();
   if (!publicDemoEnabled() && !timingSafeEqual(digest(request.headers.get("authorization") ?? ""), digest(expected))) {
-    return fail(401, "Demo sign-in required.", { "WWW-Authenticate": 'Basic realm="DatumCo demo", charset="UTF-8"' });
+    return fail(401, "Demo sign-in required.", { "WWW-Authenticate": 'Basic realm="Groundhog demo", charset="UTF-8"' });
   }
   if (!["GET", "HEAD", "OPTIONS"].includes(request.method) && request.headers.get("origin") !== origin.origin) {
     return fail(403, "Same-origin demo command required.");

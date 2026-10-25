@@ -20,7 +20,7 @@ function setup(reject=false, simulated=true) {
       {seq:2,at,type:"delivery_ready",step:"review",delivery:{artifactId:"csv-1",file:"counts.csv",version:1,rows:[]}},
       {seq:3,at,type:"payment_state_changed",payment,state:"funded"},
     ],
-    next_after:3,high_watermark:3,caught_up:true,poll_after_ms:100000,
+    next_after:3,high_watermark:3,caught_up:true,poll_after_ms:20,
     binding,request:{status:"accepted",revision:1},server_time:at,
     available_actions:[{action:"accept",enabled:true}],
     payment:{payment:{state:"funded",terms:{mode:simulated?"mock":"base_sepolia"}},operations:[],simulated},
@@ -69,12 +69,11 @@ it("keeps the mock release visibly processing until settlement is confirmed",asy
   expect(document.querySelector(".coin")).toBeTruthy();
   expect(screen.queryByRole("button",{name:"Captured, done"})).toBeNull();
   await act(async()=>fixture.publish("capture_pending"));
-  await waitFor(()=>expect((screen.getByRole("button",{name:"Refresh"}) as HTMLButtonElement).disabled).toBe(false));
+  await screen.findByText(/Review complete.*Waiting for (?:payment )?confirmation/);
   fireEvent.click(screen.getByRole("button",{name:"Processing payment, running"}));
   expect(await screen.findByText("Review complete. Payment release is pending confirmation.")).toBeTruthy();
   fireEvent.click(screen.getByRole("button",{name:"Close panel"}));
   fixture.publish("captured");
-  fireEvent.click(screen.getByRole("button",{name:"Refresh"}));
   expect(await screen.findByRole("button",{name:"Captured, done"})).toBeTruthy();
   expect(screen.getByText("Confirmed settlement")).toBeTruthy();
   expect(document.querySelector(".coin.done")).toBeTruthy();
@@ -86,9 +85,7 @@ it.each([true,false].flatMap(simulated=>(["uncertain","failed","reorg_hold","fun
   fireEvent.click(await screen.findByRole("button",{name:"Accept verified delivery"}));
   await screen.findByRole("button",{name:"Processing payment, running"});
   await act(async()=>fixture.publish("capture_pending"));
-  await waitFor(()=>expect((screen.getByRole("button",{name:"Refresh"}) as HTMLButtonElement).disabled).toBe(false));
   fixture.publish(state,state==="funded"?2:1);
-  fireEvent.click(screen.getByRole("button",{name:"Refresh"}));
   await waitFor(()=>expect(screen.queryByRole("button",{name:"Processing payment, running"})).toBeNull());
   expect(document.querySelector('[data-step="captured"].n-done')).toBeNull();
   expect(document.querySelector(".canvas-agent.departed")).toBeNull();
@@ -113,7 +110,6 @@ it("shows a working agent during mock funding confirmation",async()=>{
   expect(screen.getByText("Funding authorized for this demo. Simulating confirmation before production starts.")).toBeTruthy();
   expect(document.querySelector(".canvas-agent.departed")).toBeNull();
   fixture.publish("funded");
-  fireEvent.click(screen.getByRole("button",{name:"Refresh"}));
   await waitFor(()=>expect(screen.queryByRole("button",{name:"Processing payment, running"})).toBeNull());
 });
 
@@ -128,14 +124,13 @@ it("waits for confirmed wallet capture before completing the canvas and hiding t
   expect(document.querySelector('[data-step="captured"].n-done')).toBeNull();
   expect(screen.queryByText("Simulated payment · no funds move")).toBeNull();
   await act(async()=>fixture.publish("capture_pending"));
-  await waitFor(()=>expect((screen.getByRole("button",{name:"Refresh"}) as HTMLButtonElement).disabled).toBe(false));
+  await screen.findByText(/Review complete.*Waiting for (?:payment )?confirmation/);
   expect(screen.getByRole("button",{name:"Processing payment, running"})).toBeTruthy();
   expect(screen.getByText("Review complete. Waiting for payment confirmation.")).toBeTruthy();
   expect(document.querySelector(".canvas-agent.departed")).toBeNull();
   expect(document.querySelector('[data-step="captured"].n-done')).toBeNull();
   expect(document.querySelector(".coin.done")).toBeNull();
   fixture.publish("captured");
-  fireEvent.click(screen.getByRole("button",{name:"Refresh"}));
   expect(await screen.findByRole("button",{name:"Captured, done"})).toBeTruthy();
   expect(screen.getByText("Payment is confirmed and recorded.")).toBeTruthy();
   expect(document.querySelector(".canvas-agent.departed")).toBeTruthy();

@@ -16,7 +16,7 @@ const quote = {
 const preparation = {order_id:"order-1", funding_attempt_id:"attempt-1", terms:quote.payment_terms, typed_data:{message:{value:"1000000"}}} as FundingPreparation;
 const accepted = {order:{snapshot:{order_id:"order-1"}, revision:1, binding:expected}, available_actions:["prepare_funding"]};
 const current = {
-  events:[], next_after:0, high_watermark:0, caught_up:true, poll_after_ms:100000,
+  events:[], next_after:0, high_watermark:0, caught_up:true, poll_after_ms:20,
   binding, quote, request:{status:"accepted", revision:3},
   available_actions:[{action:"prepare_funding",enabled:true}],
   payment:{payment:{state:"awaiting_signature",terms:quote.payment_terms},operations:[]},
@@ -46,7 +46,8 @@ function setup(options: {mock?:boolean; initialQuote?:boolean} = {}) {
       if (url.endsWith("decisions")) return response({});
       throw new Error(`Unexpected POST: ${url}`);
     }
-    return response(state.page);
+    const after=Number(new URL(url,"http://fixture").searchParams.get("after"));
+    return response({...state.page,events:state.page.events.filter(event=>event.seq>after)});
   });
   vi.stubGlobal("fetch", fetcher);
   vi.stubGlobal("ethereum", wallet);
@@ -154,7 +155,7 @@ it("offers one payment button and reports pending funds without claiming fulfill
   render(<LiveRun recorded={()=>{}}/>);
   fireEvent.click(await screen.findByRole("button",{name:"Accept & pay $1.00"}));
   await screen.findByRole("main",{name:"Run view"});
-  fireEvent.click(screen.getByRole("button",{name:"Funding"}));
+  fireEvent.click(screen.getByRole("button",{name:"Customer view"}));
   await screen.findByText("Payment submitted. Waiting for confirmed funds before starting work.");
   expect(screen.queryByRole("button",{name:"Prepare funding"})).toBeNull();
   expect(screen.queryByRole("link",{name:"Download CSV"})).toBeNull();
@@ -168,9 +169,9 @@ it("switches customer/admin views on the same run and honors current reviewer pe
   localStorage.setItem("datumco.live-run.v1",JSON.stringify({id:"run-1"}));
   render(<LiveRun recorded={()=>{}}/>);
   await screen.findByText("Awaiting payment");
-  expect(screen.queryByRole("button",{name:"Admin review"})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
-  fireEvent.click(screen.getByRole("button",{name:"Admin review"}));
+  fireEvent.click(screen.getByRole("button",{name:/^Admin's turn/}));
   await waitFor(()=>expect((screen.getByRole("button",{name:"reject"}) as HTMLButtonElement).disabled).toBe(false));
   expect((screen.getByRole("button",{name:"approve"}) as HTMLButtonElement).disabled).toBe(true);
   expect(posts(fetcher)).toHaveLength(0);
@@ -217,7 +218,7 @@ it("shows drafted terms as agreed without marking the delivery checks as passed"
   await screen.findByText("Which area should the dataset cover?");
   expect(within(screen.getByRole("region",{name:"Data contract"})).getByText("Completed:")).toBeTruthy();
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
-  fireEvent.click(screen.getByRole("button",{name:"Delivery & review"}));
+  fireEvent.click(screen.getByRole("button",{name:/^Produce,/}));
   expect(within(screen.getByRole("region",{name:"Delivery checks"})).getByText("Pending:")).toBeTruthy();
   expect(screen.queryByRole("link",{name:"Download CSV"})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Customer view"}));
@@ -242,12 +243,11 @@ it("shows a pending evidence question without presenting human approval controls
   expect(within(screen.getByRole("complementary",{name:"Investigate"})).getAllByText("Which frozen source supports this complaint?")).toHaveLength(1);
   expect(screen.queryByText("Human review · current order")).toBeNull();
   expect(screen.queryByLabelText("Reason or evidence answer")).toBeNull();
-  expect(screen.queryByRole("button",{name:"Admin review"})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
   state.page={...state.page,evidence_request:null,available_actions:[{action:"reject",enabled:true,reason:"Human review required"}],events:[...state.page.events,
     {seq:4,at,type:"steps_planned",steps:[{id:"decide",kind:"decide",title:"Human reviews",detail:"Review the case"}]},
     {seq:5,at,type:"state_changed",step:"investigate",state:"human_review",reason:"No further evidence",binding:state.page.binding!},
   ],next_after:5,high_watermark:5};
-  fireEvent.click(screen.getByRole("button",{name:"Refresh"}));
   expect(await screen.findByRole("complementary",{name:"Admin review"})).toBeTruthy();
   expect(screen.queryByLabelText("Evidence answer")).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Investigate, waiting"}));
@@ -271,7 +271,7 @@ it("shows the persisted scope explanation and buyer acceptance without stale hum
   expect(screen.getByRole("button",{name:"Accept verified delivery"})).toBeTruthy();
   expect(screen.queryByRole("button",{name:"Open admin review"})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Run"}));
-  expect(screen.queryByRole("button",{name:"Admin review"})).toBeNull();
+  expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
   fireEvent.click(screen.getByRole("button",{name:"Assessment, done"}));
   expect(screen.getByText(reason)).toBeTruthy();
   expect(screen.queryByText("Human review · current order")).toBeNull();

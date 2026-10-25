@@ -30,7 +30,7 @@ afterEach(()=>{cleanup();vi.unstubAllGlobals();localStorage.clear();});
 
 it("keeps resolved diagnostic JSON out of the customer evidence surface",()=>{
   const order={binding:null,view:{evidence:{}},resolved:'{"input_schema":"private diagnostic payload"}'} as unknown as LiveOrder;
-  const {container}=render(<LiveEvidence order={order} showInspector={false}/>);
+  const {container}=render(<LiveEvidence order={order}/>);
   expect(container.textContent).toBe("");
 });
 
