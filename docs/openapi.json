@@ -490,6 +490,139 @@
         "title": "Assessment",
         "type": "object"
       },
+      "AttemptView": {
+        "additionalProperties": false,
+        "properties": {
+          "active_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Version"
+          },
+          "baseline_operations": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Operations"
+          },
+          "baseline_reviews": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Reviews"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "internal_reviews": {
+            "title": "Internal Reviews",
+            "type": "integer"
+          },
+          "machine_operations": {
+            "title": "Machine Operations",
+            "type": "integer"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "source_hashes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Hashes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "request_id",
+          "active_version",
+          "internal_reviews",
+          "machine_operations"
+        ],
+        "title": "AttemptView",
+        "type": "object"
+      },
+      "AuthorityHead": {
+        "additionalProperties": false,
+        "properties": {
+          "definitions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Definition"
+            },
+            "title": "Definitions",
+            "type": "array"
+          },
+          "epoch": {
+            "title": "Epoch",
+            "type": "string"
+          },
+          "publisher": {
+            "title": "Publisher",
+            "type": "string"
+          },
+          "schema_hash": {
+            "title": "Schema Hash",
+            "type": "string"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/SourceScope"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_version": {
+            "title": "Source Version",
+            "type": "integer"
+          },
+          "status": {
+            "default": "active",
+            "enum": [
+              "active",
+              "revoked",
+              "conflict"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "valid_until": {
+            "format": "date-time",
+            "title": "Valid Until",
+            "type": "string"
+          }
+        },
+        "required": [
+          "publisher",
+          "source_id",
+          "source_version",
+          "schema_hash",
+          "epoch",
+          "scope",
+          "valid_until"
+        ],
+        "title": "AuthorityHead",
+        "type": "object"
+      },
       "Authorization": {
         "additionalProperties": false,
         "properties": {
@@ -985,6 +1118,65 @@
           }
         },
         "title": "BrokeragePolicy",
+        "type": "object"
+      },
+      "BundleUpload": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "origin": {
+            "const": "simulated_source_owner_demo",
+            "default": "simulated_source_owner_demo",
+            "title": "Origin",
+            "type": "string"
+          },
+          "partitions": {
+            "items": {
+              "$ref": "#/components/schemas/PartitionInput"
+            },
+            "maxItems": 4,
+            "minItems": 2,
+            "title": "Partitions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "partitions"
+        ],
+        "title": "BundleUpload",
+        "type": "object"
+      },
+      "CandidateView": {
+        "additionalProperties": false,
+        "properties": {
+          "component_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Component Ids",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "component_ids",
+          "status"
+        ],
+        "title": "CandidateView",
         "type": "object"
       },
       "CanvasAmendment": {
@@ -2990,7 +3182,7 @@
             "items": {
               "$ref": "#/components/schemas/SourcePin"
             },
-            "maxItems": 8,
+            "maxItems": 24,
             "minItems": 1,
             "title": "Sources",
             "type": "array"
@@ -3079,6 +3271,25 @@
           "revision"
         ],
         "title": "DecisionBinding",
+        "type": "object"
+      },
+      "Definition": {
+        "additionalProperties": false,
+        "properties": {
+          "column": {
+            "title": "Column",
+            "type": "string"
+          },
+          "unit": {
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "column",
+          "unit"
+        ],
+        "title": "Definition",
         "type": "object"
       },
       "Delivery": {
@@ -3808,6 +4019,206 @@
         "title": "JournalEntry",
         "type": "object"
       },
+      "LearningCommand": {
+        "additionalProperties": false,
+        "properties": {
+          "idempotency_key": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "target_id": {
+            "title": "Target Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "target_id"
+        ],
+        "title": "LearningCommand",
+        "type": "object"
+      },
+      "LearningEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "evidence_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Ids",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "text",
+          "actor",
+          "created_at"
+        ],
+        "title": "LearningEvent",
+        "type": "object"
+      },
+      "LearningResult": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "record_id": {
+            "title": "Record Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "record_id"
+        ],
+        "title": "LearningResult",
+        "type": "object"
+      },
+      "LearningState": {
+        "additionalProperties": false,
+        "properties": {
+          "active_current": {
+            "default": false,
+            "title": "Active Current",
+            "type": "boolean"
+          },
+          "active_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Version"
+          },
+          "attempts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/AttemptView"
+            },
+            "title": "Attempts",
+            "type": "array"
+          },
+          "bundle_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bundle Id"
+          },
+          "candidates": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CandidateView"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "disclosure": {
+            "default": "Synthetic sources and simulated owner/controller identities; mock funding only.",
+            "title": "Disclosure",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "events": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/LearningEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "mode": {
+            "const": "controlled_local_mock",
+            "default": "controlled_local_mock",
+            "title": "Mode",
+            "type": "string"
+          },
+          "qualification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QualificationView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reviews": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ReviewView"
+            },
+            "title": "Reviews",
+            "type": "array"
+          },
+          "versions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/CandidateView"
+            },
+            "title": "Versions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "LearningState",
+        "type": "object"
+      },
       "Margin": {
         "additionalProperties": false,
         "properties": {
@@ -4214,6 +4625,23 @@
           "human_review"
         ],
         "title": "OrderView",
+        "type": "object"
+      },
+      "PartitionInput": {
+        "additionalProperties": false,
+        "properties": {
+          "authority": {
+            "$ref": "#/components/schemas/AuthorityHead"
+          },
+          "export": {
+            "$ref": "#/components/schemas/VendorExport"
+          }
+        },
+        "required": [
+          "export",
+          "authority"
+        ],
+        "title": "PartitionInput",
         "type": "object"
       },
       "PaymentAccount": {
@@ -5132,6 +5560,73 @@
         "title": "Provenance",
         "type": "object"
       },
+      "QualificationView": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline_operations": {
+            "title": "Baseline Operations",
+            "type": "integer"
+          },
+          "baseline_reviews": {
+            "title": "Baseline Reviews",
+            "type": "integer"
+          },
+          "candidate_id": {
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "candidate_operations": {
+            "title": "Candidate Operations",
+            "type": "integer"
+          },
+          "candidate_reviews": {
+            "title": "Candidate Reviews",
+            "type": "integer"
+          },
+          "capsule_sha256": {
+            "title": "Capsule Sha256",
+            "type": "string"
+          },
+          "cases": {
+            "title": "Cases",
+            "type": "integer"
+          },
+          "correct_both": {
+            "title": "Correct Both",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          },
+          "violations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Violations",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "candidate_id",
+          "passed",
+          "cases",
+          "baseline_reviews",
+          "candidate_reviews",
+          "baseline_operations",
+          "candidate_operations",
+          "correct_both",
+          "capsule_sha256",
+          "violations"
+        ],
+        "title": "QualificationView",
+        "type": "object"
+      },
       "Quote": {
         "additionalProperties": false,
         "properties": {
@@ -5501,6 +5996,47 @@
         "title": "Requirement",
         "type": "object"
       },
+      "ResolveSource": {
+        "additionalProperties": false,
+        "properties": {
+          "applicability": {
+            "const": "source_edition",
+            "default": "source_edition",
+            "title": "Applicability",
+            "type": "string"
+          },
+          "column": {
+            "maxLength": 31,
+            "minLength": 1,
+            "title": "Column",
+            "type": "string"
+          },
+          "encounter_id": {
+            "title": "Encounter Id",
+            "type": "string"
+          },
+          "explanation": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Explanation",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "encounter_id",
+          "column",
+          "explanation"
+        ],
+        "title": "ResolveSource",
+        "type": "object"
+      },
       "ResolvedCell": {
         "additionalProperties": false,
         "properties": {
@@ -5728,6 +6264,58 @@
           "required_authority"
         ],
         "title": "ReviewRow",
+        "type": "object"
+      },
+      "ReviewView": {
+        "additionalProperties": false,
+        "properties": {
+          "authority_sha256": {
+            "title": "Authority Sha256",
+            "type": "string"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Columns",
+            "type": "array"
+          },
+          "encounter_id": {
+            "title": "Encounter Id",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "resolved": {
+            "title": "Resolved",
+            "type": "boolean"
+          },
+          "source_family": {
+            "title": "Source Family",
+            "type": "string"
+          },
+          "source_sha256": {
+            "title": "Source Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "encounter_id",
+          "request_id",
+          "source_family",
+          "source_sha256",
+          "authority_sha256",
+          "reason",
+          "columns",
+          "resolved"
+        ],
+        "title": "ReviewView",
         "type": "object"
       },
       "ReviewerDecision": {
@@ -6575,6 +7163,57 @@
         "title": "SourcePolicy",
         "type": "object"
       },
+      "SourceScope": {
+        "additionalProperties": false,
+        "properties": {
+          "age_max": {
+            "const": 34,
+            "default": 34,
+            "title": "Age Max",
+            "type": "integer"
+          },
+          "age_min": {
+            "const": 25,
+            "default": 25,
+            "title": "Age Min",
+            "type": "integer"
+          },
+          "category": {
+            "default": "gym_or_fitness_app",
+            "enum": [
+              "gym_or_fitness_app",
+              "gym_app_or_yoga"
+            ],
+            "title": "Category",
+            "type": "string"
+          },
+          "geography": {
+            "enum": [
+              "San Francisco",
+              "Oakland"
+            ],
+            "title": "Geography",
+            "type": "string"
+          },
+          "groups_disjoint": {
+            "const": true,
+            "default": true,
+            "title": "Groups Disjoint",
+            "type": "boolean"
+          },
+          "population": {
+            "const": "synthetic_adults",
+            "default": "synthetic_adults",
+            "title": "Population",
+            "type": "string"
+          }
+        },
+        "required": [
+          "geography"
+        ],
+        "title": "SourceScope",
+        "type": "object"
+      },
       "Span": {
         "additionalProperties": false,
         "properties": {
@@ -7255,6 +7894,118 @@
           "type"
         ],
         "title": "ValidationIssue",
+        "type": "object"
+      },
+      "VendorExport": {
+        "additionalProperties": false,
+        "properties": {
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Columns",
+            "type": "array"
+          },
+          "edition": {
+            "title": "Edition",
+            "type": "string"
+          },
+          "publisher": {
+            "title": "Publisher",
+            "type": "string"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/VendorRow"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Rows",
+            "type": "array"
+          },
+          "schema_version": {
+            "minimum": 1.0,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/SourceScope"
+          },
+          "source_family": {
+            "title": "Source Family",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_id",
+          "source_family",
+          "schema_version",
+          "version",
+          "publisher",
+          "edition",
+          "scope",
+          "columns",
+          "rows"
+        ],
+        "title": "VendorExport",
+        "type": "object"
+      },
+      "VendorRow": {
+        "additionalProperties": false,
+        "properties": {
+          "area": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Area",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "released",
+              "suppressed",
+              "unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Values",
+            "type": "object"
+          },
+          "zip": {
+            "pattern": "^\\d{5}$",
+            "title": "Zip",
+            "type": "string"
+          }
+        },
+        "required": [
+          "zip",
+          "area",
+          "values",
+          "status"
+        ],
+        "title": "VendorRow",
         "type": "object"
       },
       "Verdict": {
@@ -10455,6 +11206,764 @@
           }
         },
         "summary": "Offer"
+      }
+    },
+    "/source-learning/activate": {
+      "post": {
+        "operationId": "activate_source_learning_activate_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-reviewer-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Reviewer-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LearningCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Activate"
+      }
+    },
+    "/source-learning/approve": {
+      "post": {
+        "operationId": "approve_source_learning_approve_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-reviewer-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Reviewer-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LearningCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Approve"
+      }
+    },
+    "/source-learning/propose": {
+      "post": {
+        "operationId": "propose_source_learning_propose_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-internal-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LearningCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Propose"
+      }
+    },
+    "/source-learning/qualify": {
+      "post": {
+        "operationId": "qualify_source_learning_qualify_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-reviewer-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Reviewer-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LearningCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Qualify"
+      }
+    },
+    "/source-learning/resolve": {
+      "post": {
+        "operationId": "resolve_source_learning_resolve_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-source-owner-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Source-Owner-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveSource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Resolve"
+      }
+    },
+    "/source-learning/revoke": {
+      "post": {
+        "operationId": "revoke_source_learning_revoke_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-reviewer-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Reviewer-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LearningCommand"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Revoke"
+      }
+    },
+    "/source-learning/sources": {
+      "post": {
+        "operationId": "sources_source_learning_sources_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-internal-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BundleUpload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Sources"
+      }
+    },
+    "/source-learning/state": {
+      "get": {
+        "operationId": "state_source_learning_state_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-internal-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Internal-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningState"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "State"
       }
     }
   }

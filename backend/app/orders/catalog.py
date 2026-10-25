@@ -83,6 +83,7 @@ class CatalogService(DatasetLifecycle):
         self.investigator = CatalogInvestigator(assessor)
         self.policy = Policy()
         self.auto_mock_funding = auto_mock_funding
+        self.source_learning = None
         self.effects = CanvasEffects(self)
         self.payments = CatalogPayments(
             self, mode=payment_mode, config=payment_config, transport=payment_transport
@@ -149,8 +150,15 @@ class CatalogService(DatasetLifecycle):
             return draft
 
     def compile_request(self, request_id, command, *, prepared_sources=None):
+        if self.source_learning is not None and prepared_sources is None:
+            handled = self.source_learning.compile(request_id, command)
+            if handled is not None:
+                return handled
         fingerprint = (
-            preparation_fingerprint(prepared_sources.encounter_id)
+            (
+                prepared_sources.compile_fingerprint
+                or preparation_fingerprint(prepared_sources.encounter_id)
+            )
             if prepared_sources is not None
             else self.repository.fingerprint("compile", command)
         )
@@ -176,6 +184,7 @@ class CatalogService(DatasetLifecycle):
             sources = self.registry.manifest(draft.corpus_id, db)
             if prepared_sources is not None:
                 prepared_sources.validate_current(sources, self.clock())
+                prepared_sources.validate_active(db)
                 self.repository.put(db, "prepared_sources", request_id, prepared_sources)
                 sources = prepared_sources.sources
             else:

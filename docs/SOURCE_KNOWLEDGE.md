@@ -1,5 +1,9 @@
 # Sandbox institutional source knowledge
 
+> Historical sandbox report, preserved below. The enabled controlled local
+> application workflow and active-version proof are documented in
+> [LIVE_SOURCE_LEARNING.md](LIVE_SOURCE_LEARNING.md).
+
 Draft review only. Do not merge or enable in production until integration testing
 and a team decision about presentation and deployment.
 

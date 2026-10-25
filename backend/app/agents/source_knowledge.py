@@ -146,9 +146,12 @@ def procedure_scope(bound):
 class InstitutionalMemory:
     """An immutable experience book in the application's existing SQLite database."""
 
-    def __init__(self, path, customer_id, experience_scope, *, sandbox=False):
-        if not sandbox:
+    def __init__(
+        self, path, customer_id, experience_scope, *, sandbox=False, controlled_local=False
+    ):
+        if not sandbox and not controlled_local:
             raise ValueError("institutional learning is sandbox-only")
+        self.controlled_local = controlled_local
         self.store = Store(path)
         self.customer_id = customer_id
         self.product_id = PRODUCT + ":" + experience_scope
@@ -158,16 +161,16 @@ class InstitutionalMemory:
         with self.store.connect() as db:
             return improvement.records(db, kind, self.customer_id, self.product_id)
 
-    def put(self, kind, body):
+    def put(self, kind, body, *, db=None):
+        if db is None:
+            with self.store.connect(write=True) as connection:
+                return self.put(kind, body, db=connection)
         body = {**body, "customer_id": self.customer_id, "product_id": self.product_id}
         identifier = "institutional-" + digest({"kind": kind, "body": body})
         body["id"] = identifier
-        with self.store.connect(write=True) as db:
-            existing = db.execute(
-                "SELECT body FROM im_records WHERE id=?", (identifier,)
-            ).fetchone()
-            if not existing:
-                improvement.put(db, kind, body)
+        existing = db.execute("SELECT body FROM im_records WHERE id=?", (identifier,)).fetchone()
+        if not existing:
+            improvement.put(db, kind, body)
         return body
 
     def get(self, kind, identifier):
@@ -183,9 +186,26 @@ class InstitutionalMemory:
 class SourceKnowledge:
     """Trusted local application adapter; not a new authentication or payment API."""
 
-    def __init__(self, service, memory, authorized_resolvers, *, sandbox=False):
-        if not sandbox or memory.store.path.resolve() != service.repository.path.resolve():
+    def __init__(
+        self,
+        service,
+        memory,
+        authorized_resolvers,
+        *,
+        sandbox=False,
+        controlled_local=False,
+        procedure_ids=None,
+    ):
+        if (not sandbox and not controlled_local) or (
+            memory.store.path.resolve() != service.repository.path.resolve()
+        ):
             raise ValueError("sandbox and shared application database required")
+        if controlled_local and not memory.controlled_local:
+            raise ValueError("controlled local memory required")
+        self.controlled_local = controlled_local
+        # Live reuse is explicit and fail-closed; sandbox comparisons retain their
+        # original all-procedures behavior. Never implicitly activate a new record.
+        self.procedure_ids = frozenset(procedure_ids or ()) if controlled_local else procedure_ids
         self.service, self.memory = service, memory
         # Trusted server configuration, never taken from customer text or an evidence file.
         self.authorized_resolvers = dict(authorized_resolvers)  # actor -> publisher
@@ -196,7 +216,14 @@ class SourceKnowledge:
         operations.append("load_current_request")
         with self.memory.store.connect() as db:
             draft = self.service.repository.load(db, "request", case.request_id, RequestDraft)
-        if draft.status != "compiling" or self.service.clock() >= draft.deadline:
+        resolving = (
+            self.controlled_local
+            and draft.status == "human_review"
+            and draft.error == "Source-owner review required."
+        )
+        if (
+            draft.status != "compiling" and not resolving
+        ) or self.service.clock() >= draft.deadline:
             raise ValueError("source preparation needs a live, unaccepted intake")
         if case.source.corpus_id != draft.corpus_id or case.authority.corpus_id != draft.corpus_id:
             raise ValueError("source corpus differs from selected request")
@@ -268,15 +295,18 @@ class SourceKnowledge:
             result["reason"] = "conflicting_current_definitions"
             return self._record(case, result)
         operations.append("retrieve_previous_procedures")
-        procedures = [
+        all_procedures = [
             p
             for p in self.memory.records("source_procedure")
             if p["binding"] == procedure_scope(bound)
         ]
         # Never select 'latest wins' when two authorized resolutions disagree.
-        if len({p["column"] for p in procedures} | {d.column for _, d in definitions}) > 1:
+        if len({p["column"] for p in all_procedures} | {d.column for _, d in definitions}) > 1:
             result["reason"] = "conflicting_retained_definition"
             return self._record(case, result)
+        procedures = [
+            p for p in all_procedures if self.procedure_ids is None or p["id"] in self.procedure_ids
+        ]
         if definitions:
             index, definition = definitions[0]
             column = definition.column
@@ -458,6 +488,6 @@ class SourceKnowledge:
                 ],
                 "origin": resolution["origin"],
                 "version": 1,
-                "activation": "sandbox_only",
+                "activation": "approval_required" if self.controlled_local else "sandbox_only",
             },
         )
