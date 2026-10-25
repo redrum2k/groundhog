@@ -9,7 +9,10 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from aggregate_qualification_audit import cost_micro
+from app.contracts.semantic import DatasetClaimReview
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -20,7 +23,26 @@ def load(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def audit(root):
+def verify_json_rows(rows, expected):
+    assert len(rows) == len(expected)
+    assert {r["zip"]: (r["area"], r["count"], r["status"]) for r in rows} == expected
+
+
+def verify_review_response(response, saved_review):
+    """Check the entire saved judgment against provider bytes, not usage alone."""
+    text = "".join(b["text"] for b in response["content"] if b["type"] == "text")
+    try:
+        parsed = DatasetClaimReview.model_validate_json(text).model_dump(mode="json")
+    except ValidationError:
+        assert saved_review is None
+        return
+    if response["stop_reason"] != "end_turn":
+        assert saved_review is None
+        return
+    assert parsed == saved_review
+
+
+def audit(root, *, output=None):
     plan, results = load(root / "frozen-plan.json"), load(root / "results.json")
     assert results["restart_verified"] and results["source_sha256"] == plan["source_sha256"]
     access = load(ROOT / ".local/llm-access.json")
@@ -147,9 +169,7 @@ def audit(root):
                 "groups_disjoint",
             ):
                 assert accepted[field] == terms[field]
-            assert {
-                r["zip"]: (r["area"], r["count"], r["status"]) for r in accepted["rows"]
-            } == expected
+            verify_json_rows(accepted["rows"], expected)
             delivery = order["deliveries"][0]
             raw_csv, raw_json = artifact(delivery["csv"]), artifact(delivery["preview"])
             assert raw_csv == (root / (label + "-delivery.csv")).read_bytes()
@@ -162,9 +182,7 @@ def audit(root):
             } == expected
             preview = json.loads(raw_json)
             assert preview["csv_sha256"] == hashlib.sha256(raw_csv).hexdigest()
-            assert {
-                r["zip"]: (r["area"], r["count"], r["status"]) for r in preview["rows"]
-            } == expected
+            verify_json_rows(preview["rows"], expected)
             learning = load(root / (label + "-learning.json"))
             attempt = next(
                 a for a in reversed(learning["attempts"]) if a["request_id"] == info["run_id"]
@@ -214,8 +232,12 @@ def audit(root):
                             exact_cell(root, order, ref)
                             references += 1
                     if saved.get("review_response"):
+                        verify_review_response(saved["review_response"], saved.get("review"))
                         responses.append(saved["review_response"])
                         if saved.get("review_repair_response"):
+                            verify_review_response(
+                                saved["review_repair_response"], saved.get("review_repair")
+                            )
                             responses.append(saved["review_repair_response"])
                             assert "format_repair" in saved["review_repair_request"]
                             assert (
@@ -316,7 +338,7 @@ def audit(root):
             "author-defined cases, not independent human evaluation."
         ),
     }
-    (root / "independent-model-audit.json").write_text(
+    (output or root / "independent-model-audit.json").write_text(
         json.dumps(result, indent=2), encoding="utf-8"
     )
     return result
@@ -325,4 +347,6 @@ def audit(root):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", type=Path)
-    print(json.dumps(audit(parser.parse_args().directory.resolve()), indent=2))
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+    print(json.dumps(audit(args.directory.resolve(), output=args.output), indent=2))
