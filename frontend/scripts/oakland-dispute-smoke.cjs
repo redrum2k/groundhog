@@ -96,7 +96,7 @@ fs.mkdirSync(output, { recursive: true });
       const heading = await page.getByRole('heading', { name: 'Complaint assessment' }).boundingBox();
       const stickyHeader = await page.locator('.cust-h').boundingBox();
       if (heading.y < stickyHeader.y + stickyHeader.height) throw new Error('Assessment hidden behind sticky customer header');
-      await expect(page.getByRole('button', { name: /regenerate|approve|Open admin review/i })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: /regenerate|approve|Open human review/i })).toHaveCount(0);
       await page.screenshot({ path: path.join(output, `buyer-explanation-${viewport.width}.png`) });
       if (viewport.width === 1440) await page.getByRole('button', { name: 'Run', exact: true }).click();
     }

@@ -83,14 +83,14 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
       ? paymentState==="capture_pending"
         ? simulated?"Review complete. The server has queued the simulated payment release. Waiting for confirmation before marking it complete.":"Review complete. Waiting for payment confirmation."
         : simulated?"Delivery accepted. Preparing the simulated payment release.":"Delivery accepted. Preparing payment release."
-      : returned?"The return is confirmed. Funds have been returned to the buyer.":settled?"Payment is confirmed and recorded.":rejection?"Objection not upheld. Open Finding to review the decision, agreement and supporting evidence.":order.needsHumanReview?"Waiting for an admin to review the case.":view.caption;
+      : returned?"The return is confirmed. Funds have been returned to the buyer.":settled?"Payment is confirmed and recorded.":rejection?"Objection not upheld. Open Finding to review the decision, agreement and supporting evidence.":order.needsHumanReview?"This dispute is escalated to a person. Nothing moves until they decide.":view.caption;
   const working=()=>{setPanel(undefined);navigate("run",true);setRecenter(n=>n+1);};
   const customer=()=>navigate("customer");
   const admin=()=>{navigate("run");setPanel("decide");};
   const pay=async()=>{if(!busy && await order.pay())working();};
   const turn=order.enabled("clarify")?"Your turn: answer the agent":order.enabled("accept_quote") || order.enabled("prepare_funding")?"Your turn: review & pay":order.enabled("accept")?"Your turn: review the dataset":order.enabled("quote")?"Your turn: review the request":undefined;
   const node=panel?view.nodes[panel]:undefined;
-  const panelTitle=panel==="decide"?"Admin review":node?.step.title ?? ({paid:"Funding",clarify:"Clarify the order",review:"Delivery & review"}[panel ?? ""] ?? "Live order");
+  const panelTitle=panel==="decide"?"Human review":node?.step.title ?? ({paid:"Funding",clarify:"Clarify the order",review:"Delivery & review"}[panel ?? ""] ?? "Live order");
   return <div className="shell live-shell" {...interaction}>
     <header className="top">
       <div className="brand"><IcLogo className="logo" size={22}/><div><div className="wordmark">{S.us}</div><div className="seat">Financial agent for {S.broker}</div></div></div>
@@ -112,8 +112,8 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
         {turn && <button type="button" className="btn turn" onClick={customer}><span className="turn-dot" aria-hidden/>{turn}</button>}
         {/* when a person has to decide, say so the same way the buyer's turn does */}
         {order.hasHumanReview && (order.needsHumanReview
-          ? <button type="button" className="btn turn" onClick={admin}><span className="turn-dot" aria-hidden/>Admin&apos;s turn: review the case</button>
-          : <button type="button" className="btn" onClick={admin}>Admin review</button>)}
+          ? <button type="button" className="btn turn" onClick={admin}><span className="turn-dot" aria-hidden/>Escalated to a person: settle the dispute</button>
+          : <button type="button" className="btn" onClick={admin}>Human review</button>)}
       </>}
     </div>
     {order.error && <div className="tools-err" role="alert">{order.error}<button type="button" className="btn" disabled={busy && !recoveryAvailable} onClick={live.retry}>Try again</button></div>}

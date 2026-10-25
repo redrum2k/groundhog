@@ -203,14 +203,17 @@ function ReviewReceipt({order}:{order:LiveOrder}) {
   </section>;
 }
 
+const REVIEW_ACTIONS = { approve: "Approve", reject: "Reject", ask: "Ask", escalate: "Escalate" } as const;
+
 export function LiveReview({order}:{order:LiveOrder}) {
   const paymentState=order.page?.payment?.payment.state;
   if(!order.needsHumanReview || paymentState==="void_pending" || paymentState==="voided")return <ReviewReceipt order={order}/>;
-  return <>{order.view.nodes.decide?.decision && <ReviewReceipt order={order}/>}<div className="review">
-    <div className="review-tag">Human review · current order</div>
-    <p>Review the evidence and proposed remedy. Approval can release eligible uncaptured funds; it cannot override verification or force a capture.</p>
+  return <>{order.view.nodes.decide?.decision && <ReviewReceipt order={order}/>}<div className="review live-review">
+    <div className="review-tag">Needs a person&apos;s decision</div>
+    <p className="live-review-note">Review the evidence and the proposed remedy. Approval can release eligible uncaptured funds; it can&apos;t override verification or force a capture.</p>
     <label htmlFor="reason">Reason or evidence answer</label><textarea id="reason" value={order.reason} onChange={e=>order.setReason(e.target.value)}/>
-    {(["approve","reject","ask","escalate"] as const).map(action=><div key={action}><button type="button" className="btn" disabled={!order.enabled(action)} onClick={()=>void order.decide(action)}>{action}</button><p className="faint">{order.page?.available_actions.find(a=>a.action===action)?.reason}</p></div>)}
+    {/* one row per action: the button, then why it is or isn't available right now */}
+    <ul className="live-review-choices">{(["approve","reject","ask","escalate"] as const).map(action=><li key={action}><button type="button" className="btn" disabled={!order.enabled(action)} onClick={()=>void order.decide(action)}>{REVIEW_ACTIONS[action]}</button><span>{order.page?.available_actions.find(a=>a.action===action)?.reason}</span></li>)}</ul>
   </div></>;
 }
 
