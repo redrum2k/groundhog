@@ -26,6 +26,7 @@ for (const [module, exported] of [
   ["improvement", "ImprovementContractExport"],
   ["catalog", "CatalogContractExport"],
   ["runs", "RunContractExport"],
+  ["source_learning", "SourceLearningContractExport"],
 ]) {
   const target = new URL(`../lib/${module}.generated.ts`, import.meta.url);
   const raw = execFileSync(

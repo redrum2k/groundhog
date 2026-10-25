@@ -69,7 +69,9 @@ class DatasetSpecification(Frozen):
     suppression_threshold: Literal[50] = 50
     suppressed_count: None = None
     coverage: CoverageUniverse
-    sources: Annotated[tuple[SourcePin, ...], Field(min_length=1, max_length=8)]
+    # Up to four independently evidenced partitions plus original coverage,
+    # authority, derived data and per-component resolution/lineage pins.
+    sources: Annotated[tuple[SourcePin, ...], Field(min_length=1, max_length=24)]
     provenance: tuple[TermProvenance, ...] = ()
 
     @model_validator(mode="after")

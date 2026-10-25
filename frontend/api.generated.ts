@@ -551,6 +551,142 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/source-learning/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Activate */
+        post: operations["activate_source_learning_activate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/source-learning/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve */
+        post: operations["approve_source_learning_approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/source-learning/propose": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Propose */
+        post: operations["propose_source_learning_propose_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/source-learning/qualify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Qualify */
+        post: operations["qualify_source_learning_qualify_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/source-learning/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve */
+        post: operations["resolve_source_learning_resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/source-learning/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke */
+        post: operations["revoke_source_learning_revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/source-learning/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sources */
+        post: operations["sources_source_learning_sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/source-learning/state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** State */
+        get: operations["state_source_learning_state_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -742,6 +878,58 @@ export interface components {
              * @enum {string}
              */
             result: "PASS" | "FAIL" | "UNKNOWN" | "CONFLICT";
+        };
+        /** AttemptView */
+        AttemptView: {
+            /** Active Version */
+            active_version: string | null;
+            /** Baseline Operations */
+            baseline_operations?: number | null;
+            /** Baseline Reviews */
+            baseline_reviews?: number | null;
+            /** Id */
+            id: string;
+            /** Internal Reviews */
+            internal_reviews: number;
+            /** Machine Operations */
+            machine_operations: number;
+            /** Request Id */
+            request_id: string;
+            /**
+             * Source Hashes
+             * @default []
+             */
+            source_hashes?: string[];
+        };
+        /** AuthorityHead */
+        AuthorityHead: {
+            /**
+             * Definitions
+             * @default []
+             */
+            definitions?: components["schemas"]["Definition"][];
+            /** Epoch */
+            epoch: string;
+            /** Publisher */
+            publisher: string;
+            /** Schema Hash */
+            schema_hash: string;
+            scope: components["schemas"]["SourceScope"];
+            /** Source Id */
+            source_id: string;
+            /** Source Version */
+            source_version: number;
+            /**
+             * Status
+             * @default active
+             * @enum {string}
+             */
+            status?: "active" | "revoked" | "conflict";
+            /**
+             * Valid Until
+             * Format: date-time
+             */
+            valid_until: string;
         };
         /** Authorization */
         Authorization: {
@@ -993,6 +1181,28 @@ export interface components {
              * @constant
              */
             version?: "aggregate-brokerage-v1";
+        };
+        /** BundleUpload */
+        BundleUpload: {
+            /** Idempotency Key */
+            idempotency_key: string;
+            /**
+             * Origin
+             * @default simulated_source_owner_demo
+             * @constant
+             */
+            origin?: "simulated_source_owner_demo";
+            /** Partitions */
+            partitions: components["schemas"]["PartitionInput"][];
+        };
+        /** CandidateView */
+        CandidateView: {
+            /** Component Ids */
+            component_ids: string[];
+            /** Id */
+            id: string;
+            /** Status */
+            status: string;
         };
         /** CanvasAmendment */
         CanvasAmendment: {
@@ -1920,6 +2130,13 @@ export interface components {
             /** Snapshotid */
             snapshotId: string;
         };
+        /** Definition */
+        Definition: {
+            /** Column */
+            column: string;
+            /** Unit */
+            unit: string;
+        };
         /** Delivery */
         Delivery: {
             binding: components["schemas"]["Binding"];
@@ -2212,6 +2429,96 @@ export interface components {
             /** Memo */
             memo: string;
         };
+        /** LearningCommand */
+        LearningCommand: {
+            /** Idempotency Key */
+            idempotency_key: string;
+            /** Target Id */
+            target_id: string;
+        };
+        /** LearningEvent */
+        LearningEvent: {
+            /** Actor */
+            actor: string;
+            /** Created At */
+            created_at: string;
+            /**
+             * Evidence Ids
+             * @default []
+             */
+            evidence_ids?: string[];
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Request Id */
+            request_id?: string | null;
+            /** Text */
+            text: string;
+        };
+        /** LearningResult */
+        LearningResult: {
+            /**
+             * Detail
+             * @default
+             */
+            detail?: string;
+            /** Record Id */
+            record_id: string;
+            /** Status */
+            status: string;
+        };
+        /** LearningState */
+        LearningState: {
+            /**
+             * Active Current
+             * @default false
+             */
+            active_current?: boolean;
+            /** Active Version */
+            active_version?: string | null;
+            /**
+             * Attempts
+             * @default []
+             */
+            attempts?: components["schemas"]["AttemptView"][];
+            /** Bundle Id */
+            bundle_id?: string | null;
+            /**
+             * Candidates
+             * @default []
+             */
+            candidates?: components["schemas"]["CandidateView"][];
+            /**
+             * Disclosure
+             * @default Synthetic sources and simulated owner/controller identities; mock funding only.
+             */
+            disclosure?: string;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Events
+             * @default []
+             */
+            events?: components["schemas"]["LearningEvent"][];
+            /**
+             * Mode
+             * @default controlled_local_mock
+             * @constant
+             */
+            mode?: "controlled_local_mock";
+            qualification?: components["schemas"]["QualificationView"] | null;
+            /**
+             * Reviews
+             * @default []
+             */
+            reviews?: components["schemas"]["ReviewView"][];
+            /**
+             * Versions
+             * @default []
+             */
+            versions?: components["schemas"]["CandidateView"][];
+        };
         /** Margin */
         Margin: {
             /** Cost */
@@ -2376,6 +2683,11 @@ export interface components {
              * Format: date-time
              */
             server_time: string;
+        };
+        /** PartitionInput */
+        PartitionInput: {
+            authority: components["schemas"]["AuthorityHead"];
+            export: components["schemas"]["VendorExport"];
         };
         /** PaymentAccount */
         PaymentAccount: {
@@ -2792,6 +3104,31 @@ export interface components {
             /** Version */
             version: string;
         };
+        /** QualificationView */
+        QualificationView: {
+            /** Baseline Operations */
+            baseline_operations: number;
+            /** Baseline Reviews */
+            baseline_reviews: number;
+            /** Candidate Id */
+            candidate_id: string;
+            /** Candidate Operations */
+            candidate_operations: number;
+            /** Candidate Reviews */
+            candidate_reviews: number;
+            /** Capsule Sha256 */
+            capsule_sha256: string;
+            /** Cases */
+            cases: number;
+            /** Correct Both */
+            correct_both: number;
+            /** Id */
+            id: string;
+            /** Passed */
+            passed: boolean;
+            /** Violations */
+            violations: string[];
+        };
         /** Quote */
         Quote: {
             /** Amendment Id */
@@ -2931,6 +3268,23 @@ export interface components {
             /** Wording */
             wording: string;
         };
+        /** ResolveSource */
+        ResolveSource: {
+            /**
+             * Applicability
+             * @default source_edition
+             * @constant
+             */
+            applicability?: "source_edition";
+            /** Column */
+            column: string;
+            /** Encounter Id */
+            encounter_id: string;
+            /** Explanation */
+            explanation: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+        };
         /** ResolvedCell */
         ResolvedCell: {
             /**
@@ -3005,6 +3359,36 @@ export interface components {
             source_citations: (components["schemas"]["Span"] | components["schemas"]["DatasetReference"])[];
             /** Source Fact */
             source_fact: string;
+        };
+        /** ReviewView */
+        ReviewView: {
+            /**
+             * Actionable
+             * @default false
+             */
+            actionable?: boolean;
+            /** Authority Sha256 */
+            authority_sha256: string;
+            /** Columns */
+            columns: string[];
+            /** Encounter Id */
+            encounter_id: string;
+            /** Reason */
+            reason: string;
+            /** Request Id */
+            request_id: string;
+            /** Resolved */
+            resolved: boolean;
+            /**
+             * Review Status
+             * @default closed
+             * @enum {string}
+             */
+            review_status?: "open" | "resolved" | "expired" | "stale" | "closed" | "blocked";
+            /** Source Family */
+            source_family: string;
+            /** Source Sha256 */
+            source_sha256: string;
         };
         /** ReviewerDecision */
         ReviewerDecision: {
@@ -3303,6 +3687,44 @@ export interface components {
              */
             substantive_change?: "customer_and_provider";
         };
+        /** SourceScope */
+        SourceScope: {
+            /**
+             * Age Max
+             * @default 34
+             * @constant
+             */
+            age_max?: 34;
+            /**
+             * Age Min
+             * @default 25
+             * @constant
+             */
+            age_min?: 25;
+            /**
+             * Category
+             * @default gym_or_fitness_app
+             * @enum {string}
+             */
+            category?: "gym_or_fitness_app" | "gym_app_or_yoga";
+            /**
+             * Geography
+             * @enum {string}
+             */
+            geography: "San Francisco" | "Oakland";
+            /**
+             * Groups Disjoint
+             * @default true
+             * @constant
+             */
+            groups_disjoint?: true;
+            /**
+             * Population
+             * @default synthetic_adults
+             * @constant
+             */
+            population?: "synthetic_adults";
+        };
         /** Span */
         Span: {
             /** Artifact Id */
@@ -3599,6 +4021,42 @@ export interface components {
             msg: string;
             /** Type */
             type: string;
+        };
+        /** VendorExport */
+        VendorExport: {
+            /** Columns */
+            columns: string[];
+            /** Edition */
+            edition: string;
+            /** Publisher */
+            publisher: string;
+            /** Rows */
+            rows: components["schemas"]["VendorRow"][];
+            /** Schema Version */
+            schema_version: number;
+            scope: components["schemas"]["SourceScope"];
+            /** Source Family */
+            source_family: string;
+            /** Source Id */
+            source_id: string;
+            /** Version */
+            version: number;
+        };
+        /** VendorRow */
+        VendorRow: {
+            /** Area */
+            area: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "released" | "suppressed" | "unknown";
+            /** Values */
+            values: {
+                [key: string]: number | null;
+            };
+            /** Zip */
+            zip: string;
         };
         /** Verdict */
         Verdict: {
@@ -5895,6 +6353,570 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Quote"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    activate_source_learning_activate_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-reviewer-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResult"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    approve_source_learning_approve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-reviewer-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResult"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    propose_source_learning_propose_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-internal-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResult"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    qualify_source_learning_qualify_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-reviewer-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResult"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    resolve_source_learning_resolve_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-source-owner-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveSource"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResult"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    revoke_source_learning_revoke_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-reviewer-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LearningCommand"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResult"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sources_source_learning_sources_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-internal-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BundleUpload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningResult"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    state_source_learning_state_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-internal-token"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LearningState"];
                 };
             };
             /** @description Forbidden */

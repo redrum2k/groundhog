@@ -8,9 +8,12 @@ class SourceRegistry:
     def __init__(self, repository, store):
         self.repository, self.store = repository, store
 
-    def register(self, source: Source, *, selectable=True):
+    def register(self, source: Source, *, selectable=True, db=None):
         self.store.read(source.artifact)
-        with self.repository.transaction() as db:
+        if db is None:
+            with self.repository.transaction() as connection:
+                return self.register(source, selectable=selectable, db=connection)
+        if db is not None:
             row = db.execute(
                 "SELECT data FROM catalog_sources WHERE source_id=? AND version=?",
                 (source.source_id, source.version),
