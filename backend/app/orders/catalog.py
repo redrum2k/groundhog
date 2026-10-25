@@ -77,6 +77,7 @@ class CatalogService(DatasetLifecycle):
         payment_mode="mock",
         payment_config=None,
         payment_transport=None,
+        mock_payment_delay_seconds=0,
     ):
         self.repository = repository
         self.clock = clock
@@ -92,7 +93,11 @@ class CatalogService(DatasetLifecycle):
         self.source_learning = None
         self.effects = CanvasEffects(self)
         self.payments = CatalogPayments(
-            self, mode=payment_mode, config=payment_config, transport=payment_transport
+            self,
+            mode=payment_mode,
+            config=payment_config,
+            transport=payment_transport,
+            mock_delay_seconds=mock_payment_delay_seconds,
         )
 
     def _save(self, db, order):
@@ -645,7 +650,7 @@ class CatalogService(DatasetLifecycle):
         ):
             self._human(order, "Evidence repair or approval deadline expired.")
             return True
-        if self.payments.is_live(order) and self.payments.journal.terminal(db, order.payment_id):
+        if order.payment_id and self.payments.journal.terminal(db, order.payment_id):
             return False
         if order.deliveries and now >= order.deliveries[-1].review_deadline:
             if (
@@ -689,7 +694,7 @@ class CatalogService(DatasetLifecycle):
     def _capture(self, order, now, *, db=None):
         if not capture_allowed(order, now) or not self.current_dataset_checks(order):
             raise DomainError(409, "capture gates do not pass")
-        if self.payments.is_live(order):
+        if self.payments.queued_settlement(db, order):
             self.payments.reserve_terminal(db, order, "capture")
             return
         key = f"{order.snapshot.order_id}:capture"
@@ -719,6 +724,8 @@ class CatalogService(DatasetLifecycle):
         if self.payments.is_live(order):
             self.payments.reserve_terminal(db, order, "void")
             return
+        if order.payment_id and self.payments.journal.terminal(db, order.payment_id):
+            raise DomainError(409, "payment already has an active or confirmed terminal operation")
         key = f"{order.snapshot.order_id}:release"
         order.ledger = (
             *order.ledger,

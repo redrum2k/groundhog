@@ -16,7 +16,7 @@ const quote = {
 const preparation = {order_id:"order-1", funding_attempt_id:"attempt-1", terms:quote.payment_terms, typed_data:{message:{value:"1000000"}}} as FundingPreparation;
 const accepted = {order:{snapshot:{order_id:"order-1"}, revision:1, binding:expected}, available_actions:["prepare_funding"]};
 const current = {
-  events:[], next_after:0, high_watermark:0, caught_up:true, poll_after_ms:100000,
+  events:[], next_after:0, high_watermark:0, caught_up:true, poll_after_ms:20,
   binding, quote, request:{status:"accepted", revision:3},
   available_actions:[{action:"prepare_funding",enabled:true}],
   payment:{payment:{state:"awaiting_signature",terms:quote.payment_terms},operations:[]},
@@ -46,7 +46,8 @@ function setup(options: {mock?:boolean; initialQuote?:boolean} = {}) {
       if (url.endsWith("decisions")) return response({});
       throw new Error(`Unexpected POST: ${url}`);
     }
-    return response(state.page);
+    const after=Number(new URL(url,"http://fixture").searchParams.get("after"));
+    return response({...state.page,events:state.page.events.filter(event=>event.seq>after)});
   });
   vi.stubGlobal("fetch", fetcher);
   vi.stubGlobal("ethereum", wallet);
@@ -243,6 +244,14 @@ it("shows a pending evidence question without presenting human approval controls
   expect(screen.queryByText("Human review · current order")).toBeNull();
   expect(screen.queryByLabelText("Reason or evidence answer")).toBeNull();
   expect(screen.queryByRole("button",{name:/^Admin('s turn| review)/})).toBeNull();
+  state.page={...state.page,evidence_request:null,available_actions:[{action:"reject",enabled:true,reason:"Human review required"}],events:[...state.page.events,
+    {seq:4,at,type:"steps_planned",steps:[{id:"decide",kind:"decide",title:"Human reviews",detail:"Review the case"}]},
+    {seq:5,at,type:"state_changed",step:"investigate",state:"human_review",reason:"No further evidence",binding:state.page.binding!},
+  ],next_after:5,high_watermark:5};
+  expect(await screen.findByRole("complementary",{name:"Admin review"})).toBeTruthy();
+  expect(screen.queryByLabelText("Evidence answer")).toBeNull();
+  fireEvent.click(screen.getByRole("button",{name:"Investigate, waiting"}));
+  expect(screen.getByRole("complementary",{name:"Investigate"})).toBeTruthy();
 });
 
 it("shows the persisted scope explanation and buyer acceptance without stale human-review prompts", async()=>{
@@ -269,15 +278,15 @@ it("shows the persisted scope explanation and buyer acceptance without stale hum
 });
 
 it("keeps every repeated-label source cell inspectable by its persisted evidence ID", async()=>{
-  const {state,fetcher}=setup();
   vi.stubGlobal("ResizeObserver",class {observe(){} disconnect(){}});
+  const {state,fetcher}=setup();
   const at="2026-10-24T12:00:00Z";
   const events:RunPage["events"]=[{seq:1,at,type:"steps_planned",steps:[{id:"investigate",kind:"investigate",title:"Investigate",detail:"Read evidence"}]}];
   for(let i=0;i<60;i++)events.push({seq:i+2,at,type:"evidence_found",step:"investigate",evidence:{id:`ref-${i}`,kind:"sheet_cell",label:"coverage.csv",file:"coverage.csv",row:String(i),column:"city",value:"San Francisco",note:"Frozen geography",source:{kind:"cell",row:String(i),column:"city",version:1}}});
   state.page={...state.page,events,next_after:61,high_watermark:61};
   localStorage.setItem("datumco.live-run.v1",JSON.stringify({id:"run-1"}));
   render(<LiveRun/>);
-  fireEvent.click(await screen.findByRole("button",{name:"Run"}));
+  fireEvent.click(screen.getByRole("button",{name:"Run"}));
   fireEvent.click(await screen.findByRole("button",{name:/^Investigate,/}));
   fireEvent.click(await screen.findByText("Inspect persisted evidence"));
   fireEvent.click(screen.getByText("coverage.csv · 60 references"));

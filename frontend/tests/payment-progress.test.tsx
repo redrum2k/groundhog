@@ -78,12 +78,12 @@ it("replaces the remaining review countdown with truthful pending confirmation",
     delivery:{artifactId:"csv-1",file:"counts.csv",version:1,rows:[]},enabled:()=>false,
   } as unknown as LiveOrder;
   const shown=render(<><PaymentStatus order={order}/><LiveDelivery order={order} working={vi.fn()}/></>);
-  expect(shown.container.querySelector(".wallet")?.textContent).toBe("Release pending");
+  expect(shown.container.querySelector(".wallet")?.textContent).toBe("Release pending, Demo: no funds move");
   expect(screen.getByText("Review complete. Payment release is pending confirmation.")).toBeTruthy();
   expect(screen.queryByText(/Review window:/)).toBeNull();
   expect(screen.queryByText(/Paid to provider/)).toBeNull();
   order.page!.payment!.payment.state="captured";
   shown.rerender(<><PaymentStatus order={order}/><LiveDelivery order={order} working={vi.fn()}/></>);
-  expect(shown.container.querySelector(".wallet")?.textContent).toBe("Paid to provider");
+  expect(shown.container.querySelector(".wallet")?.textContent).toBe("Paid to provider, Demo: no funds move");
   expect(screen.getByText("Review complete. Payment confirmed.")).toBeTruthy();
 });

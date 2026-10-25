@@ -1,0 +1,281 @@
+{
+  "events": [
+    {
+      "type": "steps_planned",
+      "steps": [
+        {
+          "id": "clarify",
+          "kind": "clarify",
+          "title": "Clarify",
+          "detail": "Agree on the contract"
+        },
+        {
+          "id": "paid",
+          "kind": "paid",
+          "title": "Funds held",
+          "detail": "Buyer confirms funding"
+        },
+        {
+          "id": "produce",
+          "kind": "produce",
+          "title": "Produce & check",
+          "detail": "Validate against the contract"
+        },
+        {
+          "id": "review",
+          "kind": "review",
+          "title": "Customer review",
+          "detail": "Review the delivery"
+        },
+        {
+          "id": "captured",
+          "kind": "captured",
+          "title": "Captured",
+          "detail": "Confirmed settlement"
+        },
+        {
+          "id": "investigate",
+          "kind": "investigate",
+          "title": "Investigate",
+          "detail": "Read the evidence"
+        },
+        {
+          "id": "verdict",
+          "kind": "verdict",
+          "title": "Finding",
+          "detail": "Evidence assessment"
+        },
+        {
+          "id": "decide",
+          "kind": "decide",
+          "title": "Human reviews",
+          "detail": "Bounded reviewer actions"
+        }
+      ],
+      "seq": 1,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "contract_approved",
+      "step": "clarify",
+      "contract": {
+        "version": 1,
+        "buyer": "AcmeFitness",
+        "title": "SF adults 25\u201334 interested in fitness, counts by ZIP",
+        "price": 1,
+        "lines": [
+          {
+            "id": "R-GEOGRAPHY",
+            "text": "San Francisco city ZIPs only",
+            "check": "code"
+          },
+          {
+            "id": "R-COHORT",
+            "text": "Adults aged 25\u201334",
+            "check": "code"
+          },
+          {
+            "id": "R-CATEGORY",
+            "text": "Gym members or fitness-app users",
+            "check": "code"
+          }
+        ]
+      },
+      "allowedBy": "Synthetic fixture",
+      "seq": 2,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "step_completed",
+      "step": "clarify",
+      "seq": 3,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "step_completed",
+      "step": "paid",
+      "seq": 4,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "step_completed",
+      "step": "produce",
+      "seq": 5,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "delivery_ready",
+      "step": "review",
+      "delivery": {
+        "artifactId": "csv-preview",
+        "file": "counts.csv",
+        "version": 1,
+        "rows": []
+      },
+      "seq": 6,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "step_started",
+      "step": "review",
+      "seq": 7,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "dispute_opened",
+      "step": "investigate",
+      "dispute": {
+        "id": "dispute-preview",
+        "claim": "Oakland should be included in the delivery.",
+        "raisedBy": "AcmeFitness"
+      },
+      "seq": 8,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "step_started",
+      "step": "investigate",
+      "seq": 9,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "evidence_found",
+      "step": "investigate",
+      "evidence": {
+        "id": "geo",
+        "kind": "sheet_cell",
+        "label": "Frozen coverage registry",
+        "file": "coverage.csv",
+        "row": "94102",
+        "column": "city",
+        "value": "San Francisco",
+        "note": "Pinned geography at acceptance.",
+        "source": {
+          "kind": "cell",
+          "version": 1,
+          "row": "94102",
+          "column": "city"
+        }
+      },
+      "seq": 10,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "verdict",
+      "step": "verdict",
+      "allowedBy": "Synthetic source evidence",
+      "verdict": {
+        "kind": "disagree",
+        "reason": "The complaint asserts Oakland should be included. The accepted geography is San Francisco, and the frozen source and delivered geography cells both read San Francisco. Oakland was not part of the purchased geographic scope, so the contract does not owe Oakland data. This assessment concerns contractual scope only; the synthetic ZIP registry makes no claim about real city boundaries.",
+        "decidedBy": "rules",
+        "evidenceIds": [
+          "geo"
+        ],
+        "finding": {
+          "accepted_specification_sha256": "synthetic-preview",
+          "assessed_binding": {
+            "snapshot_id": "snapshot-preview",
+            "delivery_version": 1,
+            "evidence_revision": 1
+          },
+          "attempt_id": "attempt-preview",
+          "binding": {
+            "runId": "preview",
+            "orderId": "order-preview",
+            "snapshotId": "snapshot-preview",
+            "revision": 7,
+            "deliveryVersion": 1,
+            "evidenceVersion": 1
+          },
+          "candidate": null,
+          "effective": {
+            "obligation_id": "dataset:geography",
+            "result": "FAIL",
+            "explanation": "The complaint asserts Oakland should be included. The accepted geography is San Francisco, and the frozen source and delivered geography cells both read San Francisco. Oakland was not part of the purchased geographic scope, so the contract does not owe Oakland data. This assessment concerns contractual scope only; the synthetic ZIP registry makes no claim about real city boundaries.",
+            "reason_code": "SYNTHETIC_PREVIEW",
+            "provenance": {
+              "kind": "deterministic",
+              "assessor": "synthetic-preview",
+              "version": "1"
+            }
+          },
+          "kind": "contradicted",
+          "reason": "The complaint asserts Oakland should be included. The accepted geography is San Francisco, and the frozen source and delivered geography cells both read San Francisco. Oakland was not part of the purchased geographic scope, so the contract does not owe Oakland data. This assessment concerns contractual scope only; the synthetic ZIP registry makes no claim about real city boundaries.",
+          "decided_by": "rules",
+          "evidence_ids": [
+            "geo"
+          ],
+          "validation": "VALIDATED"
+        }
+      },
+      "seq": 11,
+      "at": "2026-10-25T06:00:00Z"
+    },
+    {
+      "type": "payment_state_changed",
+      "payment": {
+        "id": "payment-preview",
+        "amount": 1,
+        "mock": true
+      },
+      "state": "funded",
+      "seq": 12,
+      "at": "2026-10-25T06:00:00Z"
+    }
+  ],
+  "next_after": 12,
+  "high_watermark": 12,
+  "caught_up": true,
+  "poll_after_ms": 100000,
+  "server_time": "2026-10-25T06:00:00Z",
+  "binding": {
+    "runId": "preview",
+    "orderId": "order-preview",
+    "snapshotId": "snapshot-preview",
+    "revision": 7,
+    "deliveryVersion": 1,
+    "evidenceVersion": 1
+  },
+  "request": {
+    "status": "accepted",
+    "revision": 1
+  },
+  "available_actions": [
+    {
+      "action": "accept",
+      "enabled": true
+    },
+    {
+      "action": "dispute",
+      "enabled": true
+    }
+  ],
+  "latestSafeSubmissionAt": "2026-10-25T07:00:00Z",
+  "quote": {
+    "quote_id": "quote-preview",
+    "amount": {
+      "amount_minor": 100,
+      "decimals": 2
+    },
+    "specification": {
+      "terms": {
+        "domain": "aggregate_dataset",
+        "geography": "San Francisco"
+      },
+      "requirements": [],
+      "summary": "SF fitness dataset"
+    },
+    "sources": [],
+    "work_description": "Synthetic fixture"
+  },
+  "payment": {
+    "payment": {
+      "state": "funded",
+      "terms": {
+        "mode": "mock"
+      }
+    },
+    "operations": [],
+    "simulated": true
+  }
+}

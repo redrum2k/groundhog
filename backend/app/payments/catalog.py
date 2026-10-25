@@ -19,6 +19,7 @@ from app.contracts.payments import (
     PaymentView,
     PaymentWorkResult,
 )
+from app.orders.dataset import is_dataset
 from app.orders.service import DomainError
 from app.payments.base_config import (
     BASE_COLLECTOR_ADDRESS,
@@ -51,12 +52,15 @@ def fingerprint(command):
 
 
 class CatalogPayments:
-    def __init__(self, owner, *, mode="mock", config=None, transport=None):
+    def __init__(self, owner, *, mode="mock", config=None, transport=None, mock_delay_seconds=0):
         if mode not in ("mock", "base_sepolia"):
             raise ValueError("unsupported catalog payment mode")
         if mode == "base_sepolia" and (config is None or owner.auto_mock_funding):
             raise ValueError("Base mode requires explicit configuration and no auto mock funding")
         self.owner, self.mode, self.config, self.transport = owner, mode, config, transport
+        if type(mock_delay_seconds) is not int or not 0 <= mock_delay_seconds <= 10:
+            raise ValueError("mock payment delay must be an integer between 0 and 10 seconds")
+        self.mock_delay_seconds = mock_delay_seconds if mode == "mock" else 0
         self.journal = PaymentJournal(owner.repository)
         self.executor = PaymentExecutor(
             self.journal,
@@ -71,6 +75,16 @@ class CatalogPayments:
     def is_live(order):
         terms = order.snapshot.quote.payment_terms
         return terms is not None and terms.mode == "base_sepolia"
+
+    def queued_settlement(self, db, order):
+        return self.is_live(order) or bool(
+            order.payment_id
+            and (
+                self.mock_delay_seconds
+                and is_dataset(order)
+                or self.journal.terminal(db, order.payment_id)
+            )
+        )
 
     def terms(self, amount, payer, now):
         live = self.mode == "base_sepolia"
@@ -215,6 +229,10 @@ class CatalogPayments:
         if payment.terms.mode != "mock":
             self._sync_live(db, order, payment)
             return
+        terminal = self.journal.terminal(db, payment.payment_id)
+        if terminal and terminal.state in ("reserved", "signed"):
+            self._sync_live(db, order, payment)
+            payment = self.journal.payment(db, payment.payment_id)
         if (
             payment.state in ("awaiting_signature", "funding_pending")
             and order.authorization.receipt is None
@@ -232,6 +250,10 @@ class CatalogPayments:
             self.journal.complete_mock(db, operation.operation_id)
             payment = self._state(db, payment, "funded")
         for booking in order.ledger:
+            # Queued mock settlement already committed its journal effect and booking
+            # together. Do not import that booking as a second legacy mock operation.
+            if terminal and booking.operation_id == terminal.operation_id:
+                continue
             action = "capture" if booking.kind == "capture" else "void"
             operation = self._operation(order, action, booking.operation_id, booking.binding)
             self.journal.reserve(db, operation)
@@ -707,6 +729,19 @@ class CatalogPayments:
             raise ValueError("payment work limit must be between 0 and 20")
         with self.owner.repository.transaction() as db:
             operations = self.journal.pending(db, limit=limit, include_confirmed=True)
+        now = self.owner.clock()
+        # Keep the real pending state visible in mock demos. The original reservation
+        # time survives restarts and retries; no sleep holds a transaction or worker.
+        operations = [
+            operation
+            for operation in operations
+            if not (
+                operation.intent.mode == "mock"
+                and operation.intent.action in ("fund", "capture")
+                and operation.state == "reserved"
+                and (now - operation.created_at).total_seconds() < self.mock_delay_seconds
+            )
+        ]
         broadcast = bool(
             getattr(self.transport, "is_fake", False)
             or self.config is not None

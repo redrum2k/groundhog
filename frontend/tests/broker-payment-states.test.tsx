@@ -17,7 +17,7 @@ it.each(Object.entries(fixtures))("displays %s without invented completion or ex
  mock.events=[{seq:1,at:"2026-10-24T12:00:00Z",type:"steps_planned",steps:[{id:"paid",kind:"paid",title:"Funding",detail:"Funding"}]}];
  render(<LiveRun recorded={()=>{}}/>);
  fireEvent.click(screen.getByRole("button",{name:"Run"}));
- fireEvent.click(screen.getByRole("button",{name:/^Funding,/}));
+ fireEvent.click(screen.getByRole("button",{name:/^(Funding|Processing payment),/}));
  expect(screen.getByRole("heading",{name:`Funding · ${payment.payment.state}`})).toBeTruthy();
  expect(screen.queryByRole("link",{name:/basescan/i})).toBeNull();
  expect(screen.queryByRole("button",{name:"Accept verified delivery"})).toBeNull();
@@ -58,7 +58,7 @@ it("replays held to returned through the whole canvas and funding panel",()=>{
  ];
  render(<LiveRun recorded={()=>{}}/>);
  fireEvent.click(screen.getByRole("button",{name:"Run"}));
- fireEvent.click(screen.getByRole("button",{name:/^Funding,/}));
+ fireEvent.click(screen.getByRole("button",{name:/^(Funding|Processing payment),/}));
  expect(screen.getByRole("heading",{name:"Funding · voided"})).toBeTruthy();
  expect(coin("$120 returned").length).toBeGreaterThan(0);
  expect(screen.queryByText("$120 held")).toBeNull();

@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type R
 import type { LaneId, SourceLine } from "../../lib/run/contract";
 import type { Card, Coin, NS, OrbMode } from "../../lib/run/fold";
 import { LANE_NAME } from "../../lib/run/scenario";
-import { IcCheck, IcLock, IcReturn, IcWallet } from "./icons";
+import { IcCheck, IcLock, IcReturn, IcWallet, IcX } from "./icons";
 import Label from "./label";
 import Orb, { TUNNEL } from "./orb";
 import Warehouse from "./warehouse";
@@ -13,7 +13,7 @@ import Warehouse from "./warehouse";
 // retargets mid-move instead of restarting. Dragging or scrolling frees the camera; it stays
 // where the viewer put it until Play, Replay or another case hands it back to the orb.
 
-export interface CNode { id: string; row: number; col: number; title: string; desc: string; lane?: LaneId; keepChip?: boolean }
+export interface CNode { id: string; row: number; col: number; title: string; desc: string; lane?: LaneId; keepChip?: boolean; outcome?: "not_upheld" }
 export interface CanvasView {
   status: Record<string, NS>;
   chip: Record<string, string | undefined>;
@@ -193,7 +193,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
           <div className="cv-dots" style={{ inset: -DOTS }} aria-hidden />
           {rows.map((r) => {
             const lane = byRow(r)[0].lane!;
-            return <div key={r} className={`band band-${lane}`} style={{ top: ROW_Y[r] - 44 }}><span className="band-label">{lane ? LANE_NAME[lane] : "Evidence review"}</span></div>;
+            return <div key={r} className={`band band-${lane}${byRow(r)[0].outcome?" outcome-not-upheld":""}`} style={{ top: ROW_Y[r] - 44 }}><span className="band-label">{lane ? LANE_NAME[lane] : "Evidence review"}</span></div>;
           })}
           <svg className="edges" width={WWfull} height={WHfull} aria-hidden>
             <defs>
@@ -203,11 +203,11 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             </defs>
             {branches.map((r) => {
               const d = branch(r); const live = st(byRow(r)[0].id) !== "idle";
-              return <g key={r}><path d={d} className="edge" /><path d={d} pathLength={1} className={`edge-on${live ? " on" : ""}`} /></g>;
+              return <g key={r} className={byRow(r)[0].outcome?"outcome-not-upheld":undefined}><path d={d} className="edge" /><path d={d} pathLength={1} className={`edge-on${live ? " on" : ""}`} /></g>;
             })}
             {seq.map(([a, b]) => {
               const d = straight(a, b);
-              return <g key={a.id + b.id} className={shownPair(a, b) ? undefined : "hid"}><path d={d} className="edge" /><path d={d} pathLength={1} className={`edge-on${on(a.id, b.id) ? " on" : ""}`} /></g>;
+              return <g key={a.id + b.id} className={`${shownPair(a, b)?"":"hid"}${a.outcome && b.outcome?" outcome-not-upheld":""}`}><path d={d} className="edge" /><path d={d} pathLength={1} className={`edge-on${on(a.id, b.id) ? " on" : ""}`} /></g>;
             })}
             {last && <path d={back(last)} className="edge ghost" />}
             {last && view.loops.includes(last.id) && <path key={last.id} d={back(last)} pathLength={1} className="loop" markerEnd="url(#arr)" />}
@@ -222,9 +222,9 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             const chip = view.chip[n.id] ?? CHIP[ns];
             const vis = revealed.has(n.id) ? "" : next.has(n.id) ? " n-next" : " n-hidden";
             return (
-              <button type="button" key={n.id} data-step={n.id} className={`nd n-${ns}${vis}`} style={{ transform: `translate(${COL_X(n.col)}px, ${ROW_Y[n.row]}px)` }} aria-hidden={vis === " n-hidden" || undefined}
-                tabIndex={vis ? -1 : 0} onClick={() => onNode(n.id)} aria-label={`${n.title}, ${ns}`}>
-                {showChip && <span key={ns + chip} className={`chip c-${ns}`} title={chip}>{ns === "done" ? <IcCheck size={11} strokeWidth={2.4} /> : ns === "running" ? <i className="spin2" /> : <i className="sqd" />}<span className="chip-text"><Label text={chip} quiet="tail" /></span></span>}
+              <button type="button" key={n.id} data-step={n.id} className={`nd n-${ns}${vis}${n.outcome?" outcome-not-upheld":""}`} style={{ transform: `translate(${COL_X(n.col)}px, ${ROW_Y[n.row]}px)` }} aria-hidden={vis === " n-hidden" || undefined}
+                tabIndex={vis ? -1 : 0} onClick={() => onNode(n.id)} aria-label={`${n.title}, ${ns}`} aria-description={n.outcome?"Objection not upheld":undefined}>
+                {showChip && <span key={ns + chip} className={`chip c-${ns}`} title={chip}>{n.outcome ? <IcX size={11} strokeWidth={2.4}/> : ns === "done" ? <IcCheck size={11} strokeWidth={2.4} /> : ns === "running" ? <i className="spin2" /> : <i className="sqd" />}<span className="chip-text"><Label text={chip} quiet="tail" /></span></span>}
                 <span className="nd-t">{n.title}</span>
                 <span className="nd-d"><Label text={n.desc} quiet="tail" /></span>
                 {!quiet && cards.length > 0 && (here || cards.some((c) => c.tone === "rule")) && n.id !== source?.node.id && (

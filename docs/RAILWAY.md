@@ -137,6 +137,12 @@ budget. Use only synthetic demo data; this mode has no per-user isolation.
 
 The customer still explicitly accepts a quote and clicks **Simulate** to authorize
 mock funding. No browser wallet is required, and payment results remain labeled mock.
+For a visible processing beat on a hosted mock demo (Railway or Render), set
+`MOCK_PAYMENT_DELAY_SECONDS=3` on the **backend** and deploy the updated frontend
+and backend. Funding and capture remain genuinely pending for at least three seconds
+after reservation; polling may add a little time. The default is 0, the maximum is 10.
+The delay survives restarts without resetting, does not delay returns, and is ignored
+in Base wallet mode. It never skips consent or extends payment or review deadlines.
 Real model calls and mock payments are independent settings. For a password-protected
 wallet-free demo, keep `BROKER_PUBLIC_DEMO=0` and the original login credentials while
 using the same backend mock/model configuration.

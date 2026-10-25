@@ -1,24 +1,22 @@
 "use client";
 import { useLayoutEffect, useRef } from "react";
 import type { LiveOrder } from "../../lib/run/use-live-order";
-import { S } from "../../lib/run/scenario";
 import { Chat, Decision, Transcript } from "./conversation";
 import { GuideProvider, OrbSlot, useOrbFlight } from "./guide";
-import { IcSummit } from "./icons";
 import { LiveAgreement, LiveDelivery, LiveEvidence, LiveFunding, LiveIntake, LiveVerdict, PaymentStatus } from "./live-order";
 
-export default function LiveCustomer({order,pay,working,admin}:{order:LiveOrder;pay:()=>void;working:()=>void;admin:()=>void}) {
+export default function LiveCustomer({order,pay,working,customer,admin}:{order:LiveOrder;pay:()=>void;working:()=>void;customer:()=>void;admin:()=>void}) {
   const {col,decision,assessment,at,funding,quote}=useConversationGuide(order);
   return <main className="customer live-conversation" aria-label="Customer view" tabIndex={-1}>
     <GuideProvider value={{at,mood:{home:order.view.orb.mode,decision:"wait"}}}>
       <div className="cust-col" ref={col}>
-        <div className="cust-h"><div className="cust-who"><span className="avatar" aria-hidden><IcSummit size={19}/></span><div className="title">{S.buyer}</div></div><div className="cust-money"><OrbSlot name="home"/><PaymentStatus order={order}/></div></div>
+        <div className="customer-payment"><OrbSlot name="home"/><PaymentStatus order={order}/></div>
         {!order.live.id && <div className="live-welcome"><h1>What should we find for you?</h1><p>Describe the people, place and counts you need. We’ll clarify the requirements, agree on a price, then produce and check the dataset.</p></div>}
         {order.messages.length>0 && <Transcript title="Your conversation with Groundhog" count={order.messages.length} open compact={!!quote || !!order.delivery}>
           <Chat items={order.messages} view={order.view} onCite={order.cite} guide/>
         </Transcript>}
         <LiveIntake order={order}/>
-        {order.view.nodes.verdict?.verdict && <div ref={assessment} className="live-assessment"><LiveVerdict order={order} verdict={order.view.nodes.verdict.verdict}/></div>}
+        {order.assessment && <div ref={assessment} className="live-assessment"><LiveVerdict order={order} verdict={order.assessment.verdict} showEvidence={false} review={()=>decision.current?.scrollIntoView({block:"start",behavior:"instant"})} customer={customer}/></div>}
         <div ref={decision} className="live-decisions">
           <OrderDecisions order={order} pay={pay} working={working} funding={funding}/>
         </div>
@@ -54,7 +52,7 @@ function useConversationGuide(order:LiveOrder) {
   const funding=!!payment && !["funded","captured","voided"].includes(payment.state);
   const needsDecision=!!order.stage || funding || !order.binding && !!quote || order.enabled("accept");
   const at=useOrbFlight(col,needsDecision?"decision":order.messages.length?"transcript":"home");
-  const verdict=order.view.nodes.verdict?.verdict;
+  const verdict=order.assessment?.verdict;
   const turn=verdict?JSON.stringify([verdict.reason,verdict.evidenceIds]):order.page?.request.question?.question_id ?? (order.enabled("accept")?order.delivery?.artifactId:!order.binding?quote?.quote_id:undefined);
   useLayoutEffect(()=>{
     if(turn){
