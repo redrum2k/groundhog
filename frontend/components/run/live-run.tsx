@@ -6,6 +6,7 @@ import { useRunNavigation } from "../../lib/run/use-run-navigation";
 import Canvas, { type CNode, type CanvasView } from "./canvas";
 import { IcLogo, IcX } from "./icons";
 import WalletSettings from "./wallet-settings";
+import SourceLearning from "./source-learning";
 import LiveCustomer from "./live-customer";
 import { LiveStep } from "./live-order";
 import AgentNote from "./agent-note";
@@ -103,6 +104,7 @@ export default function LiveRun({recorded}:{recorded?:()=>void}={}) {
       </div>
     </header>
     <div className="tools">
+      <SourceLearning openRun={live.resume}/>
       {live.id && <button type="button" className={`btn${tab==="run" && finished?" solid":""}`} disabled={busy && !recoveryAvailable} onClick={()=>{order.newRun();setPanel(undefined);customer();}}>New request</button>}
       <div className="spacer"/>
       {tab==="run" && <>
