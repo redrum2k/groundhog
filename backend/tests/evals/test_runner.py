@@ -27,7 +27,17 @@ def test_isolated_orders_funding_and_correction_history(inputs, evidence, tmp_pa
         ids.add(accepted["snapshot"]["order_id"])
         payment_ids.add(accepted["payment_id"])
     assert len(ids) == len(payment_ids) == 6
-    assert [r["outcome"] for r in normalized] == ["match"] * 4 + ["mismatch"] * 2
+    # The whole-claim offline guard no longer dismisses this phrasing by keyword.
+    # Keep the frozen FAIL label: the evaluator must expose UNKNOWN as a mismatch,
+    # not relabel it as a successful evaluation or teach runtime the expected answer.
+    assert [r["outcome"] for r in normalized] == [
+        "match",
+        "match",
+        "mismatch",
+        "match",
+        "mismatch",
+        "mismatch",
+    ]
     initial, corrected = normalized[1]["checkpoints"]
     assert initial["finding_scope"] == "historical_attempt_before_invalidation"
     assert initial["artifact_audit"]["status"] == "invalid"
@@ -40,7 +50,12 @@ def test_isolated_orders_funding_and_correction_history(inputs, evidence, tmp_pa
     assert len(money["bookings"]) == 1
     assert money["bookings"][0]["receipt"]["transaction_id"] is None
     claim = normalized[2]["checkpoints"][-1]["complaint"]
-    assert claim["effective"] == claim["expected"] == "FAIL"
+    assert claim["effective"] == "UNKNOWN" and claim["expected"] == "FAIL"
+    assert "complaint:complaint_result" in normalized[2]["mismatches"]
+    assert any(m.startswith("complaint:action:") for m in normalized[2]["mismatches"])
+    saved = json.loads((evidence / "D03/checkpoint-complaint.json").read_bytes())
+    case = saved["order"]["cases"][-1]
+    assert case["status"] == "open" and case["questions_asked"] == 1 and case["question"]
     assert normalized[2]["checkpoints"][-1]["financial"]["bookings"] == []
     child = json.loads((evidence / "D04/accepted-child.json").read_bytes())
     assert child["snapshot"]["quote"]["amount"]["amount_minor"] == 50

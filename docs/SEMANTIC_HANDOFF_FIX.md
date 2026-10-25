@@ -149,14 +149,43 @@ or changing the underlying financial policy.
 
 - **512 focused backend tests passed**, including 13 semantic-review regressions
   covering incomplete/invalid evidence, disagreement, timeout, lease bounds,
-  interruption and the one-repair limit. One dependency deprecation warning;
-  this is not a claim that the entire repository suite ran.
+  interruption and the one-repair limit. One dependency deprecation warning.
 - **153 frontend tests**, generated contracts, TypeScript and production build pass.
 - Ruff lint/format pass. Nikita's financial/checkout code and Lucas's UI are retained;
   no visual redesign or payment implementation changes were made.
 - Main through `96be3fc` is integrated into the local feature branch without
   conflicts. Nikita's gateway, order/complaint contracts, payment modules and the
   shared customer UI match main. The existing running demos were not changed.
+
+### Full-suite and review follow-up
+
+The full backend run at `a52c642` completed **1,066 passed / 17 failed** (1,083
+tests, 451.57 seconds). Raw evidence is `.local/full-review-tests.xml`; no tests
+were skipped. Sixteen failure IDs exactly match the preserved Windows baseline in
+`docs/evidence/broker-recovery-20261024.json`: three evaluator encoding/child
+environment failures, eleven payment HTTP subprocess failures, the POSIX file-mode
+assertion, and the POSIX-only schema-export executable path. The payment/evaluator
+implementation remains unchanged from main `96be3fc`. This is not a green full-suite
+or production/payment qualification claim.
+
+The additional failure was an evaluator regression assertion expecting the old
+offline keyword dismissal. The new whole-claim guard leaves development case D03
+UNKNOWN with an open case, one evidence question, and no booking. Its frozen
+expected FAIL label, recipe, grader and runtime were **not changed**. The regression
+test now requires this negative evaluation result to remain visible, including the
+complaint/action mismatches. The existing evaluator action summary calls this
+delivered/open-question state `publish`; the test separately checks the actual open
+case and question. This is a fallback capability limitation, not model-quality proof.
+Historical results, including the 109-case results, remain untouched.
+
+Greptile's four audit findings were fixed: frozen accepted source identity/scope/rows,
+actual downloaded JSON bytes, duplicate JSON row detection, and complete comparison
+of persisted original/repaired reviewer judgments with raw provider responses.
+Seventeen audit regressions plus the updated evaluator regression **all pass**
+(`.local/audit-evaluator-final.xml`). Both preserved HTTP and real-model traces pass
+the stronger audits; new audit outputs were written separately without overwriting
+original evidence or making new model calls. Application runtime is unchanged from
+the real-model cohort; these follow-ups modify audits, tests and documentation only.
 
 Audit saved evidence without model calls:
 
