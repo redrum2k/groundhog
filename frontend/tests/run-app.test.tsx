@@ -54,10 +54,10 @@ describe("The order", () => {
   }, 30_000);
 });
 
-describe("Grey area", () => {
+describe("Escalation", () => {
   it("pauses on Human, resumes on their decision, and offers the replay with the new rule", async () => {
     render(<RunApp />);
-    await act(async () => { button("Act two: escalation").click(); });
+    await act(async () => { button("Escalation").click(); });
     await until(() => !!screen.queryByRole("button", { name: "Waiting on Human" }));
     expect(disabled("Waiting on Human")).toBe(true);
     expect(panel()).toBe("Human decides");

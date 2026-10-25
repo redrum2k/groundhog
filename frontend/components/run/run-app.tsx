@@ -15,7 +15,7 @@ import Panel from "./panel";
 type Mode = "recorded" | "live";
 const MAIN_IDS = new Set(MAIN.map((s) => s.id));
 // One order is the demo; the escalation is act two. The other scenario cases stay in the code for the recorded fallback.
-const DEMO: [Case, string][] = [["green", "The order"], ["amber", "Act two: escalation"]];
+const DEMO: [Case, string][] = [["green", "The order"], ["amber", "Escalation"]];
 // Until a live stream plans the steps, the landing wording follows the backend, not the recorded sample
 const LIVE_DETAIL: Record<string, string> = { paid: "Authorized on acceptance", review: "Accept or dispute" };
 const ctxFor = (lane: Case, ending: Ending, learned: boolean): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 });
