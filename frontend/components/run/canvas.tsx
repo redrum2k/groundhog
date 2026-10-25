@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import type { LaneId, SourceLine } from "../../lib/run/contract";
 import type { Card, Coin, NS, OrbMode } from "../../lib/run/fold";
 import { LANE_NAME } from "../../lib/run/scenario";
@@ -278,7 +278,8 @@ function useTunnel(x: number, y: number) {
       raf = requestAnimationFrame(() => (raf = requestAnimationFrame(() => setState({ x, y, phase: "" }))));
     });
     later(DIVE_MS + DIG_MS + TRAIL_HOLD_MS, () => setTrail((t) => (t && t.id === id ? { ...t, fading: true } : t)));
-    later(DIVE_MS + DIG_MS + TRAIL_HOLD_MS + 700, () => setTrail((t) => (t && t.id === id ? null : t)));
+    // removed once the last pebble has sunk back: it starts DIG_MS * 0.92 after the first, and takes 300ms
+    later(DIVE_MS + DIG_MS + TRAIL_HOLD_MS + DIG_MS + 360, () => setTrail((t) => (t && t.id === id ? null : t)));
     return () => { timers.forEach((t) => window.clearTimeout(t)); cancelAnimationFrame(raf); };
   }, [x, y]);
   return { ...state, trail };
@@ -312,7 +313,7 @@ function DigTrail({ trail }: { trail: Trail }) {
     <svg className={`dig-trail${trail.fading ? " fading" : ""}`} aria-hidden>
       {pebbles.map((p, i) => (
         <ellipse key={i} className="dig-pebble" cx={p.x} cy={p.y} rx={p.rx} ry={p.ry}
-          fill={p.fill} style={{ animationDelay: `${p.delay}ms`, rotate: `${p.rot}deg` }} />
+          fill={p.fill} style={{ "--d": `${p.delay}ms`, rotate: `${p.rot}deg` } as CSSProperties} />
       ))}
     </svg>
   );
