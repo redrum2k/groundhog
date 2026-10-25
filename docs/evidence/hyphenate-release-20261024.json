@@ -1,0 +1,406 @@
+{
+  "baseline_commit": "d59853fc6d2ef92b4c5af523876af4c85030b49a",
+  "tested_backend_commit": "6a6fe2ae89022e2e9d1f404f5ff9ae721b9b116f",
+  "integrated_commit": "6ceab8b4fb9ee75effc7d976ae5481b4ea73bb81",
+  "integrated_main": "4bc8780582f8a1335974db6907f7d4170816c012",
+  "runtime_lane": "LOCAL",
+  "new_paid_calls": 0,
+  "public_deployments_initiated": 0,
+  "environment": {
+    "os": "Windows NT 10.0.26200.0",
+    "python": "3.12.13",
+    "node": "24.14.0",
+    "npm": "11.9.0",
+    "next": "16.4.3",
+    "browser": "Edge 156.0.4314.42"
+  },
+  "tests": {
+    "baseline_full": {
+      "path": ".local/full-baseline.xml",
+      "sha256": "603ca09b6fe9a98d7f8c95ebe029e08fbdf272cdb00632ec98d00704f069b54d",
+      "tests": 1092,
+      "passed": 1076,
+      "failed": 16,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 492.749,
+      "failures": [
+        "tests.evals.test_runner::test_leakage_stable_report_additive_runs_and_no_gold_claim",
+        "tests.evals.test_runner::test_real_child_timeout_then_unrelated_case_continues",
+        "tests.evals.test_runner::test_step_limit_preserves_partial_state_and_reports",
+        "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[stream]",
+        "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[headers]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[success]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[rpc_error]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[redirect]",
+        "tests.payments.test_http_boundary::test_cancellation_kills_http_before_return_and_cannot_deliver_late_result",
+        "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[budget]",
+        "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[financial]",
+        "tests.payments.test_http_boundary::test_process_interruption_also_reaps_request",
+        "tests.payments.test_http_boundary::test_actual_http_allowance_is_reserved_before_launch[inspection]",
+        "tests.payments.test_http_boundary::test_ambiguous_http_send_retains_durable_identity_and_only_reconciles",
+        "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline",
+        "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments"
+      ]
+    },
+    "final_full": {
+      "path": ".local/full-final.xml",
+      "sha256": "4702cd2449b67358d34994a377540b4cc6636c9a073f44d42852c9f08752fe71",
+      "tests": 1101,
+      "passed": 1085,
+      "failed": 16,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 470.189,
+      "failures": [
+        "tests.evals.test_runner::test_leakage_stable_report_additive_runs_and_no_gold_claim",
+        "tests.evals.test_runner::test_real_child_timeout_then_unrelated_case_continues",
+        "tests.evals.test_runner::test_step_limit_preserves_partial_state_and_reports",
+        "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[stream]",
+        "tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[headers]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[success]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[rpc_error]",
+        "tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[redirect]",
+        "tests.payments.test_http_boundary::test_cancellation_kills_http_before_return_and_cannot_deliver_late_result",
+        "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[budget]",
+        "tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[financial]",
+        "tests.payments.test_http_boundary::test_process_interruption_also_reaps_request",
+        "tests.payments.test_http_boundary::test_actual_http_allowance_is_reserved_before_launch[inspection]",
+        "tests.payments.test_http_boundary::test_ambiguous_http_send_retains_durable_identity_and_only_reconciles",
+        "tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline",
+        "tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments"
+      ]
+    },
+    "authority_integration": {
+      "path": ".local/fix-integration.xml",
+      "sha256": "b2d395c836cee75d87015db70d40b301d4ec0eaa9dca3a260bea4ad7eeed0b76",
+      "tests": 488,
+      "passed": 488,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 244.88,
+      "failures": []
+    },
+    "new_regressions": {
+      "path": ".local/final-new-regressions.xml",
+      "sha256": "e21c886f0099c0a54e95c371c86bd77fbff341ea660546d1e76175565f62289c",
+      "tests": 22,
+      "passed": 22,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 7.503,
+      "failures": []
+    },
+    "authority_reproduction": {
+      "path": ".local/historical-authority-expanded-before.xml",
+      "sha256": "edb0674144322d1990f69fe7f7618a11642b7cb456b14951921fda7c177e6bc3",
+      "tests": 5,
+      "passed": 1,
+      "failed": 4,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 2.462,
+      "failures": [
+        "tests.source_learning.test_historical_authority::test_historical_authority_republication_is_rejected_atomically[revoked]",
+        "tests.source_learning.test_historical_authority::test_historical_authority_republication_is_rejected_atomically[conflict]",
+        "tests.source_learning.test_historical_authority::test_historical_authority_republication_is_rejected_atomically[expired]",
+        "tests.source_learning.test_historical_authority::test_historical_source_batch_cannot_replace_current_bundle"
+      ]
+    },
+    "packet_reproduction": {
+      "path": ".local/named-zip-reproduction.xml",
+      "sha256": "f51e814e380ececaaad39601148b02645f3b6cfcb4b20dcf812c690f42adddcb",
+      "tests": 3,
+      "passed": 0,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 1.718,
+      "failures": [
+        "tests.dataset.test_named_zip_evidence::test_named_zip_count_and_status_reach_model_with_frozen_source[94105-artifact]",
+        "tests.dataset.test_named_zip_evidence::test_named_zip_count_and_status_reach_model_with_frozen_source[94129-suppression]",
+        "tests.dataset.test_named_zip_evidence::test_named_zip_count_and_status_reach_model_with_frozen_source[94110-suppression]"
+      ]
+    }
+  },
+  "new_failure_ids": [],
+  "frontend": {
+    "tests": 153,
+    "files": 24,
+    "typecheck": "PASS",
+    "production_build": "PASS",
+    "generated_contracts": "PASS; contracts unchanged"
+  },
+  "learning": {
+    "status": "VERIFIED",
+    "git_commit": "17d8e988e895aff6aa0e8f143033f661daa11010",
+    "read_only_database": true,
+    "learning_version": "institutional-d909772396767d0919cb42c1ab6d296cbf7b2f726163925232abfdc4d8996f77",
+    "training_human_interventions": 2,
+    "qualification_id": "institutional-a157cc1be5f4347efa886afc4ed141eaa0100f1a6dccadd8547f3abbdf45e66b",
+    "owner_evidence": [
+      "aeb1e4fda486115da86739940abe5d8e47733c225d2daaad08d5e12877f2c82d",
+      "d16ab04f91f451f3de19a746faa495170e666e42368c454b27348e62beb70bc2"
+    ],
+    "observations": [
+      {
+        "case": "training",
+        "run_id": "request-c5573e67e9c84d1d83605b68e2052116",
+        "order_id": "order-quote-8488c78e2a2942c6881be6eb5775d8ff",
+        "snapshot_id": "snapshot-fd710165684c41378b19f1946cdf51c4",
+        "rows_verified": 27,
+        "source_hashes": [
+          "f7db15204b5c21d49bf157eb1cee3ae723bab9d51d13862b69ab4b4b01930df3",
+          "26dd9c9487c492e4b962e8174927424b2128c41a57d9996cb3c67126c0cf12ec"
+        ],
+        "csv_sha256": "894f21c78588b0beba45eb93f5cc5f3ce60ad55033184604e41607b4ac8a3701",
+        "baseline_reviews": null,
+        "reviews": 0,
+        "baseline_assessment_operations": null,
+        "assessment_operations": 20,
+        "terminal_booking": "capture",
+        "terminal_operation_id": "operation-9936de73266155b5cf1befa6dc1df660"
+      },
+      {
+        "case": "later",
+        "run_id": "request-f8ce2ee091bf47dfa3eaefb4f27976ac",
+        "order_id": "order-quote-b90c70817653458fbe759c578a14aefb",
+        "snapshot_id": "snapshot-6e5d100f5a07468eb62499cd1a977e1f",
+        "rows_verified": 27,
+        "source_hashes": [
+          "af38b87525b4a75e6f122802d6dc2e4a4df928ee42ceb98f7bffbf430723db59",
+          "7762fcd9a6ada15d34c62c29000e64ab0fff9788f251dd16735bb870cc586d5b"
+        ],
+        "csv_sha256": "b63ce20c98c48be0a838bc8f9d38eaa1866302fa6719422acbfb542a3227b8d7",
+        "baseline_reviews": 2,
+        "reviews": 0,
+        "baseline_assessment_operations": 14,
+        "assessment_operations": 20,
+        "terminal_booking": "release",
+        "terminal_operation_id": "operation-d222751f62124988957de5cabd8a8661"
+      },
+      {
+        "case": "after-restart",
+        "run_id": "request-2de1c320c55143ccad35134ce97f1e25",
+        "order_id": "order-quote-2e43d8a79805468baea002aadf193e5c",
+        "snapshot_id": "snapshot-da3dc673fe164333bcfa144b4c5d7d08",
+        "rows_verified": 27,
+        "source_hashes": [
+          "668df68ca074b1a879cfaa5208c4315a6f6992775b56a801b9aef68de99598c3",
+          "6065df97218eb530debf465a61a0e8a9a2971652419d0f04aa4f66d11139e4b2"
+        ],
+        "csv_sha256": "7c1ce1e5e50c269ad03e1c1ab238b2a39c2220370fbcf3cb9f2ee201f011f719",
+        "baseline_reviews": 2,
+        "reviews": 0,
+        "baseline_assessment_operations": 14,
+        "assessment_operations": 20,
+        "terminal_booking": "capture",
+        "terminal_operation_id": "operation-3893379b1587cf5b93f9b8873dfedde8"
+      },
+      {
+        "case": "scope-change",
+        "run_id": "request-681bde35050f4c06b54bc2ce0a2e34d1",
+        "order_id": "order-quote-5c5864f167ac4bf988719d1f192fefb3",
+        "snapshot_id": "snapshot-1775a754fba249eb9792accbccff4d5a",
+        "rows_verified": 27,
+        "source_hashes": [
+          "bbc43818dc11b46a464c77a5ad7cac3c99fc0630867f530db789178aef479385",
+          "06288c3ca23bb8d9ae63c7d1d6e96b6ecbb751c330ad408eaaadd827178997b8"
+        ],
+        "csv_sha256": "5aec840c0ae18fc9e2aaec222971efe605dd0a0473b641f32901623b0fbd7ff0",
+        "baseline_reviews": 2,
+        "reviews": 0,
+        "baseline_assessment_operations": 14,
+        "assessment_operations": 20,
+        "terminal_booking": "capture",
+        "terminal_operation_id": "operation-427d757ce2b8301a9fbcd185b7ec368f"
+      }
+    ],
+    "restart_and_retries": true,
+    "repeated_commands_verified": 33,
+    "disclosure": "Synthetic identities/data; mock settlement; deterministic or unresolved findings; no live LLM or human-time savings claim."
+  },
+  "new_disputes": {
+    "status": "VERIFIED",
+    "tested_commit": "17d8e988e895aff6aa0e8f143033f661daa11010",
+    "cases": [
+      {
+        "case": "zero-count-with-negation",
+        "expected": "FAIL",
+        "actual": "UNKNOWN",
+        "provenance": {
+          "kind": "deterministic",
+          "assessor": "dataset-evidence-gate",
+          "version": "1",
+          "model_score": null
+        },
+        "matches": false,
+        "real_model": false,
+        "run_id": "request-4eff5eabe45e4732b6a79f487c8b8cbf",
+        "order_id": "order-quote-3a90b8d78f804d6aa8fe89d89c620153",
+        "source_bundle_id": "institutional-f66a0ce80a2c1fa1ab6023d6ea0a96287c2395f6be0b7d86a8a206223e49596d",
+        "snapshot_id": "snapshot-c8863b067ed847fcb2ecd5463d2013d5",
+        "rows_verified": 27,
+        "exact_references_verified": 2,
+        "complaint_text_preserved": true,
+        "terminal_bookings": 0,
+        "baseline_reviews": 2,
+        "learner_reviews": 0,
+        "baseline_operations": 14,
+        "learner_operations": 20
+      },
+      {
+        "case": "suppression-not-download-fault",
+        "expected": "PASS",
+        "actual": "UNKNOWN",
+        "provenance": {
+          "kind": "deterministic",
+          "assessor": "dataset-evidence-gate",
+          "version": "1",
+          "model_score": null
+        },
+        "matches": false,
+        "real_model": false,
+        "run_id": "request-231d54adafd2426390d2ace88f45a08f",
+        "order_id": "order-quote-7f7706ac0a564cc78d1b85720fd401e5",
+        "source_bundle_id": "institutional-b19b6d928c534b1da3c4b1367c8f1cadae7e5f227a9b48d32f286965cfc102c9",
+        "snapshot_id": "snapshot-80ed4ed4fa8e475da93ee41bfeb556e1",
+        "rows_verified": 27,
+        "exact_references_verified": 1,
+        "complaint_text_preserved": true,
+        "terminal_bookings": 0,
+        "baseline_reviews": 2,
+        "learner_reviews": 0,
+        "baseline_operations": 14,
+        "learner_operations": 20
+      },
+      {
+        "case": "threshold-and-membership-inference",
+        "expected": "UNKNOWN",
+        "actual": "UNKNOWN",
+        "provenance": {
+          "kind": "deterministic",
+          "assessor": "dataset-evidence-gate",
+          "version": "1",
+          "model_score": null
+        },
+        "matches": true,
+        "real_model": false,
+        "run_id": "request-b89b024981194b06bdd9131e17ae61ac",
+        "order_id": "order-quote-c6014d39bdc64bd0b56db6c1c4dfb913",
+        "source_bundle_id": "institutional-e4e9a5474723547a2722563331fdd14a47e40ed7d423749da9908e4fdb668a41",
+        "snapshot_id": "snapshot-6a00bcc4b5ed4285a2674e9f2b2ee028",
+        "rows_verified": 27,
+        "exact_references_verified": 1,
+        "complaint_text_preserved": true,
+        "terminal_bookings": 0,
+        "baseline_reviews": 2,
+        "learner_reviews": 0,
+        "baseline_operations": 14,
+        "learner_operations": 20
+      }
+    ],
+    "authority_holds": [
+      {
+        "case": "schema_changed",
+        "run_id": "request-6eff80c512d1493c995113fd2cca4f82",
+        "held_without_order": true
+      },
+      {
+        "case": "conflict",
+        "run_id": "request-6c5aaa2094714d1baffdf172e686834b",
+        "held_without_order": true
+      },
+      {
+        "case": "revoked",
+        "run_id": "request-96b197a10b4949dd9d22ab35e5e66d70",
+        "held_without_order": true
+      },
+      {
+        "case": "expired",
+        "run_id": "request-8bd7a14b541b4aa2ad01d2d7688cd859",
+        "held_without_order": true
+      }
+    ],
+    "model_calls": 0,
+    "read_only_database": true,
+    "quality_match_count": 1,
+    "disclosure": "Fresh rule/fallback results, not live Claude qualification. Supported suppression complaint does not establish provider breach."
+  },
+  "browser_customer": {
+    "run": "request-f7bce5a711cb445c8f760bf6815323f3",
+    "order": "order-quote-5a6522e22ec6490aa059f42ef1fa1ebe",
+    "mode": "mock",
+    "payment": "captured",
+    "errors": [],
+    "clarification_provenance": "deterministic offline compiler, not a new Claude call",
+    "origin": "actual_browser_commands"
+  },
+  "artifacts": {
+    "release-capsule.json": {
+      "path": ".local/release-capsule.json",
+      "sha256": "fd33385ba3f5d5e24cee0bff6b90d17639f56f4aae89da21a04dbbe5df19131b",
+      "bytes": 3635
+    },
+    "fixed-candidate-capsule.json": {
+      "path": ".local/fixed-candidate-capsule.json",
+      "sha256": "9cba9687a88f7dad9989a5b9336346826e530bf037c89a8b7bf81fbf4c5529e1",
+      "bytes": 883
+    },
+    "new-owner-walkthroughs.json": {
+      "path": ".local/new-owner-walkthroughs.json",
+      "sha256": "03a39fe7a5ba985483bb7cb77ce880f441f8786756c7c27e5290f1374ef1def5",
+      "bytes": 919
+    },
+    "historical-http-probe.json": {
+      "path": ".local/historical-http-probe.json",
+      "sha256": "83c5a1f86243dff27829cfa2bacda4286dfc9acde8d1aa9913bce5382dcce956",
+      "bytes": 303
+    },
+    "fixed-packet-audit.json": {
+      "path": ".local/fixed-packet-audit.json",
+      "sha256": "f4b0a0f30b93135cb3ea47474dae8b72bd5dd041a481dbcfd009bd054d5f6db1",
+      "bytes": 5653
+    },
+    "preserved-v4-reaudit.json": {
+      "path": ".local/preserved-v4-reaudit.json",
+      "sha256": "622e56f5691b07027932a77db40cc567e7b610badee29fd042d22cd88ee487e4",
+      "bytes": 3761
+    },
+    "hyphenate-reproduction.zip": {
+      "path": ".local/hyphenate-reproduction.zip",
+      "sha256": "da4b486077d31db26d2e83798986eca9be06872a8a862659c79bffae94e8e97e",
+      "bytes": 13624
+    },
+    "9da7e3f8289049a69c9921d7260951db/report.json": {
+      "path": ".local/live-learning/hyphenate-fixed-20261024/evidence/9da7e3f8289049a69c9921d7260951db/report.json",
+      "sha256": "b639d398ed74cecd3002c8ed3621708b733939c5bca9fe5f921ecb1aa7cf07df",
+      "bytes": 3482
+    },
+    "9da7e3f8289049a69c9921d7260951db/http-trace.jsonl": {
+      "path": ".local/live-learning/hyphenate-fixed-20261024/evidence/9da7e3f8289049a69c9921d7260951db/http-trace.jsonl",
+      "sha256": "ccb7995edc5db82bdc8372976ab3628aefdcb147e6b1599d4a19fe76a825ada2",
+      "bytes": 4759827
+    },
+    "0891392302f749a3bddaf5e7fb467eae/report.json": {
+      "path": ".local/live-learning/hyphenate-fixed-20261024/evidence/0891392302f749a3bddaf5e7fb467eae/report.json",
+      "sha256": "ab187a3878148b08aab51aef29fcb35990b731543a903f81a83b0209762d33ef",
+      "bytes": 4720
+    },
+    "0891392302f749a3bddaf5e7fb467eae/http-trace.jsonl": {
+      "path": ".local/live-learning/hyphenate-fixed-20261024/evidence/0891392302f749a3bddaf5e7fb467eae/http-trace.jsonl",
+      "sha256": "7d02729dd51db0c3baca8bd470ad25c33c83e172a839ac92e4a676d92258230b",
+      "bytes": 1970388
+    }
+  },
+  "verdict": "NO-GO for the combined live-AI demonstration; conditional GO for explicitly disclosed local learning/mock workflow",
+  "limits": [
+    "No fresh real-model outcomes on these three new objections or final packet fix",
+    "Same-model blind review is not independent human evaluation",
+    "Main customer/finding views omit the complete complaint and explicit result/provenance",
+    "Known Windows baseline failures remain",
+    "Synthetic owner testimony and mock payments only"
+  ]
+}

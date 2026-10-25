@@ -11,8 +11,51 @@ from app.agents.gateway import ClaudeGateway, EvidencePassage, OfflineAssessor
 from app.contracts.catalog import Assessment, Obligation, Provenance
 from app.contracts.dataset import DatasetReference
 from app.contracts.semantic import DatasetClaimReview, DatasetSemanticAttempt
-from app.datasets import reference
+from app.datasets import parse_csv, reference
 from app.orders.dataset_evidence import answer_references
+
+
+def named_row_references(order, store):
+    """Expose the routed ZIP's observed cells, without choosing a semantic verdict."""
+    target = order.cases[-1].complaint.product_id
+    if not re.fullmatch(r"[0-9]{5}", target):
+        return ()
+    terms = order.snapshot.quote.specification.terms
+    source = next(s for s in order.sources if s.source_id.endswith(":" + terms.category))
+    delivery = order.deliveries[-1]
+    tables = (
+        (
+            source.artifact,
+            source.source_id,
+            source.version,
+            json.loads(store.read(source.artifact))["rows"],
+        ),
+        (
+            delivery.csv,
+            "delivery",
+            delivery.version,
+            [r.model_dump() for r in parse_csv(store.read(delivery.csv))],
+        ),
+    )
+    refs = []
+    for artifact, source_id, version, rows in tables:
+        matches = [r for r in rows if r["zip"] == target]
+        if len(matches) != 1:
+            continue  # Never manufacture a present cell or an absence certificate.
+        row = matches[0]
+        for column in ("count", "status"):
+            value = None if column == "count" and row["status"] != "released" else row[column]
+            refs.append(
+                reference(
+                    artifact,
+                    source_id,
+                    row=target,
+                    column=column,
+                    value=None if value is None else str(value),
+                    version=version,
+                )
+            )
+    return tuple(refs)
 
 
 def investigate_dataset(order, report, store, assessor, *, audit=None, candidate_sink=None):
@@ -94,7 +137,13 @@ def investigate_dataset(order, report, store, assessor, *, audit=None, candidate
         mandatory=False,
         decision_effect="remedy",
     )
-    refs = tuple(dict.fromkeys((*refs, *answer_references(order, store))))
+    # A mandatory check's sample citation is not necessarily the complained-of row.
+    # Keep target source/delivery cells ahead of optional answers in the bounded packet.
+    refs = tuple(
+        dict.fromkeys(
+            (*refs, *named_row_references(order, store), *answer_references(order, store))
+        )
+    )
     proof = independent_claim(order, report, store)
     if proof:
         refs = tuple(dict.fromkeys((*refs, *proof[1])))

@@ -80,3 +80,25 @@ def test_opt_in_cannot_hide_disabled_investigator(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="requires mock payments"):
         with TestClient(application(tmp_path, source_learning_model_qualification=True)):
             pass
+
+
+def test_budget_only_authorization_opens_only_explicit_local_mock_path(tmp_path, monkeypatch):
+    configure(tmp_path, monkeypatch, expired=True)
+    ledger = ModelBudget(
+        tmp_path / "budget.db", cutoff=(datetime.now(UTC) - timedelta(hours=2)).isoformat()
+    )
+    ledger.register_budget_authorization(
+        "budget-only",
+        replaces_window_id="test-qualification",
+        maximum_usd=5,
+        authorization_sha256="b" * 64,
+    )
+    monkeypatch.setenv("APPLICATION_MODEL_WINDOW_ID", "budget-only")
+    monkeypatch.delenv("APPLICATION_MODEL_CUTOFF_AT")
+    with TestClient(application(tmp_path, source_learning_model_qualification=True)) as client:
+        assert client.app.state.orders.payments.mode == "mock"
+        assert client.app.state.source_learning is not None
+        assert ModelBudget.configured().summary()["requests_used"] == 0
+    with pytest.raises(ValueError, match="forbids paid"):
+        with TestClient(application(tmp_path)):
+            pass

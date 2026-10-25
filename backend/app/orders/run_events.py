@@ -315,6 +315,14 @@ class CanvasEffects:
             step="investigate",
             dispute={"id": case.case_id, "claim": case.complaint.text, "raisedBy": "AcmeFitness"},
         )
+        self.message(
+            db,
+            order.snapshot.quote.request_id,
+            f"{case.case_id}:buyer-complaint",
+            case.complaint.text,
+            speaker="buyer",
+            step="investigate",
+        )
 
     def payment(self, db, order, action, receipt):
         if action == "fund":

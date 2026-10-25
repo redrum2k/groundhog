@@ -1,0 +1,30 @@
+{
+  "status": "display_and_safety_verified_with_one_quality_miss",
+  "runtime_commit": "97ed03003f92952f52085358459e27b68cae6df5",
+  "credential_portability_fix": "81c7ee11867a700c8539b9d7ea9152c3ba73bdde",
+  "final_integrated_runtime": "49ec1ee505237286992bb103a00bd005c41076b9",
+  "final_main": "672e10d06d09a3960903b29f6dc6c68caf8548ef",
+  "integrated_main": "e2f50005b6ecf57093c614144c9ae27b3581d239",
+  "capsule_sha256": "77011e86b714f92e8eb1731a3c04c17ef99c9bab0e5b6e47a449f2922b1c5fa6",
+  "audit_sha256": "542049e4f07d140a3a3c534a8dec30645a5932b69d1921e14ddbfc10ffcc5a6f",
+  "cohort_size": 2,
+  "raw_matches": 2,
+  "effective_matches": 1,
+  "cases": [
+    {"id": "visible-false-count", "expected": "FAIL", "raw": "FAIL", "effective": "UNKNOWN", "effective_provenance": "unresolved", "quality_match": false, "browser_display_verified": true, "exact_refs_verified": 15, "run_id": "request-6b0b3349f8fc417c993bca430d179d56", "order_id": "order-quote-dc0f500724144c7284d80153cd95301a"},
+    {"id": "visible-membership-uncertainty", "expected": "UNKNOWN", "raw": "UNKNOWN", "effective": "UNKNOWN", "effective_provenance": "model", "quality_match": true, "browser_display_verified": true, "exact_refs_verified": 6, "run_id": "request-c5a7fa2632a94a6a8555577bf4e39075", "order_id": "order-quote-c1705d96e9964868bc96e8fa3565e5b4"}
+  ],
+  "provider_calls": 10,
+  "estimated_cost_usd": 0.383320,
+  "budget_remaining_usd": 2.256080,
+  "budget_authorization_expiry": null,
+  "learning_version": "institutional-c9d8dc69a94c41d1c9b76c8f7414d8ed50dd66cc84a48cc23d2a9f83c9728060",
+  "per_order_baseline_reviews": 2,
+  "per_order_learner_reviews": 0,
+  "per_order_terminal_mock_bookings": 1,
+  "tests": {"dataset_catalog_investigation_source_learning": 504, "frontend": 158, "portable_credential_and_budget_boundary": 22, "final_full_suite": {"passed": 1104, "failed": 16, "total": 1120, "errors": 0, "skipped": 0, "new_failing_ids_vs_baseline": 0, "xml_sha256": "a67196b9b10c52c7a6dfaa0492ad97aec0b4d6184c9f86ff68fee4bd0115d2c9"}},
+  "private_evidence": ".local/live-learning/hyphenate-live-budget-20261024/evidence/8f07015829554e5a8eea4eab27b6a441",
+  "preserved_initial_trial": ".local/live-learning/hyphenate-live-budget-20261024/evidence/06f8f2e46ef744a9bfaf642ecd9fb793",
+  "browser_evidence": [".local/browser/transcript-disagreement", ".local/browser/transcript-model-unknown", ".local/browser/real-claude-training"],
+  "limitations": ["Context/intent qualifiers triggered unnecessary blind-review escalation", "Multi-topic complaint retained artifact-wide routing and did not receive the named ZIP count", "Generic review narration remains after return", "Synthetic sources and simulated source-owner authority", "Mock payments; no production or public deployment", "Original three-case cohort and this two-case cohort are not pooled or relabeled"]
+}

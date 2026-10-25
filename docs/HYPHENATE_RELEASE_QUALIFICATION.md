@@ -1,0 +1,283 @@
+# Groundhog Hyphenate release qualification
+
+## Latest qualification status
+
+**CONDITIONAL GO for a disclosed, supervised local live-AI + approved-learning demonstration; not a claim of unattended production readiness or general dispute accuracy.** The actual production frontend now shows the full buyer complaint, effective finding, model/rules/unresolved provenance, assessor/version, reasoning and clickable evidence. This was fixed in the owned backend's existing event projection, not by rewriting Lucas's UI: complaint/finding messages are persisted, rejected raw candidates are not promoted, and completed assessments emit their completion events. Financial gates are unchanged. Existing historical event logs are not backfilled or rewritten.
+
+Final integrated runtime is `49ec1ee505237286992bb103a00bd005c41076b9`, including latest-main `672e10d06d09a3960903b29f6dc6c68caf8548ef`. The actual live transcript trial ran at `97ed03003f92952f52085358459e27b68cae6df5`; later changes fix portable private-credential loading and incorporate Lucas's animation updates. Backend/launcher code is byte-identical to full-suite revision `81c7ee11867a700c8539b9d7ea9152c3ba73bdde`; investigator/prompt code is unchanged from the real-model trials. The same owned instance restarted successfully with the same existing credential through an explicit private path. Frontend/payment implementation match the latest main. Final production-build browser inspection is `.local/browser/final-main-model-unknown/`, with zero page errors and visible complaint, model finding, evidence and learned reuse. No source history, credential file, budget allowance, or production activation was changed.
+
+The original real-model cohort remains **3/3 raw and effective matches**. A separate, pre-frozen two-case display trial produced **2/2 raw matches but 1/2 effective matches**:
+
+| New display trial | Expected | Primary model | Effective | Interpretation |
+| --- | --- | --- | --- | --- |
+| ZIP present but count allegedly zero, with a qualifier about what is disputed | FAIL | FAIL | UNKNOWN | Real blind-review disagreement: contextual/intent clauses were treated as independent unverifiable assertions. This is a quality miss and unnecessary escalation, not relabeled as success. |
+| Released ZIP count allegedly establishes current paid membership | UNKNOWN | UNKNOWN | UNKNOWN | Model correctly identifies missing status/time authority, asks bounded evidence questions, then escalates. |
+
+The display faithfully distinguishes the first case's **unresolved** gate result from the second case's **model-provenanced UNKNOWN**. Both held funds until an explicit simulated controller return. An additional evidence-packet limitation is preserved: the second wording was routed with `product_id=dataset`, so the named-row enrichment did not supply the 94112 count. Its unavailable individual membership status still justifies UNKNOWN, but this is not proof that the investigator saw every relevant row. No prompt or evidence requirement was weakened to make either case pass.
+
+Read-only audit verifies **21 cited references** across the new attempts, immutable accepted snapshots, exact claims, separate authorized mock settlement and 2-to-0 repeated source-owner reviews on fresh source bytes. The new trial used **10 actual provider calls**, estimated **$0.383320**, leaving **$2.256080** of the existing allowance. Together the two new live phases used 22 calls and $0.808964; they remain separate cohorts, not a pooled accuracy claim. No outstanding reservations; the $10 held reserve is untouched.
+
+Browser evidence (actual persisted runs, no prerecorded state) is in `.local/browser/transcript-disagreement/`, `.local/browser/transcript-model-unknown/` and `.local/browser/real-claude-training/`. Customer and Finding screenshots were visually inspected; evidence chips open persisted cells. The training view displays the real AI clarification, simulated owner corrections, accepted agreement, checked delivery and mock capture. The later views show the same approved procedure reused without repeated owner reviews. Some generic human-review controls/narration remain visible after a controller return; payment state is correctly returned and actions are disabled. This is residual presentation polish, not a claim that settlement solved the factual uncertainty.
+
+The display capsule SHA-256 is `77011e86b714f92e8eb1731a3c04c17ef99c9bab0e5b6e47a449f2922b1c5fa6`. Evidence: `.local/live-learning/hyphenate-live-budget-20261024/evidence/8f07015829554e5a8eea4eab27b6a441/independent-transcript-audit.json`; the initial quality failure and driver assertion are preserved at sibling `06f8f2e46ef744a9bfaf642ecd9fb793`. Recovery skipped that completed case rather than calling the model again, and corrected only the display driver's incorrect assumption that every effective result must have model provenance. The expected FAIL remains unchanged and the observed UNKNOWN remains a miss.
+
+Regression results: three new transcript tests failed before the fix and pass afterward; model, rules and blind-disagreement paths preserve payment/snapshot/deadline invariants. **504 dataset/catalog/investigation/source-learning tests pass**, as do **158 frontend tests** and the latest production build. Greptile's P1 machine-specific-key finding is addressed by environment-key, checkout-private-file and explicit-private-file routes; **22 launcher/budget boundary tests pass**. Final full backend suite: **1,104 passed / 16 failed**, 1,120 total, zero errors/skips, 459.94 seconds. All 16 failure IDs exactly match the preserved baseline; no new failing IDs. The suite is not universally green. The complete failure list is retained in the test-results section below. Final XML `.local/full-release-final.xml` SHA-256: `a67196b9b10c52c7a6dfaa0492ad97aec0b4d6184c9f86ff68fee4bd0115d2c9`.
+
+The final local instance is available at `http://127.0.0.1:3051/live`, backend 8051, under the existing hidden Task Scheduler supervision. It is left running for inspection with budget-only real reasoning and mock payments, not exposed publicly; idle startup/inspection made no provider calls. Existing unrelated demos/worktrees remain untouched. Stop/start uses the ownership-checking launcher with instance `hyphenate-live-budget-20261024`, the matching ports, and the same private `-ModelAccess` path. Prior no-model qualification instances remain stopped. No main merge is performed; draft PR #46 contains code, tests and sanitized evidence.
+
+The private `.local/hyphenate-live-reproduction.zip` contains the frozen capsules and HTTP/audit/browser drivers for both live phases, without credentials, databases or datasets. The original no-cost reproduction archive remains intact. Reproduction requires a new capsule/output directory and an explicitly registered access artifact for the operator's own remaining budget; do not reset the ledger or overwrite an old cohort. Recorded commands for the live phases were `backend/.venv/Scripts/python.exe .local/live_budget_journey.py`, its explicit `--resume` on the preserved first driver failure, `backend/.venv/Scripts/python.exe .local/transcript_live_trial.py`, its explicit `--resume` on the preserved display-assertion failure, and the corresponding `audit_live_budget.py` / `audit_transcript_trial.py` with their exact evidence directories above. Those resume commands recover completed state; they are not instructions to rerun or replace scientific outcomes.
+
+Credential configuration: provide `ANTHROPIC_API_KEY` to the backend environment, a private `backend/.env` in the active checkout, or a `credential_file` path in the private registered access artifact (relative paths resolve against that artifact). Only the provider key is loaded; unrelated secrets and all provider credentials stay out of the frontend. The launcher never registers or refills a budget. On this machine, the access artifact now explicitly points to the pre-existing private file. Prior access/launch metadata and the exact migration are preserved in `.local/portable-key-migration.json`; authorization objects and spending are unchanged.
+
+The sections below retain earlier phases with their exact revisions and limitations. Statements about a missing paid authorization, no new calls, or the original missing transcript describe those earlier phases, not the current state.
+
+## Budget-only continuation (subsequent authorization)
+
+The user explicitly removed the model authorization's clock expiry: "stop authroizing against time, just the budget". The original qualification below remains historical evidence, not a claim that authorization is still missing. A new immutable budget-only grant references the original timed authorization without changing it, resetting usage, or adding money. Cumulative cap: $17.129304; preserved final-evaluation reserve: $10; conservative committed cost at registration: $4.064260; available continuation allowance: **$3.065044**. There were zero outstanding requests and no new provider calls during registration.
+
+The shared budget and synchronous/raw/asynchronous clients now support explicitly registered budget-only continuation. Request timeouts, concurrency, uncertain-request reservations, dollar limits, repeat-failure controls and financial deadlines still apply. Missing cutoff alone is not authorization. The normal app remains disabled by default. The existing loopback launcher can explicitly select an already registered access artifact with `-ModelAccess`; its separate local factory requires real investigator assessment, mock payments and disabled broadcasts. It never passes the provider credential to the frontend or registers/refills budgets at startup. Production activation remains disabled.
+
+Focused verification: **43 passed**, including budget persistence, expired legacy grants, exact cap/no refill, all SDK dispatch paths, default-off startup, local mock boundaries, frontend secret isolation and Windows child-process cleanup. The subsequent catalog/investigation/source-learning suite passed **177/177**. Private evidence: `.local/budget-launcher-tests.xml` and `.local/budget-live-integration.xml`.
+
+## Subsequent real-model qualification: live reasoning gap closed for these cases
+
+**The three frozen release objections now pass with actual Claude reasoning on the integrated build.** This closes the missing-live-model-evidence blocker for this bounded engineering demonstration; it does not resolve the separate complaint/finding/provenance display gap or establish general reliability. The earlier fallback trial below remains intact and separately labeled.
+
+- Exact runtime: `3da9be2e03dc3b805433868e9cbc525b2a5278f9`, incorporating latest main `1408b56` (Lucas's blue-groundhog update), with no merge conflicts or payment implementation changes. The refreshed production frontend build and all **153 frontend tests** pass.
+- Real loopback HTTP backend and production Next bridge, not injected model outputs or TestClient-only assessment. Instance: `hyphenate-live-budget-20261024`, backend 8051/frontend 3051. Both remain independently supervised by existing hidden Task Scheduler tasks; the backend successfully restarted with the same registered budget-only authorization.
+- Frozen capsule `.local/live-budget-capsule.json`, SHA-256 `908edeb5e8f2dfd503dd88218a1afc6732f6bdb8330410fc9a6a1699c2769aa9`. Same previously frozen objections/expectations, new source batches and accepted orders; no prior real-model response to these cases was available. No old evaluation labels were used as training input.
+- Expected/raw/effective outcomes: zero-count-with-negation **FAIL/FAIL/FAIL**; suppression-not-download-fault **PASS/PASS/PASS**; threshold-and-membership-inference **UNKNOWN/UNKNOWN/UNKNOWN**. All initial effective findings are model-provenanced. Two blind second assessments received only the original complaint and frozen evidence, not the primary verdict, and agreed.
+- Independent read-only audit reopened source/delivery bytes and validated **27 citation references**, **81 delivered rows**, exact original complaint text, accepted snapshots, approved procedure reuse and mock settlement. Each subsequent order avoided the baseline's two repeated owner reviews. The supported suppression observation still does not constitute a provider defect or refund entitlement.
+- **12 actual provider calls**, including intake and follow-up assessment, **$0.425644 estimated additional cost**. No outstanding reservations. Existing allowance remaining: **$2.639400**; the $10 final-evaluation reserve is untouched. Budget authorization has no clock expiry; individual request and contractual deadlines still apply.
+- Three disputed orders each settled once through existing explicit buyer acceptance or simulated controller return. Model findings alone did not book money. Accepted snapshots/deliveries/decisions/ledger entries survived restart; **16 exact command replays** returned their saved responses. Training also settled through the existing mock path.
+
+Evidence: [sanitized live-qualification index](evidence/hyphenate-budget-only-live-20261024.json). Private final directory: `.local/live-learning/hyphenate-live-budget-20261024/evidence/4848765009ef41d4bb3b0cae71cc42e9`; independent audit: `independent-live-audit.json`. The first case and initial driver failure remain at sibling `ce33e8ce51b342a79e8f02e92dcce4e4`. That failure was a post-settlement reporting adapter expecting TestClient `.app` metadata on an HTTP client; recovery switched the external audit to an explicit read-only DB path and reused the completed model result and settled order. No completed assessment was rerun. The first audit draft also assumed the offline request DTO; it was corrected to verify the actual live `claim` and blind-review `complaint` fields before the audit passed. These are harness failures, not relabeled model failures.
+
+Reproduction uses the existing `tools/local_learning.ps1` with a new isolated instance and `-ModelAccess <private-registered-access.json>` on Install, Start, RestartBackend and Status. Registration is an explicit operator step using the user authorization artifact; the launcher never grants itself money. Access artifacts and credentials stay private and are not included in Git. Default startup remains no-paid-model; only the explicit qualified local mode enables both live intake and investigator reasoning. No production activation, public deployment, main merge or blockchain broadcast occurred.
+
+**Current release status: CONDITIONAL GO for the disclosed local live-AI + approved-learning workflow.** Full original complaint and explicit finding/provenance still need a coordinated UI change before claiming the judge-facing presentation is complete. The full backend suite's previously documented 16 Windows failures are not resolved; after this budget/launcher change the scoped 177-test integration suite, not the full suite, was rerun.
+
+## Earlier decision (before budget-only authorization and live qualification)
+
+**NO-GO for presenting the ordinary application as a newly qualified, combined live-LLM investigator and self-learning employee.** Approved source learning, funded fulfillment, byte verification, mock settlement and restart work together. The new unfamiliar objections were handled by the deterministic fallback, not Claude, and only one of three matched its independently frozen expected result. The fallback held funds safely; that is not evidence of strong AI investigation.
+
+**CONDITIONAL GO for a clearly disclosed controlled-local learning demonstration**, accompanied by the separately preserved real-Claude evidence. Do not describe those separate demonstrations as one newly tested live-model/browser workflow. No production learning, public deployment, live transfer or automatic merge was authorized or performed in this qualification.
+
+Two reproducible owned-component defects were fixed on `fix/hyphenate-historical-authority-20261024`: historical source/authority uploads could install stale pins, and model-bound evidence omitted the complained-of ZIP's count/status. The fixes have regression coverage, but the changed model input still needs separately authorized real-Claude qualification. Lucas's UI and Nikita's payment implementation were not rewritten.
+
+The [machine-readable evidence index](evidence/hyphenate-release-20261024.json) contains exact test failures, artifact hashes, source-bundle/snapshot/order identities, comparisons and audit results. Raw evidence remains private in the isolated worktree, not in Git.
+
+## Exact baseline and environment
+
+- Initial latest-main baseline: `d59853fc6d2ef92b4c5af523876af4c85030b49a`.
+- Isolated worktree: `C:\Users\sajee\order-to-cash-hyphenate-20261024`.
+- Authority fix and fresh application trial: `17d8e988e895aff6aa0e8f143033f661daa11010`.
+- Named-ZIP evidence fix and final full backend suite: `6a6fe2ae89022e2e9d1f404f5ff9ae721b9b116f`.
+- Final integrated application/browser inspection: `6ceab8b4fb9ee75effc7d976ae5481b4ea73bb81`, including newer main `4bc8780582f8a1335974db6907f7d4170816c012`. These newer upstream changes are frontend branding/mascot changes. Its backend is byte-identical to the final full-suite revision; its entire frontend and payment implementation match that main.
+- Windows NT 10.0.26200.0; Python 3.12.13; Node 24.14.0; npm 11.9.0; Next 16.4.3; Edge 156.0.4314.42. Locked backend/frontend dependencies were installed in this worktree.
+- Production-built Next standalone frontend on loopback 3051, actual Uvicorn backend on loopback 8051, SQLite, ordinary background workers, existing mock payment adapter. Existing Task Scheduler/hidden-child supervision was reused. No new service framework was added.
+
+The exercise began October 24 at 19:13 Pacific, within an approximately three-hour maximum. The earlier paid window closed at **19:15 Pacific** before a properly frozen new trial could run. This qualification made **zero paid calls**. The unchanged prior window ledger contains 59 completed calls, $1.934956 estimated cost and zero outstanding reservations; its latest call began at 18:41:20 Pacific. Unused dollar allowance does not extend the cutoff.
+
+The original frozen capsule is `.local/release-capsule.json`, SHA-256 `fd33385ba3f5d5e24cee0bff6b90d17639f56f4aae89da21a04dbbe5df19131b`. The candidate capsule extends it without changing the objections or expected results: `.local/fixed-candidate-capsule.json`, SHA-256 `9cba9687a88f7dad9989a5b9336346826e530bf037c89a8b7bf81fbf4c5529e1`. It records fresh batches, a fresh database/approval cycle and moving authority counterexamples after positive orders. The original failed attempts remain intact.
+
+## New objections and actual outcomes
+
+Expected results were frozen before submission. Each order has separate accepted source pins, snapshot, downloaded CSV/JSON, full original complaint and saved assessment. The independent audit reopened persisted source and delivery bytes, checked 27 rows per order, resolved citations, matched accepted snapshots and confirmed no terminal payment operation or booking.
+
+| New allegation | Independent expectation and basis | Actual outcome |
+| --- | --- | --- |
+| “The delivery gives zero adults for ZIP 94105; I am not alleging that the ZIP is absent.” | **FAIL**. The actual released count is **7731**, not zero. Merely checking that the ZIP exists would be insufficient. | **UNKNOWN**, deterministic fallback; evidence question and funded hold. |
+| “I cannot obtain an exact adult count for ZIP 94129 from this delivery: its count is blank and its status is suppressed. Our accepted agreement requires that suppressed counts remain undisclosed, so I am not claiming the file is broken.” | **PASS**. CSV blank/JSON null and `suppressed` agree with accepted suppression terms. This is a supported complaint about information availability, **not provider breach or refund entitlement**. | **UNKNOWN**, deterministic fallback; evidence question and funded hold. |
+| “ZIP 94110 exceeds the release threshold, but that does not establish that every counted adult still has an active subscription today. Did you verify current subscription status, or are these historical registrations?” | **UNKNOWN**. The released count **7813** is observable; current individual subscription status is not established by these aggregate records. | **UNKNOWN**, deterministic fallback; evidence question and funded hold. |
+
+The full wording, including qualifiers and negation, reached the persisted complaint and assessment input in all three cases. These were author-defined development expectations, independently checked against bytes before comparison, not Rehan's independent human labels. The supported suppression complaint does not qualify a provider-defect dispute; actual producer corruption/withholding/correction has separate no-cost regression coverage.
+
+| Case | Run ID | Order ID |
+| --- | --- | --- |
+| Zero count | `request-4eff5eabe45e4732b6a79f487c8b8cbf` | `order-quote-3a90b8d78f804d6aa8fe89d89c620153` |
+| Suppression | `request-231d54adafd2426390d2ace88f45a08f` | `order-quote-7f7706ac0a564cc78d1b85720fd401e5` |
+| Compound | `request-b89b024981194b06bdd9131e17ae61ac` | `order-quote-c6014d39bdc64bd0b56db6c1c4dfb913` |
+
+Evidence directory: `.local/live-learning/hyphenate-fixed-20261024/evidence/0891392302f749a3bddaf5e7fb467eae/`. Its `independent-dispute-audit.json` records **1/3 expected-result matches, 0 model calls, 0 terminal bookings**, all three reused learning versions and all four authority holds. Four saved fallback citations resolve against exact bytes. Source-bundle IDs and snapshot IDs are in the evidence index.
+
+These results were not rerun or relabeled after the evidence-packet fix. The final input-only capture reopens these same immutable orders without dispatching a model or creating a finding. It verifies four exact target references per case: source count/status and delivered count/status. Files: `.local/fixed-packet-*.json` and `.local/fixed-packet-audit.json`.
+
+## Institutional learning comparison
+
+Two new simulated source families used opaque column names, different count mappings, reversed row order and fresh batch values. Owner A identified `amber` rather than `cobalt` as unique adults; owner B independently identified `teal` rather than `ochre`. These are explicitly simulated owner corrections, not real incidents or actual human labor observations.
+
+Source IDs are `sf-aggregate-v1:learning:hyphenate-partition-0` and `sf-aggregate-v1:learning:hyphenate-partition-1`. Source families are `hyphenate-cobalt-households` and `hyphenate-amber-households`. Initial unresolved definitions caused two owner reviews. Corrections persisted exact source/schema/scope/authority bindings. The application derived the typed normalize/reject-overlap/join procedure, qualified it, and required explicit controller approval and activation. It did not store training rows or final dispute answers as its procedure.
+
+| Measurement on the same fresh inputs | Competent stateless baseline | Approved learner |
+| --- | ---: | ---: |
+| Internal reviews per later order | 2 | 0 |
+| Initial source-assessment operations per later order | 14 | 20 |
+| Fresh engineering qualification cases correct | 6/6 | 6/6 |
+| Total reviews across the six qualification cases | 10 | 6 |
+| Assessment operations across those cases | 80 | 92 |
+
+The stateless arm used current authoritative definitions when supplied. It was not denied current documentation to inflate the benefit. The two training interventions are an acquisition cost, separate from subsequent reviews avoided. These counters do not measure human minutes, total CPU work or financial savings.
+
+The positive workflow independently verified four deliveries of 27 rows, source/authority/evidence hashes, no premature capture, explicit buyer/controller authorization, one terminal booking per settled order, actual backend restart and **33 distinct exact command replays**. A separate baseline trial also passed with 36 replayed commands. Subsequent changed-schema, conflicting, revoked and expired authority each caused two reviews and held intake **without an accepted order**. They did not silently reuse the approved procedure.
+
+Candidate evidence: `.local/live-learning/hyphenate-fixed-20261024/evidence/9da7e3f8289049a69c9921d7260951db/`.
+
+- Composed candidate: `institutional-b0df3cdd162e2e6c037e600b8b3085b4d9cf370756cf76959ac6a2f7d49e5df2`.
+- Components: `institutional-785a5f45906d6b64557b5b50cc87d78a6e86ea620217b846a09c34599b99fee5` and `institutional-320648110050a3720cfb93da940f1dfd3ad2416bad3376d827572d8bc08ebb70`.
+- Qualification: `institutional-a157cc1be5f4347efa886afc4ed141eaa0100f1a6dccadd8547f3abbdf45e66b`.
+- Approved active version: `institutional-d909772396767d0919cb42c1ab6d296cbf7b2f726163925232abfdc4d8996f77`.
+
+The audit joins these records to each order's source bundle, immutable owner evidence, accepted derived source, CSV/JSON and payment operations. `final-learning.json`, the read-only audit and the evidence index preserve the complete identity chain.
+
+## Actual browser experience
+
+A fresh `/` browser journey used real visible controls to submit an ambiguous custom request, answer the actual clarification, prepare and accept a $1 contract, explicitly simulate funding, view the independently verified delivery, accept it, observe capture and reload the same persisted transaction. It reused the approved procedure without another owner review. No browser exception was observed.
+
+- Run: `request-f7bce5a711cb445c8f760bf6815323f3`.
+- Order: `order-quote-5a6522e22ec6490aa059f42ef1fa1ebe`.
+- Evidence: `.local/browser/fresh-customer/` contains clarification, quote, delivery, capture and reload screenshots, saved API pages, downloaded CSV and `trace.zip`.
+- Clarification provenance: **offline compiler**, not a new Claude response.
+
+Latest-main UI inspection is preserved under `.local/browser/latest-main-captured/` and `.local/browser/latest-main-compound/`, including screenshots, DOM text, network status observations and browser traces. The updated Bayline Data branding and mascot are upstream's code, not qualification edits.
+
+Confirmed visible: accepted agreement, separate eight fulfillment checks, actual downloaded rows, mock held/captured/returned states, source-owner history, composed procedure, approved version, fresh-input reuse comparisons and human-review reasons. Evidence controls resolved an actual persisted source cell. No rehearsal/playback control was used; displayed payment and learning states matched backend records rather than an animation timer.
+
+**UI gaps for Lucas:** the inspected Customer transcript and Run/Finding views do not display the complete original buyer objection or an explicit model/rule/UNKNOWN provenance label. The Finding panel primarily renders human decision controls and source evidence links, not the saved judgment and its provenance. A terminal-return canvas can also retain investigation/human-review narration while the payment display correctly says funds returned. Screenshots and DOM observations preserve these distinctions; no UI fix was made without ownership coordination.
+
+**Integration limitation:** ordinary controlled-local startup rejects paid models. Only the explicit Python `create_app(..., source_learning_model_qualification=True)` test configuration permits the combined path, with distinct local roles, mock payments and an open registered model-budget window. The normal launcher explicitly disables paid models and the model investigator. These restrictions were not bypassed. The frontend can consume the API, but a fresh combined real-model/browser demonstration on the final revision remains unqualified.
+
+## Safety and robustness
+
+| Required attack | Observed evidence and result |
+| --- | --- |
+| Interrupted or retried assessment | Actual backend restart and saved command replay pass. Full-suite tests `test_default_assessment_survives_interruption_and_public_worker_retry` and `test_completed_review_survives_interruption_without_model_retry` pass; the latter uses explicit synthetic transport, not a live interrupted Claude call. |
+| Stale controller decision | Actual HTTP 409 precedes the valid return approval in the learning journey. Accepted scope and prior decisions remain intact; no stale-decision booking. |
+| Contradictory authority update | Actual conflict/revocation/expiry/schema-change intakes hold with no accepted order. Final historical-authority HTTP probe returns 409 with unchanged registry, bundle and active-version pointer. |
+| Repeated payment or settlement command | Exact acceptance, funding and controller command replays retain their saved responses. Independent audit finds one funding and one terminal operation/booking per settled positive order. |
+| Model disagreement or unsupported evidence | Thirteen semantic-review regressions cover disagreement, omitted clauses, fabricated references, absent citations, timeout, placeholder output, repair bounds and interrupted review. Fresh compound complaint remains held. Injected test responses are not counted as Claude evidence. |
+| Incorrect delivered values | Existing actual-service regression `test_wrong_delivered_values_are_rejected_then_corrected_once_via_worker_api` passes: valid-hash corrupted output is withheld and corrected once. This is not a newly observed live-model provider-defect dispute. |
+
+No model result granted capture, changed scope or rewrote authority. All three new unresolved disputes retained their accepted snapshots and had no terminal booking. Paid-source-learning boundary tests also pass, including expired-window rejection and default rejection of paid learning.
+
+## Reproduced defects and fixes
+
+### Historical publication installs stale references
+
+After publishing newer authority, a fresh upload containing identical historical authority bytes reused the old record. Registry registration correctly did not reselect archived records, but publication still installed a bundle pointing at them. Subsequent compilation repeatedly failed with `source or authority pin is no longer current` before reaching a useful source-review result. The guard prevented unsafe reuse, but intake stalled.
+
+Commit `17d8e98` rejects archived source or authority records inside the existing publication transaction. It preserves the current bundle/registry, exact command replay and valid fresh batches with unchanged current authority. Four failing reproductions became passing tests; a fifth positive control remains passing. The final live HTTP probe confirms 409 and atomicity. No second registry, migration, payment change or automatic authority restoration was introduced.
+
+### Model packet omits the named row
+
+Mandatory checks often cite a sample row or geography. The model path reused those citations even when the customer named another ZIP and asked about its count/status. Three input-capture regressions reproduced the omission without calling an LLM.
+
+Commit `6a6fe2a` adds only the routed ZIP's count/status from the frozen source and actual delivered CSV, using existing reference resolution and the same 32-reference bound. Target cells precede optional answer references. Missing rows do not become fabricated cells or absence proofs; suppressed counts stay null. It does not infer a verdict, add phrase-specific answers, weaken citation checks or change payment policy.
+
+Four packet regressions pass, including both synthetic model passes seeing the same target cells while the reviewer cannot see the first answer. A separate read-only capture of the three actual new orders independently checks all twelve target cells against persisted bytes. **No real-Claude outcome is claimed for this fix.**
+
+### Preserved unsuccessful attempts
+
+- Baseline driver `36d39e33e384478caca4aacd75d4676d`: source ID used the wrong allowed namespace; HTTP 422 occurred before a training order. Corrected driver plus preflight assertion; original trace retained.
+- Baseline continuation `7fc6111f10714edfa9892f790391744e`: actual historical-authority defect stalled the first later intake. No new objection reached the investigator in that attempt. The candidate trial used a fresh DB/approval cycle, unchanged frozen objections and authority attacks after positive cases; it did not relabel the failed attempt.
+- The first packet regression fixture passed a deliberately invalidated `verification=None`; that test setup was corrected before the three valid missing-cell reproductions. Both XML files remain preserved.
+
+## Preserved real model evidence
+
+The existing `semantic-v4` trace re-audits successfully: **12 actual Claude calls**, two real blind reviews, 3/3 raw and effective matches, 19 independently checked citations, $0.384140 estimated cohort cost, approved source reuse, mock settlement and restart. Its two saved reviewer requests contain the original complaint and frozen evidence packet, not the first candidate explanation or verdict. This remains evidence of the earlier runtime, not a fresh run of the final packet fix or a browser qualification.
+
+Earlier negative results remain visible: pilot 2/3 effective; semantic-v2 2/3 initially effective; semantic-v3 2/3 initially effective. Semantic-v1 achieved 3/3 with documented driver recovery. Across all five cohorts: 59 actual calls, $1.934956 estimated. Same-model agreement is not independent human evaluation and 3/3 is not a general reliability estimate.
+
+Original artifacts remain in `order-to-cash-llm-learning-20261024/.local/connected-model-qualification/`; this exercise's separate audit output is `.local/preserved-v4-reaudit.json`. The earlier 109-case results and frozen labels were neither modified nor used for training. Rehan's independent evaluation remains a separate input, not replaced by these engineering cases.
+
+## Test results and all remaining failures
+
+| Check | Result |
+| --- | --- |
+| Baseline full backend | **1076 passed, 16 failed**, 1092 tests, 493 seconds. |
+| Final full backend | **1085 passed, 16 failed**, 1101 tests, 470 seconds; no skips or errors, one dependency deprecation warning. |
+| Difference in failed test IDs | **None**; all 16 match both the freshly tested baseline and the historical Windows baseline. |
+| Authority integration suite | 488 passed. |
+| New regressions plus semantic-review controls | 22 passed. |
+| Frontend, including newer main | 153 tests in 24 files passed; TypeScript and production build passed. Generated contracts passed and were unchanged. |
+| Independent audits | Baseline and candidate learning workflows, new dispute bytes/holds, preserved real-model trace and fixed target-cell packets passed their stated audits. |
+
+The full suite is **not green**. No assertion, frozen label or unrelated payment/evaluator code was changed to conceal these failures. Exact remaining IDs, also present in the evidence index:
+
+1. `tests.evals.test_runner::test_leakage_stable_report_additive_runs_and_no_gold_claim`
+2. `tests.evals.test_runner::test_real_child_timeout_then_unrelated_case_continues`
+3. `tests.evals.test_runner::test_step_limit_preserves_partial_state_and_reports`
+4. `tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[stream]`
+5. `tests.payments.test_http_boundary::test_http_total_limit_stops_stream_and_waiting_for_headers[headers]`
+6. `tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[success]`
+7. `tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[rpc_error]`
+8. `tests.payments.test_http_boundary::test_http_success_errors_redaction_no_retry_and_cleanup[redirect]`
+9. `tests.payments.test_http_boundary::test_cancellation_kills_http_before_return_and_cannot_deliver_late_result`
+10. `tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[budget]`
+11. `tests.payments.test_http_boundary::test_injected_deadline_during_http_stops_and_reaps[financial]`
+12. `tests.payments.test_http_boundary::test_process_interruption_also_reaps_request`
+13. `tests.payments.test_http_boundary::test_actual_http_allowance_is_reserved_before_launch[inspection]`
+14. `tests.payments.test_http_boundary::test_ambiguous_http_send_retains_durable_identity_and_only_reconciles`
+15. `tests.payments.test_payment_lab::test_prepare_persists_once_never_changes_salt_parties_or_deadline`
+16. `tests.runtime.test_backend_integration::test_import_and_schema_export_do_not_initialize_payments`
+
+These are the documented Windows evaluator encoding/child-environment failures (3), isolated payment HTTP subprocess failures (11), POSIX file-mode assertion (1), and POSIX-only schema-export interpreter path (1). Their continued presence is not a production/payment release qualification. Raw XML: `.local/full-baseline.xml` and `.local/full-final.xml`; final SHA-256 `4702cd2449b67358d34994a377540b4cc6636c9a073f44d42852c9f08752fe71`.
+
+## Reproduction and retained artifacts
+
+Run from the isolated worktree. `.local/hyphenate-reproduction.zip` contains the capsule, owner walkthroughs and verification/browser drivers, without credentials, databases or raw datasets. Extract it into `.local` in a separate checkout to reproduce; use a new capsule/instance and unused ports, preserving originals. The browser drivers use port 3051 in this captured setup. Do not start two instances on the same ports or reset an existing database.
+
+```powershell
+uv sync --locked --project backend
+npm --prefix frontend ci
+$env:BACKEND_URL = 'http://127.0.0.1:8051'
+npm --prefix frontend run build
+powershell -NoProfile -File tools/local_learning.ps1 -Action Install -Instance NEW_INSTANCE -BackendPort 8051 -FrontendPort 3051
+powershell -NoProfile -File tools/local_learning.ps1 -Action Start -Instance NEW_INSTANCE -BackendPort 8051 -FrontendPort 3051
+# Use a fresh frozen capsule whose instance matches NEW_INSTANCE.
+uv run --locked --directory backend python ../.local/release_journey.py --capsule ../.local/NEW_CAPSULE.json --phase learning-positive
+# SESSION is the exact output directory printed above.
+uv run --locked --directory backend python ../tools/audit_judge_journey.py SESSION
+node .local/browser_customer.cjs
+uv run --locked --directory backend python ../.local/release_journey.py --capsule ../.local/NEW_CAPSULE.json --phase disputes --session SESSION
+# DISPUTE_SESSION is the new directory printed by the disputes phase.
+uv run --locked --directory backend python ../.local/audit_disputes.py DISPUTE_SESSION
+node .local/browser_inspect.cjs NEW_LABEL ACTUAL_RUN_ID
+uv run --locked --directory backend pytest -q -o addopts='' --tb=short --junitxml=../.local/NEW_TEST_RESULT.xml
+npm --prefix frontend test
+npm --prefix frontend run generate:check
+npm --prefix frontend run typecheck
+```
+
+The negative authority cases deliberately leave the final source head unsuitable for automatic reuse. Start another fresh trial, or supply genuinely renewed owner authority and perform the required approval process; do not revive historical authority bytes.
+
+Baseline learning evidence is `.local/live-learning/hyphenate-qualification-20261024/evidence/311510c6888b4ee3b4ed8d11537a1b06/`. Candidate and dispute paths are listed above. Each contains actual HTTP commands/responses, snapshots, sources, downloaded CSV/JSON and events; browser directories include screenshots and trace archives. They remain local to avoid publishing credentials, private databases or generated bulk evidence.
+
+Only the two instances created for this qualification were stopped after inspection. Tasks, credentials and evidence remain preserved; their ownership-checked rollback is the existing launcher with `-Action Start` and the matching instance/ports. The original demos/worktrees were not changed. No paid process was started or left running.
+
+## Remaining limitations and review gates
+
+1. Review the isolated fixes; do not automatically merge them or enable production learning.
+2. Budget-only live authorization and combined live-model/learning/browser evidence are now established. Do not request another clock-based spending window or refill the remaining allowance. Fresh independent human evaluation and a genuine provider-defect live-model scenario remain additional qualification work, distinct from the supported suppression observation already tested.
+3. Preserve the newly exposed over-conservative blind-review failure and missing named-row context; a future semantic fix needs fresh frozen cases, not retries or relabeling of this cohort. The current local workflow supports evidence-based escalation, not guaranteed autonomous resolution of every unfamiliar complaint.
+4. Full complaint/finding/provenance display is now supplied through existing backend events. Coordinate any further visual polish and terminal narration changes with Lucas. Coordinate Windows/payment baseline failures with Nikita rather than claiming a universally green release.
+
+Present the observed combined local workflow with synthetic sources, simulated owner/controller authority, real Claude calls and mock payments explicitly disclosed. This report does not authorize a main merge, production learning, public hosting or blockchain transactions.
+
+## Completion audit of the qualification assignment
+
+This completes the bounded release-qualification assignment with a conditional verdict, not the separate proposition that every unfamiliar complaint will resolve autonomously. Known quality misses and Windows failures remain findings of the qualification, not hidden passing gates.
+
+| Required scope | Authoritative evidence inspected |
+| --- | --- |
+| Exact baseline, current main and ownership | Baseline/main SHAs above; isolated worktree; final frontend/payment diff against `672e10d` is empty; PR remains a separate draft. Prior `semantic-v4` and negative cohorts re-audited and preserved. |
+| Three new frozen objections and actual LLM reasoning | Original release capsule hash, three-case actual-provider audit, raw/effective FAIL/PASS/UNKNOWN, 27 resolving references, full primary claims and two blind-review packets. Later two-case miss is reported separately. |
+| Source learning, competent control and fresh bytes | New opaque source families and simulated owner walkthroughs; immutable components, qualification/approval/activation IDs; independently verified six-case paired comparison; 2-to-0 reviews on later actual orders; authority/schema attacks hold. |
+| Persistence and retries | Actual backend restart, immutable snapshots/deliveries/decisions/bookings, 16 live-phase exact replays; broader no-cost journey has 33 replays. Final credential-route restart preserves the same orders and approved learning state. |
+| Real customer/Run experience | Visually inspected production screenshots and DOM for real Claude clarification/training and current model/unresolved findings; actual evidence-chip resolution, learning comparisons, explicit mock payment state. Backend emits persisted facts, not timed scenario success. |
+| Five required robustness probes | Named interruption/retry tests, actual stale-controller 409, contradictory authority holds, repeated settlement commands, and both injected semantic-review controls and a fresh real blind-review disagreement. Snapshots and payment authority remain intact. |
+| Failures and reproducible fixes | Before/after XMLs for historical pins, named-row evidence, transcript events and credential portability; all driver failures retained; full-suite exact 16-ID baseline comparison; new semantic quality miss unaltered. |
+| Boundaries and resource accounting | User budget-only amendment, immutable registered grant and cumulative ledger; 22 new provider calls/$0.808964, $2.256080 remaining, zero outstanding reservations; no production activation, real transfer, third-party labels, or automatic merge. |
+| Requested report and reproduction artifacts | This report, three sanitized evidence indexes, exact run/order/snapshot/procedure IDs, private traces/screenshots/capsules, two reproduction archives, commands, test lists and current verdict. |
+
+No further paid sampling is required to report this bounded qualification honestly. Future work should address contextual-clause over-escalation and named-row evidence for multi-topic complaints with fresh preregistered cases; obtaining Rehan's independent human artifacts and production qualification are outside the evidence claimed here.

@@ -2,7 +2,8 @@ param(
     [ValidateSet('Install', 'Start', 'Stop', 'RestartBackend', 'RestartFrontend', 'Status')][string]$Action = 'Status',
     [ValidatePattern('^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$')][string]$Instance = 'legacy',
     [ValidateRange(1024,65535)][int]$BackendPort = 8026,
-    [ValidateRange(1024,65535)][int]$FrontendPort = 3026
+    [ValidateRange(1024,65535)][int]$FrontendPort = 3026,
+    [string]$ModelAccess = ''
 )
 $ErrorActionPreference = 'Stop'
 if ($BackendPort -eq $FrontendPort) { throw 'Backend and frontend ports must differ' }
@@ -15,8 +16,10 @@ function TaskName([string]$Role) {
     return "DataPact-$Instance-$Role"
 }
 function TaskArguments([string]$Role) {
-    if ($Instance -eq 'legacy' -and $BackendPort -eq 8026 -and $FrontendPort -eq 3026) { return "`"$demoLauncher`" $Role" }
-    return "`"$demoLauncher`" $Role --instance $Instance --backend-port $BackendPort --frontend-port $FrontendPort"
+    if ($ModelAccess.Contains('"')) { throw 'Model access path must not contain quotes' }
+    if ($Instance -eq 'legacy' -and $BackendPort -eq 8026 -and $FrontendPort -eq 3026 -and -not $ModelAccess) { return "`"$demoLauncher`" $Role" }
+    $modelArgs = if ($ModelAccess) { " --model-access `"$ModelAccess`"" } else { '' }
+    return "`"$demoLauncher`" $Role --instance $Instance --backend-port $BackendPort --frontend-port $FrontendPort$modelArgs"
 }
 function AssertOwned([string]$Role) {
     $task = Get-ScheduledTask -TaskName (TaskName $Role) -ErrorAction SilentlyContinue
@@ -27,7 +30,9 @@ function AssertOwned([string]$Role) {
 }
 foreach ($role in $demoRoles) { $null = AssertOwned $role }
 if ($Action -eq 'Install') {
-    & (Join-Path $demoRoot 'backend\.venv\Scripts\python.exe') $demoLauncher prepare --instance $Instance --backend-port $BackendPort --frontend-port $FrontendPort
+    $prepareArgs = @($demoLauncher, 'prepare', '--instance', $Instance, '--backend-port', $BackendPort, '--frontend-port', $FrontendPort)
+    if ($ModelAccess) { $prepareArgs += @('--model-access', $ModelAccess) }
+    & (Join-Path $demoRoot 'backend\.venv\Scripts\python.exe') @prepareArgs
     if ($LASTEXITCODE -ne 0) { throw 'Demo configuration preparation failed' }
     $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
     $principal = New-ScheduledTaskPrincipal -UserId $identity -LogonType Interactive -RunLevel Limited
@@ -35,7 +40,7 @@ if ($Action -eq 'Install') {
     foreach ($role in $demoRoles) {
         if (-not (AssertOwned $role)) {
             $taskAction = New-ScheduledTaskAction -Execute $demoPython -Argument (TaskArguments $role) -WorkingDirectory $demoRoot
-            Register-ScheduledTask -TaskName (TaskName $role) -Action $taskAction -Settings $settings -Principal $principal -Description 'Controlled local DataPact learning demo; loopback, mock payments, no paid models.' | Out-Null
+            Register-ScheduledTask -TaskName (TaskName $role) -Action $taskAction -Settings $settings -Principal $principal -Description 'Controlled local DataPact demo; loopback, mock payments, paid reasoning only with explicit registered authorization.' | Out-Null
         }
     }
 }
