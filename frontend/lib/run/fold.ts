@@ -35,7 +35,8 @@ export interface NodeState {
   source?: SourceLine[]; // what the agent read at the source while investigating
 }
 export interface Card { id: string; node: string; text: string; tone: "ev" | "rule" | "claim" }
-export interface Coin { text: string; locked?: boolean; done?: boolean }
+// locked: the funds are held, a calm state. alert: a dispute or a payment problem, the only time it turns amber.
+export interface Coin { text: string; locked?: boolean; alert?: boolean; done?: boolean; returned?: boolean }
 export interface View {
   nodes: Record<string, NodeState>;
   order: string[]; // step ids in plan order
@@ -78,16 +79,20 @@ function coinFor(v: View): Coin | null {
   };
   if (v.payments.some(p => v.paymentStates[p.id])) {
     const states = v.payments.map(p => v.paymentStates[p.id] ?? (p.id in v.captured ? "captured" : "funded"));
+    const returned = states.every(s=>s==="voided");
     return {
       text:v.payments.map((p,i)=>`$${formatCanvasMajor(p.amount)} ${labels[states[i]]}`).join(" + "),
-      done:states.every(s=>s==="captured" || s==="voided"),
+      done:!returned && states.every(s=>s==="captured" || s==="voided"),
+      returned,
       locked:states.some(s=>!["captured","voided","awaiting_signature","blocked_parent"].includes(s)),
+      // there is no dispute-closed event, but a capture or return only starts once it's resolved, so its amber ends there
+      alert:(!!v.dispute && states.includes("funded")) || states.some(s=>["uncertain","failed","expired_not_returned","reorg_hold"].includes(s)),
     };
   }
   const parts = v.payments.map((p) => `$${formatCanvasMajor(p.amount)}`).join(" + ");
   if (v.payments.every((p) => p.id in v.captured)) return { text: `$${formatCanvasMajor(money(v))} captured`, done: true };
-  if (v.payments.every((p) => p.rail === "mock")) return { text: `${parts} authorized`, locked: !!v.dispute };
-  return { text: `${parts} held`, locked: !!v.dispute };
+  if (v.payments.every((p) => p.rail === "mock")) return { text: `${parts} authorized`, locked: true, alert: !!v.dispute };
+  return { text: `${parts} held`, locked: true, alert: !!v.dispute };
 }
 
 function settlementProgress(v: View, state: PaymentStateChanged["state"]) {
@@ -143,7 +148,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   if (e.seq <= v.lastSeq) return v;
   v.lastSeq = e.seq;
   if (e.type === "delivery_ready" && e.delivery.reviewClosesAt) v.reviewWindow = windowLabel(Date.parse(e.delivery.reviewClosesAt) - Date.parse(e.at));
-  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? e.state : "") : ctx.narrated ? "" : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
+  const caption = ctx.live ? (e.type === "message" ? e.message.text : e.type === "state_changed" ? e.reason ?? "" : "") : ctx.narrated ? "" : captionFor(e, { lane: ctx.lane, ending: ctx.ending, learned: ctx.learned, captured: money(v), reviewWindow: v.reviewWindow });
   if (e.type === "steps_planned") {
     for (const s of e.steps) { v.nodes[s.id] ??= blankNode(s); v.nodes[s.id].step = s; if (!v.order.includes(s.id)) v.order.push(s.id); }
     return v;

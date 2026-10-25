@@ -239,8 +239,8 @@ Open `http://127.0.0.1:3017/`. The isolated build directory also permits an
 independent `npm run dev -- --port 3016` with the same bridge environment. Set BACKEND_URL at build time as well as startup because
 the retained jobflow/broker/improvement rewrites are compiled during the build.
 Create request, answer the gym/app clarification,
-prepare quote, explicitly accept $120, open Funding, prepare funding, explicitly
-simulate mock funding, open Delivery & review, inspect/download, then accept delivery
+prepare quote, explicitly accept $120, open the Funds held step, prepare funding, explicitly
+simulate mock funding, open the Customer review step, inspect/download, then accept delivery
 or record a complaint. Worker/background payments run automatically. Reload resumes.
 Oakland/yoga buttons request a provider offer; review the separate offer, accept it,
 and fund it separately. Recorded rehearsal has its own explicit button and no live
