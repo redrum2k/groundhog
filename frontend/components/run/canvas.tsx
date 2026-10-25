@@ -161,6 +161,9 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const straight = (a: CNode, b: CNode) => `M${COL_X(a.col) + W} ${ROW_Y[a.row] + H / 2} H${COL_X(b.col)}`;
   const on = (a: string, b: string) => !["idle", "running", "waiting"].includes(st(a)) && st(b) !== "idle";
   const review = byId.review, produce = byId.produce;
+  // Detours follow the same reveal rules as straight edges: never point into empty space.
+  // Human review can appear before customer review (for example, after failed funding).
+  const branches = review ? rows.filter((r) => shownPair(review, byRow(r)[0])) : [];
   // The branch runs under the detour row and comes up into its first step, so it never crosses the return arrow
   const branch = (row: number) => `M${cx(review)} ${ROW_Y[0] + H} V${ROW_Y[row] + H + 50} H20 V${ROW_Y[row] + H / 2} H40`;
   const back = (n: CNode) => {
@@ -168,7 +171,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     return x1 === x2 ? `M${x1} ${y1} V${ROW_Y[0] + H + 4}` : `M${COL_X(n.col) + W} ${y1 + H / 2} H${x2} V${ROW_Y[0] + H + 4}`;
   };
   const single = rows.length === 1 ? byRow(rows[0]) : null;
-  const last = single ? single[single.length - 1] : null;
+  const end = single?.[single.length - 1];
+  const last = end && produce && revealed.has(end.id) && revealed.has(produce.id) ? end : null;
 
   return (
     <>
@@ -186,7 +190,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
                 <path d="M1 1 L7 4 L1 7" fill="none" stroke="var(--blue)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </marker>
             </defs>
-            {rows.map((r) => {
+            {branches.map((r) => {
               const d = branch(r); const live = st(byRow(r)[0].id) !== "idle";
               return <g key={r}><path d={d} className="edge" /><path d={d} pathLength={1} className={`edge-on${live ? " on" : ""}`} /></g>;
             })}

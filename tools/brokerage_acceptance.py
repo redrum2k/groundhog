@@ -166,7 +166,7 @@ def main():
     child = accept(service, offer, "accept-oakland")
     assert not child.authorization.receipt and not child.deliveries
     child = fund(service, child)
-    assert child.snapshot.quote.amount.amount_minor == 6000 and child.verification.passed
+    assert child.snapshot.quote.amount.amount_minor == 50 and child.verification.passed
     results["oakland"] = save(service, child, output, "oakland")
     yoga = fund(service, new_order(service, "yoga"))
     yoga = service.mutate(

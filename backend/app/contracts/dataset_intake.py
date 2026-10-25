@@ -21,3 +21,9 @@ class DatasetIntakeProposal(Contract):
     clarification_field: Literal["cohort", "category"] = "category"
     clarification: str | None = Field(default=None, max_length=500)
     explanation: str = Field(min_length=1, max_length=1000)
+
+
+class DatasetClarification(Contract):
+    """A wording repair cannot change the grounded intent proposal."""
+
+    clarification: str = Field(min_length=1, max_length=500)

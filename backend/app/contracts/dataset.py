@@ -12,6 +12,8 @@ from app.contracts.data_product import Frozen, Hash, Name, SourcePin, TermProven
 
 DATASET_POLICY = "aggregate-brokerage-v1"
 DATASET_CORPUS = "sf-aggregate-v1"
+DATASET_PRICING = "datumco-demo-pricing-v2"
+DATASET_PRICES_MINOR = {"initial": 100, "oakland": 50, "yoga": 25, "replacement": 100}
 DATASET_COLUMNS = ("zip", "area", "count", "status")
 DATASET_CHECKS = (
     "cohort",
@@ -87,7 +89,10 @@ class DatasetSpecification(Frozen):
 
 class BrokeragePolicy(Frozen):
     version: Literal["aggregate-brokerage-v1"] = DATASET_POLICY
-    pricing_version: Literal["datumco-demo-pricing-v1"] = "datumco-demo-pricing-v1"
+    # Missing versions in historical records retain their original pricing profile.
+    pricing_version: Literal["datumco-demo-pricing-v1", "datumco-demo-pricing-v2"] = (
+        "datumco-demo-pricing-v1"
+    )
     review_seconds: Literal[60] = 60
     dispute_seconds: Literal[60] = 60
     evidence_repair_seconds: Literal[120] = 120

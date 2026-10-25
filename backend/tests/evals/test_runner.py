@@ -43,7 +43,7 @@ def test_isolated_orders_funding_and_correction_history(inputs, evidence, tmp_pa
     assert claim["effective"] == claim["expected"] == "FAIL"
     assert normalized[2]["checkpoints"][-1]["financial"]["bookings"] == []
     child = json.loads((evidence / "D04/accepted-child.json").read_bytes())
-    assert child["snapshot"]["quote"]["amount"]["amount_minor"] == 6000
+    assert child["snapshot"]["quote"]["amount"]["amount_minor"] == 50
     assert child["authorization"]["receipt"] is None
     m = metrics(normalized)
     assert m["development/engineering"]["agreement"] == {

@@ -10,6 +10,7 @@ from app.contracts.catalog import (
     AnswerCommand,
     ApprovalCommand,
     ClarifyCommand,
+    ComplaintTextCommand,
     DisputeCommand,
     OfferCommand,
     OrderCommand,
@@ -151,6 +152,13 @@ def accept(order_id: str, command: OrderCommand, orders: Service):
 @router.post("/orders/{order_id}/disputes", response_model=OrderView)
 def dispute(order_id: str, command: DisputeCommand, orders: Service):
     return orders.command_view(orders.mutate(order_id, "dispute", command), command.idempotency_key)
+
+
+@router.post("/orders/{order_id}/complaints", response_model=OrderView)
+def complaint(order_id: str, command: ComplaintTextCommand, orders: Service):
+    return orders.command_view(
+        orders.mutate(order_id, "complaint", command), command.idempotency_key
+    )
 
 
 @router.post("/orders/{order_id}/answers", response_model=OrderView)

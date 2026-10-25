@@ -1,4 +1,17 @@
-# OBJECTION — job-level workbench
+# DataPact frontend
+
+`/` and `/live` are the primary aggregate application. **Customer view** is the
+full-screen conversation and decision cards; **Run** shows the same order's backend
+events on the agent diagram, with admin review available from its toolbar. Checkout
+accepts the quote and prepares/submits the exact funding authorization with one wallet
+signature. Configure and unlock the Buyer in Wallet settings before presenting.
+
+The UI uses `/api/live`; model/payment modes come from the backend configuration.
+It never chooses a verdict or simulates a live payment. The separate retained broker
+and recorded rehearsal remain at `/demo`, and the historical invoice app at `/jobflow`.
+See [current setup and validation](../docs/workstreams/06-data-broker.md).
+
+## Historical OBJECTION job-level workbench
 
 This existing UI uses `/api/jobflow`. The merged catalog/payment handoff is a
 separate API contract: [Lucas handoff](../docs/handoffs/lucas.md),
