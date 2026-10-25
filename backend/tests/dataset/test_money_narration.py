@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.contracts.catalog import AcceptQuoteCommand
+from app.contracts.models import Money
 from app.contracts.runs import RunOffer
 from app.money import format_money, major_units
 from app.orders.run_events import binding
@@ -26,6 +27,17 @@ from tests.dataset.conftest import command, delivered, fund
 def test_exact_money_formatting(minor, text):
     assert format_money(SimpleNamespace(amount_minor=minor, decimals=2)) == text
     assert major_units(minor) * 100 == minor
+
+
+@pytest.mark.parametrize("minor", [1, 25, 50, 100, 101])
+def test_integer_usd_to_usdc_authorization_conversion(dataset_service, minor):
+    service, clock = dataset_service
+    amount = Money(amount_minor=minor, currency="USD", decimals=2)
+    terms = service.payments.terms(amount, None, clock())
+    assert terms.amount_atomic == minor * 10000
+    assert terms.payment_info.max_amount == terms.amount_atomic
+    assert terms.display_amount == amount
+    assert terms.model_dump(mode="json")["amount_atomic"] == str(minor * 10000)
 
 
 @pytest.mark.parametrize("scope,minor", [("oakland", 50), ("yoga", 25)])

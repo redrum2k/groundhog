@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import PaymentJustification from "../components/run/payment-justification";
+import {LiveReview} from "../components/run/live-order";
+import type {LiveOrder} from "../lib/run/use-live-order";
 
 afterEach(()=>vi.unstubAllGlobals());
 it("shows the persisted complaint, exact amount and blocked state without inventing settlement", async()=>{
@@ -14,4 +16,11 @@ it("shows the persisted complaint, exact amount and blocked state without invent
   expect(screen.getByText("An unresolved dispute prevents capture.")).toBeTruthy();
   expect(screen.getByText(/0 persisted terminal booking/)).toBeTruthy();
   expect(fetch.mock.calls[0][0]).toContain("/orders/order-test/payment-justification");
+});
+
+it("does not present settled funds as an active human-review task", ()=>{
+  const order={page:{payment:{payment:{state:"voided"},simulated:true}}} as LiveOrder;
+  render(<LiveReview order={order}/>);
+  expect(screen.getByText(/This does not resolve any factual uncertainty/)).toBeTruthy();
+  expect(screen.queryByRole("button",{name:"approve"})).toBeNull();
 });

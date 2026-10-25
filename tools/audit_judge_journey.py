@@ -358,8 +358,9 @@ def audit(directory, *, output=None):
         "restart_and_retries": True,
         "repeated_commands_verified": len(repeated),
         "disclosure": (
-            "Synthetic identities/data; mock settlement; deterministic or unresolved findings; "
-            "no live LLM or human-time savings claim."
+            "Synthetic identities/data; mock settlement. This audit verifies source learning "
+            "and financial records; live-model provenance requires the separate model audit. "
+            "No human-time savings claim."
         ),
     }
     (output or directory / "independent-audit.json").write_text(

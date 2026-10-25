@@ -130,7 +130,9 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       break;
     case "step_waiting": n.status = "waiting"; n.waitingOn = e.waitingOn; if (n.step.kind === "decide") v.orb = { step: e.step, mode: "wait" }; break;
     case "step_completed":
-      n.status = n.verdict && n.verdict.decidedBy === "rules" ? (n.verdict.kind === "agree" ? "fail" : n.verdict.kind === "grey" ? "grey" : "done") : "done";
+      // A completed live assessment is not itself a failed operation or a repair.
+      // Real failed delivery checks retain their own check_failed events.
+      n.status = !ctx.live && n.verdict && n.verdict.decidedBy === "rules" ? (n.verdict.kind === "agree" ? "fail" : n.verdict.kind === "grey" ? "grey" : "done") : "done";
       n.waitingOn = undefined;
       if (n.step.kind === "captured") v.orb = { step: e.step, mode: "happy" };
       break;

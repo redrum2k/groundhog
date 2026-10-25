@@ -1,5 +1,6 @@
 import pytest
 
+from app.contracts.payments import FundingAuthorization
 from app.orders.payment_justification import payment_justification
 from app.orders.service import DomainError
 from tests.dataset.conftest import accepted, command, delivered
@@ -64,6 +65,36 @@ def test_unfunded_and_pending_funding_never_look_capturable(dataset_service):
     assert not record.capture_eligible_now and not record.bookings
     assert any("funding" in b for b in record.blockers)
     assert not record.bytes_revalidated
+    prep = service.payments.prepare(order.snapshot.order_id, command(order, "prepare"))
+    service.payments.authorize(
+        order.snapshot.order_id,
+        FundingAuthorization(
+            **command(order, "fund").model_dump(),
+            funding_attempt_id=prep.funding_attempt_id,
+            payment_hash=prep.terms.payment_hash,
+            simulate=True,
+        ),
+    )
+    pending = payment_justification(service, order.snapshot.order_id)
+    assert pending.state == "funding_pending" and not pending.capture_eligible_now
+    assert not pending.bookings and not pending.delivery_hashes
+
+
+def test_stale_acceptance_duplicate_and_conflicting_terminal_effects(dataset_service):
+    service, _ = dataset_service
+    order = delivered(service)
+    stale = command(order, "stale").model_copy(update={"expected_revision": order.revision - 1})
+    with pytest.raises(DomainError):
+        service.mutate(order.snapshot.order_id, "accept", stale)
+    assert not payment_justification(service, order.snapshot.order_id).bookings
+    cmd = command(order, "accept-once")
+    settled = service.mutate(order.snapshot.order_id, "accept", cmd)
+    replay = service.mutate(order.snapshot.order_id, "accept", cmd)
+    assert replay == settled
+    assert len(payment_justification(service, order.snapshot.order_id).bookings) == 1
+    with pytest.raises(DomainError, match="refund"):
+        service._release(settled, service.clock())
+    assert len(payment_justification(service, order.snapshot.order_id).bookings) == 1
 
 
 def test_changed_artifact_cannot_be_explained_as_eligible(dataset_service, monkeypatch):

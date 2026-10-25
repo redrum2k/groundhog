@@ -108,6 +108,12 @@ export function LiveEvidence({order}:{order:LiveOrder}) {
 }
 
 export function LiveReview({order}:{order:LiveOrder}) {
+  const state=order.page?.payment?.payment.state;
+  if(state==="captured" || state==="voided") return <div className="review">
+    <div className="review-tag">Recorded financial outcome</div>
+    <p>{state==="captured"?"Payment was captured after the applicable authorization gates.":"Uncaptured funds were returned. This does not resolve any factual uncertainty."} {order.page?.payment?.simulated?"Mock settlement; no on-chain transfer.":"Inspect the persisted payment evidence for confirmation details."}</p>
+    <p className="faint">No further reviewer action is available on this terminal payment. The complaint, finding and evidence remain inspectable below.</p>
+  </div>;
   return <div className="review">
     <div className="review-tag">Human review · current order</div>
     <p>Review the evidence and proposed remedy. Approval can release eligible uncaptured funds; it cannot override verification or force a capture.</p>
