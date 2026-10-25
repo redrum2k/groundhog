@@ -235,7 +235,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
           })}
   
           {source && (
-            <div className="src" style={{ transform: `translate(${COL_X(source.col)}px, ${ROW_Y[source.node.row]}px)` }}>
+            <div className={`src${source.lines.some((l) => !l.checked) ? " querying" : ""}`} style={{ transform: `translate(${COL_X(source.col)}px, ${ROW_Y[source.node.row]}px)` }}>
               <span className="src-glyph"><Warehouse /></span>
               <div className="src-lines">{source.lines.map((l, i) => <span key={l.id} className={`src-l${l.checked ? " ok" : ""}`} style={{ transitionDelay: `${i * 60}ms` }}>{l.checked ? <IcCheck size={11} strokeWidth={2.4} /> : <i className="spin2" />}<Label text={l.text} quiet="tail" /></span>)}</div>
             </div>
