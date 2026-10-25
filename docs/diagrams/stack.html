@@ -1,0 +1,110 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Groundhog stack</title>
+<style>
+  body { margin: 0; background: #fff; font-family: Arial, Helvetica, sans-serif; color: #111; }
+  #stage { position: relative; width: 1500px; height: 1130px; background: #fff; overflow: hidden; }
+  #wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+  .title { position: absolute; font-size: 22px; text-align: center; line-height: 1.25; }
+  .group { position: absolute; border: 2px dashed #444; }
+  .brand { position: absolute; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 26px; }
+  .brand img, .brand svg { width: 32px; height: 32px; }
+  .box { position: absolute; border: 2px solid #333; border-radius: 3px; background: #fff; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 21px; box-sizing: border-box; padding: 4px 8px; }
+  .box.vert { writing-mode: vertical-rl; transform: rotate(180deg); }
+  .person { position: absolute; text-align: center; font-size: 24px; font-weight: 700; line-height: 1.2; }
+  .person .who { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .logos { position: absolute; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 26px; }
+  .logos img { width: 56px; height: 56px; display: block; }
+  .laptop { position: absolute; width: 460px; height: 312px; }
+  .laptop .screen { position: absolute; left: 0; top: 0; width: 460px; height: 292px; background: #1b1b1f; border-radius: 12px 12px 4px 4px; padding: 10px 10px 8px; box-sizing: border-box; }
+  .laptop .screen img { width: 100%; height: 100%; object-fit: cover; object-position: left top; border-radius: 4px; background: #fff; }
+  .laptop .base { position: absolute; left: -26px; top: 292px; width: 512px; height: 14px; background: #c9ccd3; border-radius: 0 0 12px 12px; }
+  .laptop .notch { position: absolute; left: 180px; top: 292px; width: 100px; height: 5px; background: #a9adb6; border-radius: 0 0 6px 6px; }
+  .cap { position: absolute; font-size: 22px; text-align: center; line-height: 1.25; }
+</style>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <clipPath id="ghclip"><rect x="-6" y="-14" width="40" height="38"/><ellipse cx="14" cy="24" rx="10.6" ry="2.4"/></clipPath>
+    <symbol id="gh" viewBox="0 0 28 28">
+      <ellipse cx="14" cy="24" rx="12.6" ry="3.4" fill="#6f5537"/>
+      <ellipse cx="14" cy="24" rx="10.6" ry="2.4" fill="#2b1d12"/>
+      <g clip-path="url(#ghclip)">
+        <circle cx="7.2" cy="8.6" r="1.7" fill="#c46a35"/><circle cx="20.8" cy="8.6" r="1.7" fill="#c46a35"/>
+        <circle cx="7.2" cy="8.6" r="0.8" fill="#8e4520"/><circle cx="20.8" cy="8.6" r="0.8" fill="#8e4520"/>
+        <path d="M6.2 26V15.4C6.2 9.4 9.6 5.4 14 5.4S21.8 9.4 21.8 15.4V26Z" fill="#c46a35"/>
+        <path d="M9.4 26V20.4C9.4 17.6 11.5 16 14 16S18.6 17.6 18.6 20.4V26Z" fill="#efae66"/>
+        <ellipse cx="14" cy="13.6" rx="3.4" ry="2.5" fill="#f6c58a"/>
+        <ellipse cx="14" cy="12.4" rx="1.15" ry="0.85" fill="#5b2f15"/>
+        <rect x="13" y="14.5" width="0.95" height="1.6" rx="0.25" fill="#fff" stroke="#d9c3a3" stroke-width="0.2"/>
+        <rect x="14.05" y="14.5" width="0.95" height="1.6" rx="0.25" fill="#fff" stroke="#d9c3a3" stroke-width="0.2"/>
+        <ellipse cx="11.4" cy="23.2" rx="1.5" ry="0.75" fill="#a8552a"/><ellipse cx="16.6" cy="23.2" rx="1.5" ry="0.75" fill="#a8552a"/>
+        <circle cx="11" cy="10.6" r="0.95" fill="#2b1a10"/><circle cx="17" cy="10.6" r="0.95" fill="#2b1a10"/>
+        <path d="M8.75 10.6a2.25 2.25 0 1 0 4.5 0a2.25 2.25 0 1 0-4.5 0ZM14.75 10.6a2.25 2.25 0 1 0 4.5 0a2.25 2.25 0 1 0-4.5 0ZM13.25 10.4h1.5" fill="none" stroke="#111" stroke-width="0.75" stroke-linecap="round"/>
+        <g transform="translate(14 6.2) scale(0.56) translate(-14 -4.2) rotate(-6 14 6)">
+          <path d="M4.6 6.4C4.2-4 23.8-4 23.4 6.4C18.6 7.6 9.4 7.6 4.6 6.4Z" fill="#8c6239"/>
+          <path d="M4.75 4.9C9.4 6 18.6 6 23.25 4.9L23.4 6.4C18.6 7.6 9.4 7.6 4.6 6.4ZM5.2 5.6C3.4 5.9 1.6 6.9.6 8.4C2.8 8.4 4.6 8 6.2 7.2ZM22.8 5.6C24.6 5.9 26.4 6.9 27.4 8.4C25.2 8.4 23.4 8 21.8 7.2Z" fill="#5e3f22"/>
+        </g>
+      </g>
+      <path d="M3.4 24A10.6 2.4 0 0 0 24.6 24" fill="none" stroke="#6f5537" stroke-width="1" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+<div id="stage">
+  <svg id="wires"><defs></defs></svg>
+
+  <!-- top: Claude -->
+  <div class="title" style="left:380px;width:600px;top:20px">Understand the Request, Check the Delivery</div>
+  <div class="group" id="ai" style="left:530px;top:60px;width:300px;height:220px"></div>
+  <div class="brand" style="left:548px;top:74px"><img src="icons/claude.svg">Claude</div>
+  <div class="box" style="left:560px;top:136px;width:240px;height:50px">Clarify</div>
+  <div class="box" style="left:560px;top:206px;width:240px;height:50px">Verify</div>
+
+  <!-- left: customer -->
+  <div class="person" id="user" style="left:40px;top:400px;width:330px;height:260px">
+    Customer<br><span style="font-weight:400;font-size:21px">(Summit Fitness, in a browser)</span>
+    <div class="who" style="margin-top:14px">
+      <svg width="130" height="130" viewBox="0 0 92 92"><circle cx="46" cy="46" r="46" fill="#e9eef7"/><circle cx="46" cy="36" r="16" fill="#3b4a6b"/><path d="M14 84c4-18 16-26 32-26s28 8 32 26" fill="#3b4a6b"/></svg>
+      <svg width="130" height="100" viewBox="0 0 130 100"><rect x="14" y="6" width="102" height="70" rx="6" fill="#1b1b1f"/><rect x="20" y="12" width="90" height="58" rx="2" fill="#fff"/><rect x="26" y="20" width="36" height="8" rx="2" fill="#c46a35"/><rect x="26" y="34" width="78" height="5" rx="2" fill="#ddd"/><rect x="26" y="44" width="60" height="5" rx="2" fill="#ddd"/><rect x="26" y="54" width="70" height="5" rx="2" fill="#ddd"/><rect x="2" y="78" width="126" height="10" rx="4" fill="#c9ccd3"/></svg>
+    </div>
+  </div>
+
+  <!-- centre: Groundhog -->
+  <div class="group" id="core" style="left:440px;top:380px;width:480px;height:300px"></div>
+  <div class="brand" style="left:694px;top:394px"><svg width="36" height="36"><use href="#gh"/></svg>Groundhog</div>
+  <div class="box" style="left:470px;top:452px;width:420px;height:52px">FastAPI Server</div>
+  <div class="box" style="left:470px;top:524px;width:200px;height:52px">Order Agent</div>
+  <div class="box" style="left:690px;top:524px;width:200px;height:52px">Next.js UI</div>
+  <div class="box" style="left:470px;top:596px;width:420px;height:52px;background:#f4f4f4">SQLite</div>
+
+  <!-- right: payments -->
+  <div class="title" style="left:1000px;width:480px;top:300px;line-height:1.3">Hold the Payment in Escrow,<br>Pay Out Only After the Checks Pass</div>
+  <div class="group" style="left:1030px;top:380px;width:420px;height:300px"></div>
+  <div class="brand" style="left:1326px;top:394px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#0052FF"/><rect x="0" y="10.8" width="12" height="2.4" fill="#fff"/></svg>Base</div>
+  <div class="box vert" id="chain" style="left:1050px;top:450px;width:50px;height:160px">Base Sepolia</div>
+  <div class="group" style="left:1130px;top:440px;width:300px;height:180px;border-width:1.5px"></div>
+  <div class="box" id="escrow" style="left:1150px;top:462px;width:260px;height:52px">USDC Escrow</div>
+  <div class="box" style="left:1150px;top:546px;width:260px;height:52px">Pay Out or Return</div>
+  <div class="box" style="left:1050px;top:628px;width:380px;height:40px;border-style:dashed;font-size:19px">Mock Payments (default)</div>
+
+  <!-- bottom: logos and the laptop -->
+  <div class="logos" id="logos" style="left:430px;top:770px">
+    <img src="icons/react.svg"><img src="icons/typescript.svg"><img src="icons/python.svg"><img src="icons/pydantic.svg">
+  </div>
+  <div class="laptop" id="laptop" style="left:580px;top:750px"><div class="screen"><img src="canvas.png"></div><div class="base"></div><div class="notch"></div></div>
+  <div class="cap" style="left:560px;width:500px;top:1078px">Watch the Order Live on the Canvas</div>
+</div>
+<script src="arrows.js"></script>
+<script>
+window.draw = () => {
+  const k = { color: "#111", width: 2.5, head: 6 };
+  const r = (id) => document.getElementById(id).getBoundingClientRect();
+  // anchor fractions from the real boxes, so every wire is exactly straight
+  const core = r("core"), user = r("user"), chain = r("chain"), logos = r("logos"), laptop = r("laptop"), ai = r("ai");
+  const cy = (b) => b.top + b.height / 2, cx = (b) => b.left + b.width / 2;
+  connect("user", "core", { from: "right", to: "left", double: true, ft: (cy(core) - user.top) / user.height, tt: 0.5, ...k });
+  connect("core", "chain", { from: "right", to: "left", double: true, ft: (cy(chain) - core.top) / core.height, tt: 0.5, ...k });
+  connect("ai", "core", { from: "bottom", to: "top", double: true, ft: 0.5, tt: (cx(ai) - core.left) / core.width, ...k });
+  connect("core", "logos", { from: "bottom", to: "top", double: true, ft: (cx(logos) - core.left) / core.width, tt: 0.5, ...k });
+  connect("core", "laptop", { from: "bottom", to: "top", double: true, ft: (cx(laptop) - core.left) / core.width, tt: 0.5, ...k });
+};
+</script>
