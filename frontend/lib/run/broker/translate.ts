@@ -310,7 +310,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         say("decide", { id: task.id, from: "agent", text: `${task.reason} Missing: ${task.missing_facts.join("; ")}` });
         emit({ type: "step_waiting", step: "decide", waitingOn: S.controller });
         controllerOpen = true;
-        caption("The rules can't decide, so it goes to a person, our controller, with the evidence.");
+        caption(`The rules can't decide, so it goes to a person, ${S.broker}'s controller, with the evidence.`);
         break;
       }
       case "human.decision": {

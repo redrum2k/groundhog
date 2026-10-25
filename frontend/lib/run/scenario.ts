@@ -1,4 +1,4 @@
-// The demo scenario: Groundhog builds a custom audience dataset for Summit Fitness's buying agent.
+// The demo scenario: Groundhog, the order agent working for the data broker Bayline Data, builds a custom audience dataset for Summit Fitness's buying agent.
 // Every name, amount and line of text on the canvas comes from this file. Synthetic data;
 // prices are sample values for the team to confirm.
 import type { SourceLine,
@@ -31,8 +31,10 @@ export function holdFor(e: { type: RunEvent["type"]; lines?: SourceLine[] }): nu
   }
 }
 
+const BROKER = "Bayline Data";
 export const S = {
   us: "Groundhog",
+  broker: BROKER, // the seller; Groundhog is its agent, so money and the controller belong to the broker
   agent: "Order agent",
   buyer: "Summit Fitness",
   buyerAgent: "Summit's buying agent",
@@ -43,7 +45,7 @@ export const S = {
   rerunCost: 6, // vendor license + compute for one production run
   oakland: 60,
   yoga: 30,
-  seat: "Order-to-cash agent for a data broker",
+  seat: `Order-to-cash agent for ${BROKER}, a data broker`,
   positioning: "Existing platforms handle transactions and delivery. We connect a custom order's requirements to fulfillment checks, evidence gathering, correction and authorized settlement.",
   reviewHours: 48,
 };
@@ -458,7 +460,7 @@ export function captionFor(e: RunEvent, ctx: { lane: Case; ending: Ending; learn
       : v.decidedBy === "contract" ? "Contract v2 decides: yoga counts. Free rerun."
       : v.kind === "agree" ? "Our rule: an unclear spec is on us. So they're right, and the rerun is free." : "Our rule: the vendor's category decides. So we're right, and yoga is extra.";
   }
-  if (e.type === "step_waiting" && s === "decide") return `The rules can't decide, so it goes to ${S.controller}, our controller, with the evidence.`;
+  if (e.type === "step_waiting" && s === "decide") return `The rules can't decide, so it goes to ${S.controller}, ${S.broker}'s controller, with the evidence.`;
   if (e.type === "amendment_signed" && s === "decide") return `Summit accepts a yoga amendment at $${S.yoga}.`;
   return undefined;
 }

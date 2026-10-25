@@ -86,7 +86,7 @@ describe("Customer view", () => {
     await act(async () => { screen.getByRole("tab", { name: "Customer view" }).click(); });
     expect(screen.getByText(/Approved and \$120 authorized/)).toBeTruthy();
     expect(screen.getByText(/Objected, answered, then accepted/)).toBeTruthy();
-    expect(screen.getAllByText(new RegExp(`paid to ${S.us}`)).length).toBeGreaterThan(0); // the wallet pill and the Paid line
+    expect(screen.getAllByText(new RegExp(`paid to ${S.broker}`)).length).toBeGreaterThan(0); // the wallet pill and the Paid line
     expect(screen.queryByRole("button", { name: /Approve and authorize/ })).toBeNull(); // nothing to click on a recorded run
   }, 60_000);
 });
