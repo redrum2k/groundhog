@@ -50,7 +50,7 @@ function rowsToSheet(rows: DataRow[]): ZipCount[] {
 /** The steps a detour takes, in the backend's own terms. */
 function detourSteps(kind: Detour, resolution: BrokerOrder["resolution"], decidedBy?: DecidedBy): Step[] {
   if (kind === "dispute") return [
-    { id: "investigate", kind: "investigate", title: "Investigate", detail: "Contract against the delivery", panel: true },
+    { id: "investigate", kind: "investigate", title: "Investigate", detail: "Contract against the delivery" }, // no auto-open: the canvas tells this beat
     { id: "verdict", kind: "verdict", title: resolution === "CORRECTED" ? "They're right" : "We're right", detail: decidedBy === "model" ? "Decided by model, verified by code" : decidedBy === "rules" ? "Decided by rules" : resolution === "CORRECTED" ? "A requirement failed" : "Delivered as accepted" },
   ];
   if (kind === "failed") return [

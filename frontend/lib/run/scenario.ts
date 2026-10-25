@@ -1,7 +1,7 @@
 // The demo scenario: DataPact builds a custom audience dataset for Summit Fitness's buying agent.
 // Every name, amount and line of text on the canvas comes from this file. Synthetic data;
 // prices are sample values for the team to confirm.
-import type {
+import type { SourceLine,
   Amendment, ContractLine, ControllerAction, DataContract, Delivery, Evidence, JournalEntry, LaneId, Message, Payment, RunEvent, Step,
   Track, ZipCount,
 } from "./contract";
@@ -15,10 +15,10 @@ export function stamp(track: Track, drafts: Draft[], from = 0): RunEvent[] {
 }
 
 // How long each event holds the screen during playback, long enough to read what changed
-export function holdFor(e: { type: RunEvent["type"] }): number {
+export function holdFor(e: { type: RunEvent["type"]; lines?: SourceLine[] }): number {
   switch (e.type) {
     case "evidence_found": return 1100;
-    case "source_checked": return 900;
+    case "source_checked": return e.lines?.every((l) => l.checked) ? 900 : 2200; // the first one covers the walk over and the dive
     case "aside": return 1300;
     case "message": return 1250; // long enough to read a one- or two-line bubble
     case "verdict": case "rule_updated": case "controller_decided": case "amendment_signed": case "books_posted": return 1400;
