@@ -1,5 +1,10 @@
 **Groundhog: Hyphenate business and operating-judgment rehearsal**
 
+Current demo decision — October 25: self-improvement is outside the three-minute
+demo. Lead with the request-to-cash pipeline, cited objection handling and payment
+gates. Keep the learning material below as historical/background Q&A, not a live
+demo step or a claim that reviewer feedback reliably improves subsequent answers.
+
 Prepared October 24, 2026 from the local `redrum2k/order-to-cash` checkout at `31d1e25`, the supplied four-page Hyphenate PDF, and the judging text in the request. This is a question bank and claim review, not an official Hyphenate scoring sheet or a prediction of specific judges' questions. No application changes, paid model calls, payments, deployments, or new qualification runs were performed for this review.
 
 Both supplied Discord image URLs failed to load, including an attempt through Discord's original-file host. Their additional examples could not be inspected. The PDF's four criteria match the pasted criteria; this guide does not invent image-specific requirements.
@@ -221,7 +226,7 @@ These are proposed rehearsal probes, not claims that this review executed them. 
 | Refresh or interrupt after the payment request, then repeat it. | A repeated attempt must not become another obligation or collection. | Same order and operation, accurate pending/confirmed state, one financial effect. |
 | “I found a defect after you already collected.” | A recorded complaint is not an implemented refund. | Preserved complaint, human handoff and candid disclosure that post-capture refund execution is unimplemented. |
 
-The best opening moment for this track is a decision that changes what the company is allowed to do. A good candidate is the missing identity-evidence case: the agent declines to invent proof, collection stays held, and Human can make a recorded commercial decision without rewriting the facts. The false-count case gives the contrasting outcome: it can defend Bayline when the evidence supports that. Reuse of approved knowledge then addresses the brief's longer-term company-memory theme.
+The best opening moment for this track is a decision that changes what the company is allowed to do. A good candidate is the missing identity-evidence case: the agent declines to invent proof, collection stays held, and Human can make a recorded commercial decision without rewriting the facts. The false-count case gives the contrasting outcome: it can defend Bayline when the evidence supports that. Keep the demonstration on these operating decisions and their financial consequences; knowledge reuse remains background work.
 
 Choose a case that is available and inspectable in the actual demo mode. A saved genuine execution is useful proof, but it must be labeled saved execution; it does not replace the brief's requested live challenge. The retained rehearsal's defect narrative and the primary aggregate verifier's before-publication correction are different stories.
 

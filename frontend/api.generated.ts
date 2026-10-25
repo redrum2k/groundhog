@@ -1876,6 +1876,8 @@ export interface components {
             binding: components["schemas"]["CanvasBinding"];
             /** By */
             by: string;
+            /** Guidance Memory Id */
+            guidance_memory_id?: string | null;
             /** Note */
             note: string;
             /** Seq */
@@ -2010,6 +2012,11 @@ export interface components {
             kind: "supported" | "contradicted" | "unclear";
             /** Reason */
             reason: string;
+            /**
+             * Reviewer Guidance
+             * @default []
+             */
+            reviewer_guidance?: components["schemas"]["GuidanceConsulted"][];
             /**
              * Validation
              * @enum {string}
@@ -2152,6 +2159,8 @@ export interface components {
         DecisionAcknowledgement: {
             /** Decision Id */
             decision_id: string;
+            /** Guidance Memory Id */
+            guidance_memory_id?: string | null;
             /**
              * Ok
              * @default true
@@ -2411,6 +2420,27 @@ export interface components {
             prepared_at: string;
             terms: components["schemas"]["PaymentTerms"];
             typed_data: components["schemas"]["AuthorizationTypedData"];
+        };
+        /** GuidanceConsulted */
+        GuidanceConsulted: {
+            /** Actor */
+            actor: string;
+            /** Applicability */
+            applicability: {
+                [key: string]: unknown;
+            };
+            /** Current Citations */
+            current_citations: components["schemas"]["DatasetReference"][];
+            /** Explanation */
+            explanation: string;
+            /** Guidance */
+            guidance: string;
+            /** Memory Id */
+            memory_id: string;
+            /** Originating Case */
+            originating_case: string;
+            /** Originating Order */
+            originating_order: string;
         };
         /** InterviewEvidence */
         InterviewEvidence: {
@@ -3623,6 +3653,8 @@ export interface components {
              * @default []
              */
             evidence_ids?: string[];
+            /** Guidance */
+            guidance?: string | null;
             /**
              * Reason
              * @default Review current cited evidence and the proposed remedy.

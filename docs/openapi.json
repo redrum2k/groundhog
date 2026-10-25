@@ -2619,6 +2619,17 @@
             "title": "By",
             "type": "string"
           },
+          "guidance_memory_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Guidance Memory Id"
+          },
           "note": {
             "title": "Note",
             "type": "string"
@@ -2976,6 +2987,14 @@
             "title": "Reason",
             "type": "string"
           },
+          "reviewer_guidance": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/GuidanceConsulted"
+            },
+            "title": "Reviewer Guidance",
+            "type": "array"
+          },
           "validation": {
             "enum": [
               "DISPATCHED",
@@ -3247,6 +3266,17 @@
           "decision_id": {
             "title": "Decision Id",
             "type": "string"
+          },
+          "guidance_memory_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Guidance Memory Id"
           },
           "ok": {
             "const": true,
@@ -3878,6 +3908,60 @@
           "expires_at"
         ],
         "title": "FundingPreparation",
+        "type": "object"
+      },
+      "GuidanceConsulted": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "applicability": {
+            "additionalProperties": true,
+            "title": "Applicability",
+            "type": "object"
+          },
+          "current_citations": {
+            "items": {
+              "$ref": "#/components/schemas/DatasetReference"
+            },
+            "maxItems": 8,
+            "title": "Current Citations",
+            "type": "array"
+          },
+          "explanation": {
+            "title": "Explanation",
+            "type": "string"
+          },
+          "guidance": {
+            "title": "Guidance",
+            "type": "string"
+          },
+          "memory_id": {
+            "title": "Memory Id",
+            "type": "string"
+          },
+          "originating_case": {
+            "title": "Originating Case",
+            "type": "string"
+          },
+          "originating_order": {
+            "title": "Originating Order",
+            "type": "string"
+          }
+        },
+        "required": [
+          "memory_id",
+          "actor",
+          "originating_order",
+          "originating_case",
+          "explanation",
+          "guidance",
+          "applicability",
+          "current_citations"
+        ],
+        "title": "GuidanceConsulted",
         "type": "object"
       },
       "InterviewEvidence": {
@@ -6826,6 +6910,19 @@
             },
             "title": "Evidence Ids",
             "type": "array"
+          },
+          "guidance": {
+            "anyOf": [
+              {
+                "maxLength": 1200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Guidance"
           },
           "reason": {
             "default": "Review current cited evidence and the proposed remedy.",

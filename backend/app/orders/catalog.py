@@ -56,7 +56,7 @@ from app.orders.run_events import CanvasEffects
 from app.orders.service import DomainError, utc_now
 from app.payments.catalog import CatalogPayments
 from app.payments.mock import mock_receipt
-from app.runtime.catalog_policy import authorization_ready, capture_allowed
+from app.runtime.catalog_policy import authorization_ready, can_open_dispute, capture_allowed
 from app.runtime.dataset_policy import cutoff, fits
 
 
@@ -802,11 +802,13 @@ class CatalogService(DatasetLifecycle):
             raise DomainError(409, "dispute requires an active unclosed delivery review")
         if not order.deliveries:
             raise DomainError(409, "a complaint requires a published delivery")
-        if any(
-            c.complaint.artifact_id == delivery_artifact(order.deliveries[-1]).artifact_id
-            for c in order.cases
-        ):
-            raise DomainError(409, "this delivery already has a dispute case")
+        if not can_open_dispute(order):
+            reason = (
+                "this delivery already has an unresolved dispute or remedy"
+                if is_dataset(order)
+                else "this delivery already has a dispute case"
+            )
+            raise DomainError(409, reason)
         complaint = command.complaint
         if is_dataset(order):
             self.validate_dataset_complaint(order, complaint)
@@ -1580,10 +1582,7 @@ class CatalogService(DatasetLifecycle):
                 order.model_copy(update={"customer_acceptance": order.binding}), self.clock()
             ):
                 actions.append("accept")
-            if self.clock() < order.deliveries[-1].review_deadline and not any(
-                case.complaint.artifact_id == delivery_artifact(order.deliveries[-1]).artifact_id
-                for case in order.cases
-            ):
+            if self.clock() < order.deliveries[-1].review_deadline and can_open_dispute(order):
                 actions.append("dispute")
         if order.cases and order.cases[-1].question and order.cases[-1].status == "open":
             actions.append("answer")
@@ -1604,10 +1603,7 @@ class CatalogService(DatasetLifecycle):
                     for o in payment.operations
                 )
                 and order.deliveries
-                and not any(
-                    c.complaint.artifact_id == delivery_artifact(order.deliveries[-1]).artifact_id
-                    for c in order.cases
-                )
+                and can_open_dispute(order)
                 and "dispute" not in actions
             ):
                 actions.append("dispute")

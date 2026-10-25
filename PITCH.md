@@ -5,6 +5,13 @@ the team's selected correct-delivery defense story, not an executed qualificatio
 Use the primary aggregate app at `/` or `/live`, synthetic sources and explicit
 mock funding. Record the actual finding before narrating its conclusion.
 
+Demo scope: one request-to-cash journey within the three-minute slot. Reviewer
+memory and source learning remain background implementation work, outside the
+demo. Do not enter reusable guidance, open learning controls, or start a second
+order to demonstrate improvement. Human review remains the uncertainty branch;
+it does not need to teach the agent. The story is delivery, evidence-backed
+judgment and the resulting permission to collect or hold funds.
+
 ## Full script
 
 | Beat | Screen / driver action | Spoken narration |
@@ -37,9 +44,11 @@ causal sequence; label sped-up waits. Use one actual order for the main story.
   uncertain is not completed. Keep the simulated-payment label visible.
 - For a shorter cut, enter `SF adults 25–34, gym membership or fitness app use,
   counts by ZIP.` and omit the clarification beat.
-- Leave escalation and learning for separate footage or Q&A. This order does not
-  itself demonstrate either capability. Do not claim live model inference unless
-  the recorded run's provenance supports it.
+- Keep escalation available for Q&A; this selected order does not demonstrate it.
+  Self-improvement is not a demo beat or a claimed outcome. If asked, explain that
+  reviewer guidance can be persisted and retrieved, but reliable improvement from
+  that feedback has not been demonstrated. Do not claim live model inference
+  unless the recorded run's provenance supports it.
 
 ## Thirty-second version
 

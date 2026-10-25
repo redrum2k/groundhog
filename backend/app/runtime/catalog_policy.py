@@ -2,7 +2,7 @@
 
 from app.catalog.verification import material_blockers
 from app.contracts.dataset import DATASET_CHECKS, BrokeragePolicy
-from app.datasets import is_dataset
+from app.datasets import delivery_artifact, is_dataset
 from app.runtime.dataset_policy import cutoff
 
 
@@ -19,6 +19,20 @@ def authorization_ready(authorization):
         and receipt.mode == "live"
         and receipt.status == "confirmed"
     )
+
+
+def can_open_dispute(order):
+    """Aggregate deliveries may be challenged again after their prior case is resolved."""
+    if not order.deliveries:
+        return False
+    artifact_id = delivery_artifact(order.deliveries[-1]).artifact_id
+    previous = [case for case in order.cases if case.complaint.artifact_id == artifact_id]
+    if not is_dataset(order):
+        return not previous
+    if any(case.status in ("open", "human_review", "scope_change") for case in order.cases):
+        return False
+    # A supported defect still needs its correction; challenge the new delivery afterward.
+    return all(case.status in ("unsupported", "answered") for case in previous)
 
 
 def capture_allowed(order, now):

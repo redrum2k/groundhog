@@ -25,7 +25,7 @@ export interface NodeState {
   checks: Record<string, Check>;
   evidence: Evidence[];
   verdict?: Verdict;
-  decision?: { action: ControllerAction; by: string; note: string };
+  decision?: { action: ControllerAction; by: string; note: string; guidanceMemoryId?: string | null };
   delivery?: Delivery;
   contract?: DataContract;
   amendment?: Amendment;
@@ -244,7 +244,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
         v.orb = {step: e.step, mode: "wait"};
       }
       break;
-    case "controller_decided": n.decision = { action: e.action, by: e.by, note: e.note }; break;
+    case "controller_decided": n.decision = { action: e.action, by: e.by, note: e.note, guidanceMemoryId: e.guidance_memory_id }; break;
     case "amendment_signed": n.amendment = e.amendment; break;
     case "rule_updated": n.rule = e.rule; v.cards = [...v.cards, { id: e.rule.id, node: e.step, text: e.rule.label, tone: "rule" }]; break;
     case "books_posted": n.entries = e.entries; n.margin = e.margin ?? undefined; break;

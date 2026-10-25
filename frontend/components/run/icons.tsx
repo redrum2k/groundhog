@@ -48,7 +48,7 @@ export const IcLogo = ({ size = 24, ...p }: { size?: number } & SVGProps<SVGSVGE
     {/* the groundhog's face between the tiles */}
     <circle cx="12.9" cy="7.6" r="1.6" fill="#c46a35" />
     <circle cx="23.1" cy="7.6" r="1.6" fill="#c46a35" />
-    <path fill="#c46a35" d="M11.6 19V12.6C11.6 8.6 14.4 6 18 6S24.4 8.6 24.4 12.6V19Z" />
+    <path fill="#c46a35" d="M11.6 12.6C11.6 8.6 14.4 6 18 6S24.4 8.6 24.4 12.6C24.4 16.6 21.6 19 18 19S11.6 16.6 11.6 12.6Z" />
     <ellipse cx="18" cy="14.2" rx="3" ry="2.2" fill="#f6c58a" />
     <ellipse cx="18" cy="13.1" rx="1" ry="0.75" fill="#5b2f15" />
     <circle cx="15.6" cy="11.2" r="0.85" fill="#2b1a10" />
