@@ -109,7 +109,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   const WH = ROW_Y[Math.max(0, ...shown.map((n) => n.row))] + H + 110;
   const DOTS = 3000; // the grid extends past the world so it fills the stage at any camera position
 
-  // camera
+  // camera; SIDE keeps the drawn edge clear of the 40px side fade, so the first and last cards never sit in it
+  const SIDE = 56;
   let s: number, tx: number, ty: number;
   const vw = panelOpen && size.w > 760 ? size.w - 460 : size.w;
   const target = focusNode ? byId[focusNode] : undefined;
@@ -122,19 +123,22 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
     tx = (size.w - WW * s) / 2; ty = Math.max(10, (size.h - 70 - WH * s) / 2);
   } else {
     // the camera closes in on the step the groundhog is on and its neighbours, not on every step so far: the rest
-    // waits off to the side, a drag away. Never below 1.15, so cards and chips read from the back of a room.
+    // waits off to the side, a drag away. Never below 1.15 (the database visit aside), so cards and chips read from the back of a room.
     const near = shown.filter((n) => n.row === orbNode.row && Math.abs(n.col - orbNode.col) <= 1);
-    const x0 = Math.min(...near.map((n) => COL_X(n.col))), x1 = Math.max(...near.map((n) => COL_X(n.col) + W), atSource && source ? COL_X(source.col) + 330 : 0);
+    // room past both ends for the 40px side fade and the lane label that hangs left of the first card
+    const EDGE = 48;
+    const x0 = Math.min(...near.map((n) => COL_X(n.col))) - EDGE, x1 = Math.max(...near.map((n) => COL_X(n.col) + W), atSource && source ? COL_X(source.col) + 330 : 0) + EDGE;
     const y0 = ROW_Y[orbNode.row] - 44, y1 = ROW_Y[orbNode.row] + H + 72; // the chip above, the groundhog below
-    s = clamp(Math.min((vw - 48) / (x1 - x0), (size.h - 110) / (y1 - y0)), 1.15, 1.45);
+    // the database visit spans a step and the source, so it may go to 1.0 to keep both whole on a laptop screen
+    s = clamp(Math.min((vw - 48) / (x1 - x0), (size.h - 110) / (y1 - y0)), atSource ? 1 : 1.15, 1.45);
     // centred on that window, but never past the edge of what is drawn
-    tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp((vw - (x1 - x0) * s) / 2 - x0 * s, vw - WW * s - 24, 24);
+    tx = WW * s <= vw - 48 ? (vw - WW * s) / 2 : clamp((vw - (x1 - x0) * s) / 2 - x0 * s, vw - WW * s - SIDE, SIDE);
     ty = WH * s <= size.h - 90 ? (size.h - 70 - WH * s) / 2 : clamp((size.h - 70 - (y1 - y0) * s) / 2 - y0 * s, size.h - WH * s - 70, 20);
   }
   const cam = free ?? { tx, ty, s };
   // A world wider than the view slides edge to edge; one that fits only gives a little, then springs back
   const range = (t: number, world: number, view: number, pad: number): Range => (world > view - 2 * pad ? [view - pad - world, pad] : [t, t]);
-  const bx = range(tx, WW * cam.s, vw, 24), by = range(ty, WH * cam.s, size.h - 70, 20);
+  const bx = range(tx, WW * cam.s, vw, SIDE), by = range(ty, WH * cam.s, size.h - 70, 20);
   const pannable = focus.kind !== "overview";
   useLayoutEffect(() => { pan.current = { follow: { tx, ty, s }, bx, by, on: pannable }; });
 
