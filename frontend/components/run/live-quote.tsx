@@ -1,7 +1,8 @@
 import type { Quote } from "../../lib/runs.generated";
+import { formatMinor } from "../../lib/money";
 
 export default function LiveQuote({quote, canAccept, pay}: {quote: Quote; canAccept: boolean; pay: () => void}) {
-  const price = (quote.amount.amount_minor / 100).toFixed(2);
+  const price = formatMinor(quote.amount.amount_minor, quote.amount.decimals);
   const terms = quote.payment_terms;
   const mock = terms?.mode === "mock";
   return <>

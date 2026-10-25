@@ -20,8 +20,10 @@ from app.contracts.payments import FundingAuthorization
 from app.contracts.runs import RunCreate, RunOffer
 from app.datasets import produce_dataset
 from app.orders.catalog import CatalogService
+from app.orders.payment_justification import payment_justification
 from app.orders.run_events import binding
 from app.orders.runs import Runs
+from app.orders.service import DomainError
 from app.storage.catalog import CatalogRepository
 
 
@@ -92,12 +94,18 @@ def fund(service, order):
 
 def save(service, order, output, name):
     page = Runs(service).page(order.snapshot.quote.request_id)
-    (output / f"{name}-events.json").write_text(page.model_dump_json(indent=2, by_alias=True))
+    (output / f"{name}-events.json").write_text(
+        page.model_dump_json(indent=2, by_alias=True), encoding="utf-8"
+    )
     (output / f"{name}-order.json").write_text(
-        service.current_view(order.snapshot.order_id).model_dump_json(indent=2)
+        service.current_view(order.snapshot.order_id).model_dump_json(indent=2), encoding="utf-8"
     )
     for delivery in order.deliveries:
         (output / f"{name}-v{delivery.version}.csv").write_bytes(service.store.read(delivery.csv))
+    (output / f"{name}-payment-justification.json").write_text(
+        payment_justification(service, order.snapshot.order_id).model_dump_json(indent=2),
+        encoding="utf-8",
+    )
     return {
         "run_id": page.request.request_id,
         "order_id": order.snapshot.order_id,
@@ -155,6 +163,8 @@ def main():
         assert correction.free_corrections_used == 1 and not correction.deliveries
         correction = service.run_one(correction.snapshot.order_id)
     assert correction.verification.passed
+    correction = service.mutate(correction.snapshot.order_id, "accept", cmd(correction, "accept"))
+    assert len(correction.ledger) == 1 and not correction.children
     results["explicit_missing_zip_fault"] = save(service, correction, output, "correction")
     parent = fund(service, new_order(service, "expansion"))
     offer = Runs(service).offer(
@@ -167,6 +177,8 @@ def main():
     assert not child.authorization.receipt and not child.deliveries
     child = fund(service, child)
     assert child.snapshot.quote.amount.amount_minor == 50 and child.verification.passed
+    child = service.mutate(child.snapshot.order_id, "accept", cmd(child, "accept"))
+    assert len(child.ledger) == 1 and child.ledger[0].amount.amount_minor == 50
     results["oakland"] = save(service, child, output, "oakland")
     yoga = fund(service, new_order(service, "yoga"))
     yoga = service.mutate(
@@ -186,19 +198,66 @@ def main():
     )
     yoga = service.run_one(yoga.snapshot.order_id)
     assert (
-        yoga.cases[-1].status == "unsupported"
+        yoga.cases[-1].status == "answered"
+        and "Answer: No" in yoga.semantic_findings[-1].explanation
+        and yoga.semantic_findings[-1].citations
         and not yoga.free_corrections_used
         and not yoga.ledger
     )
     results["yoga"] = save(service, yoga, output, "yoga")
+    uncertain = fund(service, new_order(service, "uncertain"))
+    uncertain = service.mutate(
+        uncertain.snapshot.order_id,
+        "dispute",
+        DisputeCommand(
+            **cmd(uncertain, "uncertain-dispute").model_dump(),
+            complaint=Complaint(
+                artifact_id=uncertain.deliveries[-1].csv.artifact_id,
+                requirement_id="R-CATEGORY",
+                product_id="dataset",
+                field="category",
+                text=(
+                    "Can these aggregate counts establish that every person's membership "
+                    "is paid and active today?"
+                ),
+                intent="dispute_fact",
+            ),
+        ),
+    )
+    uncertain = service.run_one(uncertain.snapshot.order_id)
+    assert uncertain.semantic_findings[-1].result == "UNKNOWN"
+    assert uncertain.cases[-1].question and not uncertain.ledger
+    try:
+        service.mutate(uncertain.snapshot.order_id, "accept", cmd(uncertain, "forbidden-capture"))
+    except DomainError as error:
+        assert error.status == 409
+    else:
+        raise AssertionError("Unresolved material dispute permitted capture")
+    results["uncertain_entitlement"] = save(service, uncertain, output, "uncertain")
+    # Reopen the same durable store; do not manipulate rows or fabricate outcomes.
+    restarted = CatalogService(
+        CatalogRepository(output / "orders.sqlite3"), output / "artifacts", clock
+    )
+    for result in results.values():
+        before = service.current_view(result["order_id"])
+        after = restarted.current_view(result["order_id"])
+        assert before.order == after.order and before.payment == after.payment
     report = {
         "mode": "offline mock; missing-ZIP output fault is explicitly injected",
         "output": str(output),
         "cases": results,
         "live_rpc": False,
         "browser_executed": False,
+        "restart_verified": True,
+        "scenario_mapping": {
+            "A": "conforming",
+            "B": "explicit_missing_zip_fault",
+            "C": "oakland",
+            "D": "uncertain_entitlement",
+            "scope_question": "yoga",
+        },
     }
-    (output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
+    (output / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report))
 
 

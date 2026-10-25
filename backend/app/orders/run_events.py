@@ -3,6 +3,7 @@
 from app.contracts.dataset import DatasetManifest, DatasetReference
 from app.contracts.runs import DecisionBinding
 from app.datasets import is_dataset
+from app.money import format_money, major_units
 from app.storage.runs import RunEvents
 
 MAIN_STEPS = [
@@ -108,7 +109,7 @@ class CanvasEffects:
             db,
             quote.request_id,
             quote.quote_id,
-            f"Provider offers: {quote.work_description} Price ${quote.amount.amount_minor // 100}. "
+            f"Provider offers: {quote.work_description} Price ${format_money(quote.amount)}. "
             "Explicit buyer acceptance is required.",
         )
 
@@ -127,7 +128,7 @@ class CanvasEffects:
                 "version": 1,
                 "buyer": "AcmeFitness",
                 "title": quote.specification.summary,
-                "price": quote.amount.amount_minor // 100,
+                "price": major_units(quote.amount.amount_minor, quote.amount.decimals),
                 "lines": [
                     {"id": r.requirement_id, "text": r.wording, "check": "code"}
                     for r in quote.specification.requirements
@@ -145,7 +146,7 @@ class CanvasEffects:
                 amendment={
                     "id": quote.quote_id,
                     "summary": quote.work_description,
-                    "price": quote.amount.amount_minor // 100,
+                    "price": major_units(quote.amount.amount_minor, quote.amount.decimals),
                     "line": {"id": quote.quote_id, "text": quote.work_description, "check": "code"},
                 },
                 allowedBy=(
@@ -175,7 +176,10 @@ class CanvasEffects:
                 type="payment_state_changed",
                 payment={
                     "id": order.payment_id,
-                    "amount": order.snapshot.quote.amount.amount_minor // 100,
+                    "amount": major_units(
+                        order.snapshot.quote.amount.amount_minor,
+                        order.snapshot.quote.amount.decimals,
+                    ),
                     "mock": payment.simulated,
                 },
                 state=payment.payment.state,
@@ -333,7 +337,10 @@ class CanvasEffects:
                 type="payment_authorized",
                 payment={
                     "id": order.payment_id,
-                    "amount": order.snapshot.quote.amount.amount_minor // 100,
+                    "amount": major_units(
+                        order.snapshot.quote.amount.amount_minor,
+                        order.snapshot.quote.amount.decimals,
+                    ),
                     "mock": receipt.mode == "mock",
                 },
                 allowedBy="Confirmed held funding"

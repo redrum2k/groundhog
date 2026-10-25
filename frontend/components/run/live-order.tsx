@@ -2,6 +2,8 @@
 import { useState } from "react";
 import type { LiveOrder } from "../../lib/run/use-live-order";
 import { LIVE_API } from "../../lib/run/live";
+import { formatMinor } from "../../lib/money";
+import PaymentJustification from "./payment-justification";
 import TodoList from "./checklist";
 import LiveQuote from "./live-quote";
 import ComplaintForm from "./complaint-form";
@@ -55,7 +57,7 @@ export function LiveFunding({order,pay}:{order:LiveOrder;pay:()=>void}) {
     <h3>Funding · {payment?.payment.state ?? "Accept a quote first"}</h3>
     {order.stage && <p className="live-progress" role="status">{order.stage}</p>}
     {payment?.payment.last_error && <p className="review-err">{payment.payment.last_error}</p>}
-    {order.enabled("prepare_funding") && quote && <button type="button" className="btn solid" onClick={pay}>{quote.payment_terms?.mode==="mock"?"Simulate":"Pay"} ${(quote.amount.amount_minor/100).toFixed(2)}</button>}
+    {order.enabled("prepare_funding") && quote && <button type="button" className="btn solid" onClick={pay}>{quote.payment_terms?.mode==="mock"?"Simulate":"Pay"} ${formatMinor(quote.amount.amount_minor, quote.amount.decimals)}</button>}
     {payment?.payment.state==="funding_pending" && <p role="status">Payment submitted. Waiting for confirmed funds before starting work.</p>}
     {payment?.payment.state==="funded" && <p role="status">Funds confirmed and held in escrow.</p>}
     <p className="faint">{payment?.simulated?"Simulated payment; no funds move on-chain.":"After funding is confirmed, payment stays in escrow during verification and review."}</p>
@@ -93,7 +95,7 @@ export function LiveDelivery({order,working}:{order:LiveOrder;working:()=>void})
 export function LiveOffers({order,customer}:{order:LiveOrder;customer:()=>void}) {
   if(!order.binding)return null;
   return <details className="live-details"><summary>Request additional work</summary><p>Each offer needs its own agreement and payment.</p><div className="decision-actions">{["oakland","yoga","replacement"].map(scope=><button type="button" className="btn" key={scope} disabled={order.busy} onClick={()=>void order.requestOffer(scope)}>Request provider {scope} offer</button>)}</div>
-    {order.offer && <><p>Separate offer: ${(order.offer.amount.amount_minor/100).toFixed(2)}.</p><button type="button" className="btn" onClick={()=>{order.reviewOffer();customer();}}>Review separate offer</button></>}
+    {order.offer && <><p>Separate offer: ${formatMinor(order.offer.amount.amount_minor, order.offer.amount.decimals)}.</p><button type="button" className="btn" onClick={()=>{order.reviewOffer();customer();}}>Review separate offer</button></>}
   </details>;
 }
 
@@ -126,5 +128,6 @@ export function LiveStep({order,step,pay,working,customer}:{order:LiveOrder;step
     {["decide","investigate","verdict"].includes(step) && <LiveReview order={order}/>}
     {step==="captured" && <><LiveFunding order={order} pay={pay}/><p>Settlement reflects confirmed payment evidence. No external accounting integration.</p></>}
     <LiveEvidence order={order}/>
+    {order.binding && <PaymentJustification key={`${order.binding.orderId}:${order.binding.revision}`} orderId={order.binding.orderId}/>}
   </>;
 }

@@ -8,6 +8,7 @@ import TodoList, { type ChecklistItem } from "./checklist";
 import { IcCheck, IcChevronRight, IcLock, IcX } from "./icons";
 import { Chat, CiteChip } from "./conversation";
 import Label from "./label";
+import { formatMajor } from "../../lib/money";
 
 // One right-side panel holds every step's detail. It renders whatever the event stream attached
 // to the step, so there is no per-step layout to keep in sync with the backend.
@@ -50,7 +51,7 @@ function Contract({ view, extra }: { view: View; extra?: ContractLine }) {
   const lines = [...c.lines, ...(extra ? [extra] : [])];
   return (
     <div className="contract">
-      <div className="contract-h"><span>Data contract v{c.version}</span><span className="faint">${c.price}, approved by {S.buyerAgent}</span></div>
+      <div className="contract-h"><span>Data contract v{c.version}</span><span className="faint">${formatMajor(c.price)}, approved by {S.buyerAgent}</span></div>
       <ol>{lines.map((l, i) => <li key={l.id} className={i >= CONTRACT.length ? "new" : ""}><IcCheck size={13} strokeWidth={2.2} /><span>{l.text}</span><span className="faint mono">line {i + 1}</span></li>)}</ol>
     </div>
   );
@@ -62,7 +63,7 @@ function Books({ node }: { node: NodeState }) {
     <div className="books">
       <table>
         <thead><tr><th>Entry</th><th>Debit</th><th>Credit</th><th className="num">Amount</th></tr></thead>
-        <tbody>{entries.map((e) => <tr key={e.id}><td>{e.memo}</td><td>{e.debit}</td><td>{e.credit}</td><td className="num">${e.amount.toFixed(2)}</td></tr>)}</tbody>
+        <tbody>{entries.map((e) => <tr key={e.id}><td>{e.memo}</td><td>{e.debit}</td><td>{e.credit}</td><td className="num">${formatMajor(e.amount)}</td></tr>)}</tbody>
       </table>
       {margin && margin.cost !== null && <div className="margin">Margin <b>${(margin.revenue - margin.cost).toFixed(2)}</b> <span className="faint">after ${margin.cost.toFixed(2)} of data and compute</span></div>}
       <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Demo payment: no funds move. On Base Sepolia this capture is a Commerce Payments transaction, and its Basescan link shows here.</div>
@@ -224,7 +225,7 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
     case "clarify": content = <Interview view={view} onCite={onCite} customer={customer} />; break;
     case "paid": {
       const pay = view.payments[0];
-      content = (<div className="pay"><div className="pay-amt">${(pay?.amount ?? S.price).toFixed(2)}</div>
+      content = (<div className="pay"><div className="pay-amt">${formatMajor(pay?.amount ?? S.price)}</div>
         {pay?.rail === "mock" ? <div>Mock authorization opened by the backend on acceptance.</div> : <div>x402 authorization signed by {S.buyerAgent}.</div>}
         <div className="faint">Captured only after Summit accepts or the review window passes. "Authorized" means signed, not funds held.</div></div>);
       break;

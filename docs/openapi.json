@@ -1194,7 +1194,7 @@
           },
           "price": {
             "title": "Price",
-            "type": "integer"
+            "type": "number"
           },
           "summary": {
             "title": "Summary",
@@ -1349,7 +1349,7 @@
         "properties": {
           "amount": {
             "title": "Amount",
-            "type": "integer"
+            "type": "number"
           },
           "id": {
             "title": "Id",
@@ -1514,6 +1514,7 @@
               "open",
               "supported",
               "unsupported",
+              "answered",
               "scope_change",
               "human_review"
             ],
@@ -2723,7 +2724,7 @@
           },
           "price": {
             "title": "Price",
-            "type": "integer"
+            "type": "number"
           },
           "title": {
             "title": "Title",
@@ -4025,7 +4026,7 @@
         "properties": {
           "amount": {
             "title": "Amount",
-            "type": "integer"
+            "type": "number"
           },
           "credit": {
             "title": "Credit",
@@ -4260,7 +4261,7 @@
           "cost": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "number"
               },
               {
                 "type": "null"
@@ -4270,7 +4271,7 @@
           },
           "revenue": {
             "title": "Revenue",
-            "type": "integer"
+            "type": "number"
           }
         },
         "required": [
@@ -4988,6 +4989,191 @@
           "salt"
         ],
         "title": "PaymentInfo",
+        "type": "object"
+      },
+      "PaymentJustification": {
+        "additionalProperties": false,
+        "properties": {
+          "agreement": {
+            "$ref": "#/components/schemas/Snapshot"
+          },
+          "amount_atomic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Atomic"
+          },
+          "authorization": {
+            "$ref": "#/components/schemas/Authorization"
+          },
+          "binding": {
+            "$ref": "#/components/schemas/Binding"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Blockers",
+            "type": "array"
+          },
+          "bookings": {
+            "items": {
+              "$ref": "#/components/schemas/Booking"
+            },
+            "title": "Bookings",
+            "type": "array"
+          },
+          "bytes_revalidated": {
+            "title": "Bytes Revalidated",
+            "type": "boolean"
+          },
+          "capture_eligible_now": {
+            "title": "Capture Eligible Now",
+            "type": "boolean"
+          },
+          "cases": {
+            "items": {
+              "$ref": "#/components/schemas/Case"
+            },
+            "title": "Cases",
+            "type": "array"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/Assessment"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "customer_acceptance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Binding"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decisions": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewerDecision"
+            },
+            "title": "Decisions",
+            "type": "array"
+          },
+          "delivery_hashes": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Delivery Hashes",
+            "type": "object"
+          },
+          "exact_price": {
+            "title": "Exact Price",
+            "type": "string"
+          },
+          "kind": {
+            "const": "payment_justification_v1",
+            "default": "payment_justification_v1",
+            "title": "Kind",
+            "type": "string"
+          },
+          "latest_safe_capture_at": {
+            "format": "date-time",
+            "title": "Latest Safe Capture At",
+            "type": "string"
+          },
+          "limitations": {
+            "default": [
+              "Read-only observation, not approval or a reusable payment capability. Gates are rechecked at execution.",
+              "Bookings and operations are original persisted records, not reconstructed receipts or a general ledger.",
+              "Current eligibility is not a replay of historical eligibility; terminal receipts describe prior outcomes.",
+              "Mock settlement is not an on-chain transaction. Evidence judgments do not authorize money movement."
+            ],
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          },
+          "payment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PaymentView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "review_deadline": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Deadline"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          },
+          "source_hashes": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Source Hashes",
+            "type": "object"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observed_at",
+          "order_id",
+          "revision",
+          "binding",
+          "agreement",
+          "exact_price",
+          "amount_atomic",
+          "state",
+          "capture_eligible_now",
+          "blockers",
+          "bytes_revalidated",
+          "checks",
+          "source_hashes",
+          "delivery_hashes",
+          "authorization",
+          "customer_acceptance",
+          "review_deadline",
+          "latest_safe_capture_at",
+          "cases",
+          "decisions",
+          "bookings",
+          "payment"
+        ],
+        "title": "PaymentJustification",
         "type": "object"
       },
       "PaymentOperation": {
@@ -10013,6 +10199,85 @@
           }
         },
         "summary": "Get Payment"
+      }
+    },
+    "/orders/{order_id}/payment-justification": {
+      "get": {
+        "operationId": "explain_payment_orders__order_id__payment_justification_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentJustification"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Explain Payment"
       }
     },
     "/quote-acceptance": {

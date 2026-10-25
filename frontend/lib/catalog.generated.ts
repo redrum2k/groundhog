@@ -368,7 +368,7 @@ export interface Case {
   opened_at: string;
   question?: string | null;
   questions_asked?: number;
-  status?: "open" | "supported" | "unsupported" | "scope_change" | "human_review";
+  status?: "open" | "supported" | "unsupported" | "answered" | "scope_change" | "human_review";
 }
 export interface ReviewerDecision {
   action: "request_evidence" | "release_authorization" | "propose_exception" | "reject" | "escalate";

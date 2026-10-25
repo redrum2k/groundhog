@@ -16,9 +16,19 @@ from app.orders.dataset_evidence import answer_references
 
 
 def named_row_references(order, store):
-    """Expose the routed ZIP's observed cells, without choosing a semantic verdict."""
-    target = order.cases[-1].complaint.product_id
-    if not re.fullmatch(r"[0-9]{5}", target):
+    """Expose named ZIP cells even when multi-topic routing targets the artifact.
+
+    Text selects evidence only, never a verdict. Preserve the 32-reference packet
+    bound (two authority references plus at most seven source/delivery row pairs).
+    """
+    complaint = order.cases[-1].complaint
+    targets = list(
+        dict.fromkeys(
+            ([complaint.product_id] if re.fullmatch(r"[0-9]{5}", complaint.product_id) else [])
+            + re.findall(r"\bZIP\s+([0-9]{5})\b", complaint.text, re.I)
+        )
+    )[:7]
+    if not targets:
         return ()
     terms = order.snapshot.quote.specification.terms
     source = next(s for s in order.sources if s.source_id.endswith(":" + terms.category))
@@ -39,22 +49,23 @@ def named_row_references(order, store):
     )
     refs = []
     for artifact, source_id, version, rows in tables:
-        matches = [r for r in rows if r["zip"] == target]
-        if len(matches) != 1:
-            continue  # Never manufacture a present cell or an absence certificate.
-        row = matches[0]
-        for column in ("count", "status"):
-            value = None if column == "count" and row["status"] != "released" else row[column]
-            refs.append(
-                reference(
-                    artifact,
-                    source_id,
-                    row=target,
-                    column=column,
-                    value=None if value is None else str(value),
-                    version=version,
+        for target in targets:
+            matches = [r for r in rows if r["zip"] == target]
+            if len(matches) != 1:
+                continue  # Never manufacture a present cell or an absence certificate.
+            row = matches[0]
+            for column in ("count", "status"):
+                value = None if column == "count" and row["status"] != "released" else row[column]
+                refs.append(
+                    reference(
+                        artifact,
+                        source_id,
+                        row=target,
+                        column=column,
+                        value=None if value is None else str(value),
+                        version=version,
+                    )
                 )
-            )
     return tuple(refs)
 
 
@@ -254,6 +265,29 @@ def unclear(order, reason):
     )
 
 
+def scope_inquiry(complaint):
+    """Recognize a whole, unqualified contract-inclusion question, never consent.
+
+    This is the deliberately bounded offline grammar, not general language
+    understanding. Allegations, taxonomy, extra clauses and modifiers abstain and
+    still reach the guarded semantic investigator.
+    """
+    if complaint.field != "category":
+        return False
+    text = " ".join(complaint.text.lower().split()).rstrip(".?!")
+    subject = r"(?:standalone )?yoga(?:[- ]studio)?(?: memberships?| studios?)?"
+    scope = r"(?:our|the) (?:accepted|agreed) (?:fitness )?(?:scope|terms|definition|contract)"
+    prefix = r"(?:(?:under|within) " + scope + r",? )?"
+    return any(
+        re.fullmatch(prefix + pattern, text)
+        for pattern in (
+            r"does " + subject + r" count(?: (?:in|under) " + scope + r")?",
+            r"(?:is|are) " + subject + r" (?:included|covered) (?:in|by|under) " + scope,
+            r"does " + scope + r" (?:include|cover) " + subject,
+        )
+    )
+
+
 def interpret_claim(complaint):
     """Whole-clause, auditable predicates. Unknown qualifiers never disappear.
 
@@ -268,6 +302,8 @@ def interpret_claim(complaint):
         r"(?:(?:fitness|gym/app) )?(?:scope|definition|category|contract)"
     )
     if complaint.field == "category":
+        if scope_inquiry(complaint):
+            return "contract_includes_yoga", True
         # Retain the existing narrow demo wording, but never ignore a suffix or
         # combine its category assertion with an unproved second claim.
         if re.fullmatch(yoga + r" should count as fitness", text):
@@ -343,10 +379,18 @@ def independent_claim(order, report, store):
         )
         store.resolve(ref, order.artifacts)
         included = terms.category == "gym_app_or_yoga"
+        answer = (
+            f"Answer: {'Yes' if included else 'No'}, standalone yoga "
+            f"{'is included in' if included else 'is excluded from'} the frozen accepted scope. "
+            "This answers a coverage question; it is not an allegation of omitted work, "
+            "a request to buy more, or authorization to collect payment. "
+            if scope_inquiry(case.complaint)
+            else ""
+        )
         return (
             "PASS" if included == asserted else "FAIL",
             (ref,),
-            "The frozen accepted category and independently verified source category "
+            answer + "The frozen accepted category and independently verified source category "
             "establish scope; no provider-output fault follows.",
         )
     if name == "taxonomy_yoga_is_gym":
