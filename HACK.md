@@ -112,6 +112,19 @@ before forwarding requests; legacy API proxies and controlled learning stay clos
 All visitors share demo access and its configured model budget.
 See [workstream 06](docs/workstreams/06-data-broker.md) for implementation and evidence.
 
+## Devpost video pitch — October 25
+
+Groundhog connects a data broker's customer request, delivered data and evidence
+behind permitted collection. The selected video follows one correct delivery:
+SF request → fitness clarification → accepted agreement → simulated funding →
+verified CSV/JSON → “Oakland should be in there” → cited defense of the agreed
+SF scope → customer acceptance → confirmed mock collection.
+See [PITCH.md](PITCH.md) for narration, recording cues, a short version and Q&A.
+Recording driver and narrator are unassigned; the driver plays Summit Fitness.
+Technical follow-ups follow existing ownership: Jeff for evidence/interpretation,
+Nikita for runtime/payment gates, Lucas for the frontend. This is a recording plan,
+not a new execution result or authorization for paid calls or broadcasts.
+
 ## Historical competitive demo checkpoint — October 24, 13:22 Pacific
 
 This records the build at that time. The product and route descriptions above
