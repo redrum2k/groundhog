@@ -6,6 +6,7 @@ import hashlib
 import json
 import sqlite3
 import sys
+from datetime import datetime
 from pathlib import Path
 
 from aggregate_qualification_audit import cost_micro
@@ -203,7 +204,14 @@ def audit(root):
                             references += 1
                     if saved.get("review_response"):
                         responses.append(saved["review_response"])
-                        review = saved["review"]
+                        if saved.get("review_repair_response"):
+                            responses.append(saved["review_repair_response"])
+                            assert "format_repair" in saved["review_repair_request"]
+                            assert (
+                                saved["review_repair_request"]["format_repair"]["previous_review"]
+                                == saved["review"]
+                            )
+                        review = saved.get("review_repair") or saved["review"]
                         if saved["status"] == "VALIDATED":
                             assert review["result"] == saved["candidate"]["result"]
                             assert " ".join(
@@ -229,25 +237,34 @@ def audit(root):
                 for op in operations
             )
             terminals = [op for op in operations if op["intent"]["action"] != "fund"]
-            expected_result = next(
-                (r["expected"] for r in plan["recipes"] if r["id"] == label), None
-            )
-            if label == "training" or expected_result == "FAIL":
+            if order["ledger"]:
                 assert len(terminals) == len(order["ledger"]) == 1
-                assert order["ledger"][0]["kind"] == "capture"
-            elif plan.get("complete_settlement") or plan["attempt"] == "semantic-v1":
-                assert len(terminals) == len(order["ledger"]) == 1
-                assert order["ledger"][0]["kind"] == "release"
-                assert len(order["decisions"]) == 1
-                assert order["decisions"][0]["action"] == "release_authorization"
+                booking = order["ledger"][0]
+                assert booking["amount"] == snapshot["quote"]["amount"]
+                if booking["kind"] == "capture":
+                    assert terminals[0]["intent"]["action"] == "capture"
+                    assert order["verification"]["passed"]
+                    assert not order["cases"] or order["cases"][-1]["status"] == "unsupported"
+                    assert order["customer_acceptance"] == order["binding"] or (
+                        datetime.fromisoformat(booking["recorded_at"])
+                        >= datetime.fromisoformat(order["deliveries"][-1]["review_deadline"])
+                    )
+                else:
+                    assert booking["kind"] == "release"
+                    assert terminals[0]["intent"]["action"] == "void"
+                    assert len(order["decisions"]) == 1
+                    assert order["decisions"][0]["action"] == "release_authorization"
+                    assert booking["recorded_at"] >= order["decisions"][0]["recorded_at"]
             else:
                 assert not terminals and not order["ledger"]
+                assert not plan.get("complete_settlement")
             observed.append(
                 {
                     "case": label,
                     "rows": len(rows),
                     "reviews": attempt["internal_reviews"],
                     "bookings": len(order["ledger"]),
+                    "terminal_kind": order["ledger"][0]["kind"] if order["ledger"] else None,
                 }
             )
     unmatched = {r["id"]: r for r in calls}
@@ -271,6 +288,10 @@ def audit(root):
         "cases": results["cases"],
         "observations": observed,
         "model_calls": len(calls),
+        "blind_review_calls": sum(r["purpose"] == "primary-dataset-claim-review" for r in calls),
+        "review_repair_calls": sum(
+            r["purpose"] == "primary-dataset-claim-review-repair" for r in calls
+        ),
         "total_authorized_window_cost_usd": window_cost / 1e6,
         "cost_usd": sum(r["actual_micro_usd"] for r in calls) / 1e6,
         "citations_independently_checked": references,

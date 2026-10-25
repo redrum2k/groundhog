@@ -20,7 +20,7 @@ CLAIM = (
 )
 
 
-def wire(service, monkeypatch, *, invalid=None, slow=None):
+def wire(service, monkeypatch, *, invalid=None, slow=None, slow_review=None):
     calls = []
 
     class Client:
@@ -55,24 +55,32 @@ def wire(service, monkeypatch, *, invalid=None, slow=None):
                     DatasetReference.model_validate(p["citation"])
                     for p in packet["frozen_evidence_packet"]["passages"]
                 )
-                if invalid == "omitted-clause" or invalid == "repair-success" and len(calls) == 2:
+                if invalid == "omitted-clause" or (
+                    invalid in {"repair-success", "repair-disagrees"} and len(calls) == 2
+                ):
                     text = "Our agreement excludes yoga-only participants,"
                 if invalid == "invented-ref":
                     refs = (refs[0].model_copy(update={"sha256": "0" * 64}),)
                 if invalid == "no-citations":
                     refs = ()
                 result = DatasetClaimReview(
-                    result="UNKNOWN" if invalid == "disagree" else "PASS",
+                    result="UNKNOWN"
+                    if invalid == "disagree" or (invalid == "repair-disagrees" and len(calls) == 3)
+                    else "PASS",
                     clauses=(
                         DatasetClauseReview(
                             text=text,
                             result="UNKNOWN" if invalid == "unknown-clause" else "PASS",
                             citations=refs,
-                            explanation="Synthetic review fixture, not model evidence.",
+                            explanation="x"
+                            if invalid == "placeholder"
+                            else ("Synthetic review fixture, not model evidence."),
                         ),
                     ),
                     explanation="Synthetic blind review fixture.",
                 )
+                if slow_review:
+                    slow_review()
             if self.response_sink:
                 self.response_sink(
                     {"synthetic_test": True, "parsed": result.model_dump(mode="json")}
@@ -104,6 +112,7 @@ def wire(service, monkeypatch, *, invalid=None, slow=None):
         "disagree",
         "unknown-clause",
         "timeout",
+        "placeholder",
     ],
 )
 def test_blind_review_requires_complete_grounded_agreement(dataset_service, monkeypatch, invalid):
@@ -114,7 +123,9 @@ def test_blind_review_requires_complete_grounded_agreement(dataset_service, monk
     current = service.get(original.snapshot.order_id)
     with service.repository.transaction() as db:
         attempt = semantic_attempt(db, current)
-    expected_calls = 3 if invalid in {"omitted-clause", "invented-ref", "no-citations"} else 2
+    expected_calls = (
+        3 if invalid in {"omitted-clause", "invented-ref", "no-citations", "placeholder"} else 2
+    )
     assert len(calls) == expected_calls and attempt.candidate.result == "PASS"
     assert "FIRST_ANSWER_MUST_NOT_REACH_REVIEWER" not in json.dumps(calls[1][1])
     assert attempt.effective.result == ("PASS" if invalid is None else "UNKNOWN")
@@ -141,6 +152,34 @@ def test_one_completeness_repair_preserves_first_review_and_blindness(dataset_se
     assert attempt.review_response and attempt.review_repair_response
     assert "FIRST_ANSWER_MUST_NOT_REACH_REVIEWER" not in json.dumps(calls[1:])
     assert "validation_error" in calls[2][1]["format_repair"]
+
+
+def test_repair_cannot_loop_until_reviewer_agrees(dataset_service, monkeypatch):
+    service, _ = dataset_service
+    original = dispute(service, make_delivery(service), text=CLAIM)
+    calls = wire(service, monkeypatch, invalid="repair-disagrees")
+    assert CatalogWorker(service).run_once()
+    current = service.get(original.snapshot.order_id)
+    with service.repository.transaction() as db:
+        attempt = semantic_attempt(db, current)
+    assert len(calls) == 3 and attempt.status == "ADVISORY"
+    assert attempt.review_repair.result == attempt.effective.result == "UNKNOWN"
+    assert not current.ledger
+
+
+def test_output_repair_cannot_extend_the_worker_lease(dataset_service, monkeypatch):
+    service, clock = dataset_service
+    original = dispute(service, make_delivery(service), text=CLAIM)
+    calls = wire(
+        service, monkeypatch, invalid="omitted-clause", slow_review=lambda: clock.advance(25)
+    )
+    assert CatalogWorker(service).run_once()
+    current = service.get(original.snapshot.order_id)
+    with service.repository.transaction() as db:
+        attempt = semantic_attempt(db, current)
+    assert len(calls) == 2 and attempt.review_repair is None
+    assert "Insufficient" in attempt.review_repair_failure
+    assert not current.ledger and current.cases[-1].deadline == original.cases[-1].deadline
 
 
 def test_review_does_not_extend_existing_lease_or_deadline(dataset_service, monkeypatch):

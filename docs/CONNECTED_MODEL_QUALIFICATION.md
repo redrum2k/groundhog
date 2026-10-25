@@ -1,5 +1,8 @@
 # Real Claude plus learned source procedures: integration test, October 24
 
+Subsequent repair and fresh-case evidence: [semantic handoff fix](SEMANTIC_HANDOFF_FIX.md).
+The negative pilot below remains frozen history, not a claim about the repaired code.
+
 ## Verdict: connected execution works; full semantic qualification fails
 
 Eight actual Claude Opus 5.5 calls used the primary application, ordinary running
