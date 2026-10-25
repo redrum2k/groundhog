@@ -6,7 +6,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from evals.roi.economics import normalized, project
 from evals.roi.ledger import Ledger, unique_episodes
-from evals.roi.plan import ARMS, digest, make_plan
+from evals.roi.plan import ARMS, digest, freeze, make_plan
+from evals.roi.scoring import score
 
 
 def test_manifest_is_frozen_reproducible_and_expectations_separate():
@@ -73,6 +74,30 @@ def test_explicit_weight_normalization():
     assert normalized({"a": 1, "b": 3}) == {"a": 0.25, "b": 0.75}
 
 
+def test_checked_in_index_matches_original_frozen_public_inputs():
+    import json
+
+    root = Path(__file__).resolve().parents[3]
+    index = json.loads((root / "evals/roi/frozen_suite.json").read_text())
+    plan, _ = make_plan(index["seed"])
+    by_id = {c["case_id"]: c for c in plan["setup"] + plan["cases"]}
+    assert len(index["cases"]) == len(by_id) == 67
+    assert all(digest(by_id[c["case_id"]]) == c["input_hash"] for c in index["cases"])
+
+
 def test_financial_transaction_value_is_not_an_economic_input():
     with pytest.raises(TypeError):
         project({"x": 0}, {"x": 1}, held_funds=1000000)
+
+
+def test_missing_failures_stay_in_denominator_and_block_headline(tmp_path):
+    directory = tmp_path / "missing"
+    freeze(directory, "0" * 40)
+    result = score(directory)
+    assert not result["quality_gate"]
+    assert len(result["cases"]) == 201
+    for arm in result["summary"].values():
+        assert arm["scheduled"] == 60
+        assert arm["correctly_handled"] == 0
+        assert arm["quality_failures"] == 67
+        assert arm["measured_human_minutes"] is None

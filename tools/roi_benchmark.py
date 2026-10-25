@@ -100,10 +100,13 @@ def execute(directory):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("freeze", "run", "worker", "score"))
+    parser.add_argument(
+        "action", choices=("freeze", "run", "worker", "score", "report", "pilot", "audit-lineage")
+    )
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--arm", choices=ARMS)
     parser.add_argument("--stream")
+    parser.add_argument("--report-name", default="report.html")
     parser.add_argument("--start", type=int, default=0)
     parser.add_argument("--stop", type=int, default=1000)
     args = parser.parse_args()
@@ -120,10 +123,29 @@ def main():
         from evals.roi.execution import worker
 
         worker(directory, args.arm, args.stream, args.start, args.stop)
-    else:
+    elif args.action == "score":
         from evals.roi.scoring import score
 
         print(json.dumps(score(directory)["summary"], indent=2))
+    elif args.action == "report":
+        from evals.roi.report import render
+
+        print(
+            json.dumps(
+                {
+                    "quality_gate": render(directory, args.report_name)["quality_gate"],
+                    "report": str(directory / args.report_name),
+                }
+            )
+        )
+    elif args.action == "pilot":
+        from evals.roi.pilot import export_pilot
+
+        print(json.dumps(export_pilot(directory / "pilot")))
+    else:
+        from evals.roi.lineage import audit
+
+        print(json.dumps(audit(directory)))
 
 
 if __name__ == "__main__":

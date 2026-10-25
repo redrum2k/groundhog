@@ -1,0 +1,491 @@
+{
+  "schema": "roi-frozen-suite-index-v1",
+  "source_commit": "f314b6dc5d74568f40280bb235a587590f5b384e",
+  "seed": 20261025,
+  "capsule_sha256": "313ceeb238083e3d36a0ca69da109b223d8db903a3e11fcb4498a46e6cb19f72",
+  "input_sha256": "104b91bf2b941f56b461b0860abcf3b0215fd39d36c3a4530516703000d658a1",
+  "evaluator_sha256": "7fa5a9df71dc6842cde745feda3f7e284fd0072d990858a6c1976dbdc124fc19",
+  "mode": "offline_rules_mock_payments",
+  "counts": {
+    "repeat": 20,
+    "documented": 10,
+    "defect": 8,
+    "objection": 8,
+    "scope": 6,
+    "exception": 8
+  },
+  "scheduled_per_arm": 60,
+  "setup_per_arm": 7,
+  "restart_after": "case-010",
+  "cases": [
+    {
+      "case_id": "setup-recurring",
+      "stream_id": "recurring",
+      "category": "onboarding",
+      "phase": "setup",
+      "input_hash": "67d7273caed5f081056c1c624945629400920c28a507f1e711aa4318bead502b"
+    },
+    {
+      "case_id": "setup-attack-revoked",
+      "stream_id": "attack-revoked",
+      "category": "onboarding",
+      "phase": "setup",
+      "input_hash": "d335a337e3ea57b1fe23b547013dd4cb14fe14ee61cf93d48c663850e975a33b"
+    },
+    {
+      "case_id": "setup-attack-conflict",
+      "stream_id": "attack-conflict",
+      "category": "onboarding",
+      "phase": "setup",
+      "input_hash": "c7a817df515982779f35c319b8e2b110f35977239cee10725aac96d6af200d6b"
+    },
+    {
+      "case_id": "setup-attack-expired",
+      "stream_id": "attack-expired",
+      "category": "onboarding",
+      "phase": "setup",
+      "input_hash": "9e0b36ade7d3740590f06b900c72abbe3b4a318ace5b3039c15debfd32ce24fb"
+    },
+    {
+      "case_id": "setup-attack-changed_schema",
+      "stream_id": "attack-changed_schema",
+      "category": "onboarding",
+      "phase": "setup",
+      "input_hash": "8b3dee72351544cbbcef84d44f6fb11c49227c27c71e4b4101521bec0c955de9"
+    },
+    {
+      "case_id": "setup-attack-changed_epoch",
+      "stream_id": "attack-changed_epoch",
+      "category": "onboarding",
+      "phase": "setup",
+      "input_hash": "d301ee8143e028b76b179955c56cc9174631fcf937801006ee9f713d57a10308"
+    },
+    {
+      "case_id": "setup-attack-conflicting_definitions",
+      "stream_id": "attack-conflicting_definitions",
+      "category": "onboarding",
+      "phase": "setup",
+      "input_hash": "7218f9987bef9fdbe2aa0c48772a05adea82a7af4140103a6014beab20483d08"
+    },
+    {
+      "case_id": "case-001",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "145acf3158313b7b81d43731b0b9d49942e5a63e1ecf0103db01bd2d1046f5c8"
+    },
+    {
+      "case_id": "case-002",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "cf25a973cee3932d7ba993ed58bd2fba2744d5e702023ff148b48b98d0aaa584"
+    },
+    {
+      "case_id": "case-003",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "0d0b508e9636056170a82348ad525e587770755a74660c84430950a7add27baf"
+    },
+    {
+      "case_id": "case-004",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "06f67758474f117d78c647abd379c8cf44ba62371d23977d89d763abd2b010de"
+    },
+    {
+      "case_id": "case-005",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "091c6b31b159671d4f200d95998db0f1377035b7eb342ef02a374e24f33a29a2"
+    },
+    {
+      "case_id": "case-006",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "2551904e97c5f4861d999fe751972a681fcd838276c7b76cf0a31d6d05859fa9"
+    },
+    {
+      "case_id": "case-007",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "7d63f69b7ab7946afc6bc734e60ef41ca71de4600b7a1a08bef712d54cac2e95"
+    },
+    {
+      "case_id": "case-008",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "37565f4b7ce09d18458cdb69c709bda3050211a54eb35fcce875768ac0f97cf3"
+    },
+    {
+      "case_id": "case-009",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "69f8c5e2608b24011fd7103b34123d2be0e76ee22f75eb58aa1695f6ad572617"
+    },
+    {
+      "case_id": "case-010",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "259154653c6b3a215987bd80ab36ef4f9634b47d6d15c422cfdb7708a4aec62d"
+    },
+    {
+      "case_id": "case-011",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "6abaae47c44ce23e38dbac1a6c16f2697534c8e4f88948f3b7d71ad6e9e42aba"
+    },
+    {
+      "case_id": "case-012",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "3f263c05fb43200bd344e38595adfd17a81a65889042f87a00f1c88a188e68f7"
+    },
+    {
+      "case_id": "case-013",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "51a8f9ff90d9d54a7ee4abd2ceb23c47ac8e79de9c2ed9103e7509a553af7dee"
+    },
+    {
+      "case_id": "case-014",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "f4f82fcb6605fbbd7ba40d491ec4edba79387ddbf4267b5fb6537582fee61075"
+    },
+    {
+      "case_id": "case-015",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "552de4c15ad05220f73c41208084ea421dd04037b36ed3b1daf0589000eae50a"
+    },
+    {
+      "case_id": "case-016",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "d8691562cd5f454d29df88709f00190778be696f6f2c4e70211509244cb6bc51"
+    },
+    {
+      "case_id": "case-017",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "fd26c07c3fe5adf8fd44b2297d06d8593905e02a5b53cd60369fc189ec39caad"
+    },
+    {
+      "case_id": "case-018",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "9e5f899371603e3b45b685fa62912b5e5790a10b3f4e0ad48aab8d3f816ff763"
+    },
+    {
+      "case_id": "case-019",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "85b4e0190dde30b021f8df5058d4bb4a711e54cf106ed7cd954a69385f8dc7d9"
+    },
+    {
+      "case_id": "case-020",
+      "stream_id": "recurring",
+      "category": "repeat",
+      "phase": "recurring",
+      "input_hash": "a3c9b008ae527c731165eafd8a4bab21a47016570ec9fda621306f41e8944540"
+    },
+    {
+      "case_id": "case-021",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "563c734c0b8e95d0ed6f5cfd09ed32eec157c83e64dfb3600ece7c2f7df9b0e2"
+    },
+    {
+      "case_id": "case-022",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "0e84f85eb658912310671d4f1dbd6edbabae168910d1c7719d47a9517de44028"
+    },
+    {
+      "case_id": "case-023",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "1c7800846b52bfd7e52283fdfbccb58cd67af0dc562d2bd8a9e81dd52f499b84"
+    },
+    {
+      "case_id": "case-024",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "1294f386fd532cf5da0d5aa9b8e69b904e7b82e2042c15929b7dfabaafa30765"
+    },
+    {
+      "case_id": "case-025",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "34b6dcfd3c9225839e5ba4d75eb13a64415fb577991e808e7c2dec83fc8c6c40"
+    },
+    {
+      "case_id": "case-026",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "f0fc6078699da9a6bdc6625934209d0fdf7c15fcfef86f4e6e07bd25c9324a9e"
+    },
+    {
+      "case_id": "case-027",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "05c6394b7aea3cebd65e28a5b228e339aee8e994a8668efd29063298a12db70e"
+    },
+    {
+      "case_id": "case-028",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "042ac3b31330b49fcdba2a51f92cbf53dd27c559b0f3f63acd4a962cea959348"
+    },
+    {
+      "case_id": "case-029",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "39d97e69b980d059a82a8a9662a7133c637d495aacc4d04f84a404928a0faf6b"
+    },
+    {
+      "case_id": "case-030",
+      "stream_id": "documentation",
+      "category": "documented",
+      "phase": "recurring",
+      "input_hash": "032cff07e224bbd1c90cd43b6614c89e8f35c529a829396102182f2e798864a8"
+    },
+    {
+      "case_id": "case-031",
+      "stream_id": "recurring",
+      "category": "defect",
+      "phase": "recurring",
+      "input_hash": "79d53d6f1290f58b04cad71ced3b0fba61fd592b37da3a0d0a82787164d2dae9"
+    },
+    {
+      "case_id": "case-032",
+      "stream_id": "recurring",
+      "category": "defect",
+      "phase": "recurring",
+      "input_hash": "73074de38e2e3e5314cc8de505b4722be739402090c254b3ec9543426f319036"
+    },
+    {
+      "case_id": "case-033",
+      "stream_id": "recurring",
+      "category": "defect",
+      "phase": "recurring",
+      "input_hash": "b5a2cd816b87fefd1b6efa7c1bec147c486fbf08d6bdeed61c6e3585c65a436a"
+    },
+    {
+      "case_id": "case-034",
+      "stream_id": "recurring",
+      "category": "defect",
+      "phase": "recurring",
+      "input_hash": "cbd61daecd3c3f71e30f0fb39edbc7a1208f775e3af14f90fe1c37fe9310ad84"
+    },
+    {
+      "case_id": "case-035",
+      "stream_id": "recurring",
+      "category": "defect",
+      "phase": "recurring",
+      "input_hash": "f6251402c1fcce30adf006bb890f5c2257794cf3922985bf6f9d46ac555f6ac7"
+    },
+    {
+      "case_id": "case-036",
+      "stream_id": "recurring",
+      "category": "defect",
+      "phase": "recurring",
+      "input_hash": "27997bbb53e161e89e62bf7109eb07d30968bd20398b27aaafd0ce3ce7b4a56f"
+    },
+    {
+      "case_id": "case-037",
+      "stream_id": "recurring",
+      "category": "defect",
+      "phase": "recurring",
+      "input_hash": "75e028b515474f4fee165bb7c80f0f131357a49a3170ce0685ccb597388a0923"
+    },
+    {
+      "case_id": "case-038",
+      "stream_id": "recurring",
+      "category": "defect",
+      "phase": "recurring",
+      "input_hash": "52ee2242c6f479a7028069cfeaf3f95de6531b655d97556399ba7914c0fcd3b7"
+    },
+    {
+      "case_id": "case-039",
+      "stream_id": "recurring",
+      "category": "objection",
+      "phase": "recurring",
+      "input_hash": "15b4cce38a57319fcd3216442abab3aefd57ec47dd941d385ea33c742b6db4f7"
+    },
+    {
+      "case_id": "case-040",
+      "stream_id": "recurring",
+      "category": "objection",
+      "phase": "recurring",
+      "input_hash": "03cb1b8499dd9a25f867e7a5e298f2a7beee56ab1187ff2032a364fd76655d84"
+    },
+    {
+      "case_id": "case-041",
+      "stream_id": "recurring",
+      "category": "objection",
+      "phase": "recurring",
+      "input_hash": "5b73b928be8350c53d2c5b72422d4302169feacc25dff51a4f60191d7095a153"
+    },
+    {
+      "case_id": "case-042",
+      "stream_id": "recurring",
+      "category": "objection",
+      "phase": "recurring",
+      "input_hash": "e00076ad0f607d94d64913cb406e4e8b7b348f63e52322920d59e119e33911ce"
+    },
+    {
+      "case_id": "case-043",
+      "stream_id": "recurring",
+      "category": "objection",
+      "phase": "recurring",
+      "input_hash": "332ea0fc021292360d85ecc6f28720e74c20d71b626f49e8516737b577eca9b4"
+    },
+    {
+      "case_id": "case-044",
+      "stream_id": "recurring",
+      "category": "objection",
+      "phase": "recurring",
+      "input_hash": "f31f98064e4376db668581cb73960108cc6971aaeb75e99c89039733406a734c"
+    },
+    {
+      "case_id": "case-045",
+      "stream_id": "recurring",
+      "category": "objection",
+      "phase": "recurring",
+      "input_hash": "dd72537f5e9f9e78694c6f027e963d4c79d38ce88b2a7628481bed9a3e782e0d"
+    },
+    {
+      "case_id": "case-046",
+      "stream_id": "recurring",
+      "category": "objection",
+      "phase": "recurring",
+      "input_hash": "66c33db1b5196ffcac10d58d1bbebcb1b985bd562e647fe0f198b2e4e3875d60"
+    },
+    {
+      "case_id": "case-047",
+      "stream_id": "recurring",
+      "category": "scope",
+      "phase": "recurring",
+      "input_hash": "0e6335a516d06e20884fc5e8e6200ad8a547a6f3d2292f8d33ee85373472bf76"
+    },
+    {
+      "case_id": "case-048",
+      "stream_id": "recurring",
+      "category": "scope",
+      "phase": "recurring",
+      "input_hash": "99c2dfbe9b5d87cafd44a1d9fd04aa0778109813374c41d83a45434276a4e80b"
+    },
+    {
+      "case_id": "case-049",
+      "stream_id": "recurring",
+      "category": "scope",
+      "phase": "recurring",
+      "input_hash": "dd4cd94458fa18759ecb4081f6f1ff5b22d1074711065d11466b67b3c0e569f0"
+    },
+    {
+      "case_id": "case-050",
+      "stream_id": "recurring",
+      "category": "scope",
+      "phase": "recurring",
+      "input_hash": "aac9213da648df2d15316b8c57a23ca7d583d4edfb0637953e36de5194a725b5"
+    },
+    {
+      "case_id": "case-051",
+      "stream_id": "recurring",
+      "category": "scope",
+      "phase": "recurring",
+      "input_hash": "eccddd2fc26ce78aa414b5d94dad9c3a18266f6ff7922bd4b56f0785bc834679"
+    },
+    {
+      "case_id": "case-052",
+      "stream_id": "recurring",
+      "category": "scope",
+      "phase": "recurring",
+      "input_hash": "2d793afde151f422ff5b9ac2600ddba787b0132afbee921de541af477b096ae1"
+    },
+    {
+      "case_id": "case-053",
+      "stream_id": "attack-revoked",
+      "category": "exception",
+      "phase": "recurring",
+      "input_hash": "92ab9fdf175c5d91264f28f529140cdd5893b93199552beed803bcdc677a7579"
+    },
+    {
+      "case_id": "case-054",
+      "stream_id": "attack-conflict",
+      "category": "exception",
+      "phase": "recurring",
+      "input_hash": "e74001c41d2973dcb179ab42fcbed592cabbc7cd13c42a8755cd839925b93911"
+    },
+    {
+      "case_id": "case-055",
+      "stream_id": "attack-expired",
+      "category": "exception",
+      "phase": "recurring",
+      "input_hash": "9db010a67725ec95d4bc94b2c45e44def699e6a0d3d98067c50870fef2ac9102"
+    },
+    {
+      "case_id": "case-056",
+      "stream_id": "attack-changed_schema",
+      "category": "exception",
+      "phase": "recurring",
+      "input_hash": "51a5be7823f3201329ec40f038b1973bda66245cc2a0500c4632c3a7171f01f4"
+    },
+    {
+      "case_id": "case-057",
+      "stream_id": "attack-changed_epoch",
+      "category": "exception",
+      "phase": "recurring",
+      "input_hash": "bcaa821882e959c49fe0bbf1cd7c262fdb5f0d37a43800d0c3210d72fa3f2d25"
+    },
+    {
+      "case_id": "case-058",
+      "stream_id": "attack-conflicting_definitions",
+      "category": "exception",
+      "phase": "recurring",
+      "input_hash": "9542140f80ffcac2a588b846b82bcd903a98a7d1c3fa270a9944784aa1673670"
+    },
+    {
+      "case_id": "case-059",
+      "stream_id": "recurring",
+      "category": "exception",
+      "phase": "recurring",
+      "input_hash": "9736357cc8a49291fb08e5e55b7433e70765a0d09bf2e2829c51f6bbbb40b3d2"
+    },
+    {
+      "case_id": "case-060",
+      "stream_id": "recurring",
+      "category": "exception",
+      "phase": "recurring",
+      "input_hash": "db57647247653cd84b1fa0ad4c2de6f62de84f07824bfe84917f0da1a74fd26e"
+    }
+  ]
+}

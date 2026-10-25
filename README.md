@@ -8,6 +8,36 @@ budget-only model grant; default startup remains offline. Synthetic sources and 
 roles are disclosed. This is not production readiness or a newly verified on-chain trial.
 Historical offline/catalog statements below describe their earlier milestones, not the newer live trials.
 
+## ROI Lab — executed work, conditional economics
+
+The additive [ROI method](docs/ROI_METHOD.md) and [results](docs/ROI_RESULTS.md) compare
+a competent operator with persistent notes, Groundhog without new learning, and approved
+learning on the same frozen 60-scenario workload. Human attention is **unmeasured**;
+scripted work episodes are not staff minutes. Source-owner/buyer work, setup, failures,
+holds and all economic assumptions remain visible. The standalone report has no network
+or financial-execution path. No live inference or production activation is implied.
+
+```powershell
+uv sync --locked --project backend
+# Commit the implementation first; use a fresh private output name.
+uv run --locked --directory backend python ../tools/roi_benchmark.py freeze --output ../.local/roi-new
+uv run --locked --directory backend python ../tools/roi_benchmark.py run --output ../.local/roi-new
+uv run --locked --directory backend python ../tools/roi_benchmark.py audit-lineage --output ../.local/roi-new
+uv run --locked --directory backend python ../tools/roi_benchmark.py pilot --output ../.local/roi-new
+uv run --locked --directory backend python ../tools/roi_benchmark.py report --output ../.local/roi-new
+# Open .local/roi-new/report.html directly; no server is needed.
+```
+
+Literature frames mechanisms, never borrowed ROI effect sizes:
+
+- Problem: [Neumann/Tucker/Whitfield](https://pubsonline.informs.org/doi/abs/10.1287/mksc.2019.1188),
+  [Wang/Strong](https://doi.org/10.1080/07421222.1996.11518099), and the
+  [historical Harvard eBay/PayPal account](https://clp.law.harvard.edu/knowledge-hub/magazine/issues/remote-courts/separating-the-people-from-the-problem/).
+- Clarification: [Rao/Daumé](https://aclanthology.org/P18-1255/), with answer effort charged.
+- Verification and governed learning: [SPADE](https://arxiv.org/abs/2401.03038) and
+  [ACE](https://arxiv.org/abs/2510.04618), not claims that Groundhog implements either framework
+  or inherits its benchmark improvements. See the method's explicit limits.
+
 Turn AcmeFitness's request into a frozen data contract, fund it explicitly, deliver
 independently checked synthetic aggregate CSV/JSON, then settle under the review rules.
 The primary app at `/` (also `/live`) shares a full-screen customer conversation and
