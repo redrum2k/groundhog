@@ -449,7 +449,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .bub .slot-transcript { position: absolute; left: -42px; bottom: 0; width: 34px; height: 34px; }
 .slot-inspect { z-index: 3; } /* the inspector flies over the card's rows and checks */
 .cust-orb { display: block; pointer-events: none; }
-.orb-flyer { position: fixed; left: 0; top: 0; z-index: 5; transform-origin: 0 0; }
+.orb-flyer { position: absolute; left: 0; top: 0; z-index: 5; transform-origin: 0 0; } /* the copy that ducks in where the orb stood; it sits in the scrolling pane */
 .orb-flyer .det-tool { display: none; } /* the glass is put away for the trip */
 /* the inspecting orb: a handle in its hand, and a glass that enlarges what is under it */
 .det { will-change: transform; }
