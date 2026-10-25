@@ -35,7 +35,7 @@ Tracks: Hyphenate (order-to-cash finance seat), Coinbase (x402 payments, visible
 
 - Us: **DataPact**, a data broker. Builds custom datasets from rented vendor data, so every rerun
   costs us a license fee plus compute.
-- Customer: **Acme Fitness's buying agent** (an agent, not a person).
+- Customer: **Summit Fitness's buying agent** (an agent, not a person).
 - Controller: **Human**.
 - Order: "SF adults 25–34 interested in fitness, counts by ZIP." Aggregated counts only, no personal
   records. Demo data is synthetic.
@@ -57,7 +57,7 @@ count ≥ 50 (privacy) · all SF ZIPs present.
   cost shown), it's rechecked, then captured. Rule update shown: "check against the official SF ZIP
   list" (a second "learns from mistakes" moment).
 - **Green · disagree (we were right).** "Add Oakland." The orb pulls the interview line "SF city only"
-  as evidence. If Acme still wants it: contract amendment + new price ($60) → customer approves → new
+  as evidence. If Summit still wants it: contract amendment + new price ($60) → customer approves → new
   authorization → orb walks back to Produce.
 - **Amber · grey.** "Yoga studios should count as fitness." Interview said gyms + fitness apps; the
   vendor files yoga under "Wellness." The agent investigates (camera zooms into the chat). A switch
@@ -89,7 +89,7 @@ Demo order: shared path once, then red, green, amber.
   Basescan link to the real capture transaction.
 
 ### 2. Customer view (second tab, same app; shown if judges ask)
-- Acme's buying agent chatting with our agent. Follows whichever lane is selected.
+- Summit's buying agent chatting with our agent. Follows whichever lane is selected.
 - The intake interview turns into a **checklist that ticks off live** while the data is produced
   (21st.dev Agent Todo List pattern, already ported in `src/TodoList.tsx`).
 - Dispute replies cite evidence **inline**: specific spreadsheet cells and interview quotes.
@@ -199,8 +199,8 @@ Judging is Sunday morning, about 30 hours from Saturday 1:30 AM.
 ### What is real on stage
 Only the amber lane's verdict and the final x402 capture are live; the shared path, red and green replay recorded events.
 The amber verdict comes from the live agent; the 3-ending switch becomes a rehearsal and fallback replay.
-Acme's buying agent is a scripted client that calls the real backend API, labeled as scripted.
-During the amber investigation the agent asks Acme one question; the scripted answer keeps it grey, so it goes to Human.
+Summit's buying agent is a scripted client that calls the real backend API, labeled as scripted.
+During the amber investigation the agent asks Summit one question; the scripted answer keeps it grey, so it goes to Human.
 Human rules inside the zoomed "Human reviews" step (approve, reject, ask for more, send up); a teammate clicks on stage.
 If the live run stalls or errors, the canvas shows the failure and the presenter clicks "Play recorded ending".
 After the grey dispute resolves, a visual step shows Human's rule now decides this case automatically; a live rerun is decided later.
@@ -217,7 +217,7 @@ Each delivery has its own server review deadline, shown on its Deliver step; cap
 Pydantic models are the source of truth; contract.ts is the proposal and is deleted once the generated types land.
 
 ### Payments
-x402 with a held signature: "authorized" means Acme signed an EIP-3009 authorization, not escrowed funds, and the UI says so.
+x402 with a held signature: "authorized" means Summit signed an EIP-3009 authorization, not escrowed funds, and the UI says so.
 We submit that authorization at capture, which is the one real Basescan transaction.
 Payment states on screen: signed, submitted, confirmed, uncertain, and mock until the real path works.
 Nikita decides when and how the real authorization is signed; recommendation: a setup script pre-stages the live order and signature before the demo.
@@ -244,11 +244,11 @@ Jeff: amber investigator that asks one question and returns agree, disagree or g
 ## Decisions (grill with Lucas, Oct 24 2026, afternoon)
 
 ### Demo
-One order is the demo, not three cases. Redrum's flow: interview, contract, produce, deliver, Acme objects, the agent proves by contract with cited evidence, Acme accepts, captured.
+One order is the demo, not three cases. Redrum's flow: interview, contract, produce, deliver, Summit objects, the agent proves by contract with cited evidence, Summit accepts, captured.
 Escalation is act two: a second order where a check the sources can't settle goes through two questions, Human, a clarification and the free correction. Shown if time allows or a judge asks.
 The moment the video opens with is the agent defending the decision: the objection answered with the interview line and the contract line, the citation jumping to the message, then capture.
 "Improves" is the recorded "Next time" replay after Human's clarification; the backend's incident record for its improvement loop is explained in words.
-The presenter advances Acme's three moves (approve the contract, object or accept, accept) by clicking on the customer view; everything between runs on its own.
+The presenter advances Summit's three moves (approve the contract, object or accept, accept) by clicking on the customer view; everything between runs on its own.
 A judge can type their own objection; the backend investigates it against the accepted spec and the model answers with code-checked evidence.
 The All-cases map and the grey-area ending switch leave the screen; recorded mode stays as the fallback if the backend dies.
 

@@ -4,7 +4,7 @@ import Customer from "../components/run/customer";
 import { project } from "../lib/run/fold";
 import { CONTRACT, CONTRACT_V1, MAIN, timeline } from "../lib/run/scenario";
 
-// Acme's turns on a live run: the delivered rows sit beside the contract checks, the orb waits at the decision,
+// Summit's turns on a live run: the delivered rows sit beside the contract checks, the orb waits at the decision,
 // and a move stays in place until the view hands back to Run.
 
 afterEach(cleanup);
@@ -24,7 +24,7 @@ it("lists every contract line as checked beside the delivered sheet, with the or
 
 it("keeps the approved card in place, receipt where the button was, before the stream confirms it", async () => {
   const { events } = timeline("shared", "rules_no");
-  const drafted = events.slice(0, events.findIndex((e) => e.type === "contract_approved")); // the terms are written, Acme hasn't approved
+  const drafted = events.slice(0, events.findIndex((e) => e.type === "contract_approved")); // the terms are written, Summit hasn't approved
   const view = project(drafted, { lane: "shared", ending: "rules_no", learned: false, contract: CONTRACT_V1, live: true });
   const bodyProps = { view, lane: "shared" as const, ending: "rules_no" as const, learned: false, done: false, live: true, decide: async () => null, onReplayLearned: () => {} };
   const props = { run: "shared" as const, steps: MAIN, view, bodyProps, buyer: async () => null };

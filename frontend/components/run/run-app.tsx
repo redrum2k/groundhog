@@ -5,7 +5,7 @@ import { project, type FoldContext, type View } from "../../lib/run/fold";
 import { CONTRACT_V1, MAIN, S, controllerContinuation, stamp, timeline, type Case, type Ending } from "../../lib/run/scenario";
 import { LIVE_API, usePlayback, type Feed } from "../../lib/run/source";
 import Canvas, { type CanvasView, type CNode } from "./canvas";
-import { IcLogo, IcPause, IcPlay, IcReplay } from "./icons";
+import { IcLogo, IcPause, IcPlay, IcReplay, IcSummit } from "./icons";
 import Customer from "./customer";
 import Panel from "./panel";
 
@@ -15,7 +15,7 @@ import Panel from "./panel";
 type Mode = "recorded" | "live";
 const MAIN_IDS = new Set(MAIN.map((s) => s.id));
 // One order is the demo; the escalation is act two. The other scenario cases stay in the code for the recorded fallback.
-const DEMO: [Case, string][] = [["green", "The order"], ["amber", "Act two: escalation"]];
+const DEMO: [Case, string][] = [["green", "The order"], ["amber", "Escalation"]];
 // Until a live stream plans the steps, the landing wording follows the backend, not the recorded sample
 const LIVE_DETAIL: Record<string, string> = { paid: "Authorized on acceptance", review: "Accept or dispute" };
 const ctxFor = (lane: Case, ending: Ending, learned: boolean): FoldContext => ({ lane, ending, learned, contract: CONTRACT_V1 });
@@ -122,7 +122,7 @@ export default function RunApp() {
           )}
           {/* who this order is for; "Customer" keeps it from reading as the signed-in account */}
           <div className="account">
-            <span className="avatar" aria-hidden>{S.buyer.split(" ").map((w) => w[0]).join("")}</span>
+            <span className="avatar" aria-hidden><IcSummit size={15} strokeWidth={1.6} /></span>
             <div><div className="account-n">{S.buyer}</div><div className="account-r">Customer</div></div>
           </div>
         </div>
@@ -136,7 +136,7 @@ export default function RunApp() {
         </div>
         <div className="spacer" />
         {playback.awaiting && tab === "run" && (
-          <button className="btn solid" onClick={() => setTab("customer")}>{playback.awaiting === "approve" ? "Acme's turn: approve the contract" : "Acme's turn: accept or object"}</button>
+          <button className="btn solid" onClick={() => setTab("customer")}>{playback.awaiting === "approve" ? "Summit's turn: approve the contract" : "Summit's turn: accept or object"}</button>
         )}
         {status === "error" && <span className="tools-err" role="alert">{playback.error}</span>}
         {zoom && (
@@ -169,7 +169,7 @@ export default function RunApp() {
           {shown && <Panel key={shown.id + (learned ? "L" : "")} step={shown} {...bodyProps} closing={!panelStep} onClose={() => setPanel(null)} onClosed={() => setShown(undefined)} />}
         </main>
       ) : (
-        // a beat after Acme's move, long enough to see the receipt line land, the view goes back to the agent at work
+        // a beat after Summit's move, long enough to see the receipt line land, the view goes back to the agent at work
         <Customer run={run} steps={steps} view={view} bodyProps={bodyProps} awaiting={playback.awaiting} buyer={playback.buyer} onMoved={() => { window.setTimeout(() => setTab("run"), 600); }} />
       )}
     </div>

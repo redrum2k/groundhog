@@ -15,6 +15,7 @@ from app.api.catalog import worker as catalog_worker
 from app.api.improvement import router as improvement_router
 from app.api.jobflow import router as jobflow_router
 from app.api.runs import router as runs_router
+from app.api.source_learning import router as source_learning_router
 from app.contracts.http import Capabilities, ErrorResponse
 from app.improvement.service import Improvement
 from app.orders.catalog import CatalogService
@@ -44,6 +45,8 @@ def create_app(
     payment_mode=None,
     payment_config=None,
     payment_transport=None,
+    source_learning=False,
+    source_owner_token=None,
 ):
     if isinstance(database_path, Jobflow):
         service, database_path = database_path, None
@@ -85,6 +88,25 @@ def create_app(
         app.state.reviewer_token = reviewer_token or os.getenv("REVIEWER_API_TOKEN")
         if app.state.internal_token and app.state.internal_token == app.state.reviewer_token:
             raise ValueError("worker and reviewer credentials must be different")
+        app.state.source_learning = None
+        if source_learning or os.getenv("SOURCE_LEARNING_MODE") == "controlled_local":
+            from app.learning.service import SourceLearning
+
+            owner_token = source_owner_token or os.getenv("SOURCE_OWNER_API_TOKEN")
+            if (
+                not owner_token
+                or len({owner_token, app.state.internal_token, app.state.reviewer_token}) != 3
+                or not app.state.internal_token
+                or not app.state.reviewer_token
+            ):
+                raise ValueError(
+                    "distinct source-owner, controller and worker credentials required"
+                )
+            if os.getenv("ENABLE_PAID_MODELS") == "true":
+                raise ValueError("controlled local learning forbids paid model calls")
+            app.state.source_owner_token = owner_token
+            app.state.source_learning = SourceLearning(app.state.orders, enabled=True)
+            app.state.orders.source_learning = app.state.source_learning
         app.state.jobflow = service or Jobflow(
             path, demo=os.getenv("JOBFLOW_DEMO") == "1", clock=clock
         )
@@ -146,6 +168,16 @@ def create_app(
         expose_headers=["ETag"],
     )
 
+    @app.middleware("http")
+    async def local_learning_boundary(request: Request, call_next):
+        if getattr(app.state, "source_learning", None) is not None and (
+            request.client is None or request.client.host not in ("127.0.0.1", "::1", "testclient")
+        ):
+            return JSONResponse(
+                status_code=403, content={"detail": "controlled learning is local-only"}
+            )
+        return await call_next(request)
+
     @app.exception_handler(DomainError)
     async def domain_error(request: Request, exc: DomainError):
         return JSONResponse(status_code=exc.status, content={"detail": exc.message})
@@ -175,6 +207,7 @@ def create_app(
 
     app.include_router(router)
     app.include_router(runs_router)
+    app.include_router(source_learning_router)
     app.include_router(catalog_worker)
     app.include_router(reviewer)
     # Separate schemas retain the frozen catalog component names and the existing

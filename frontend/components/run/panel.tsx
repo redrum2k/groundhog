@@ -154,7 +154,7 @@ function Checks({ node, view }: { node: NodeState; view: View }) {
   );
 }
 
-const ACTIONS: [ControllerAction, string][] = [["approve", "Yoga counts, rerun free"], ["reject", `No, offer $${S.yoga}`], ["ask", "Ask Acme for more"], ["escalate", "Send to CFO"]];
+const ACTIONS: [ControllerAction, string][] = [["approve", "Yoga counts, rerun free"], ["reject", `No, offer $${S.yoga}`], ["ask", "Ask Summit for more"], ["escalate", "Send to CFO"]];
 // The live backend's controller can resume or hold; the other two are not commands it has
 const LIVE_ACTIONS: [ControllerAction, string][] = [["approve", "Resume, evidence holds up"], ["reject", "Hold the payment"]];
 /** A live grey area in plain words, from the run itself: the term the records can't settle, for which ZIPs, what the vendor said and what has happened since. */
@@ -266,7 +266,7 @@ export function PanelBody({ step, view, lane, learned, done, live, decide, onRep
       const pay = view.payments[0];
       content = (<div className="pay"><div className="pay-amt">${(pay?.amount ?? S.price).toFixed(2)}</div>
         {pay?.rail === "mock" ? <div>Mock authorization opened by the backend on acceptance.</div> : <div>x402 authorization signed by {S.buyerAgent}.</div>}
-        <div className="faint">Captured only after Acme accepts or the review window passes. "Authorized" means signed, not funds held.</div></div>);
+        <div className="faint">Captured only after Summit accepts or the review window passes. "Authorized" means signed, not funds held.</div></div>);
       break;
     }
     case "produce": content = <Checks node={node} view={view} />; break;

@@ -9,6 +9,7 @@ import { IcLogo, IcX } from "./icons";
 import TodoList from "./checklist";
 import EvidenceAnswer from "./evidence-answer";
 import ComplaintForm from "./complaint-form";
+import SourceLearning from "./source-learning";
 
 const EMPTY = {version:0,buyer:"",title:"",price:0,lines:[]};
 const MAIN = new Set(["clarify","paid","produce","review","captured"]);
@@ -52,6 +53,7 @@ export default function LiveRun({recorded}: {recorded:()=>void}) {
   };
   const checks = view.contract.lines.length ? view.contract.lines : view.nodes.clarify?.drafted ?? [];
   return <div className="shell">
+    <SourceLearning openRun={live.resume}/>
     <header className="top"><div className="brand"><span className="logo" aria-hidden><IcLogo/></span><div><div className="title">DataPact <span className="faint">· AcmeFitness</span></div><div className="seatline">Aggregate dataset brokerage</div></div></div><div className="top-r"><button type="button" className="btn" onClick={recorded}>Run canvas</button><span className="tag">Live backend · synthetic data · {payment?.simulated === false ? "Base Sepolia" : "mock payments"}</span></div></header>
     <div className="tools">{id && <button type="button" className="btn" disabled={busy} onClick={()=>{live.newRun();setPreparation(undefined);setOffer(undefined);setPanel("clarify");}}>New request</button>}<span className="faint">{id ?? "New request"}</span><div className="spacer"/><button type="button" className="btn" onClick={()=>setPanel("clarify")}>Agreement</button><button type="button" className="btn" onClick={()=>setPanel("paid")}>Funding</button><button type="button" className="btn" onClick={()=>setPanel("review")}>Delivery & review</button><button type="button" className="btn" onClick={live.retry}>Refresh</button></div>
     {(live.error || localError) && <div className="tools-err" role="alert">{live.error ?? localError}</div>}

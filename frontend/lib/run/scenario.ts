@@ -1,4 +1,4 @@
-// The demo scenario: DataPact builds a custom audience dataset for Acme Fitness's buying agent.
+// The demo scenario: DataPact builds a custom audience dataset for Summit Fitness's buying agent.
 // Every name, amount and line of text on the canvas comes from this file. Synthetic data;
 // prices are sample values for the team to confirm.
 import type {
@@ -35,8 +35,8 @@ export function holdFor(e: { type: RunEvent["type"] }): number {
 export const S = {
   us: "DataPact",
   agent: "Order agent",
-  buyer: "Acme Fitness",
-  buyerAgent: "Acme's buying agent",
+  buyer: "Summit Fitness",
+  buyerAgent: "Summit's buying agent",
   controller: "Human",
   controllerRole: "Controller",
   order: "SF adults 25–34 interested in fitness, counts by ZIP",
@@ -50,8 +50,8 @@ export const S = {
 };
 
 export const POLICY = {
-  contract: "Acme approved the contract and its price",
-  amendment: "Acme approved and signed the amendment",
+  contract: "Summit approved the contract and its price",
+  amendment: "Summit approved and signed the amendment",
   freeRerun: "Our-fault policy: one free rerun per order",
   accepted: "Delivery accepted, no open dispute",
   ruling: "Controller ruling on an escalated dispute",
@@ -209,18 +209,18 @@ const E = {
   no94110: { id: "e-94110", kind: "sheet_cell", label: "Delivered sheet · no 94110 row", file: SHEET_V1.file, row: "94110", column: "People", value: null, note: "Missing from the delivery. Our check used the vendor's ZIP list, which lacked it.", source: { kind: "cell", version: 1, row: "94110", column: "People" } },
   sfOnly: { id: "e-city", kind: "interview_quote", label: "Interview · “SF city only.”", speaker: S.buyerAgent, quote: "SF city only.", note: "Agreed in the interview. It became line 2 of the contract.", source: { kind: "message", messageId: "m5" } },
   line2: { id: "e-line2", kind: "interview_quote", label: "Contract line 2 · SF ZIPs only", speaker: S.buyerAgent, quote: "SF city only.", note: "Line 2 of the contract.", source: { kind: "none", reason: "The contract is on the Clarify step" } },
-  gyms: { id: "e-fitness", kind: "interview_quote", label: "Interview · “gym members or fitness-app users”", speaker: S.buyerAgent, quote: "Gym members or people who use fitness apps.", note: "What Acme said fitness means. Yoga wasn't named.", source: { kind: "message", messageId: "m3" } },
+  gyms: { id: "e-fitness", kind: "interview_quote", label: "Interview · “gym members or fitness-app users”", speaker: S.buyerAgent, quote: "Gym members or people who use fitness apps.", note: "What Summit said fitness means. Yoga wasn't named.", source: { kind: "message", messageId: "m3" } },
   wellness: { id: "e-wellness", kind: "vendor_category", label: "Vendor · yoga filed under “Wellness”", vendor: "Data vendor", item: "Yoga studios", category: "Wellness", note: "The vendor files yoga under Wellness, not Fitness.", source: { kind: "none", reason: "The vendor's category list lives outside this run" } },
-  claim: { id: "e-claim", kind: "claim", label: "Acme · “yoga is fitness”", speaker: S.buyerAgent, quote: "Yoga studio members should count as fitness.", note: "Acme's claim during the dispute. A claim, not something the contract says.", source: { kind: "message", messageId: "m-claim" } },
+  claim: { id: "e-claim", kind: "claim", label: "Summit · “yoga is fitness”", speaker: S.buyerAgent, quote: "Yoga studio members should count as fitness.", note: "Summit's claim during the dispute. A claim, not something the contract says.", source: { kind: "message", messageId: "m-claim" } },
   v2: { id: "e-v2", kind: "interview_quote", label: "Contract v2 · yoga counts as fitness", speaker: S.controller, quote: CONTRACT_V2.text, note: "Added to the contract by the controller's ruling.", source: { kind: "none", reason: "Contract v2 is on the Clarify step" } },
 } satisfies Record<string, Evidence>;
 const cite = (...ids: string[]): Message["attach"] => ids.map((evidenceId) => ({ kind: "evidence", evidenceId }));
 
 /** The three things the agent reads at the source during any dispute. */
 const SRC = (checked: boolean): Draft => ({ type: "source_checked", step: "investigate", lines: [
-  { id: "src-pin", text: "Vendor panel v1, pinned at acceptance", checked },
-  { id: "src-lines", text: "Every contract line re-checked against it", checked },
-  { id: "src-counts", text: "Delivered counts compared with the source", checked },
+  { id: "src-pin", text: "LOOKUP vendor panel v1 · pinned at acceptance", checked },
+  { id: "src-lines", text: "CHECK every contract line · against the source", checked },
+  { id: "src-counts", text: "COMPARE delivered counts · with the source", checked },
 ] });
 export const RED: Draft[] = [
   ...openDispute("red", [
@@ -256,7 +256,7 @@ export const GREEN: Draft[] = [
   say("investigate", agent("m-reply", `Your order covers San Francisco city only. Nothing's missing from what was agreed, and there's no charge for asking. Want Oakland added as an amendment for $${S.oakland}?`, cite("e-city", "e-line2"))),
   done("investigate"),
   start("verdict"),
-  { type: "verdict", step: "verdict", verdict: { kind: "disagree", decidedBy: "rules", evidenceIds: ["e-city", "e-line2"], reason: "We delivered what was agreed: San Francisco city only, which Acme said in the interview." }, allowedBy: `Contract line: ${CONTRACT[1].text}` },
+  { type: "verdict", step: "verdict", verdict: { kind: "disagree", decidedBy: "rules", evidenceIds: ["e-city", "e-line2"], reason: "We delivered what was agreed: San Francisco city only, which Summit said in the interview." }, allowedBy: `Contract line: ${CONTRACT[1].text}` },
   { type: "aside", step: "verdict", text: "Settled by the contract and the source. No human needed." },
   done("verdict"),
   start("amend"),
@@ -273,7 +273,7 @@ export const GREEN: Draft[] = [
 /** How the grey-area lane ends; on stage the live agent decides, the switch is the rehearsal. */
 export type Ending = "rules_no" | "rules_yes" | "human";
 export const ENDINGS: [Ending, string][] = [["rules_no", "Rules: we're right"], ["rules_yes", "Rules: they're right"], ["human", `${S.controller} decides`]];
-export const HUMAN_QUESTION = "Should yoga studio members count as fitness for Acme's order?";
+export const HUMAN_QUESTION = "Should yoga studio members count as fitness for Summit's order?";
 const AMBER_EVIDENCE = ["e-fitness", "e-wellness", "e-claim"];
 const YOGA: Amendment = { id: "extra", summary: "Add yoga studio members", price: S.yoga, line: { id: "yoga-amend", text: `Amendment: add yoga studio members · +$${S.yoga}`, check: "code" } };
 const YOGA_SHEET = sheet(2, "acme-sf-fitness-v2.csv", yoga(withheld(VENDOR)));
@@ -301,6 +301,7 @@ export function amberOpen(ending: Ending, learned: boolean): Draft[] {
       done("investigate"),
       start("grey"),
       { type: "verdict", step: "grey", verdict: { kind: "agree", decidedBy: "contract", evidenceIds: ["e-v2"], reason: "Contract v2 says yoga counts. No person needed." }, allowedBy: POLICY.contractV2 } as Draft,
+      { type: "aside" as const, step: "grey", text: "Remembering Maya's ruling: contract v2 covers yoga. No human needed this time." },
       done("grey"),
     ] : [
       found("investigate", E.gyms),
@@ -372,7 +373,7 @@ export function controllerContinuation(action: ControllerAction, binding: { deli
       ...yogaAmendment,
     ];
     case "ask": return [
-      decided("Asked Acme for their member categories."),
+      decided("Asked Summit for their member categories."),
       say("decide", human("m-human", "Can you share how your own members are categorized?")),
       say("decide", buyer("m-cats", "We tag yoga, pilates and gyms all as fitness.")),
       wait("decide", S.controller),
@@ -432,20 +433,20 @@ export function captionFor(e: RunEvent, ctx: { lane: Case; ending: Ending; learn
   const window = ctx.reviewWindow ?? `${S.reviewHours} hours`;
   const s = "step" in e ? e.step : undefined;
   const attempt = "attempt" in e ? e.attempt ?? 1 : 1;
-  if (e.type === "dispute_opened") return `Acme disputes: “${e.dispute.claim}”. The payment is on hold until it's resolved.`;
+  if (e.type === "dispute_opened") return `Summit disputes: “${e.dispute.claim}”. The payment is on hold until it's resolved.`;
   if (e.type === "step_started") {
-    if (s === "clarify") return "Our agent interviews Acme's buying agent. Each answer becomes a line in the contract.";
-    if (s === "paid") return `Acme approves the contract and authorizes $${S.price}. We only take it once the data is accepted.`;
+    if (s === "clarify") return "Our agent interviews Summit's buying agent. Each answer becomes a line in the contract.";
+    if (s === "paid") return `Summit approves the contract and authorizes $${S.price}. We only take it once the data is accepted.`;
     if (s === "produce" && attempt === 1) return "We build the counts from rented vendor data and check every contract line.";
     if (s === "produce") return ctx.lane === "red" ? `The orb carries the job back to Produce. The rerun is on us: $${S.rerunCost}.`
       : ctx.lane === "green" ? "Back to Produce with the amended contract." : "Back to Produce to add yoga studio members.";
-    if (s === "review" && attempt === 1) return ctx.reviewWindow ? `Delivered. Acme has ${window} to accept or dispute.` : `Delivered. One ZIP was held back for privacy. Acme has ${window} to accept or dispute.`;
+    if (s === "review" && attempt === 1) return ctx.reviewWindow ? `Delivered. Summit has ${window} to accept or dispute.` : `Delivered. One ZIP was held back for privacy. Summit has ${window} to accept or dispute.`;
     if (s === "review") return ctx.lane === "red" ? "94110 added and rechecked against the official SF ZIP list. That check is now permanent."
       : ctx.lane === "green" ? "Oakland rows added and checked. New review window." : "Yoga members added and checked. New review window.";
     if (s === "investigate") return ctx.lane === "red" ? "The agent checks the contract against the delivered sheet."
-      : ctx.lane === "green" ? "The agent pulls what Acme agreed to in the interview."
+      : ctx.lane === "green" ? "The agent pulls what Summit agreed to in the interview."
       : ctx.learned ? "Same complaint as before. This time the contract already answers it." : "The agent gathers evidence. The interview never mentioned yoga.";
-    if (s === "amend") return `Acme still wants Oakland, so it becomes an amendment: $${S.oakland}, approved and signed by Acme.`;
+    if (s === "amend") return `Summit still wants Oakland, so it becomes an amendment: $${S.oakland}, approved and signed by Summit.`;
   }
   if (e.type === "step_completed" && s === "captured") {
     if (ctx.lane === "shared") return "Accepted. Payment captured and the books are posted.";
@@ -462,6 +463,6 @@ export function captionFor(e: RunEvent, ctx: { lane: Case; ending: Ending; learn
       : v.kind === "agree" ? "Our rule: an unclear spec is on us. So they're right, and the rerun is free." : "Our rule: the vendor's category decides. So we're right, and yoga is extra.";
   }
   if (e.type === "step_waiting" && s === "decide") return `The rules can't decide, so it goes to ${S.controller}, our controller, with the evidence.`;
-  if (e.type === "amendment_signed" && s === "decide") return `Acme accepts a yoga amendment at $${S.yoga}.`;
+  if (e.type === "amendment_signed" && s === "decide") return `Summit accepts a yoga amendment at $${S.yoga}.`;
   return undefined;
 }

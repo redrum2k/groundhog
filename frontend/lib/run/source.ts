@@ -7,6 +7,7 @@ import { project, type FoldContext, type View } from "./fold";
 import { controllerContinuation, holdFor, stamp, type Draft } from "./scenario";
 
 export const LIVE_API = "/api/broker-run";
+const DRIP = 110; // ms between events the canvas takes from one poll's burst
 
 export type Feed =
   | { kind: "still"; events: RunEvent[]; ctx: FoldContext } // the whole timeline at once, not playing
@@ -22,8 +23,8 @@ export interface Playback {
   error?: string;
   live: boolean;
   played: number; // events applied so far
-  awaiting: BuyerGate | null; // a live run paused for Acme's move
-  /** Acme's move, made by the presenter; null on success, else the server's reason. */
+  awaiting: BuyerGate | null; // a live run paused for Summit's move
+  /** Summit's move, made by the presenter; null on success, else the server's reason. */
   buyer: (m: BuyerMove) => Promise<string | null>;
   /** The controller's click: appends the recorded continuation, or posts to the live run. */
   decide: (action: ControllerAction, binding: Binding) => Promise<string | null>;
@@ -55,6 +56,19 @@ export function usePlayback(feed: Feed): Playback {
     setEvents(feed.before); setCursor(feed.before.length); setStatus("playing");
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    // A poll brings a burst (a question and its answer, a batch of checks); the canvas takes them one at a time,
+    // so the chat scrolls continuously and the checklist ticks line by line. Summit's gate waits for the last one.
+    const queue: RunEvent[] = [];
+    let gate: BuyerGate | null = null;
+    let drip: ReturnType<typeof setTimeout> | undefined;
+    const release = () => {
+      const e = queue.shift();
+      if (cancelled || !e) return;
+      setEvents((prev) => [...prev, { ...e, seq: prev.length + 1 }]);
+      setCursor((c) => c + 1);
+      if (queue.length) drip = setTimeout(release, DRIP);
+      else setAwaiting(gate);
+    };
     const poll = async () => {
       try {
         if (!runId.current) {
@@ -64,16 +78,17 @@ export function usePlayback(feed: Feed): Playback {
         }
         const res = await fetch(`${feed.api}/runs/${runId.current}/events?after=${lastSeq.current}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`The run stopped answering (${res.status})`);
-        const { events: fresh, poll_after_ms, awaiting: gate, error: failure } = (await res.json()) as { events: RunEvent[]; poll_after_ms: number; awaiting?: BuyerGate | null; error?: string };
+        const { events: fresh, poll_after_ms, awaiting, error: failure } = (await res.json()) as { events: RunEvent[]; poll_after_ms: number; awaiting?: BuyerGate | null; error?: string };
         if (cancelled) return;
-        setAwaiting(gate ?? null);
+        gate = awaiting ?? null;
         if (failure) { setError(`The scripted parties stopped: ${failure}`); setStatus("error"); return; }
         const next = fresh.filter((e) => e.seq > lastSeq.current);
         if (next.length) {
           lastSeq.current = next[next.length - 1].seq;
-          setEvents((prev) => [...prev, ...next.map((e,i)=>({...e,seq:prev.length+i+1}))]);
-          setCursor((c) => c + next.length);
-        }
+          const idle = queue.length === 0;
+          queue.push(...next);
+          if (idle) release();
+        } else if (!queue.length) setAwaiting(gate);
         timer = setTimeout(poll, poll_after_ms);
       } catch (err) {
         if (cancelled) return;
@@ -83,7 +98,7 @@ export function usePlayback(feed: Feed): Playback {
     };
     lastSeq.current = 0;
     void poll();
-    return () => { cancelled = true; if (timer) clearTimeout(timer); };
+    return () => { cancelled = true; if (timer) clearTimeout(timer); if (drip) clearTimeout(drip); };
   }, [feed]);
 
   // Recorded playback: advance on a timer, stop where the scenario waits on the controller

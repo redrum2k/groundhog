@@ -16,14 +16,22 @@ export async function bridge(request: Request, path: string[]) {
   if (path.some(p => !/^[a-zA-Z0-9_:.-]+$/.test(p) || p === "." || p === "..")) return fail(404, "Operation not supported.");
   const target = "/" + path.join("/");
   const id = "[a-zA-Z0-9_:.-]+";
-  const get = new RegExp(`^/(runs/${id}/(events|evidence/${id})|orders/${id}/artifacts/${id})$`);
-  const post = new RegExp(`^/(runs|runs/${id}/(decisions|offers|answers)|requests/${id}/(answers|quotes)|internal/requests/${id}/compile|quote-acceptance|orders/${id}/(funding-preparation|funding-authorizations|acceptance|disputes))$`);
+  const get = new RegExp(`^/(source-learning/state|runs/${id}/(events|evidence/${id})|orders/${id}/artifacts/${id})$`);
+  const post = new RegExp(`^/(source-learning/(sources|resolve|propose|qualify|approve|activate|revoke)|runs|runs/${id}/(decisions|offers|answers)|requests/${id}/(answers|quotes)|internal/requests/${id}/compile|quote-acceptance|orders/${id}/(funding-preparation|funding-authorizations|acceptance|disputes))$`);
   if (!(request.method === "GET" ? get.test(target) : request.method === "POST" && post.test(target))) return fail(404, "Operation not supported.");
   const headers = new Headers({"Content-Type":"application/json"});
   const key = request.headers.get("idempotency-key");
   if (key) headers.set("Idempotency-Key", key);
   if (target.endsWith("/decisions")) headers.set("X-Reviewer-Token", reviewer);
   if (target.startsWith("/internal/") || target.endsWith("/offers")) headers.set("X-Internal-Token", internal);
+  if (target.startsWith("/source-learning/")) {
+    if (target.endsWith("/resolve")) {
+      const owner = process.env.SOURCE_OWNER_API_TOKEN;
+      if (!owner || owner === internal || owner === reviewer) return fail(503, "Distinct simulated source-owner credential required.");
+      headers.set("X-Source-Owner-Token", owner);
+    } else if (/\/(qualify|approve|activate|revoke)$/.test(target)) headers.set("X-Reviewer-Token", reviewer);
+    else headers.set("X-Internal-Token", internal);
+  }
   const query = new URLSearchParams();
   if (target.endsWith("/events")) for (const k of ["after", "limit"]) if (url.searchParams.has(k)) query.set(k, url.searchParams.get(k)!);
   try {

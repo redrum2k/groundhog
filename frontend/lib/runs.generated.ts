@@ -913,17 +913,9 @@ export interface DatasetSpecification {
   required_columns?: ("zip" | "area" | "count" | "status")[];
   /**
    * @minItems 1
-   * @maxItems 8
+   * @maxItems 24
    */
-  sources:
-    | [SourcePin]
-    | [SourcePin, SourcePin]
-    | [SourcePin, SourcePin, SourcePin]
-    | [SourcePin, SourcePin, SourcePin, SourcePin]
-    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
-    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
-    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin]
-    | [SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin, SourcePin];
+  sources: [SourcePin, ...SourcePin[]];
   suppressed_count?: null;
   suppression_threshold?: 50;
 }

@@ -68,6 +68,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .top-r { margin-left: auto; display: flex; align-items: center; gap: 18px; }
 .account { display: flex; align-items: center; gap: 10px; }
 .avatar { width: 30px; height: 30px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--hover); font-size: 12px; color: var(--ink); }
+.avatar svg { color: var(--ink-2); }
 .account-n { font-size: 13.5px; line-height: 1.3; white-space: nowrap; }
 .account-r { font-size: 12px; line-height: 1.3; color: var(--ink-3); }
 
@@ -162,11 +163,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .nd.n-hidden { opacity: 0; pointer-events: none; }
 .edges g.hid { opacity: 0; }
 
-/* the source the agent reads during a dispute: the same sheet the orb carries, with the checks it runs */
-.src { position: absolute; left: 0; top: 0; display: flex; align-items: flex-start; gap: 10px; pointer-events: none; }
-.src-glyph { width: 54px; height: 54px; flex: none; display: grid; place-items: center; background: var(--bg); border: 1px solid var(--line); border-radius: 3px; color: var(--ink-2); }
-.src-lines { display: flex; flex-direction: column; gap: 6px; padding-top: 2px; }
-.src-l { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+/* the source the agent reads during a dispute: a small database with the orb's eyes, and the queries coming out of it */
+.src { position: absolute; left: 0; top: 0; display: flex; align-items: flex-start; gap: 4px; pointer-events: none; }
+.src-glyph { width: 54px; height: 54px; flex: none; display: grid; place-items: center; }
+.wh-body { fill: color-mix(in srgb, var(--blue) 10%, var(--bg)); stroke: var(--blue); stroke-width: 1.4; }
+.wh-top { fill: color-mix(in srgb, var(--blue) 22%, var(--bg)); stroke: var(--blue); stroke-width: 1.4; }
+.wh-band { fill: none; stroke: var(--blue); stroke-width: 1.4; opacity: 0.45; }
+.wh-eyes rect { fill: var(--ink); }
+.wh-eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.2s 1.3s infinite; }
+.src-lines { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+.src-l { display: inline-flex; align-items: center; gap: 7px; padding-right: 6px; background: var(--bg); font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); white-space: nowrap; }
+.src-l::before { content: ""; width: 16px; border-top: 1px dotted color-mix(in srgb, var(--blue) 55%, var(--line)); }
 .src-l svg { flex: none; }
 .src-l .spin2 { width: 8px; height: 8px; }
 :root[data-anim] .src { transition: opacity 220ms var(--ease-out), scale 220ms var(--ease-out); }
@@ -392,7 +399,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
   :root[data-anim] .chip, :root[data-anim] .ev, :root[data-anim] .cap-text, :root[data-anim] .orb-lens, :root[data-anim] .src, :root[data-anim] .src-l, :root[data-anim] .thought, .bub, .panel { transition: opacity 150ms ease; transform: none; scale: none; translate: none; }
 }
 
-/* ---------- customer view: Acme's decisions ---------- */
+/* ---------- customer view: Summit's decisions ---------- */
 .cust-h { position: sticky; top: 0; z-index: 2; margin-top: -14px; padding: 14px 0 6px; background: var(--bg); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
 .cust-who { display: flex; align-items: center; gap: 12px; }
 .cust-money { display: flex; align-items: center; gap: 8px; }
@@ -400,7 +407,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .orb-slot { position: relative; display: inline-flex; flex: none; }
 .slot-decision, .slot-inspect { margin-left: auto; width: 34px; height: 0; align-self: center; }
 .slot-decision > .cust-orb, .slot-inspect > .cust-orb { position: absolute; top: -17px; left: 0; }
-/* in Acme's own view Acme writes on the right; our agent answers on the left, the orb beside its newest message */
+/* in Summit's own view Summit writes on the right; our agent answers on the left, the orb beside its newest message */
 .customer .b-buyer { align-self: flex-end; }
 .customer .b-agent, .customer .b-controller { align-self: flex-start; margin-left: 42px; }
 .bub .slot-transcript { position: absolute; left: -42px; bottom: 0; width: 34px; height: 34px; }

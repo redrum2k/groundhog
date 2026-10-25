@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { BuyerMove } from "../../../../../../lib/run/broker/driver";
 import { buyerMove } from "../../../../../../lib/run/broker/store";
 
-// Acme's move, made by the presenter from the customer view. The driver is waiting for it;
+// Summit's move, made by the presenter from the customer view. The driver is waiting for it;
 // anything else gets a 409 that says what the order is waiting for.
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

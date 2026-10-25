@@ -1,0 +1,14 @@
+.root { position: fixed; left: 20px; bottom: 20px; z-index: 80; }
+.panel { position: absolute; bottom: 45px; left: 0; width: min(480px, calc(100vw - 40px)); max-height: calc(100vh - 140px); overflow: auto; padding: 22px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 12px 40px #0002; }
+.panel header { display: flex; gap: 12px; justify-content: space-between; align-items: start; }
+.panel h2 { font-size: 20px; margin: 4px 0 12px; }
+.panel h3 { font-size: 15px; margin: 22px 0 10px; }
+.panel article, .panel li { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.panel label { display: block; margin: 12px 0; }
+.panel textarea, .panel select { display: block; width: 100%; background: var(--bg); color: var(--ink); padding: 8px; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+.panel button { margin: 5px 6px 5px 0; }
+.panel code { display: block; overflow-wrap: anywhere; white-space: normal; font-size: 10px; margin: 6px 0; }
+.panel small { display: block; color: var(--ink-2); }
+.panel summary { cursor: pointer; margin: 8px 0; }
+.error { color: #a82323; }
+.events { padding-left: 20px; }
