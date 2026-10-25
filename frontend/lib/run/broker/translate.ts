@@ -30,7 +30,7 @@ const askFor = (d: string): ContractLine => ({ id: d, text: DIMENSIONS.find(([id
 
 const POLICY = {
   accepted: "Both parties accepted the specification digest",
-  authorized: "Base authorization opens on acceptance (mock)",
+  authorized: "Authorization opens on acceptance; demo payment, no funds move",
   checks: "Deterministic checks against the accepted specification",
   freeCorrection: "Our-fault policy: one free correction per order",
   clarified: "Both parties accepted the clarification",
@@ -334,7 +334,7 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
           const revenue = entries.reduce((a, l) => a + l.amount, 0);
           emit({ type: "books_posted", step: "captured", entries, margin: { revenue, cost: 0 } });
           complete("captured");
-          caption(`Accepted. $${revenue} captured (mock) and booked.`);
+          caption(`Accepted. $${revenue} captured and booked.`);
         }
         break;
       }

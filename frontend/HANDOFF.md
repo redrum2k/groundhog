@@ -99,7 +99,7 @@ Demo order: shared path once, then red, green, amber.
 - **Margin after cost** on the order: revenue minus data license and compute, updated when a rerun adds cost.
 - **Colors:** red = our side failed (an operational failure, matching AGENTS.md), green = we were right /
   working as intended, amber = grey. Color only for state.
-- **Mock labels:** until a real x402 capture exists, the coin reads "captured · mock" and the Basescan
+- **Mock labels:** until a real capture exists, the coin reads "captured" and the Captured panel says "Demo payment: no funds move"; the Basescan
   link only appears once there's a real transaction.
 - **Scripted timeline:** until the backend sends these events, the canvas runs from a scripted event
   timeline kept in one file, so it can be swapped for real backend state without touching the UI.
