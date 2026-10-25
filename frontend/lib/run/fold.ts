@@ -64,6 +64,22 @@ export interface FoldContext { lane: Case; ending: Ending; learned: boolean; con
 const blankNode = (step: Step): NodeState => ({ step, status: "idle", attempt: 1, messages: [], asked: [], drafted: [], pending: {}, checks: {}, evidence: [], allowedBy: [] });
 const LANE_KINDS = new Set(["investigate", "verdict", "amend", "grey", "decide"]);
 
+// The recorded demo narrates the groundhog's visit to the database itself (source_checked). The live backend only
+// reports the investigation as evidence events, so the same three lines are derived here: each cited cell ticks the
+// next line and the last one waits for the finding. An evidence id carries the obligation it answers
+// (job:dataset:geography:0), which names the contract line being read.
+const sourceVisit = (lines: number): SourceLine[] => [
+  { id: "src-pin", text: "Accepted sources · as pinned at acceptance", checked: false },
+  { id: "src-lines", text: `${lines || "The"} contract lines · against the source`, checked: false },
+  { id: "src-rows", text: "Delivered rows · against the source", checked: false },
+];
+function readAtSource(lines: SourceLine[], evidenceId: string): SourceLine[] {
+  const obligation = evidenceId.split(":").slice(1, -1).pop();
+  const next = lines.findIndex((l) => !l.checked && l.id !== "src-rows");
+  return lines.map((l, i) => i !== next ? l : { ...l, checked: true, text: l.id === "src-lines" && obligation ? `${obligation[0].toUpperCase()}${obligation.slice(1)} line · against the source` : l.text });
+}
+const allRead = (lines: SourceLine[]): SourceLine[] => lines.map((l) => ({ ...l, checked: true }));
+
 export function emptyView(contract: DataContract): View {
   return { nodes: {}, order: [], orb: { step: "clarify", mode: "float" }, coin: null, loops: [], cards: [], contract, caption: "", evidence: {}, deliveries: [], payments: [], captured: {}, paymentStates: {}, started: 0, lastSeq: 0 };
 }
@@ -194,6 +210,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       if (LANE_KINDS.has(n.step.kind)) v.lastLane = e.step;
       v.orb = { step: e.step, mode: n.step.kind === "investigate" ? "inspect" : n.step.kind === "clarify" ? "look" : n.step.kind === "produce" ? "carry" : "float" };
       if (n.step.kind === "review" && attempt === 1 && v.nodes.produce) v.nodes.produce.status = "done";
+      if (ctx.live && n.step.kind === "investigate") n.source = sourceVisit(v.contract.lines.length);
       break;
     case "step_waiting": n.status = "waiting"; n.waitingOn = e.waitingOn; if (n.step.kind === "decide") v.orb = { step: e.step, mode: "wait" }; break;
     case "step_completed":
@@ -202,6 +219,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
       n.status = n.verdict?.kind === "grey" ? "grey" : !ctx.live && n.verdict?.decidedBy === "rules" && n.verdict.kind === "agree" ? "fail" : "done";
       n.waitingOn = undefined;
       if (n.step.kind === "captured") v.orb = { step: e.step, mode: "happy" };
+      if (ctx.live && n.source) n.source = allRead(n.source);
       break;
     case "message": if (n.status === "waiting") n.status = "running"; n.messages.push(e.message); if (e.message.asks) n.asked.push(e.message.asks); break;
     case "contract_line_asked": if (!n.asked.includes(e.line.id)) n.asked.push(e.line.id); n.pending[e.line.id] = e.line; break;
@@ -215,6 +233,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
     case "evidence_found":
       n.evidence.push(e.evidence); v.evidence[e.evidence.id] = e.evidence;
       v.cards = [...v.cards, { id: e.evidence.id, node: e.step, text: e.evidence.label, tone: e.evidence.kind === "claim" ? "claim" : "ev" }];
+      if (ctx.live && n.source) n.source = readAtSource(n.source, e.evidence.id);
       break;
     case "dispute_opened": v.dispute = e.dispute; v.coin = coinFor(v); break;
     case "verdict":
@@ -226,6 +245,7 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
           investigation.status = e.verdict.kind === "grey" ? "waiting" : "done";
           investigation.waitingOn = e.verdict.kind === "grey" ? investigation.waitingOn ?? "Waiting for evidence or human review" : undefined;
           investigation.chip = investigation.waitingOn ?? "Assessment complete";
+          if (investigation.source) investigation.source = allRead(investigation.source); // the finding is in: nothing left to read
         }
         v.orb = {step: e.step, mode: "wait"};
       }
