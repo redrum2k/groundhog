@@ -34,7 +34,7 @@ Pending integration edits:
 - `backend/app/main.py`: explicitly describes 422 as `Unprocessable Content` so
   generated OpenAPI matches across Python versions. Keep the typed ErrorResponse;
   this changes documentation text, not request validation or payment behavior.
-- `frontend/components/run/live-run.tsx`: the aggregate header says DataPact;
+- `frontend/components/run/live-run.tsx`: the aggregate header says Groundhog;
   its return button says Run canvas because it opens `/`, which supports both feeds.
 - `frontend/scripts/brokerage-smoke.cjs` and `review-remediation-smoke.cjs`:
   aggregate tests open `/live`, preserving Lucas's canvas at `/`.
@@ -79,7 +79,7 @@ scoped commit or preserve a recoverable copy. Explain any exclusions in the hand
 
 Do not implement aggregate evaluation or transaction recovery during this task.
 Do not change pricing/accepted parties, review windows, funding gates, payment
-authority or historical snapshots to make tests pass. Keep DataPact display branding
+authority or historical snapshots to make tests pass. Keep Groundhog display branding
 separate from frozen policy IDs such as `datumco-demo-pricing-v1`.
 
 ## Validation required on the final combined tree
@@ -102,7 +102,7 @@ the root broker demo also needs `JOBFLOW_DEMO=1` on the backend.
   and the targeted coverage complaint, including restart/reload identity and mock
   financial disclosure. Keep the smoke origin as the bare origin; the scripts now
   append `/live` themselves.
-- `/`: verify DataPact branding and the actual retained-broker demo: contract
+- `/`: verify Groundhog branding and the actual retained-broker demo: contract
   approval, delivery, objection/evidence, acceptance and mock capture; customer
   actions return the view to the agent. Check the Recorded fallback separately.
   Do not describe this legacy profile as the aggregate payment journey.

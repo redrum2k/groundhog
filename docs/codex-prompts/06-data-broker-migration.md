@@ -121,7 +121,7 @@ report a newly run combined result, not a sum of historical counts.
 
 ## 1. Define and implement the bounded brokerage domain
 
-Use Lucas's DatumCo / AcmeFitness story: a buyer requests synthetic aggregate counts
+Use Lucas's Bayline Data / Summit Fitness story: a buyer requests synthetic aggregate counts
 for San Francisco adults aged 25–34 interested in fitness, grouped by ZIP. The
 contract specifies geography, age bounds, category meaning, population/counting
 unit, source editions, required columns, completeness and suppression rules. Do

@@ -40,7 +40,7 @@
       "step": "clarify",
       "attempt": 1,
       "type": "step_waiting",
-      "waitingOn": "AcmeFitness's answer"
+      "waitingOn": "Summit Fitness's answer"
     },
     {
       "seq": 6,
@@ -79,7 +79,7 @@
       "step": "clarify",
       "attempt": 1,
       "type": "step_waiting",
-      "waitingOn": "AcmeFitness's answer"
+      "waitingOn": "Summit Fitness's answer"
     },
     {
       "seq": 9,

@@ -8,7 +8,7 @@ budget-only model grant; default startup remains offline. Synthetic sources and 
 roles are disclosed. This is not production readiness or a newly verified on-chain trial.
 Historical offline/catalog statements below describe their earlier milestones, not the newer live trials.
 
-Turn AcmeFitness's request into a frozen data contract, fund it explicitly, deliver
+Turn Summit Fitness's request into a frozen data contract, fund it explicitly, deliver
 independently checked synthetic aggregate CSV/JSON, then settle under the review rules.
 The primary app at `/` (also `/live`) shares a full-screen customer conversation and
 the agent's Run canvas, both driven by the same durable aggregate order. Claude calls

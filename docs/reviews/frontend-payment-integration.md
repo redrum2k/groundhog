@@ -34,7 +34,7 @@ were left running. Test servers used 8049/3049 and fresh temporary synthetic sta
 
 The local checkpoint preserves the explicit typed `ErrorResponse` for 422 with
 `Unprocessable Content`, changing documentation text only. Runtime/exported schema
-agreement passes. Aggregate header branding is DataPact; **Run canvas** returns to
+agreement passes. Aggregate header branding is Groundhog; **Run canvas** returns to
 `/`. Both aggregate smoke scripts append `/live` to a bare smoke origin. Frozen
 parties, pricing IDs (including `datumco-demo-pricing-v1`), amounts, deadlines,
 funding/settlement gates and historical snapshots were not changed.
@@ -160,7 +160,7 @@ node scripts/review-remediation-smoke.cjs
   Both runs retained exactly the same events, bindings, accepted terms, financial
   deadlines and payment/operation identities. Browser reloads made zero POSTs,
   retained both IDs, and downloaded bytes matched the original delivery hashes.
-- `/` retained broker journey: DataPact branding, contract approval, delivery,
+- `/` retained broker journey: Groundhog branding, contract approval, delivery,
   Oakland objection, two evidence events, acceptance and one mock capture.
   All three customer actions returned to the agent view. Browser errors: zero.
   This is `broker-review-v0.3` with its own mock authority, not aggregate escrow.

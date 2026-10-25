@@ -78,7 +78,7 @@ intentionally rejects hosted/public access. No deployment is required.
 
 Open <http://127.0.0.1:3028/live> for the funded aggregate workflow in a fresh
 private/incognito window. This avoids a saved run ID from an older temporary
-database. The header says **DataPact** and **mock payments**. If the
+database. The header says **Groundhog** and **mock payments**. If the
 normal browser restores an obsolete run and reports 404, use **New request**.
 
 Follow these steps:
@@ -106,16 +106,16 @@ Branding does not change accepted policy IDs such as `datumco-demo-pricing-v1`.
 
 ## Root canvas and Recorded fallback
 
-Open <http://127.0.0.1:3028/>. This is Lucas's **DataPact** canvas. Its **Live**
+Open <http://127.0.0.1:3028/>. This is Lucas's **Groundhog** canvas. Its **Live**
 feed uses `/api/broker-run` and the retained `broker-review-v0.3` backend, scripted
 parties and USDSIM mock authority. It has a 600-second review and is distinct from
 `/live`'s confirmed-funding gate and 60-second aggregate review. It is not evidence
 of aggregate escrow funding or live-chain success.
 
-1. Choose **Play live** and wait for **Acme's turn: approve the contract**.
+1. Choose **Play live** and wait for **Summit's turn: approve the contract**.
 2. Open that customer action and choose **Approve and authorize $120**. The view
    returns to the agent. This profile's authorization is mock and is not capture.
-3. After delivery, open **Acme's turn: accept or object**, choose **Object**, and
+3. After delivery, open **Summit's turn: accept or object**, choose **Object**, and
    send `Counts look low. Oakland should be in there.` The view returns to the agent.
 4. Inspect the answer and its contract/coverage citations. Return to the customer
    action and choose **Accept delivery**. The view returns to the agent again.
