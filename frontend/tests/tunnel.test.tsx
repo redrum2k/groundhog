@@ -1,75 +1,70 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { TUNNEL, useTunnel } from "../components/run/canvas";
+import { useTunnel } from "../components/run/canvas";
+import { TUNNEL } from "../components/run/orb";
 
-// The groundhog's travel between steps: it sinks where it is, slides underground to the step, then climbs out.
-// Steps that start while it is underground share the tunnel.
+// The groundhog's travel between steps: it ducks into its burrow where it is, waits under for a beat, then climbs
+// out of a burrow at the step. The burrow never moves. Steps that start while it is under share the tunnel.
 
-const hook = () => renderHook(({ x, y = 0 }: { x: number; y?: number }) => useTunnel(x, y), { initialProps: { x: 0 } as { x: number; y?: number } });
+const hook = () => renderHook(({ x, y }: { x: number; y: number }) => useTunnel(x, y), { initialProps: { x: 0, y: 0 } });
 const tick = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
 
 describe("useTunnel", () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  it("sinks where it is, slides to the step underground, then climbs out", () => {
+  it("ducks in where it is, moves while under, then climbs out at the step", () => {
     const { result, rerender } = hook();
-    rerender({ x: 300 });
-    expect(result.current).toMatchObject({ x: 0, y: 0, phase: "down" });
+    rerender({ x: 300, y: 0 });
+    expect(result.current).toEqual({ x: 0, y: 0, phase: "down" });
     tick(TUNNEL.dive);
-    expect(result.current).toMatchObject({ x: 300, y: 0, phase: "travel" });
-    tick(TUNNEL.slide);
-    expect(result.current).toMatchObject({ x: 300, y: 0, phase: "up" });
+    expect(result.current).toEqual({ x: 300, y: 0, phase: "under" });
+    tick(TUNNEL.under);
+    expect(result.current).toEqual({ x: 300, y: 0, phase: "up" });
     tick(TUNNEL.rise);
-    expect(result.current).toMatchObject({ x: 300, y: 0, phase: "" });
+    expect(result.current).toEqual({ x: 300, y: 0, phase: "" });
   });
 
-  it("tunnels on to a step that starts while it is sliding", () => {
+  it("stays under and surfaces at the newest step when one starts while it is under", () => {
     const { result, rerender } = hook();
-    rerender({ x: 300 });
-    tick(TUNNEL.dive + 200);
-    rerender({ x: 600 });
-    expect(result.current).toMatchObject({ x: 600, y: 0, phase: "travel" });
-    tick(TUNNEL.slide - 1);
-    expect(result.current.phase).toBe("travel"); // a fresh slide for the new step
+    rerender({ x: 300, y: 0 });
+    tick(TUNNEL.dive + 100);
+    rerender({ x: 600, y: 0 });
+    expect(result.current).toEqual({ x: 600, y: 0, phase: "under" });
+    tick(TUNNEL.under - 1);
+    expect(result.current.phase).toBe("under"); // a fresh beat for the new step
     tick(1);
-    expect(result.current.phase).toBe("up");
+    expect(result.current).toEqual({ x: 600, y: 0, phase: "up" });
   });
 
-  it("slides to the newest step when one starts during the dive", () => {
+  it("goes under with the newest step when one starts during the dive", () => {
     const { result, rerender } = hook();
-    rerender({ x: 300 });
+    rerender({ x: 300, y: 0 });
     tick(100);
-    rerender({ x: 600 });
-    expect(result.current).toMatchObject({ x: 0, y: 0, phase: "down" });
-    tick(TUNNEL.dive);
-    expect(result.current).toMatchObject({ x: 600, y: 0, phase: "travel" });
+    rerender({ x: 600, y: 0 });
+    expect(result.current).toEqual({ x: 0, y: 0, phase: "down" });
+    tick(TUNNEL.dive - 100);
+    expect(result.current).toEqual({ x: 600, y: 0, phase: "under" });
   });
 
-  it("takes the vertical leg first when the step is on another row, never diagonal", () => {
+  it("ducks back in if a step starts while it is climbing out", () => {
+    const { result, rerender } = hook();
+    rerender({ x: 300, y: 0 });
+    tick(TUNNEL.dive + TUNNEL.under);
+    expect(result.current.phase).toBe("up");
+    rerender({ x: 600, y: 0 });
+    expect(result.current).toEqual({ x: 300, y: 0, phase: "down" });
+    tick(TUNNEL.dive);
+    expect(result.current).toEqual({ x: 600, y: 0, phase: "under" });
+    tick(TUNNEL.under + TUNNEL.rise);
+    expect(result.current).toEqual({ x: 600, y: 0, phase: "" });
+  });
+
+  it("a step on another row is the same trip: the burrow never moves", () => {
     const { result, rerender } = hook();
     rerender({ x: 300, y: 200 });
+    expect(result.current).toEqual({ x: 0, y: 0, phase: "down" });
     tick(TUNNEL.dive);
-    expect(result.current).toMatchObject({ x: 300, y: 200, phase: "travel", turn: true });
-    tick(TUNNEL.slide);
-    expect(result.current.phase).toBe("travel"); // the extra leg is still running
-    tick(TUNNEL.turn);
-    expect(result.current.phase).toBe("up");
-    rerender({ x: 600, y: 200 });
-    tick(TUNNEL.dive);
-    expect(result.current).toMatchObject({ x: 600, y: 200, phase: "travel", turn: false }); // same row: straight across
-  });
-
-  it("sinks again if a step starts while it is climbing out", () => {
-    const { result, rerender } = hook();
-    rerender({ x: 300 });
-    tick(TUNNEL.dive + TUNNEL.slide);
-    expect(result.current.phase).toBe("up");
-    rerender({ x: 600 });
-    expect(result.current).toMatchObject({ x: 300, y: 0, phase: "down" });
-    tick(TUNNEL.dive);
-    expect(result.current).toMatchObject({ x: 600, y: 0, phase: "travel" });
-    tick(TUNNEL.slide + TUNNEL.rise);
-    expect(result.current).toMatchObject({ x: 600, y: 0, phase: "" });
+    expect(result.current).toEqual({ x: 300, y: 200, phase: "under" });
   });
 });

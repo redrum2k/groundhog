@@ -5,7 +5,7 @@ import type { Card, Coin, NS, OrbMode } from "../../lib/run/fold";
 import { LANE_NAME } from "../../lib/run/scenario";
 import { IcCheck, IcCoin, IcLock } from "./icons";
 import Label from "./label";
-import Orb from "./orb";
+import Orb, { TUNNEL } from "./orb";
 import Warehouse from "./warehouse";
 
 // The run canvas: the 5-step path on row 0, a dispute's detour on the row below, and the orb
@@ -230,7 +230,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
             </div>
           )}
           {!quiet && view.orb && (
-            <div className={`orb-wrap${tunnel.phase ? ` tunnel-${tunnel.phase}` : ""}${tunnel.turn ? " tunnel-turn" : ""}`} style={{ transform: `translateX(${tunnel.x}px)`, translate: `0 ${tunnel.y}px` }}>
+            <div className={`orb-wrap${tunnel.phase ? ` tunnel-${tunnel.phase}` : ""}`} style={{ transform: `translate(${tunnel.x}px, ${tunnel.y}px)` }}>
               <Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} />
               {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.done ? " done" : ""}`}>
                 <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : <IcCoin />}<Label text={view.coin.text} quiet="tail" /></span></span>}
@@ -244,37 +244,28 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
   );
 }
 
-// The groundhog doesn't walk between steps: it sinks straight into its burrow, the burrow slides under
-// the cards to the next step (a row change goes down or up first, then across, never diagonal), and it
-// climbs straight out. If the next step starts while it is underground, it tunnels on to that one
-// instead of surfacing in between. Reduced motion just moves it.
-export const TUNNEL = { dive: 450, slide: 1000, turn: 400, rise: 720 } as const; // ms; the slide is as long as the camera's pan
-type Phase = "" | "down" | "travel" | "up";
+// The groundhog doesn't walk between steps: it ducks all the way into its burrow, the burrow closes, it
+// stays under for a beat, then a burrow opens at the next step and it climbs out. The burrow never moves.
+// If the next step starts while it is under, it stays under and surfaces at the newest one.
+// Reduced motion just moves it.
+type Phase = "" | "down" | "under" | "up";
 export function useTunnel(x: number, y: number) {
-  const [state, setState] = useState<{ x: number; y: number; phase: Phase; turn: boolean }>({ x, y, phase: "", turn: false });
+  const [state, setState] = useState<{ x: number; y: number; phase: Phase }>({ x, y, phase: "" });
   const target = useRef({ x, y });
-  const pos = useRef({ x, y }); // where the burrow is, or is sliding to
   const phase = useRef<Phase>("");
   const timer = useRef(0);
   useEffect(() => {
     if (target.current.x === x && target.current.y === y) return;
     target.current = { x, y };
-    window.clearTimeout(timer.current);
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) { phase.current = ""; pos.current = { x, y }; setState({ x, y, phase: "", turn: false }); return; }
-    const enter = (p: Phase) => { phase.current = p; setState((s) => ({ ...s, phase: p })); };
-    const after = (ms: number, fn: () => void) => { timer.current = window.setTimeout(fn, ms); };
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) { window.clearTimeout(timer.current); phase.current = ""; setState({ x, y, phase: "" }); return; }
+    // it changes position while under, when nothing of it shows
+    const enter = (p: Phase) => { phase.current = p; setState((s) => ({ ...(p === "under" ? target.current : s), phase: p })); };
+    const after = (ms: number, fn: () => void) => { window.clearTimeout(timer.current); timer.current = window.setTimeout(fn, ms); };
     const surface = () => { enter("up"); after(TUNNEL.rise, () => enter("")); };
-    // it only changes position once it is underground, so the slide is the move; a row change adds the vertical leg
-    const slide = () => {
-      const turn = target.current.y !== pos.current.y;
-      pos.current = target.current;
-      phase.current = "travel";
-      setState({ ...pos.current, phase: "travel", turn });
-      after(TUNNEL.slide + (turn ? TUNNEL.turn : 0), surface);
-    };
-    if (phase.current === "travel") slide(); // already underground: on to the newest step
-    else if (phase.current === "down") after(TUNNEL.dive, slide); // mid-dive: the slide goes to the newest target when the dive ends
-    else { enter("down"); after(TUNNEL.dive, slide); }
+    const under = () => { enter("under"); after(TUNNEL.under, surface); };
+    if (phase.current === "down") return; // the dive under way goes under with the newest target
+    if (phase.current === "under") under(); // stays under; the beat restarts for the newest step
+    else { enter("down"); after(TUNNEL.dive, under); } // standing, or climbing out: ducks back in
   }, [x, y]);
   useEffect(() => () => window.clearTimeout(timer.current), []);
   return state;
