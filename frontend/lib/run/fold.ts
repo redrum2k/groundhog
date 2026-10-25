@@ -55,7 +55,6 @@ export interface View {
   reviewWindow?: string; // from the server's review deadline, when a live stream sets one
   lastSeq: number;
   binding?: Binding;
-  aside?: { step: string; text: string }; // the orb's thought at a step
 }
 export interface FoldContext { lane: Case; ending: Ending; learned: boolean; contract: DataContract; live?: boolean }
 
@@ -102,7 +101,6 @@ export function apply(v: View, e: RunEvent, ctx: FoldContext): View {
   }
   if (e.type === "caption") { v.caption = e.text; return v; }
   if (e.type === "source_checked") { const n = v.nodes[e.step]; if (n) n.source = e.lines; return v; }
-  if (e.type === "aside") { v.aside = { step: e.step, text: e.text }; return v; }
   if (e.type === "payment_authorized") { v.payments = [...v.payments.filter(p => p.id !== e.payment.id), e.payment]; v.coin = coinFor(v); return v; }
   if (e.type === "payment_captured") { v.captured[e.paymentId] = e.captureTx; v.coin = coinFor(v); return v; }
   if (e.type === "payment_state_changed") {

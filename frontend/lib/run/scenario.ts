@@ -19,7 +19,6 @@ export function holdFor(e: { type: RunEvent["type"]; lines?: SourceLine[] }): nu
   switch (e.type) {
     case "evidence_found": return 1100;
     case "source_checked": return e.lines?.every((l) => l.checked) ? 900 : 2200; // the first one covers the walk over and the dive
-    case "aside": return 1300;
     case "message": return 1250; // long enough to read a one- or two-line bubble
     case "verdict": case "rule_updated": case "controller_decided": case "amendment_signed": case "books_posted": return 1400;
     case "check_passed": case "check_failed": case "check_fixed": return 600;
@@ -235,7 +234,6 @@ export const RED: Draft[] = [
   done("investigate"),
   start("verdict"),
   { type: "verdict", step: "verdict", verdict: { kind: "agree", decidedBy: "rules", evidenceIds: ["e-line5", "e-94110"], reason: "The contract promises every SF ZIP and 94110 is missing. Our check used the vendor's list instead of the official one." }, allowedBy: `Contract line: ${CONTRACT[4].text}` },
-  { type: "aside", step: "verdict", text: "No human needed. Our miss, caught by the checks and corrected at our cost." },
   done("verdict"),
   ...rewalk(sheet(2, "acme-sf-fitness-v2.csv", withheld(ROWS).map((r) => (r.zip === "94110" ? { ...r, flag: "added" as const } : r))), coverageDetails, S.price,
     [entry("Rerun 94110, our cost", "Data cost", "Cash", S.rerunCost)],
@@ -257,7 +255,6 @@ export const GREEN: Draft[] = [
   done("investigate"),
   start("verdict"),
   { type: "verdict", step: "verdict", verdict: { kind: "disagree", decidedBy: "rules", evidenceIds: ["e-city", "e-line2"], reason: "We delivered what was agreed: San Francisco city only, which Summit said in the interview." }, allowedBy: `Contract line: ${CONTRACT[1].text}` },
-  { type: "aside", step: "verdict", text: "No human needed. Settled by the contract and the source." },
   done("verdict"),
   start("amend"),
   say("amend", buyer("m-yes", "Yes, add Oakland.")),
@@ -301,7 +298,6 @@ export function amberOpen(ending: Ending, learned: boolean): Draft[] {
       done("investigate"),
       start("grey"),
       { type: "verdict", step: "grey", verdict: { kind: "agree", decidedBy: "contract", evidenceIds: ["e-v2"], reason: "Contract v2 says yoga counts. No person needed." }, allowedBy: POLICY.contractV2 } as Draft,
-      { type: "aside" as const, step: "grey", text: "No human needed this time. Remembering Maya's ruling: contract v2 covers yoga." },
       done("grey"),
     ] : [
       found("investigate", E.gyms),

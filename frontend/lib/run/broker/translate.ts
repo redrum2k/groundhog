@@ -117,7 +117,6 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
       complete("investigate");
       emit({ type: "step_started", step: "verdict" });
       emit({ type: "verdict", step: "verdict", verdict: { kind, decidedBy: "rules", evidenceIds: [...cites, ...(assessment?.evidenceIds ?? [])], reason: assessment ? `${assessment.decidedBy === "model" ? "Decided by the model, verified by code: " : ""}${assessment.reason}` : kind === "agree" ? "A requirement failed and was corrected." : "Every accepted requirement passed; nothing was missing from what was agreed." }, allowedBy: POLICY.checks });
-      emit({ type: "aside", step: "verdict", text: kind === "disagree" ? "No human needed. Settled by the contract and the source." : "No human needed. Our miss, caught by the checks and corrected at our cost." });
       verdictDone = true;
     }
     for (const s of detourSteps(detour, order.resolution)) complete(s.id);
@@ -252,8 +251,8 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         reviews += 1;
         const window = minutes(e.timestamp, (p.deadline as string | null) ?? null);
         if (window) emit({ type: "steps_planned", steps: stepsWithWindow(window) });
+        emit({ type: "step_started", step: "review", attempt: reviews }); // before its delivery, so a reopened review never blanks for a frame
         emit({ type: "delivery_ready", step: "review", attempt: reviews, delivery: { version: delivery, file: "market-data.json", rows: rowsToSheet(rowsFor(delivery)), reviewClosesAt: (p.deadline as string | undefined) ?? undefined } });
-        emit({ type: "step_started", step: "review", attempt: reviews });
         caption(window ? `Delivered. Summit has ${window} minutes to accept or dispute.` : "Delivered. Summit can accept or dispute.");
         break;
       }
@@ -308,7 +307,6 @@ export function translate(snapshot: BrokerSnapshot, lane: Case): RunEvent[] {
         complete("grey");
         detourStep = "decide";
         emit({ type: "step_started", step: "decide" });
-        emit({ type: "aside", step: "decide", text: `Neither the contract nor the source settles this. One call for ${S.controller}.` });
         say("decide", { id: task.id, from: "agent", text: `${task.reason} Missing: ${task.missing_facts.join("; ")}` });
         emit({ type: "step_waiting", step: "decide", waitingOn: S.controller });
         controllerOpen = true;
