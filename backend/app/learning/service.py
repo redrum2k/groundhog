@@ -237,7 +237,17 @@ class SourceLearning:
                     artifact=authority_artifact,
                     **metadata,
                 )
-                for item in (source, authority):
+                for kind, item in (("source", source), ("authority", authority)):
+                    registered = db.execute(
+                        "SELECT selectable FROM catalog_sources WHERE source_id=? AND version=?",
+                        (item.source_id, item.version),
+                    ).fetchone()
+                    if registered is not None and not registered[0]:
+                        raise DomainError(
+                            409,
+                            f"historical {kind} is no longer current; "
+                            "publish a new authorized edition",
+                        )
                     self.service.registry.register(item, db=db)
                 parts.append(
                     {
