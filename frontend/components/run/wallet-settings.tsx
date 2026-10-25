@@ -3,8 +3,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
 import { saveBuyerAddress, useBuyerAddress } from "../../lib/run/buyer-settings";
 import { browserWallet, connectBuyer } from "../../lib/run/wallet";
-import { IcSummit, IcX } from "./icons";
 import { S } from "../../lib/run/scenario";
+import { IcSummit, IcX } from "./icons";
 
 export default function WalletSettings() {
   const address = useBuyerAddress();
@@ -34,8 +34,14 @@ export default function WalletSettings() {
 
   return <Dialog.Root>
     <Dialog.Trigger asChild>
-      <button type="button" className="customer-account" aria-label={`${S.buyer} wallet`}>
-        <span className="avatar" aria-hidden><IcSummit size={19}/></span><span>{S.buyer}</span>
+      {/* the customer this order is for; their wallet settings open from here, like an account menu */}
+      <button type="button" className="account account-btn">
+        <span className="avatar" aria-hidden><IcSummit size={15} strokeWidth={1.6} /></span>
+        <span>
+          <span className="account-n">{S.buyer}</span>
+          <span className="account-r">{address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "Customer"}</span>
+          <span className="sr-only">, wallet settings</span>
+        </span>
       </button>
     </Dialog.Trigger>
     <Dialog.Portal>

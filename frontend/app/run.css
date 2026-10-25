@@ -32,13 +32,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .btn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); cursor: pointer; white-space: nowrap;
   transition: transform 160ms var(--ease-out), background-color 150ms ease; }
 .btn:hover:not(:disabled) { background: var(--sunk); }
-.btn.solid { background: #000; border-color: #000; color: #fff; }
-.btn.solid:hover:not(:disabled) { background: #000; }
-.btn.new-request-ready { background: var(--blue); border-color: var(--blue); color: #fff; }
-.btn.new-request-ready:hover:not(:disabled) { background: color-mix(in srgb, var(--blue) 88%, #000); border-color: color-mix(in srgb, var(--blue) 88%, #000); }
+.btn.solid { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 1px 2px color-mix(in srgb, var(--blue) 28%, transparent); }
+.btn.solid:hover:not(:disabled) { background: color-mix(in srgb, var(--blue) 88%, #000); border-color: color-mix(in srgb, var(--blue) 88%, #000); }
+/* "your turn" sends the buyer to act; it's a nudge, not the commit itself, and blue like the step waiting on them */
+.btn.turn { gap: 9px; padding-left: 13px; background: var(--blue-t); border-color: color-mix(in srgb, var(--blue) 22%, var(--bg)); color: var(--blue); }
+.btn.turn:hover:not(:disabled) { background: color-mix(in srgb, var(--blue) 12%, var(--bg)); }
+.turn-dot { position: relative; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--blue); }
+.turn-dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: inherit; animation: ping 2s var(--ease-out) infinite; }
+@keyframes ping { from { opacity: 0.5; } to { transform: scale(2.6); opacity: 0; } }
 .btn:active:not(:disabled) { transform: scale(0.97); }
 .btn:disabled { opacity: 0.55; cursor: default; }
-.btn.solid:disabled { background: var(--ink-2); border-color: var(--ink-2); }
+.btn.solid:disabled { opacity: 0.4; box-shadow: none; }
 .sq { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--ink-2);
   transition: transform 160ms var(--ease-out), background-color 150ms ease; }
 .sq:hover { background: var(--hover); color: var(--ink); }
@@ -76,6 +80,11 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 .customer-account { display: inline-flex; align-items: center; gap: 9px; padding: 4px 8px 4px 4px; border: 0; border-radius: 999px; background: none; cursor: pointer; font-size: 13.5px; white-space: nowrap; }
 .customer-account:hover { background: var(--sunk); }
 .customer-payment { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-height: 32px; margin-bottom: 12px; }
+/* on /live the customer block also opens their wallet settings; the negative margin keeps it where /demo's sits */
+.account-btn { margin: -3px -10px -3px -3px; padding: 3px 10px 3px 3px; border: 0; border-radius: 999px; background: none; text-align: left; cursor: pointer; transition: background-color 150ms ease, transform 160ms var(--ease-out); }
+.account-btn:hover { background: var(--sunk); }
+.account-btn:active { transform: scale(0.97); }
+.account-btn :is(.account-n, .account-r) { display: block; }
 
 .tools { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; padding: 4px 20px 12px; border-bottom: 1px solid var(--line); }
 .tools .spacer { flex: 1; }
@@ -295,7 +304,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
 @starting-style { :root[data-anim] .coin-t, :root[data-anim] .wallet-t { opacity: 0; filter: blur(2px); } }
 :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: pop 300ms var(--ease-out); }
 @keyframes pop { 40% { scale: 1.06; } }
-.coin.locked { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
+/* held money is the expected state, so it stays neutral; amber is kept for a dispute or a payment problem */
+.coin:not(.alert):not(.done) .coin-t > svg { color: var(--ink-3); }
+.coin.alert { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
 .coin.done { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
 
 /* caption */
@@ -481,6 +492,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(run-workspace), ::view-transition-old(run-workspace), ::view-transition-new(run-workspace) { animation: none !important; }
   .canvas-agent, .canvas-agent.departed { transition: none; transform: none; }
+  .turn-dot::after { animation: none; }
   :root[data-anim] .cv-world, :root[data-anim] .orb-wrap, :root[data-anim] .edge-on { transition: none; }
   .orb, .gh-rise, .gh-tilt, .gh-gaze, .gh-breathe, .gh-nose, .gh-muzzle, .gh-badge, .orb-eyes, .orb-wait .orb-eyes, .orb-lens, .spin2, .todo-arc.spin { animation: none; }
   :root[data-anim] .loop, :root[data-anim] .coin.done, :root[data-anim] .wallet.w-paid { animation: none; }
@@ -532,6 +544,7 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 @starting-style { :root[data-anim] .ghost { opacity: 0; transform: translateY(4px); } }
 .wallet-t { display: inline-block; }
 .wallet { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 12.5px; color: var(--ink); white-space: nowrap; }
+.wallet-sep { width: 1px; height: 12px; background: var(--line); }
 .wallet.w-held { color: var(--amber); background: var(--amber-t); border-color: color-mix(in srgb, var(--amber) 25%, var(--line)); }
 .wallet.w-paid { color: var(--green); background: var(--green-t); border-color: color-mix(in srgb, var(--green) 25%, var(--line)); }
 .decision { display: flex; flex-direction: column; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; }
@@ -590,7 +603,6 @@ tr.flash td { animation: rowflash 2s var(--ease-out); }
 .live-shell .top { flex-wrap: wrap; }
 .live-shell:has(> .tools-err) { grid-template-rows: auto auto auto minmax(0, 1fr); }
 .live-shell > .tools-err { padding: 8px 20px; }
-.live-mode { font-size: 12.5px; color: var(--ink-3); }
 .live-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; max-width: 580px; padding: 60px 32px; margin: 0 auto; }
 .live-empty h2, .live-empty p, .live-welcome h1, .live-welcome p { margin: 0; }
 .live-welcome { display: grid; gap: 12px; padding: 16px 0 4px; }

@@ -115,8 +115,9 @@ export function usePlayback(feed: Feed): Playback {
   // arrives, and re-reading the gate here would flip it straight back to "waiting".
   useEffect(() => {
     if (feed.kind !== "live" || events.length <= feed.before.length) return;
-    const last = events[events.length - 1];
-    setStatus((s) => (s === "error" ? s : last.type === "step_completed" && last.step === "captured" ? "done" : atControllerGate(events) ? "waiting" : "playing"));
+    // a closing caption can follow the capture, so done means Captured completed, not that it came last
+    const captured = events.some((e) => e.type === "step_completed" && e.step === "captured");
+    setStatus((s) => (s === "error" ? s : captured ? "done" : atControllerGate(events) ? "waiting" : "playing"));
   }, [feed, events]);
 
   const view = useMemo(() => project(events.slice(0, cursor), feed.ctx), [events, cursor, feed.ctx]);

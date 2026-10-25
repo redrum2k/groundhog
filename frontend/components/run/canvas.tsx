@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type R
 import type { LaneId, SourceLine } from "../../lib/run/contract";
 import type { Card, Coin, NS, OrbMode } from "../../lib/run/fold";
 import { LANE_NAME } from "../../lib/run/scenario";
-import { IcCheck, IcCoin, IcLock } from "./icons";
+import { IcCheck, IcLock, IcReturn, IcWallet } from "./icons";
 import Label from "./label";
 import Orb, { TUNNEL } from "./orb";
 import Warehouse from "./warehouse";
@@ -243,8 +243,8 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
           {!quiet && view.orb && (
             <div className={`orb-wrap${tunnel.phase ? ` tunnel-${tunnel.phase}` : ""}`} style={{ transform: `translate(${tunnel.x}px, ${tunnel.y}px)` }}>
               <span className={`canvas-agent${hideAgent ? " departed" : ""}`}><Orb mode={view.orb.mode} found={view.orb.mode === "inspect" ? view.cards.some((c) => c.node === view.orb!.node && c.tone === "ev") : undefined} /></span>
-              {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.done ? " done" : ""}`}>
-                <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : <IcCoin />}<Label text={view.coin.text} quiet="tail" /></span></span>}
+              {view.coin && <span className={`coin${view.coin.locked ? " locked" : ""}${view.coin.alert ? " alert" : ""}${view.coin.done ? " done" : ""}${view.coin.returned ? " returned" : ""}`}>
+                <span key={view.coin.text} className="coin-t">{view.coin.locked ? <IcLock size={10} strokeWidth={2} /> : view.coin.done ? <IcCheck size={10} strokeWidth={2.4} /> : view.coin.returned ? <IcReturn size={10} strokeWidth={2} /> : <IcWallet size={10} strokeWidth={2} />}<Label text={view.coin.text} quiet="tail" /></span></span>}
             </div>
           )}
         </div>
