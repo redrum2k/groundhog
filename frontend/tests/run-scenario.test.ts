@@ -45,9 +45,9 @@ describe("scenario integrity", () => {
       const v = project(full(c, "human"), ctx(c));
       expect(v.nodes.captured.status, c).toBe("done");
       expect(v.nodes.captured.margin?.revenue, c).toBe(expected[c]);
-      expect(v.coin, c).toMatchObject({ done: true, text: `$${expected[c]} captured · mock` });
+      expect(v.coin, c).toMatchObject({ done: true, text: `$${expected[c]} captured` });
     }
-    expect(project(full("amber", "rules_no"), ctx("amber", "rules_no")).coin?.text).toBe(`$${S.price + S.yoga} captured · mock`);
+    expect(project(full("amber", "rules_no"), ctx("amber", "rules_no")).coin?.text).toBe(`$${S.price + S.yoga} captured`);
   });
 
   it("a dispute re-enters Produce as attempt 2 and draws the return loop", () => {

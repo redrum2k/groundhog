@@ -105,7 +105,7 @@ function Books({ node }: { node: NodeState }) {
         <tbody>{entries.map((e) => <tr key={e.id}><td>{e.memo}</td><td>{e.debit}</td><td>{e.credit}</td><td className="num">${e.amount.toFixed(2)}</td></tr>)}</tbody>
       </table>
       {margin && margin.cost !== null && <div className="margin">Margin <b>${(margin.revenue - margin.cost).toFixed(2)}</b> <span className="faint">after ${margin.cost.toFixed(2)} of data and compute</span></div>}
-      <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Capture is a mock until the observed Commerce Payments transaction lands on Base Sepolia. The Basescan link appears then.</div>
+      <div className="mock-note"><IcLock size={12} strokeWidth={1.8} /> Demo payment: no funds move. On Base Sepolia this capture is a Commerce Payments transaction, and its Basescan link shows here.</div>
     </div>
   );
 }

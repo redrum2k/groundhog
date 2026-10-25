@@ -16,7 +16,7 @@ const snapshot = (c: Case, upTo = Infinity): BrokerSnapshot => {
 const view = (c: Case) => project(translate(snapshot(c), c), { lane: c, ending: "human", learned: false, contract: CONTRACT_V1 });
 
 describe("broker stream → canvas", () => {
-  it("walks the no-dispute order from interview to a mock capture", () => {
+  it("walks the no-dispute order from interview to a demo capture", () => {
     const v = view("shared");
     expect(v.nodes.clarify.messages[0].text).toMatch(/SF adults 25-34/);
     // in the order the interview settled them; freshness was answered last in this recording
@@ -29,7 +29,7 @@ describe("broker stream → canvas", () => {
     expect(v.reviewWindow).toBe("10 minutes");
     expect(v.nodes.review.step.detail).toBe("10-minute review window");
     expect(v.nodes.captured.status).toBe("done");
-    expect(v.coin).toEqual({ text: `$${S.price} captured · mock`, done: true });
+    expect(v.coin).toEqual({ text: `$${S.price} captured`, done: true });
     expect(v.nodes.captured.entries?.[0]).toMatchObject({ amount: S.price });
   });
 
