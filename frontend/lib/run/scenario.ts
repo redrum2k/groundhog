@@ -1,4 +1,4 @@
-// The demo scenario: DataPact builds a custom audience dataset for Summit Fitness's buying agent.
+// The demo scenario: Groundhog builds a custom audience dataset for Summit Fitness's buying agent.
 // Every name, amount and line of text on the canvas comes from this file. Synthetic data;
 // prices are sample values for the team to confirm.
 import type { SourceLine,
@@ -32,7 +32,7 @@ export function holdFor(e: { type: RunEvent["type"]; lines?: SourceLine[] }): nu
 }
 
 export const S = {
-  us: "DataPact",
+  us: "Groundhog",
   agent: "Order agent",
   buyer: "Summit Fitness",
   buyerAgent: "Summit's buying agent",
@@ -217,9 +217,9 @@ const cite = (...ids: string[]): Message["attach"] => ids.map((evidenceId) => ({
 
 /** The three things the agent reads at the source during any dispute. */
 const SRC = (checked: boolean): Draft => ({ type: "source_checked", step: "investigate", lines: [
-  { id: "src-pin", text: "LOOKUP vendor panel v1 · pinned at acceptance", checked },
-  { id: "src-lines", text: "CHECK every contract line · against the source", checked },
-  { id: "src-counts", text: "COMPARE delivered counts · with the source", checked },
+  { id: "src-pin", text: "Vendor panel v1 · as pinned at acceptance", checked },
+  { id: "src-lines", text: "Every contract line · against the source", checked },
+  { id: "src-counts", text: "Delivered counts · against the source rows", checked },
 ] });
 export const RED: Draft[] = [
   ...openDispute("red", [

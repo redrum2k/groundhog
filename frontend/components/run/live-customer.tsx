@@ -14,7 +14,7 @@ export default function LiveCustomer({order,pay,working,customer,admin}:{order:L
       <div className="cust-col" ref={col}>
         <div className="cust-h"><div className="cust-who"><span className="avatar" aria-hidden><IcSummit size={19}/></span><div className="title">{S.buyer}</div></div><div className="cust-money"><OrbSlot name="home"/><PaymentStatus order={order}/></div></div>
         {!order.live.id && <div className="live-welcome"><h1>What should we find for you?</h1><p>Describe the people, place and counts you need. We’ll clarify the requirements, agree on a price, then produce and check the dataset.</p></div>}
-        {order.messages.length>0 && <Transcript title="Your conversation with DataPact" count={order.messages.length} open compact={!!quote || !!order.delivery}>
+        {order.messages.length>0 && <Transcript title="Your conversation with Groundhog" count={order.messages.length} open compact={!!quote || !!order.delivery}>
           <Chat items={order.messages} view={order.view} onCite={order.cite} guide/>
         </Transcript>}
         <LiveIntake order={order}/>

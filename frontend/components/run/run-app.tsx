@@ -9,7 +9,7 @@ import { IcLogo, IcPause, IcPlay, IcReplay, IcSummit } from "./icons";
 import Customer from "./customer";
 import Panel from "./panel";
 
-// DataPact's run screen. The canvas only ever sees the fold of events so far, so recorded
+// Groundhog's run screen. The canvas only ever sees the fold of events so far, so recorded
 // playback and the live poll are interchangeable feeds.
 
 type Mode = "recorded" | "live";

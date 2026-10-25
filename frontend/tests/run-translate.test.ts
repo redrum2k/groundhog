@@ -59,7 +59,7 @@ describe("broker stream → canvas", () => {
     expect(v.nodes.verdict.chip).toBe("We're right");
     // what the agent read at the source, ticked once the re-verification landed
     expect(v.nodes.investigate.source?.map((l) => l.checked)).toEqual([true, true, true]);
-    expect(v.nodes.investigate.source?.[0].text).toMatch(/^LOOKUP vendor panel v1/);
+    expect(v.nodes.investigate.source?.[0].text).toMatch(/^Vendor panel v1/);
     expect(v.nodes.review.attempt).toBe(2);
     expect(v.nodes.captured.status).toBe("done");
   });

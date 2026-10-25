@@ -43,7 +43,7 @@ export const IcCoin = ({ size = 12 }: { size?: number }) => (
     <rect x="6.4" y="4" width="3.2" height="8" rx="1.6" fill="#b8892a" />
   </svg>
 );
-/** The DataPact mark: the orb between two tiles. The ring and eyes are cut out, so it sits on any background. */
+/** The Groundhog mark: the orb between two tiles. The ring and eyes are cut out, so it sits on any background. */
 export const IcLogo = ({ size = 24, ...p }: { size?: number } & SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 36 24" width={size * 1.5} height={size} aria-hidden {...p}>
     <path fill="#111111" d="M2.5 0H12.5A2.5 2.5 0 0 1 15 2.5V4.05A8.5 8.5 0 0 0 15 19.95V21.5A2.5 2.5 0 0 1 12.5 24H2.5A2.5 2.5 0 0 1 0 21.5V2.5A2.5 2.5 0 0 1 2.5 0Z" />

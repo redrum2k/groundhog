@@ -215,7 +215,7 @@ export default function Canvas({ nodes, view, focus, panelOpen, onNode, overlay,
                 {showChip && <span key={ns + chip} className={`chip c-${ns}`}>{ns === "done" ? <IcCheck size={11} strokeWidth={2.4} /> : ns === "running" ? <i className="spin2" /> : <i className="sqd" />}<Label text={chip} quiet="tail" /></span>}
                 <span className="nd-t">{n.title}</span>
                 <span className="nd-d"><Label text={n.desc} quiet="tail" /></span>
-                {!quiet && cards.length > 0 && (here || cards.some((c) => c.tone === "rule")) && (
+                {!quiet && cards.length > 0 && (here || cards.some((c) => c.tone === "rule")) && n.id !== source?.node.id && (
                   <div className="ev-stack">{cards.filter((c) => here || c.tone === "rule").map((c, i) => <span key={c.id} className={`ev ev-${c.tone}`} style={{ transitionDelay: `${i * 90}ms` }}><Label text={c.text} /></span>)}</div>
                 )}
               </div>
