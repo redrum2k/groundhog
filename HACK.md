@@ -106,3 +106,22 @@ The Next bridge requires trusted loopback demo
 mode and distinct server-only worker/reviewer tokens. Hosted access requires a
 separate authentication/deployment design; no tenant isolation is claimed.
 See [workstream 06](docs/workstreams/06-data-broker.md) for implementation and evidence.
+
+## Historical competitive demo checkpoint — October 24, 13:22 Pacific
+
+This records the build at that time. The product and route descriptions above
+reflect the later integration and take precedence over this checkpoint.
+
+Build phase (approximately 19 hours 38 minutes until submission). Weakest criterion:
+visible end-to-end product coherence. The polished `/` canvas still uses retained
+broker policy and scripted intake answers; `/live` owns funded aggregate intake.
+Prioritize one demonstrated request-to-evidence-to-settlement journey, and qualify
+Jeff's unmerged intake/dispute branch before presenting its behavior as integrated.
+
+Honesty: synthetic sources, mock payments and scripted customer actions remain
+explicit. Recorded playback is rehearsal, not live inference. Fresh local checks
+passed 96 dataset tests with two known expected intake failures, 109 frontend tests,
+and four offline acceptance scenarios. The injected missing-ZIP fault is disclosed.
+Jeff's published real-Claude qualification is separate branch evidence, not proof
+of a combined browser demo or observed on-chain settlement. No new paid model calls,
+chain transactions or deployments were performed for this comparison.
